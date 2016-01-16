@@ -1,7 +1,5 @@
-#!/usr/bin/env ruby
-#
 # Copyright 2016 Noragh Analytics, Inc.
-#
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -10,28 +8,17 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
 # express or implied.
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
 
-require 'rubygems'
-require 'bundler/setup'
-
-require_relative '../lib/armagh/base/actions'
-
-arg = ARGV[0].strip
-
-if arg.nil? || arg.empty?
-  $stderr.puts "Usage: #{File.basename($PROGRAM_NAME)} <project_name>\n"
-  exit -1
-end
-
-if arg == '-v' || arg == '--version'
-  $stderr.puts "Version: #{Armagh::Base::Actions::VERSION}"
-  exit 0
-else
-  Armagh::Base::Actions.create_scaffolding(arg)
+module Armagh
+  module Base
+    module Actions
+      NAME = 'armagh-base-actions'
+    end
+  end
 end

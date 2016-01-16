@@ -33,6 +33,12 @@ module Armagh
       # define_parameter( 'port',     'Port',                  Integer, 'default' => 21, 'validation_callback' => 'port_is_valid?' )
       # define_parameter( 'passive',  'Use passive mode',      Boolean, 'default' => false )
 
+      # TODO (OPTIONAL) Define the default input and output document types.
+      # These can always be overridden in the admin ui.  This is useful for establishing workflow in code but generally isn't needed unless a feed is complex
+      #
+      # define_default_input_doctype  'InputDocument'
+      # define_default_output_doctype 'OutputDocument'
+
       # TODO If necessary, define a validation for the configuration as a whole. For the FTP example,
       # you might want to try to connect to the server using the parameters above.  You don't need
       # to validate each parameter individually here - the GUI already provides type-checking or
@@ -50,6 +56,8 @@ module Armagh
       # In this example, we create a new documents from each line of the input document.
       # If the line is empty, we specify an error.
       def execute(doc_content, doc_meta)
+
+        # @config['host']
 
         File.foreach(filename).with_index do |line, line_num|
           @logger.debug "Processing line #{line_num}"

@@ -24,10 +24,9 @@ end
 module Armagh
   class ParameterError < StandardError; end
   class ActionExecuteNotImplemented < StandardError; end
+  class DoctypeError < StandardError; end
 
   class Action
-    DEFINED_PARAMETERS = {}
-
     attr_reader :validation_errors
 
     def initialize(caller, logger, config)
@@ -61,11 +60,33 @@ module Armagh
 
       param_config = {'description' => description, 'type' => type, 'required' => options['required'] || false, 'default' => options['default'], 'validation_callback' => options['validation_callback'], 'prompt' => options['prompt']}
 
-      if DEFINED_PARAMETERS.has_key? name
+      if defined_parameters.has_key? name
         raise ParameterError.new "A parameter named '#{name}' already exists."
       else
-        DEFINED_PARAMETERS[name] = param_config
+        defined_parameters[name] = param_config
       end
+    end
+
+    def self.defined_parameters
+      @defined_parameters ||= {}
+    end
+
+    def self.define_default_input_doctype(input_doctype)
+      raise DoctypeError.new 'Default Input Doctype already defined' if @default_input_doctype
+      @default_input_doctype = input_doctype.freeze
+    end
+
+    def self.define_default_output_doctype(output_doctype)
+      raise DoctypeError.new 'Default Output Doctype already defined' if @default_output_doctype
+      @default_output_doctype = output_doctype.freeze
+    end
+
+    def self.default_input_doctype
+      @default_input_doctype
+    end
+
+    def self.default_output_doctype
+      @default_output_doctype
     end
 
     def execute(doc_content, doc_meta)
@@ -77,7 +98,7 @@ module Armagh
       @validation_errors ||= {}
       @validation_errors.clear
 
-      DEFINED_PARAMETERS.select{|_k,v| v['required']}.keys.each do |param|
+      self.class.defined_parameters.select{|_k,v| v['required']}.keys.each do |param|
         unless @config.has_key?(param)
           valid = false
           @validation_errors[param] = 'Required parameter is missing.'
@@ -86,14 +107,14 @@ module Armagh
       end
 
       @config.each do |param, value|
-        expected_type = DEFINED_PARAMETERS[param]['type']
+        expected_type = self.class.defined_parameters[param]['type']
         unless value.is_a?(expected_type) || (expected_type == Boolean &&(value.is_a?(TrueClass) || value.is_a?(FalseClass)))
           valid = false
           @validation_errors[param] = "Invalid type.  Expected #{expected_type} but was #{value.class}."
           next
         end
 
-        callback = DEFINED_PARAMETERS[param]['validation_callback']
+        callback = self.class.defined_parameters[param]['validation_callback']
         if callback
           response = self.send(callback, value)
           unless response.nil?
@@ -128,10 +149,6 @@ module Armagh
 
     def insert_or_update_document(id, content, meta)
       @caller.insert_or_update_document(id, content, meta)
-    end
-
-    def self.defined_parameters
-      DEFINED_PARAMETERS
     end
   end
 end

@@ -34,8 +34,8 @@ class TestAction < Test::Unit::TestCase
   end
 
   def teardown
-    Armagh::AliceAction::DEFINED_PARAMETERS.clear
-    Armagh::FredAction::DEFINED_PARAMETERS.clear
+    Armagh::AliceAction.defined_parameters.clear
+    Armagh::FredAction.defined_parameters.clear
   end
 
   def test_param_definitions
@@ -179,10 +179,41 @@ class TestAction < Test::Unit::TestCase
 
   def test_param_multiple_defines
     err = assert_raises(Armagh::ParameterError) do
-      load File.join(__dir__, 'eddy_action.rb')
+			Armagh::FredAction.class_eval( "define_parameter( 'no', 'Bad', String)")
+			Armagh::FredAction.class_eval( "define_parameter( 'no', 'Bad', String)")
     end
     assert_equal("A parameter named 'no' already exists.", err.message )
-  end
+	end
+
+	def test_default_input_doctype
+		assert_nil Armagh::FredAction.default_input_doctype
+		doctype = 'InputDocType'
+		Armagh::FredAction.class_eval( "define_default_input_doctype('#{doctype}')")
+		assert_equal(doctype, Armagh::FredAction.default_input_doctype)
+	end
+
+	def test_multiple_default_input_doctype
+		err = assert_raises(Armagh::DoctypeError) do
+			Armagh::FredAction.class_eval( "define_default_input_doctype('Doctype')")
+			Armagh::FredAction.class_eval( "define_default_input_doctype('Doctype')")
+		end
+		assert_equal('Default Input Doctype already defined', err.message )
+	end
+
+	def test_default_output_doctype
+		assert_nil Armagh::FredAction.default_output_doctype
+		doctype = 'OutputDocType'
+		Armagh::FredAction.class_eval( "define_default_output_doctype('#{doctype}')")
+		assert_equal(doctype, Armagh::FredAction.default_output_doctype)
+	end
+
+	def test_multiple_default_output_doctype
+		err = assert_raises(Armagh::DoctypeError) do
+			Armagh::FredAction.class_eval( "define_default_output_doctype('Doctype')")
+			Armagh::FredAction.class_eval( "define_default_output_doctype('Doctype')")
+		end
+		assert_equal('Default Output Doctype already defined', err.message )
+	end
 
   def test_no_implemented_execute
     a = Armagh::AliceAction.new(@caller,  @logger, base_params )
