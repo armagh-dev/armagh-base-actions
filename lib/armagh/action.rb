@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+require_relative 'doc_state'
+
 class Boolean
   def self.bool?(val)
     val == true || val == false
@@ -89,7 +91,7 @@ module Armagh
       @default_output_doctype
     end
 
-    def execute(doc_content, doc_meta)
+    def execute(action_doc)
       raise ActionExecuteNotImplemented.new "The execute method needs to be overwritten by #{self.class}"
     end
 
@@ -139,16 +141,35 @@ module Armagh
       nil
     end
 
-    def insert_document(id = nil, content, meta)
-      @caller.insert_document(id, content, meta)
+    # Insert a document
+    def insert_document(id: nil, content:, meta:, state: DocState::PUBLISHED)
+      @caller.insert_document(id, content, meta, state)
     end
 
-    def update_document(id, content, meta)
-      @caller.update_document(id, content, meta)
+    # Update a prexisting document
+    def update_document(id:, content:, meta:, state: DocState::PUBLISHED)
+      @caller.update_document(id, content, meta, state)
     end
 
-    def insert_or_update_document(id, content, meta)
-      @caller.insert_or_update_document(id, content, meta)
+    # Update a preexisting document if it exists.  If not, create a new one.
+    def insert_or_update_document(id:, content:, meta:, state: DocState::PUBLISHED)
+      @caller.insert_or_update_document(id, content, meta, state)
+    end
+
+    # Lock and enable modification of a document.  If the document exists but is locked, this will block until unlocked.
+    # If no document exists, does not yield.  Returns true if a document was available for modification.  False otherwise
+    def modify(id)
+      @caller.modify(id) do |doc|
+        yield doc
+      end
+    end
+
+    # Lock and enable modification of a document.  If the document exists but is locked or no document exists, does not yield.
+    # Returns true if a document was available for modification.  False otherwise
+    def modify!(id)
+      @caller.modify!(id) do |doc|
+        yield doc
+      end
     end
   end
 end

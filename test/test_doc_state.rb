@@ -15,16 +15,27 @@
 # limitations under the License.
 #
 
-require_relative '../lib/armagh/action'
+require_relative 'coverage_helper'
 
-module Armagh
-	class FredAction < Armagh::Action
+require 'test/unit'
 
-		def execute(doc)
-			return true
-		end
+require_relative '../lib/armagh/doc_state'
 
-		def validate
-		end
-	end
+class TestDocState < Test::Unit::TestCase
+
+	def setup
+
+  end
+
+  def test_valid_state
+    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::PENDING))
+    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::PUBLISHED))
+    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::CLOSED))
+  end
+
+  def test_invalid_state
+    assert_false(Armagh::DocState.valid_state?(123))
+    assert_false(Armagh::DocState.valid_state?('invalid state'))
+  end
+
 end

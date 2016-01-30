@@ -32,10 +32,6 @@ module Armagh
 		end
 		
 		def validate
-			#unless Date.today.between?(@config['birthday'].next_year(@config['age']), @config['birthday'].next_year(@config['age']).next_day)
-			#	return "Age and birthday don't agree"
-			#end
-
 			unless Date.today.between?(@config['birthday'] >> (@config['age']*12), @config['birthday'] >> (@config['age']*12) + 1)
 			  return "Age and birthday don't agree"
 			end

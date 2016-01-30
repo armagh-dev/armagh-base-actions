@@ -47,29 +47,57 @@ module Armagh
       # This method should return an error string or nil
       #
       # See the Armagh Development Guide for more information.
-      def validate
-        # connection = my_bogus_ftp_connection
-        # connection.error ? connection.error_message : nil
-      end
+
+      # def validate
+      #    connection = my_bogus_ftp_connection
+      #    connection.error ? connection.error_message : nil
+      # end
 
       # TODO Implement the logic for the action
       # In this example, we create a new documents from each line of the input document.
       # If the line is empty, we specify an error.
-      def execute(doc_content, doc_meta)
 
-        # @config['host']
+      # def execute(doc)
+      #
+      #   # @config['host']
+      #
+      #   doc.content.strip.each_line.with_index do |line, line_num|
+      #     @logger.debug "Processing line #{line_num}"
+      #
+      #     if line.empty?
+      #       error "Line #{line_num} of #{doc.meta['id']} is empty"
+      #     else
+      #       line_meta = {'line_num' => line_num}
+      #       insert_document(content: line, meta: line_meta)
+      #     end
+      #   end
+      # end
 
-        File.foreach(filename).with_index do |line, line_num|
-          @logger.debug "Processing line #{line_num}"
-
-          if line.empty?
-            error "Line #{line_num} of #{doc_meta['id']} is empty"
-          else
-            line_meta = {'line_num' => line_num}
-            insert_document(line, line_meta)
-          end
-        end
-      end
+      # In this example, we are appending details to an existing document and setting the state to published.  If the doc doesn't exist, we create it
+      # def execute(doc)
+      #   id = doc.meta['reference_id']
+      #   timestamp = doc.meta['timestamp']
+      #
+      #   if doc.meta['last_in_series']
+      #     state = DocState::PUBLISHED
+      #   else
+      #     state = DocState::PENDING
+      #   end
+      #
+      #   doc_modified = modify(id) do |existing_doc|
+      #     existing_doc.meta['history'] ||= {}
+      #     existing_doc.meta['history'][timestamp] = doc.content
+      #     existing_doc.content << "\nUpdated at #{timestamp}"
+      #   end
+      #
+      #   unless doc_modified
+      #     meta = {}
+      #     meta['history'] = {}
+      #     meta['history'][timestamp] = doc.content
+      #     content = "Created at #{timestamp}"
+      #     insert_document(id: id, content: content, meta: meta, state: state)
+      #   end
+      # end
     end
   end
 end
