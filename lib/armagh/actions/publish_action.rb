@@ -15,15 +15,17 @@
 # limitations under the License.
 #
 
-require 'noragh/gem/tasks'
-require 'rake/testtask'
+require_relative 'action'
 
-# TODO This is commented out because the tests are broken but we need to be able to cut a gem in Jenkins in the mean time.
-#task :default => :test
-task :default => []
+module Armagh
+  class PublishAction < Action
+    # Triggered by DocType:ready
+    # Content within doc is committed to a finalized state of the document
+    # Can create/edit additional documents of any type or state
 
-Rake::TestTask.new
-
-task :clean do
-  rm_rf Dir.glob(%w(coverage test/**/coverage))
+    # Doc is an ActionDocument
+    def publish(doc)
+      raise ActionErrors::ActionMethodNotImplemented, 'PublishActions must overwrite the publish method.'
+    end
+  end
 end

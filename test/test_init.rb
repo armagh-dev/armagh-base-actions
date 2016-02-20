@@ -39,7 +39,7 @@ class TestInit < Test::Unit::TestCase
 
     FileUtils.mkdir_p @base_dir
     Dir.chdir @base_dir
-    test_dir = File.join(@base_dir, "#{project_name}-client_actions")
+    test_dir = File.join(@base_dir, "#{project_name}-custom_actions")
 
     Armagh::Base::Actions::Init.create_scaffolding(project_name)
 

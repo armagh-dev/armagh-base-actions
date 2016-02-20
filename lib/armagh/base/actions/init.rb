@@ -32,7 +32,7 @@ module Armagh
         GENERATOR_SIGNATURE_FLAG = '[GENERATOR_SIGNATURE]'
 
         def self.create_scaffolding(name)
-          filename = create_filename(name) << '-client_actions'
+          filename = create_filename(name) << '-custom_actions'
           FileUtils.mkdir_p filename
           create_scaffold_files(name, filename)
         end

@@ -1,0 +1,1 @@
+Dir[File.join(__dir__, 'documents', '*.rb')].each { |file| require file }

@@ -15,9 +15,29 @@
 # limitations under the License.
 #
 
-module Armagh
-  module ClientActions
-    NAME = '[NAME]'
-    VERSION = '0.0.1'
+require 'test/unit'
+require 'mocha/test_unit'
+
+# DO NOT MODIFY THIS FILE
+
+require_relative '../lib/armagh/custom_actions'
+
+class TestCustomActions < Test::Unit::TestCase
+  def setup
+  end
+
+  def teardown
+  end
+
+  def test_name
+    assert_not_empty(Armagh::CustomActions::NAME, 'No NAME defined for CustomActions')
+  end
+
+  def test_version
+    assert_not_empty(Armagh::CustomActions::VERSION, 'No VERSION defined for CustomActions')
+  end
+
+  def test_defined_actions
+    assert_not_empty(Armagh::CustomActions.defined_actions, 'No available CustomActions were discovered')
   end
 end

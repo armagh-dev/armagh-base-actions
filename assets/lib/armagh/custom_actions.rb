@@ -15,10 +15,22 @@
 # limitations under the License.
 #
 
+## THIS FILE WAS AUTOMATICALLY GENERATED AND SHOULD NOT BE MODIFIED
+
+require 'armagh/actions'
+
+exitDir[File.join(__dir__, 'custom_actions', '*.rb')].each { |file| require file }
+
 module Armagh
-  module Base
-    module Actions
-      VERSION = '0.0.8-dev'
+  module CustomActions
+    def self.defined_actions
+      actions = []
+      constants.each do |name|
+        class_name = "Armagh::CustomActions::#{name.to_s}"
+        const_obj = const_get(class_name)
+        actions << class_name if const_obj.is_a?(Class) && const_obj < Action
+      end
+      actions
     end
   end
 end

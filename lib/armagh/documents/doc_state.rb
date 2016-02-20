@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+#
 # Copyright 2016 Noragh Analytics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +17,14 @@
 # limitations under the License.
 #
 
-require 'noragh/gem/tasks'
-require 'rake/testtask'
+module Armagh
+  module DocState
+    WORKING   = 'working'
+    READY     = 'ready'
+    PUBLISHED = 'published'
 
-# TODO This is commented out because the tests are broken but we need to be able to cut a gem in Jenkins in the mean time.
-#task :default => :test
-task :default => []
-
-Rake::TestTask.new
-
-task :clean do
-  rm_rf Dir.glob(%w(coverage test/**/coverage))
+    def self.valid_state?(state)
+      DocState::constants.collect{|c| DocState.const_get(c)}.include?(state)
+    end
+  end
 end

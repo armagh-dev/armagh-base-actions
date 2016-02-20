@@ -15,15 +15,26 @@
 # limitations under the License.
 #
 
-require 'noragh/gem/tasks'
-require 'rake/testtask'
+module Armagh
+  class ActionDocument
+    attr_reader :id, :draft_content, :meta
+    attr_accessor :doctype
 
-# TODO This is commented out because the tests are broken but we need to be able to cut a gem in Jenkins in the mean time.
-#task :default => :test
-task :default => []
+    def initialize(id, draft_content, published_content, meta, doctype, new_doc = false)
+      @id = id.freeze
+      @draft_content = draft_content
+      @published_content = published_content.dup
+      @meta = meta
+      @doctype = doctype
+      @new_doc = new_doc
+    end
 
-Rake::TestTask.new
+    def published_content
+      @published_content
+    end
 
-task :clean do
-  rm_rf Dir.glob(%w(coverage test/**/coverage))
+    def new_document?
+      @new_doc
+    end
+  end
 end

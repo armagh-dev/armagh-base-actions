@@ -15,29 +15,33 @@
 # limitations under the License.
 #
 
-require 'test/unit'
-require 'mocha/test_unit'
+require_relative 'doc_state'
 
-# DO NOT MODIFY THIS FILE
+module Armagh
+  class DocTypeState
+    attr_reader :type, :state
 
-require_relative '../lib/armagh/client_actions'
+    def initialize(type, state)
+      raise InvalidStateError "Unknown state #{state}.  Valid states are #{Armagh::DocState::constants.collect{|c| c.to_s}}" unless DocState.valid_state?(state)
 
-class TestClientActions < Test::Unit::TestCase
-  def setup
-  end
+      @type = type.freeze
+      @state = state
+    end
 
-  def teardown
-  end
+    def ==(other)
+      @type == other.type && @state == other.state
+    end
 
-  def test_name
-    assert_not_empty(Armagh::ClientActions::NAME, 'No NAME defined for ClientActions')
-  end
+    def eql?(other)
+      self == other
+    end
 
-  def test_version
-    assert_not_empty(Armagh::ClientActions::VERSION, 'No VERSION defined for ClientActions')
-  end
+    def hash
+      to_s.hash
+    end
 
-  def test_available_actions
-    assert_not_empty(Armagh::ClientActions.available_actions, 'No Available Actions were discovered')
+    def to_s
+      "#{type}:#{state}"
+    end
   end
 end

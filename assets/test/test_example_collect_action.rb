@@ -18,9 +18,11 @@
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../lib/armagh/client_actions/example_action'
+require_relative '../lib/armagh/custom_actions/example_collect_action'
 
 class ExampleActionTest < Test::Unit::TestCase
+
+  # TODO this will need to be revamped
 
   # Called before every test method runs. Can be used
   # to set up fixture information.
@@ -28,7 +30,7 @@ class ExampleActionTest < Test::Unit::TestCase
     @caller = mock
     @logger = mock
     config = {}
-    @example_action = Armagh::ClientActions::ExampleAction.new(@caller, @logger, config)
+    #@example_action = Armagh::CustomActions::ExampleCollectAction.new(@caller, @logger, config, parameters, input_doctypes, output_doctypes)
   end
 
   # Called after every test method runs. Can be used to tear

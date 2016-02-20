@@ -17,14 +17,14 @@
 # limitations under the License.
 #
 
-require_relative 'lib/armagh/client_actions/constants'
+require_relative 'lib/armagh/custom_actions/constants'
 
 Gem::Specification.new do |spec|
   spec.name          = '[FILE_NAME]'
-  spec.version       = Armagh::ClientActions::VERSION
+  spec.version       = Armagh::CustomActions::VERSION
   spec.authors       = ['unknown']
   spec.email         = []
-  spec.summary       = "Client actions for #{Armagh::ClientActions::NAME}"
+  spec.summary       = "Armagh custom actions - #{Armagh::CustomActions::NAME}"
   spec.description   = ''
   spec.homepage      = ''
   spec.license       = ''

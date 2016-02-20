@@ -44,5 +44,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov-rcov', '~> 0.2'
   spec.add_development_dependency 'fakefs', '~> 0.6'
 
-  # Don't add runtime dependencies.  This gem is provided to the client for development of their own actions.  Dependencies complicate the delivery process.
+  # Don't add runtime dependencies.  This gem is provided to the for development of custom actions.  Dependencies complicate the delivery process.
 end

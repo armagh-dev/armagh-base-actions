@@ -15,15 +15,9 @@
 # limitations under the License.
 #
 
-require 'noragh/gem/tasks'
-require 'rake/testtask'
-
-# TODO This is commented out because the tests are broken but we need to be able to cut a gem in Jenkins in the mean time.
-#task :default => :test
-task :default => []
-
-Rake::TestTask.new
-
-task :clean do
-  rm_rf Dir.glob(%w(coverage test/**/coverage))
+module Armagh
+  module CustomActions
+    NAME = '[NAME]'
+    VERSION = '0.0.1'
+  end
 end
