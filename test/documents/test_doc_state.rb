@@ -15,11 +15,11 @@
 # limitations under the License.
 #
 
-require_relative 'coverage_helper'
+require_relative '../coverage_helper'
 
 require 'test/unit'
 
-require_relative '../lib/armagh/doc_state'
+require_relative '../../lib/armagh/documents/doc_state'
 
 class TestDocState < Test::Unit::TestCase
 
@@ -28,9 +28,9 @@ class TestDocState < Test::Unit::TestCase
   end
 
   def test_valid_state
-    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::PENDING))
+    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::WORKING))
+    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::READY))
     assert_true(Armagh::DocState.valid_state?(Armagh::DocState::PUBLISHED))
-    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::CLOSED))
   end
 
   def test_invalid_state

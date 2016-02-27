@@ -30,7 +30,6 @@ arg = arg.strip
 
 if arg == '-v' || arg == '--version'
   $stderr.puts "Version: #{Armagh::Base::Actions::VERSION}"
-  exit 0
 else
   Armagh::Base::Actions::Init.create_scaffolding(arg)
 end

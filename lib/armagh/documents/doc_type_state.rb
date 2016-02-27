@@ -16,13 +16,14 @@
 #
 
 require_relative 'doc_state'
+require_relative '../action_errors'
 
 module Armagh
   class DocTypeState
     attr_reader :type, :state
 
     def initialize(type, state)
-      raise InvalidStateError "Unknown state #{state}.  Valid states are #{Armagh::DocState::constants.collect{|c| c.to_s}}" unless DocState.valid_state?(state)
+      raise ActionErrors::StateError.new "Unknown state #{state}.  Valid states are #{Armagh::DocState::constants.collect{|c| c.to_s}}" unless DocState.valid_state?(state)
 
       @type = type.freeze
       @state = state

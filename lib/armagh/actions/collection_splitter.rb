@@ -23,7 +23,7 @@ module Armagh
     #  for dividing up work or handling files that are too large to store in Mongo.
 
     def initialize(caller, logger, parameters, output_doctype)
-      super()
+      super(parameters)
       @caller = caller
       @logger = logger
       @parameters = parameters

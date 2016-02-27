@@ -18,11 +18,12 @@
 require 'noragh/gem/tasks'
 require 'rake/testtask'
 
-# TODO This is commented out because the tests are broken but we need to be able to cut a gem in Jenkins in the mean time.
-#task :default => :test
-task :default => []
+task :default => :test
 
-Rake::TestTask.new
+Rake::TestTask.new do |t|
+  t.libs << 'test'
+  t.pattern = 'test/**/test_*.rb'
+end
 
 task :clean do
   rm_rf Dir.glob(%w(coverage test/**/coverage))

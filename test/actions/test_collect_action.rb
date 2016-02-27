@@ -1,0 +1,121 @@
+# Copyright 2016 Noragh Analytics, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# express or implied.
+#
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+require_relative '../coverage_helper'
+
+require 'test/unit'
+require 'mocha/test_unit'
+require 'fakefs/safe'
+
+require_relative '../../lib/armagh/actions'
+
+class TestCollectAction < Test::Unit::TestCase
+
+  def setup
+    @logger = mock
+    @caller = mock
+    @input_doctype = Armagh::DocTypeState.new('InputDocument', Armagh::DocState::READY)
+    @output_doctype = Armagh::DocTypeState.new('OutputDocument', Armagh::DocState::READY)
+    @content = 'collected content'
+    @collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'input_type' => @input_doctype}, {'output_type'=> @output_doctype})
+
+  end
+
+  def test_unimplemented_collect
+    assert_raise(Armagh::ActionErrors::ActionMethodNotImplemented) {@collect_action.collect}
+  end
+
+  def test_create_no_splitter
+    @caller.expects(:get_splitter).returns(nil)
+    @caller.expects(:create_document)
+    @collect_action.create('123', @content, {'meta'=>true}, 'output_type')
+  end
+
+  def test_create_with_splitter_content
+    FakeFS do
+      splitter = mock
+      @caller.expects(:get_splitter).returns(splitter)
+
+      splitter.expects(:split).with() do |collected_doc|
+        assert_true collected_doc.is_a?(Armagh::CollectedDocument)
+        assert_true File.file? collected_doc.collected_file
+        assert_equal @content, File.read(collected_doc.collected_file)
+        true
+      end
+
+      @collect_action.create('123', @content, {'meta'=>true}, 'output_type')
+    end
+  end
+
+  def test_create_with_splitter_file
+    FakeFS do
+      splitter = mock
+      @caller.expects(:get_splitter).returns(splitter)
+      collected_file = 'filename'
+      File.write(collected_file, @content)
+
+      splitter.expects(:split).with() do |collected_doc|
+        valid = true
+        valid &&= collected_doc.is_a?(Armagh::CollectedDocument)
+        valid &&= File.file? collected_doc.collected_file
+        valid &&= (File.read(collected_doc.collected_file) == @content)
+        valid
+      end
+
+      @collect_action.create('123', collected_file, {'meta'=>true}, 'output_type')
+    end
+  end
+
+  def test_create_undefined_type
+    assert_raise(Armagh::ActionErrors::DoctypeError) do
+      @collect_action.create('123', {}, {}, 'bad_type') {|doc|}
+    end
+  end
+
+  def test_valid
+    assert_true @collect_action.valid?
+    assert_empty @collect_action.validation_errors
+  end
+
+  def test_valid_invalid_in_state
+    input_doctype = Armagh::DocTypeState.new('InputDocument', Armagh::DocState::PUBLISHED)
+    collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'input_type' => input_doctype}, {'output_type'=> @output_doctype})
+    assert_false collect_action.valid?
+    assert_equal({'input_type' => 'Input document state for a CollectAction must be ready or working.'}, collect_action.validation_errors['input_doctypes'])
+  end
+
+  def test_valid_invalid_out_state
+    output_doctype = Armagh::DocTypeState.new('OutputDoctype', Armagh::DocState::PUBLISHED)
+    collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'input_type' => @input_doctype}, {'output_type'=> output_doctype})
+    assert_false collect_action.valid?
+    assert_equal({'output_type' => 'Output document state for a CollectAction must be ready or working.'}, collect_action.validation_errors['output_doctypes'])
+  end
+
+  def test_inheritence
+    assert_true Armagh::CollectAction.respond_to? :define_parameter
+    assert_true Armagh::CollectAction.respond_to? :defined_parameters
+
+    assert_true Armagh::CollectAction.respond_to? :define_input_doctype
+    assert_true Armagh::CollectAction.respond_to? :defined_input_doctypes
+    assert_true Armagh::CollectAction.respond_to? :define_output_doctype
+    assert_true Armagh::CollectAction.respond_to? :defined_output_doctypes
+
+    assert_true @collect_action.respond_to? :valid?
+    assert_true @collect_action.respond_to? :validate
+  end
+end

@@ -15,19 +15,19 @@
 # limitations under the License.
 #
 
-require_relative 'coverage_helper'
+require_relative '../coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
 require 'fileutils'
 
-require_relative '../lib/armagh/base/actions/init'
+require_relative '../../lib/armagh/base/actions/init'
 
 class TestInit < Test::Unit::TestCase
 
   def setup
     @base_dir = '/tmp/test_actions'
-    @asset_dir = File.join(__dir__, '..', 'assets')
+    @asset_dir = File.join(__dir__, '..', '..', 'assets')
   end
 
   def teardown

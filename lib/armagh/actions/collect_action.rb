@@ -51,5 +51,27 @@ module Armagh
         @caller.create_document(action_doc)
       end
     end
+
+    def valid?
+      valid = true
+      valid &&= super
+
+      @input_doctypes.each do |name, doctype|
+        unless [DocState::READY, DocState::WORKING].include?(doctype.state)
+          valid = false
+          @validation_errors['input_doctypes'] ||= {}
+          @validation_errors['input_doctypes'][name] = "Input document state for a CollectAction must be #{DocState::READY} or #{DocState::WORKING}."
+        end
+      end
+
+      @output_doctypes.each do |name, doctype|
+        unless [DocState::READY, DocState::WORKING].include?(doctype.state)
+          valid = false
+          @validation_errors['output_doctypes'] ||= {}
+          @validation_errors['output_doctypes'][name] = "Output document state for a CollectAction must be #{DocState::READY} or #{DocState::WORKING}."
+        end
+      end
+      valid
+    end
   end
 end
