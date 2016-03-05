@@ -28,23 +28,23 @@ class TestPublishActon < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    @input_doctype = Armagh::DocTypeState.new('PublishDocument', Armagh::DocState::READY)
-    @output_doctype = Armagh::DocTypeState.new('PublishDocument', Armagh::DocState::PUBLISHED)
+    @input_docspec = Armagh::DocSpec.new('PublishDocument', Armagh::DocState::READY)
+    @output_docspec = Armagh::DocSpec.new('PublishDocument', Armagh::DocState::PUBLISHED)
 
-    @publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => @input_doctype}, {'output_type'=> @output_doctype})
+    @publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => @input_docspec}, {'output_type'=> @output_docspec})
   end
 
   def test_unimplemented_publish
     assert_raise(Armagh::ActionErrors::ActionMethodNotImplemented) {@publish_action.publish(nil)}
   end
 
-  def test_no_define_input_doctype
-    e = assert_raise(Armagh::ActionErrors::DoctypeError){Armagh::PublishAction.define_input_doctype 'type'}
+  def test_no_define_input_docspec
+    e = assert_raise(Armagh::ActionErrors::DocSpecError){Armagh::PublishAction.define_input_docspec 'type'}
     assert_equal('Publish actions have no usable Input Doctypes.', e.message)
   end
 
-  def test_no_define_output_doctype
-    e = assert_raise(Armagh::ActionErrors::DoctypeError){Armagh::PublishAction.define_output_doctype 'type'}
+  def test_no_define_output_docspec
+    e = assert_raise(Armagh::ActionErrors::DocSpecError){Armagh::PublishAction.define_output_docspec 'type'}
     assert_equal('Publish actions have no usable Output Doctypes.', e.message)
   end
 
@@ -53,77 +53,77 @@ class TestPublishActon < Test::Unit::TestCase
     assert_empty @publish_action.validation_errors
   end
 
-  def test_valid_wrong_num_input_doctypes
-    input_doctypes = {
-        'type1' => @input_doctype,
-        'type2' => Armagh::DocTypeState.new('PublishDocument2', Armagh::DocState::READY)
+  def test_valid_wrong_num_input_docspecs
+    input_docspecs = {
+        'type1' => @input_docspec,
+        'type2' => Armagh::DocSpec.new('PublishDocument2', Armagh::DocState::READY)
     }
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, input_doctypes, {'output_type'=> @output_doctype})
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, input_docspecs, {'output_type'=> @output_docspec})
     assert_false publish_action.valid?
-    assert_equal({'_all' => 'PublishActions can only have one input doctype.'}, publish_action.validation_errors['input_doctypes'])
+    assert_equal({'_all' => 'PublishActions can only have one input docspec.'}, publish_action.validation_errors['input_docspecs'])
 
-    input_doctypes = {}
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, input_doctypes, {'output_type'=> @output_doctype})
+    input_docspecs = {}
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, input_docspecs, {'output_type'=> @output_docspec})
     assert_false publish_action.valid?
-    assert_equal({'_all' => 'PublishActions can only have one input doctype.'}, publish_action.validation_errors['input_doctypes'])
+    assert_equal({'_all' => 'PublishActions can only have one input docspec.'}, publish_action.validation_errors['input_docspecs'])
   end
 
-  def test_valid_wrong_num_output_doctypes
-    output_doctypes = {
-        'type1' => @output_doctype,
-        'type2' => Armagh::DocTypeState.new('PublishDocument2', Armagh::DocState::PUBLISHED)
+  def test_valid_wrong_num_output_docspecs
+    output_docspecs = {
+        'type1' => @output_docspec,
+        'type2' => Armagh::DocSpec.new('PublishDocument2', Armagh::DocState::PUBLISHED)
     }
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type'=> @input_doctype}, output_doctypes)
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type'=> @input_docspec}, output_docspecs)
     assert_false publish_action.valid?
-    assert_equal({'_all' => 'PublishActions can only have one output doctype.'}, publish_action.validation_errors['output_doctypes'])
+    assert_equal({'_all' => 'PublishActions can only have one output docspec.'}, publish_action.validation_errors['output_docspecs'])
 
-    output_doctypes = {}
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type'=> @input_doctype}, output_doctypes)
+    output_docspecs = {}
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type'=> @input_docspec}, output_docspecs)
     assert_false publish_action.valid?
-    assert_equal({'_all' => 'PublishActions can only have one output doctype.'}, publish_action.validation_errors['output_doctypes'])
+    assert_equal({'_all' => 'PublishActions can only have one output docspec.'}, publish_action.validation_errors['output_docspecs'])
   end
 
   def test_valid_different_doc_types
-    input_doctype = Armagh::DocTypeState.new('PublishDocumentIn', Armagh::DocState::READY)
-    output_doctype = Armagh::DocTypeState.new('PublishDocumentOut', Armagh::DocState::PUBLISHED)
+    input_docspec = Armagh::DocSpec.new('PublishDocumentIn', Armagh::DocState::READY)
+    output_docspec = Armagh::DocSpec.new('PublishDocumentOut', Armagh::DocState::PUBLISHED)
 
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => input_doctype}, {'output_type'=> output_doctype})
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => input_docspec}, {'output_type'=> output_docspec})
     assert_false publish_action.valid?
-    assert_equal(['PublishActions must use the same doctype for input and output.'], publish_action.validation_errors['all_doctypes'])
+    assert_equal(['PublishActions must use the same docspec for input and output.'], publish_action.validation_errors['all_docspecs'])
   end
 
   def test_valid_invalid_in_state
-    input_doctype = Armagh::DocTypeState.new('PublishDocument', Armagh::DocState::WORKING)
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => input_doctype}, {'output_type'=> @output_doctype})
+    input_docspec = Armagh::DocSpec.new('PublishDocument', Armagh::DocState::WORKING)
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => input_docspec}, {'output_type'=> @output_docspec})
     assert_false publish_action.valid?
-    assert_equal({'input_type' => 'Input document state for a PublishAction must be ready.'}, publish_action.validation_errors['input_doctypes'])
+    assert_equal({'input_type' => 'Input document state for a PublishAction must be ready.'}, publish_action.validation_errors['input_docspecs'])
 
-    input_doctype = Armagh::DocTypeState.new('PublishDocument', Armagh::DocState::PUBLISHED)
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => input_doctype}, {'output_type'=> @output_doctype})
+    input_docspec = Armagh::DocSpec.new('PublishDocument', Armagh::DocState::PUBLISHED)
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => input_docspec}, {'output_type'=> @output_docspec})
     assert_false publish_action.valid?
-    assert_equal({'input_type' => 'Input document state for a PublishAction must be ready.'}, publish_action.validation_errors['input_doctypes'])
+    assert_equal({'input_type' => 'Input document state for a PublishAction must be ready.'}, publish_action.validation_errors['input_docspecs'])
   end
 
   def test_valid_invalid_out_state
-    output_doctype = Armagh::DocTypeState.new('PublishDocument', Armagh::DocState::WORKING)
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => @input_doctype}, {'output_type'=> output_doctype})
+    output_docspec = Armagh::DocSpec.new('PublishDocument', Armagh::DocState::WORKING)
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => @input_docspec}, {'output_type'=> output_docspec})
     assert_false publish_action.valid?
-    assert_equal({'output_type' => 'Output document state for a PublishAction must be published.'}, publish_action.validation_errors['output_doctypes'])
+    assert_equal({'output_type' => 'Output document state for a PublishAction must be published.'}, publish_action.validation_errors['output_docspecs'])
 
-    output_doctype = Armagh::DocTypeState.new('PublishDocument', Armagh::DocState::READY)
-    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => @input_doctype}, {'output_type'=> output_doctype})
+    output_docspec = Armagh::DocSpec.new('PublishDocument', Armagh::DocState::READY)
+    publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'input_type' => @input_docspec}, {'output_type'=> output_docspec})
     assert_false publish_action.valid?
-    assert_equal({'output_type' => 'Output document state for a PublishAction must be published.'}, publish_action.validation_errors['output_doctypes'])
+    assert_equal({'output_type' => 'Output document state for a PublishAction must be published.'}, publish_action.validation_errors['output_docspecs'])
   end
 
   def test_inheritence
     assert_true Armagh::PublishAction.respond_to? :define_parameter
     assert_true Armagh::PublishAction.respond_to? :defined_parameters
 
-    assert_true Armagh::PublishAction.respond_to? :define_input_doctype
-    assert_true Armagh::PublishAction.respond_to? :defined_input_doctypes
-    assert_true Armagh::PublishAction.respond_to? :define_output_doctype
-    assert_true Armagh::PublishAction.respond_to? :defined_output_doctypes
+    assert_true Armagh::PublishAction.respond_to? :define_input_docspec
+    assert_true Armagh::PublishAction.respond_to? :defined_input_docspecs
+    assert_true Armagh::PublishAction.respond_to? :define_output_docspec
+    assert_true Armagh::PublishAction.respond_to? :defined_output_docspecs
 
     assert_true @publish_action.respond_to? :valid?
     assert_true @publish_action.respond_to? :validate

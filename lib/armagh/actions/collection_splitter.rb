@@ -22,12 +22,14 @@ module Armagh
     # Splits a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
     #  for dividing up work or handling files that are too large to store in Mongo.
 
-    def initialize(caller, logger, parameters, output_doctype)
+    attr_reader :output_docspec
+
+    def initialize(caller, logger, parameters, output_docspec)
       super(parameters)
       @caller = caller
       @logger = logger
       @parameters = parameters
-      @output_doctype = output_doctype
+      @output_docspec = output_docspec
     end
 
     # Doc is a CollectedDocument
@@ -37,7 +39,7 @@ module Armagh
 
     # raises InvalidDoctypeError
     def create(id=nil, draft_content, meta)
-      action_doc = ActionDocument.new(id, draft_content, {}, meta, @output_doctype)
+      action_doc = ActionDocument.new(id, draft_content, {}, meta, @output_docspec)
       @caller.create_document(action_doc)
     end
   end

@@ -30,7 +30,7 @@ class ExampleActionTest < Test::Unit::TestCase
     @caller = mock
     @logger = mock
     config = {}
-    #@example_action = Armagh::CustomActions::ExampleCollectAction.new(@caller, @logger, config, parameters, input_doctypes, output_doctypes)
+    #@example_action = Armagh::CustomActions::ExampleCollectAction.new(@caller, @logger, config, parameters, input_docspecs, output_docspecs)
   end
 
   # Called after every test method runs. Can be used to tear

@@ -19,7 +19,7 @@
 
 require 'armagh/actions'
 
-exitDir[File.join(__dir__, 'custom_actions', '*.rb')].each { |file| require file }
+Dir[File.join(__dir__, 'custom_actions', '*.rb')].each { |file| require file }
 
 module Armagh
   module CustomActions

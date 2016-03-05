@@ -28,12 +28,12 @@ module Armagh
     end
 
     # Collected can either be a string or a filename
-    # raises ActionErrors::DoctypeError
-    def create(id = nil, collected, meta, doctype_name)
-      doctype = @output_doctypes[doctype_name]
-      raise ActionErrors::DoctypeError.new "Creating an unknown doctype #{doctype_name}.  Available doctypes are #{@output_doctypes.keys}" if doctype.nil?
+    # raises ActionErrors::DocSpecError
+    def create(id = nil, collected, meta, docspec_name)
+      docspec = @output_docspecs[docspec_name]
+      raise ActionErrors::DocSpecError.new "Creating an unknown docspec #{docspec_name}.  Available docspecs are #{@output_docspecs.keys}" if docspec.nil?
 
-      splitter = @caller.get_splitter(@name, doctype_name)
+      splitter = @caller.get_splitter(@name, docspec_name)
 
       if splitter
         if File.file? collected
@@ -43,11 +43,11 @@ module Armagh
           File.write(collected_file, collected)
         end
 
-        collected_doc = CollectedDocument.new(id, collected_file, meta, doctype)
+        collected_doc = CollectedDocument.new(id, collected_file, meta, docspec)
         splitter.split(collected_doc)
       else
         content = File.file?(collected) ? File.read(collected_file) : collected
-        action_doc = ActionDocument.new(id, content, {}, meta, doctype)
+        action_doc = ActionDocument.new(id, content, {}, meta, docspec)
         @caller.create_document(action_doc)
       end
     end
@@ -56,19 +56,19 @@ module Armagh
       valid = true
       valid &&= super
 
-      @input_doctypes.each do |name, doctype|
-        unless [DocState::READY, DocState::WORKING].include?(doctype.state)
+      @input_docspecs.each do |name, docspec|
+        unless [DocState::READY, DocState::WORKING].include?(docspec.state)
           valid = false
-          @validation_errors['input_doctypes'] ||= {}
-          @validation_errors['input_doctypes'][name] = "Input document state for a CollectAction must be #{DocState::READY} or #{DocState::WORKING}."
+          @validation_errors['input_docspecs'] ||= {}
+          @validation_errors['input_docspecs'][name] = "Input document state for a CollectAction must be #{DocState::READY} or #{DocState::WORKING}."
         end
       end
 
-      @output_doctypes.each do |name, doctype|
-        unless [DocState::READY, DocState::WORKING].include?(doctype.state)
+      @output_docspecs.each do |name, docspec|
+        unless [DocState::READY, DocState::WORKING].include?(docspec.state)
           valid = false
-          @validation_errors['output_doctypes'] ||= {}
-          @validation_errors['output_doctypes'][name] = "Output document state for a CollectAction must be #{DocState::READY} or #{DocState::WORKING}."
+          @validation_errors['output_docspecs'] ||= {}
+          @validation_errors['output_docspecs'][name] = "Output document state for a CollectAction must be #{DocState::READY} or #{DocState::WORKING}."
         end
       end
       valid

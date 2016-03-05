@@ -28,8 +28,8 @@ class TestCollectionSplitter < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    @output_doctype = mock
-    @collection_splitter = Armagh::CollectionSplitter.new(@caller, @logger, {}, @output_doctype)
+    @output_docspec = mock
+    @collection_splitter = Armagh::CollectionSplitter.new(@caller, @logger, {}, @output_docspec)
   end
 
   def test_unimplemented_split

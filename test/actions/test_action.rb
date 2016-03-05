@@ -31,64 +31,64 @@ class TestAction < Test::Unit::TestCase
   end
 
   def teardown
-    Armagh::Action.defined_input_doctypes.clear
-    Armagh::Action.defined_output_doctypes.clear
+    Armagh::Action.defined_input_docspecs.clear
+    Armagh::Action.defined_output_docspecs.clear
   end
 
-  def test_define_input_doctype
-    Armagh::Action.define_input_doctype('test_type1')
-    Armagh::Action.define_input_doctype('test_type2', default_state: Armagh::DocState::READY, default_type: 'type')
+  def test_define_input_docspec
+    Armagh::Action.define_input_docspec('test_type1')
+    Armagh::Action.define_input_docspec('test_type2', default_state: Armagh::DocState::READY, default_type: 'type')
     expected = {
         'test_type1' => {'default_state' => nil, 'default_type' => nil},
         'test_type2' => {'default_state' => 'ready', 'default_type' => 'type'},
     }
-    assert_equal(expected, Armagh::Action.defined_input_doctypes)
+    assert_equal(expected, Armagh::Action.defined_input_docspecs)
   end
 
-  def test_define_input_doctype_bad_name
-    e = assert_raise(Armagh::ActionErrors::DoctypeError) {Armagh::Action.define_input_doctype(nil)}
-    assert_equal 'Input Doctype name must be a String.', e.message
-    assert_empty Armagh::Action.defined_input_doctypes
+  def test_define_input_docspec_bad_name
+    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_input_docspec(nil)}
+    assert_equal 'Input DocSpec name must be a String.', e.message
+    assert_empty Armagh::Action.defined_input_docspecs
   end
 
-  def test_define_input_doctype_bad_default_state
-    e = assert_raise(Armagh::ActionErrors::DoctypeError) {Armagh::Action.define_input_doctype('name', default_state: 'invalid')}
-    assert_equal "Input Doctype name's default_state is invalid.", e.message
-    assert_empty Armagh::Action.defined_input_doctypes
+  def test_define_input_docspec_bad_default_state
+    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_input_docspec('name', default_state: 'invalid')}
+    assert_equal "Input DocSpec name's default_state is invalid.", e.message
+    assert_empty Armagh::Action.defined_input_docspecs
   end
 
-  def test_define_input_doctype_bad_default_type
-    e = assert_raise(Armagh::ActionErrors::DoctypeError) {Armagh::Action.define_input_doctype('name', default_type: 123)}
-    assert_equal "Input Doctype name's default_type must be a String.", e.message
-    assert_empty Armagh::Action.defined_input_doctypes
+  def test_define_input_docspec_bad_default_type
+    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_input_docspec('name', default_type: 123)}
+    assert_equal "Input DocSpec name's default_type must be a String.", e.message
+    assert_empty Armagh::Action.defined_input_docspecs
   end
 
-  def test_define_output_doctype
-    Armagh::Action.define_output_doctype('test_type1')
-    Armagh::Action.define_output_doctype('test_type2', default_state: Armagh::DocState::READY, default_type: 'type')
+  def test_define_output_docspec
+    Armagh::Action.define_output_docspec('test_type1')
+    Armagh::Action.define_output_docspec('test_type2', default_state: Armagh::DocState::READY, default_type: 'type')
     expected = {
         'test_type1' => {'default_state' => nil, 'default_type' => nil},
         'test_type2' => {'default_state' => 'ready', 'default_type' => 'type'},
     }
-    assert_equal(expected, Armagh::Action.defined_output_doctypes)
+    assert_equal(expected, Armagh::Action.defined_output_docspecs)
   end
 
-  def test_define_output_doctype_bad_name
-    e = assert_raise(Armagh::ActionErrors::DoctypeError) {Armagh::Action.define_output_doctype(nil)}
-    assert_equal 'Output Doctype name must be a String.', e.message
-    assert_empty Armagh::Action.defined_output_doctypes
+  def test_define_output_docspec_bad_name
+    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_output_docspec(nil)}
+    assert_equal 'Output DocSpec name must be a String.', e.message
+    assert_empty Armagh::Action.defined_output_docspecs
   end
 
-  def test_define_output_doctype_bad_default_state
-    e = assert_raise(Armagh::ActionErrors::DoctypeError) {Armagh::Action.define_output_doctype('name', default_state: 'invalid')}
-    assert_equal "Output Doctype name's default_state is invalid.", e.message
-    assert_empty Armagh::Action.defined_output_doctypes
+  def test_define_output_docspec_bad_default_state
+    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_output_docspec('name', default_state: 'invalid')}
+    assert_equal "Output DocSpec name's default_state is invalid.", e.message
+    assert_empty Armagh::Action.defined_output_docspecs
   end
 
-  def test_define_output_doctype_bad_default_type
-    e = assert_raise(Armagh::ActionErrors::DoctypeError) {Armagh::Action.define_output_doctype('name', default_type: 123)}
-    assert_equal "Output Doctype name's default_type must be a String.", e.message
-    assert_empty Armagh::Action.defined_output_doctypes
+  def test_define_output_docspec_bad_default_type
+    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_output_docspec('name', default_type: 123)}
+    assert_equal "Output DocSpec name's default_type must be a String.", e.message
+    assert_empty Armagh::Action.defined_output_docspecs
   end
 
   def test_valid

@@ -29,8 +29,8 @@ class TestActionDocument < Test::Unit::TestCase
     @draft_content = 'draft content'
     @published_content = 'published content'
     @meta = {'meta' => true}
-    @doctype = Armagh::DocTypeState.new('doctype', Armagh::DocState::PUBLISHED)
-		@doc = Armagh::ActionDocument.new(@id, @draft_content, @published_content, @meta, @doctype)
+    @docspec = Armagh::DocSpec.new('doctype', Armagh::DocState::PUBLISHED)
+		@doc = Armagh::ActionDocument.new(@id, @draft_content, @published_content, @meta, @docspec)
   end
 
   def test_draft_content
@@ -54,16 +54,16 @@ class TestActionDocument < Test::Unit::TestCase
     assert_equal(new_meta, @doc.meta)
   end
 
-  def test_doctype
-    assert_equal(@doctype, @doc.doctype)
-    new_doctype = Armagh::DocTypeState.new('doctype2', Armagh::DocState::WORKING)
-    @doc.doctype = new_doctype
-    assert_equal(new_doctype, @doc.doctype)
+  def test_docspec
+    assert_equal(@docspec, @doc.docspec)
+    new_docspec = Armagh::DocSpec.new('doctype2', Armagh::DocState::WORKING)
+    @doc.docspec = new_docspec
+    assert_equal(new_docspec, @doc.docspec)
   end
 
   def test_new_document?
     assert_false @doc.new_document?
-    @doc = Armagh::ActionDocument.new(@id, @draft_content, @published_content, @meta, @doctype, true)
+    @doc = Armagh::ActionDocument.new(@id, @draft_content, @published_content, @meta, @docspec, true)
     assert_true @doc.new_document?
   end
 

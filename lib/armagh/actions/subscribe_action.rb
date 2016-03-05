@@ -28,10 +28,10 @@ module Armagh
     end
 
     # raises InvalidDoctypeError
-    def edit(id, doctype_name)
-      doctype = @output_doctypes[doctype_name]
-      raise ActionErrors::DoctypeError.new "Editing an unknown doctype #{doctype_name}.  Available doctypes are #{@output_doctypes.keys}" if doctype.nil?
-      @caller.edit_document(id, doctype) do |external_doc|
+    def edit(id, docspec_name)
+      docspec = @output_docspecs[docspec_name]
+      raise ActionErrors::DocSpecError.new "Editing an unknown docspec #{docspec_name}.  Available docspecs are #{@output_docspecs.keys}" if docspec.nil?
+      @caller.edit_document(id, docspec) do |external_doc|
         yield external_doc
       end
     end
@@ -40,19 +40,19 @@ module Armagh
       valid = true
       valid &&= super
 
-      @input_doctypes.each do |name, doctype|
-        unless doctype.state == DocState::PUBLISHED
+      @input_docspecs.each do |name, docspec|
+        unless docspec.state == DocState::PUBLISHED
           valid = false
-          @validation_errors['input_doctypes'] ||= {}
-          @validation_errors['input_doctypes'][name] = "Input document state for a SubscribeAction must be #{DocState::PUBLISHED}."
+          @validation_errors['input_docspecs'] ||= {}
+          @validation_errors['input_docspecs'][name] = "Input document state for a SubscribeAction must be #{DocState::PUBLISHED}."
         end
       end
 
-      @output_doctypes.each do |name, doctype|
-        unless [DocState::READY, DocState::WORKING].include?(doctype.state)
+      @output_docspecs.each do |name, docspec|
+        unless [DocState::READY, DocState::WORKING].include?(docspec.state)
           valid = false
-          @validation_errors['output_doctypes'] ||= {}
-          @validation_errors['output_doctypes'][name] = "Output document state for a SubscribeAction must be #{DocState::READY} or #{DocState::WORKING}."
+          @validation_errors['output_docspecs'] ||= {}
+          @validation_errors['output_docspecs'][name] = "Output document state for a SubscribeAction must be #{DocState::READY} or #{DocState::WORKING}."
         end
       end
       valid

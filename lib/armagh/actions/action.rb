@@ -26,39 +26,39 @@ module Armagh
   # TODO Add a deduplication configuration for time to live per action instance
 
   class Action < Parameterized
-    attr_reader :validation_errors, :input_doctypes, :output_doctypes, :name
+    attr_reader :input_docspecs, :output_docspecs, :name
 
-    def initialize(name, caller, logger, parameters, input_doctypes, output_doctypes)
+    def initialize(name, caller, logger, parameters, input_docspecs, output_docspecs)
       super(parameters)
       @name = name
       @caller = caller
       @logger = logger
-      @input_doctypes = input_doctypes
-      @output_doctypes = output_doctypes
+      @input_docspecs = input_docspecs
+      @output_docspecs = output_docspecs
     end
 
-    def self.define_input_doctype(name, default_type: nil, default_state: nil)
-      raise ActionErrors::DoctypeError.new 'Input Doctype name must be a String.' unless name.is_a? String
-      raise ActionErrors::DoctypeError.new "Input Doctype #{name}'s default_type must be a String." unless default_type.nil? ||  default_type.is_a?(String)
-      raise ActionErrors::DoctypeError.new "Input Doctype #{name}'s default_state is invalid." unless default_state.nil? ||  DocState.valid_state?(default_state)
+    def self.define_input_docspec(name, default_type: nil, default_state: nil)
+      raise ActionErrors::DocSpecError.new 'Input DocSpec name must be a String.' unless name.is_a? String
+      raise ActionErrors::DocSpecError.new "Input DocSpec #{name}'s default_type must be a String." unless default_type.nil? ||  default_type.is_a?(String)
+      raise ActionErrors::DocSpecError.new "Input DocSpec #{name}'s default_state is invalid." unless default_state.nil? ||  DocState.valid_state?(default_state)
 
-      defined_input_doctypes[name] = {'default_type' => default_type, 'default_state' => default_state}
+      defined_input_docspecs[name] = {'default_type' => default_type, 'default_state' => default_state}
     end
 
-    def self.defined_input_doctypes
-      @defined_input_doctypes ||= {}
+    def self.defined_input_docspecs
+      @defined_input_docspecs ||= {}
     end
 
-    def self.define_output_doctype(name, default_type: nil, default_state: nil)
-      raise ActionErrors::DoctypeError.new 'Output Doctype name must be a String.' unless name.is_a? String
-      raise ActionErrors::DoctypeError.new "Output Doctype #{name}'s default_type must be a String." unless default_type.nil? ||  default_type.is_a?(String)
-      raise ActionErrors::DoctypeError.new "Output Doctype #{name}'s default_state is invalid." unless default_state.nil? ||  DocState.valid_state?(default_state)
+    def self.define_output_docspec(name, default_type: nil, default_state: nil)
+      raise ActionErrors::DocSpecError.new 'Output DocSpec name must be a String.' unless name.is_a? String
+      raise ActionErrors::DocSpecError.new "Output DocSpec #{name}'s default_type must be a String." unless default_type.nil? ||  default_type.is_a?(String)
+      raise ActionErrors::DocSpecError.new "Output DocSpec #{name}'s default_state is invalid." unless default_state.nil? ||  DocState.valid_state?(default_state)
 
-      defined_output_doctypes[name] = {'default_type' => default_type, 'default_state' => default_state}
+      defined_output_docspecs[name] = {'default_type' => default_type, 'default_state' => default_state}
     end
 
-    def self.defined_output_doctypes
-      @defined_output_doctypes ||= {}
+    def self.defined_output_docspecs
+      @defined_output_docspecs ||= {}
     end
 
     def valid?

@@ -19,7 +19,7 @@ require_relative 'doc_state'
 require_relative '../action_errors'
 
 module Armagh
-  class DocTypeState
+  class DocSpec
     attr_reader :type, :state
 
     def initialize(type, state)
