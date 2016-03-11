@@ -29,10 +29,9 @@ class TestCollectAction < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    @input_docspec = Armagh::DocSpec.new('InputDocument', Armagh::DocState::READY)
     @output_docspec = Armagh::DocSpec.new('OutputDocument', Armagh::DocState::READY)
     @content = 'collected content'
-    @collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'input_type' => @input_docspec}, {'output_type'=> @output_docspec})
+    @collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'output_type'=> @output_docspec})
 
   end
 
@@ -83,7 +82,13 @@ class TestCollectAction < Test::Unit::TestCase
 
   def test_create_undefined_type
     assert_raise(Armagh::ActionErrors::DocSpecError) do
-      @collect_action.create('123', {}, {}, 'bad_type') {|doc|}
+      @collect_action.create('123', 'something', {}, 'bad_type')
+    end
+  end
+
+  def test_invalid_create_content
+    assert_raise(Armagh::ActionErrors::CreateError) do
+      @collect_action.create('234', {}, {}, 'output_type')
     end
   end
 
@@ -92,16 +97,9 @@ class TestCollectAction < Test::Unit::TestCase
     assert_empty @collect_action.validation_errors
   end
 
-  def test_valid_invalid_in_state
-    input_docspec = Armagh::DocSpec.new('InputDocument', Armagh::DocState::PUBLISHED)
-    collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'input_type' => input_docspec}, {'output_type'=> @output_docspec})
-    assert_false collect_action.valid?
-    assert_equal({'input_type' => 'Input document state for a CollectAction must be ready or working.'}, collect_action.validation_errors['input_docspecs'])
-  end
-
   def test_valid_invalid_out_state
     output_docspec = Armagh::DocSpec.new('Outputdocspec', Armagh::DocState::PUBLISHED)
-    collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'input_type' => @input_docspec}, {'output_type'=> output_docspec})
+    collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
     assert_false collect_action.valid?
     assert_equal({'output_type' => 'Output document state for a CollectAction must be ready or working.'}, collect_action.validation_errors['output_docspecs'])
   end
@@ -110,8 +108,8 @@ class TestCollectAction < Test::Unit::TestCase
     assert_true Armagh::CollectAction.respond_to? :define_parameter
     assert_true Armagh::CollectAction.respond_to? :defined_parameters
 
-    assert_true Armagh::CollectAction.respond_to? :define_input_docspec
-    assert_true Armagh::CollectAction.respond_to? :defined_input_docspecs
+    assert_true Armagh::CollectAction.respond_to? :define_input_type
+    assert_true Armagh::CollectAction.respond_to? :defined_input_type
     assert_true Armagh::CollectAction.respond_to? :define_output_docspec
     assert_true Armagh::CollectAction.respond_to? :defined_output_docspecs
 

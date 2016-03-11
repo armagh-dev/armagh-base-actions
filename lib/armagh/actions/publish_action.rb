@@ -23,12 +23,12 @@ module Armagh
     # Content within doc is committed to a finalized state of the document
     # Can create/edit additional documents of any type or state
 
-    def self.define_input_docspec(name, default_type: nil, default_state: nil)
-      raise ActionErrors::DocSpecError.new 'Publish actions have no usable Input Doctypes.'
+    def self.define_input_type(input_type)
+      raise ActionErrors::DocSpecError.new 'Publish actions have no usable Input doc types.'
     end
 
     def self.define_output_docspec(name, default_type: nil, default_state: nil)
-      raise ActionErrors::DocSpecError.new 'Publish actions have no usable Output Doctypes.'
+      raise ActionErrors::DocSpecError.new 'Publish actions have no usable Output DocSpecs.'
     end
 
     # Doc is an ActionDocument
@@ -40,32 +40,13 @@ module Armagh
       valid = true
       valid &&= super
 
-      if @input_docspecs.length != 1
-        valid = false
-        @validation_errors['input_docspecs'] ||= {}
-        @validation_errors['input_docspecs']['_all'] = 'PublishActions can only have one input docspec.'
-      end
-
       if @output_docspecs.length != 1
         valid = false
         @validation_errors['output_docspecs'] ||= {}
         @validation_errors['output_docspecs']['_all'] = 'PublishActions can only have one output docspec.'
       end
 
-      input = @input_docspecs.first
       output = @output_docspecs.first
-
-      if input && output && input.last.type != output.last.type
-        valid = false
-        @validation_errors['all_docspecs'] ||= []
-        @validation_errors['all_docspecs'] << 'PublishActions must use the same docspec for input and output.'
-      end
-
-      if input && input.last.state != DocState::READY
-        valid = false
-        @validation_errors['input_docspecs'] ||= {}
-        @validation_errors['input_docspecs'][input.first] = "Input document state for a PublishAction must be #{DocState::READY}."
-      end
 
       if output && output.last.state != DocState::PUBLISHED
         valid = false

@@ -28,10 +28,9 @@ class TestParseAction < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    @input_docspec = Armagh::DocSpec.new('InputDocument', Armagh::DocState::READY)
     @output_docspec = Armagh::DocSpec.new('OutputDocument', Armagh::DocState::READY)
 
-    @parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'input_type' => @input_docspec}, {'output_type'=> @output_docspec})
+    @parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'output_type'=> @output_docspec})
   end
 
   def test_unimplemented_parse
@@ -58,21 +57,9 @@ class TestParseAction < Test::Unit::TestCase
     assert_empty @parse_action.validation_errors
   end
 
-  def test_valid_invalid_in_state
-    input_docspec = Armagh::DocSpec.new('InputDocument', Armagh::DocState::PUBLISHED)
-    parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'input_type' => input_docspec}, {'output_type'=> @output_docspec})
-    assert_false parse_action.valid?
-    assert_equal({'input_type' => 'Input document state for a ParseAction must be ready.'}, parse_action.validation_errors['input_docspecs'])
-
-    input_docspec = Armagh::DocSpec.new('InputDocument', Armagh::DocState::WORKING)
-    parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'input_type' => input_docspec}, {'output_type'=> @output_docspec})
-    assert_false parse_action.valid?
-    assert_equal({'input_type' => 'Input document state for a ParseAction must be ready.'}, parse_action.validation_errors['input_docspecs'])
-  end
-
   def test_valid_invalid_out_state
     output_docspec = Armagh::DocSpec.new('OutputDoctype', Armagh::DocState::PUBLISHED)
-    parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'input_type' => @input_docspec}, {'output_type'=> output_docspec})
+    parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
     assert_false parse_action.valid?
     assert_equal({'output_type' => 'Output document state for a ParseAction must be ready or working.'}, parse_action.validation_errors['output_docspecs'])
   end
@@ -81,8 +68,8 @@ class TestParseAction < Test::Unit::TestCase
     assert_true Armagh::ParseAction.respond_to? :define_parameter
     assert_true Armagh::ParseAction.respond_to? :defined_parameters
 
-    assert_true Armagh::ParseAction.respond_to? :define_input_docspec
-    assert_true Armagh::ParseAction.respond_to? :defined_input_docspecs
+    assert_true Armagh::ParseAction.respond_to? :define_input_type
+    assert_true Armagh::ParseAction.respond_to? :defined_input_type
     assert_true Armagh::ParseAction.respond_to? :define_output_docspec
     assert_true Armagh::ParseAction.respond_to? :defined_output_docspecs
 

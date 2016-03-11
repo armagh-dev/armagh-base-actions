@@ -22,7 +22,7 @@ require_relative '../lib/armagh/custom_actions/example_collect_action'
 
 class ExampleActionTest < Test::Unit::TestCase
 
-  # TODO this will need to be revamped
+  # TODO base actions test_example_collect_action.rb this will need to be revamped
 
   # Called before every test method runs. Can be used
   # to set up fixture information.

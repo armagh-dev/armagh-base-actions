@@ -20,7 +20,7 @@ require 'armagh/actions'
 module Armagh
   module CustomActions
 
-    # TODO Create some example actions
+    # TODO base actions custom_actions example_collect_action... Create some example actions
     class ExampleCollectAction < CollectAction
 
     end

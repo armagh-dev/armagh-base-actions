@@ -22,6 +22,6 @@ module Armagh
     class DocSpecError                < StandardError; end
     class ParameterError              < StandardError; end
     class StateError                  < StandardError; end
-    class UnableToCreateError         < StandardError; end
+    class CreateError                 < StandardError; end
   end
 end

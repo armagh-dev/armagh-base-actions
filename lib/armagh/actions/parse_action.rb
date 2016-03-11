@@ -43,14 +43,6 @@ module Armagh
       valid = true
       valid &&= super
 
-      @input_docspecs.each do |name, docspec|
-        unless docspec.state == DocState::READY
-          valid = false
-          @validation_errors['input_docspecs'] ||= {}
-          @validation_errors['input_docspecs'][name] = "Input document state for a ParseAction must be #{DocState::READY}."
-        end
-      end
-
       @output_docspecs.each do |name, docspec|
         unless [DocState::READY, DocState::WORKING].include?(docspec.state)
           valid = false

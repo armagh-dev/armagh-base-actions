@@ -15,24 +15,23 @@
 # limitations under the License.
 #
 
-
 require_relative '../coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../lib/armagh/actions/parameterized'
-
 class TestParameterized < Test::Unit::TestCase
 
   def setup
+    load File.join(__dir__, '..', '..', 'lib', 'armagh', 'actions', 'parameterized.rb')
+
     @logger = mock
     @caller = mock
     @parameterized = Armagh::Parameterized.new({})
   end
 
   def teardown
-    Armagh::Parameterized.defined_parameters.clear
+    Armagh.send(:remove_const, :Parameterized)
   end
 
   def test_boolean

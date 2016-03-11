@@ -15,10 +15,12 @@
 # limitations under the License.
 #
 
-module Armagh
-  module Base
-    module Actions
-      VERSION = '0.0.9-dev'
-    end
-  end
+
+require_relative '../coverage_helper'
+
+require 'test/unit'
+require 'mocha/test_unit'
+
+class TestParameterDefinitions < Test::Unit::TestCase
+  # Deferred all testing of ParameterDefinitions to test_parameterized since ParameterDefinitions is a mixin
 end

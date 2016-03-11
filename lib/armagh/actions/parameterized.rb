@@ -17,44 +17,18 @@
 
 require 'tmpdir'
 
+require_relative 'parameter_definitions'
 require_relative '../action_errors'
-
-class Boolean
-  def self.bool?(val)
-    val == true || val == false
-  end
-end
 
 module Armagh
   class Parameterized
+    extend ParameterDefinitions
+
     attr_reader :validation_errors
 
     def initialize(parameters)
       @parameters = parameters
       @validation_errors = {}
-    end
-
-    def self.define_parameter(name:, description:, type:, required: false, default: nil, validation_callback: nil, prompt: nil)
-      raise ActionErrors::ParameterError, 'Parameter name must be a String.' unless name.is_a? String
-      raise ActionErrors::ParameterError, "Parameter #{name}'s description must be a String." unless description.is_a? String
-      raise ActionErrors::ParameterError, "Parameter #{name}'s type must be a class." unless type.is_a? Class
-      raise ActionErrors::ParameterError, "Parameter #{name}'s required flag must be a Boolean." unless Boolean.bool?(required)
-      raise ActionErrors::ParameterError, "Parameter #{name}'s default must be a #{type}." if default && !(default.is_a?(type) ||  (type == Boolean && Boolean.bool?(default)))
-      raise ActionErrors::ParameterError, "Parameter #{name}'s validation_callback must be a String." if validation_callback && !validation_callback.is_a?(String)
-      raise ActionErrors::ParameterError, "Parameter #{name}'s prompt must be a String." if prompt && !prompt.is_a?(String)
-      raise ActionErrors::ParameterError, "Parameter #{name} cannot have a default value and be required." if required && default
-
-      param_config = {'description' => description, 'type' => type, 'required' => required, 'default' => default, 'validation_callback' => validation_callback, 'prompt' => prompt}
-
-      if defined_parameters.has_key? name
-        raise ActionErrors::ParameterError, "A parameter named '#{name}' already exists."
-      else
-        defined_parameters[name] = param_config
-      end
-    end
-
-    def self.defined_parameters
-      @defined_parameters ||= {}
     end
 
     def valid?

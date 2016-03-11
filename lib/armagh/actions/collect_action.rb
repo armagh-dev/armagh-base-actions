@@ -31,7 +31,8 @@ module Armagh
     # raises ActionErrors::DocSpecError
     def create(id = nil, collected, meta, docspec_name)
       docspec = @output_docspecs[docspec_name]
-      raise ActionErrors::DocSpecError.new "Creating an unknown docspec #{docspec_name}.  Available docspecs are #{@output_docspecs.keys}" if docspec.nil?
+      raise ActionErrors::DocSpecError, "Creating an unknown docspec #{docspec_name}.  Available docspecs are #{@output_docspecs.keys}" if docspec.nil?
+      raise ActionErrors::CreateError, "Collect action content must be a String, was a #{collected.class}." unless collected.is_a?(String)
 
       splitter = @caller.get_splitter(@name, docspec_name)
 
@@ -55,14 +56,6 @@ module Armagh
     def valid?
       valid = true
       valid &&= super
-
-      @input_docspecs.each do |name, docspec|
-        unless [DocState::READY, DocState::WORKING].include?(docspec.state)
-          valid = false
-          @validation_errors['input_docspecs'] ||= {}
-          @validation_errors['input_docspecs'][name] = "Input document state for a CollectAction must be #{DocState::READY} or #{DocState::WORKING}."
-        end
-      end
 
       @output_docspecs.each do |name, docspec|
         unless [DocState::READY, DocState::WORKING].include?(docspec.state)

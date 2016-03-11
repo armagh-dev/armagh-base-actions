@@ -19,7 +19,7 @@ require_relative 'action'
 
 module Armagh
   class SubscribeAction < Action
-    # Triggered by a Doctype in a READY state.  The incoming document is unchanged.
+    # Triggered by a Doctype in a Published state.  The incoming document is unchanged.
     # Can create/edit additional documents of any type or state
 
     # Doc is an ActionDocument
@@ -40,13 +40,6 @@ module Armagh
       valid = true
       valid &&= super
 
-      @input_docspecs.each do |name, docspec|
-        unless docspec.state == DocState::PUBLISHED
-          valid = false
-          @validation_errors['input_docspecs'] ||= {}
-          @validation_errors['input_docspecs'][name] = "Input document state for a SubscribeAction must be #{DocState::PUBLISHED}."
-        end
-      end
 
       @output_docspecs.each do |name, docspec|
         unless [DocState::READY, DocState::WORKING].include?(docspec.state)
