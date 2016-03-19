@@ -40,6 +40,16 @@ class TestDocSpec < Test::Unit::TestCase
     end
   end
 
+  def test_invalid_type
+    assert_raise(Armagh::ActionErrors::DocSpecError) do
+      @docspec = Armagh::DocSpec.new('', @state)
+    end
+
+    assert_raise(Armagh::ActionErrors::DocSpecError) do
+      @docspec = Armagh::DocSpec.new(123, @state)
+    end
+  end
+
   def test_eq
     assert_true Armagh::DocSpec.new('type', Armagh::DocState::PUBLISHED) == Armagh::DocSpec.new('type', Armagh::DocState::PUBLISHED)
     assert_false Armagh::DocSpec.new('type', Armagh::DocState::PUBLISHED) == Armagh::DocSpec.new('type', Armagh::DocState::WORKING)

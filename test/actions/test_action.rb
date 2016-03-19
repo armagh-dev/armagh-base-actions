@@ -76,19 +76,18 @@ class TestAction < Test::Unit::TestCase
   def test_valid
     action = Armagh::Action.new('name', @caller, @logger, {}, {})
     action.class.stubs(:ancestors).returns([Armagh::SubscribeAction])
-    assert_true action.valid?, action.validation_errors
-    assert_empty action.validation_errors
+    valid = action.validate
+    assert_true valid['valid']
+    assert_empty valid['errors']
+    assert_empty valid['warnings']
   end
 
   def test_valid_bad_type
     action = Armagh::Action.new('name', @caller, @logger, {}, {})
-    assert_false action.valid?
-    assert_equal(['Unknown Action Type Action.  Was Armagh::Parameterized but expected ["Armagh::ParseAction", "Armagh::SubscribeAction", "Armagh::PublishAction", "Armagh::CollectAction"].'],
-                 action.validation_errors['general'])
-  end
-
-  def test_default_validate
-    action = Armagh::Action.new('name', @caller, @logger, {}, {})
-    assert_nil action.validate
+    valid = action.validate
+    assert_false valid['valid']
+    assert_equal(['Unknown Action Type Action.  Expected to be a descendant of ["Armagh::ParseAction", "Armagh::SubscribeAction", "Armagh::PublishAction", "Armagh::CollectAction"].'],
+                 valid['errors'])
+    assert_empty valid['warnings']
   end
 end

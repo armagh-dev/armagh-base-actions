@@ -52,16 +52,17 @@ class TestParseAction < Test::Unit::TestCase
     end
   end
 
-  def test_valid
-    assert_true @parse_action.valid?
-    assert_empty @parse_action.validation_errors
+  def test_validate
+    assert_equal({'errors' => [], 'valid' => true, 'warnings' => []}, @parse_action.validate)
   end
 
-  def test_valid_invalid_out_state
+  def test_validate_invalid_out_state
     output_docspec = Armagh::DocSpec.new('OutputDoctype', Armagh::DocState::PUBLISHED)
     parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
-    assert_false parse_action.valid?
-    assert_equal({'output_type' => 'Output document state for a ParseAction must be ready or working.'}, parse_action.validation_errors['output_docspecs'])
+    valid = parse_action.validate
+    assert_false valid['valid']
+    assert_empty valid['warnings']
+    assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
   end
 
   def test_inheritence
@@ -73,7 +74,6 @@ class TestParseAction < Test::Unit::TestCase
     assert_true Armagh::ParseAction.respond_to? :define_output_docspec
     assert_true Armagh::ParseAction.respond_to? :defined_output_docspecs
 
-    assert_true @parse_action.respond_to? :valid?
     assert_true @parse_action.respond_to? :validate
   end
 end

@@ -56,7 +56,7 @@ module Armagh
 
       others.each do |ancestor|
         if ancestor.respond_to?(:defined_parameters)
-          parameters.concat(ancestor.defined_parameters)
+          parameters.merge! ancestor.defined_parameters
         end
       end
       parameters

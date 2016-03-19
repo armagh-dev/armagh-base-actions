@@ -39,18 +39,15 @@ module Armagh
       end
     end
 
-    def valid?
-      valid = true
-      valid &&= super
+    def validate
+      super
 
+      valid_states = [DocState::READY, DocState::WORKING]
       @output_docspecs.each do |name, docspec|
-        unless [DocState::READY, DocState::WORKING].include?(docspec.state)
-          valid = false
-          @validation_errors['output_docspecs'] ||= {}
-          @validation_errors['output_docspecs'][name] = "Output document state for a ParseAction must be #{DocState::READY} or #{DocState::WORKING}."
-        end
+        @validation_errors << "Output docspec '#{name}' state must be one of: #{valid_states}." unless valid_states.include?(docspec.state)
       end
-      valid
+
+      {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
     end
   end
 end

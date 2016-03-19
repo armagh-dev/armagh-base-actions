@@ -36,24 +36,17 @@ module Armagh
       raise ActionErrors::ActionMethodNotImplemented, 'PublishActions must overwrite the publish method.'
     end
 
-    def valid?
-      valid = true
-      valid &&= super
-
-      if @output_docspecs.length != 1
-        valid = false
-        @validation_errors['output_docspecs'] ||= {}
-        @validation_errors['output_docspecs']['_all'] = 'PublishActions can only have one output docspec.'
-      end
+    def validate
+      super
+      @validation_errors << 'PublishActions can only have one output docspec.' unless @output_docspecs.length == 1
 
       output = @output_docspecs.first
 
       if output && output.last.state != DocState::PUBLISHED
-        valid = false
-        @validation_errors['output_docspecs'] ||= {}
-        @validation_errors['output_docspecs'][output.first] = "Output document state for a PublishAction must be #{DocState::PUBLISHED}."
+        @validation_errors << "Output document state for a PublishAction must be #{DocState::PUBLISHED}."
       end
-      valid
+
+      {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
     end
   end
 end

@@ -50,7 +50,6 @@ class TestCollectionSplitter < Test::Unit::TestCase
     assert_true Armagh::CollectionSplitter.respond_to? :define_parameter
     assert_true Armagh::CollectionSplitter.respond_to? :defined_parameters
 
-    assert_true @collection_splitter.respond_to? :valid?
     assert_true @collection_splitter.respond_to? :validate
   end
 end

@@ -47,36 +47,39 @@ class TestPublishActon < Test::Unit::TestCase
     assert_equal('Publish actions have no usable Output DocSpecs.', e.message)
   end
 
-  def test_valid
-    assert_true @publish_action.valid?
-    assert_empty @publish_action.validation_errors
+  def test_validate
+    assert_equal({'errors' => [], 'valid' => true, 'warnings' => []}, @publish_action.validate)
   end
 
-  def test_valid_wrong_num_output_docspecs
+  def test_validate_wrong_num_output_docspecs
     output_docspecs = {
         'type1' => @output_docspec,
         'type2' => Armagh::DocSpec.new('PublishDocument2', Armagh::DocState::PUBLISHED)
     }
     publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, output_docspecs)
-    assert_false publish_action.valid?
-    assert_equal({'_all' => 'PublishActions can only have one output docspec.'}, publish_action.validation_errors['output_docspecs'])
+    valid = publish_action.validate
+    assert_false valid['valid']
+    assert_equal(['PublishActions can only have one output docspec.'], valid['errors'])
 
     output_docspecs = {}
     publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, output_docspecs)
-    assert_false publish_action.valid?
-    assert_equal({'_all' => 'PublishActions can only have one output docspec.'}, publish_action.validation_errors['output_docspecs'])
+    valid = publish_action.validate
+    assert_false valid['valid']
+    assert_equal(['PublishActions can only have one output docspec.'], valid['errors'])
   end
 
-  def test_valid_invalid_out_state
+  def test_validate_invalid_out_state
     output_docspec = Armagh::DocSpec.new('PublishDocument', Armagh::DocState::WORKING)
     publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
-    assert_false publish_action.valid?
-    assert_equal({'output_type' => 'Output document state for a PublishAction must be published.'}, publish_action.validation_errors['output_docspecs'])
+    valid = publish_action.validate
+    assert_false valid['valid']
+    assert_equal(['Output document state for a PublishAction must be published.'], valid['errors'])
 
     output_docspec = Armagh::DocSpec.new('PublishDocument', Armagh::DocState::READY)
     publish_action = Armagh::PublishAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
-    assert_false publish_action.valid?
-    assert_equal({'output_type' => 'Output document state for a PublishAction must be published.'}, publish_action.validation_errors['output_docspecs'])
+    valid = publish_action.validate
+    assert_false valid['valid']
+    assert_equal(['Output document state for a PublishAction must be published.'], valid['errors'])
   end
 
   def test_inheritence
@@ -88,7 +91,6 @@ class TestPublishActon < Test::Unit::TestCase
     assert_true Armagh::PublishAction.respond_to? :define_output_docspec
     assert_true Armagh::PublishAction.respond_to? :defined_output_docspecs
 
-    assert_true @publish_action.respond_to? :valid?
     assert_true @publish_action.respond_to? :validate
   end
 end

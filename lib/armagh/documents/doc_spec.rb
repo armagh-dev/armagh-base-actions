@@ -23,7 +23,8 @@ module Armagh
     attr_reader :type, :state
 
     def initialize(type, state)
-      raise ActionErrors::StateError.new "Unknown state #{state}.  Valid states are #{Armagh::DocState::constants.collect{|c| c.to_s}}" unless DocState.valid_state?(state)
+      raise ActionErrors::StateError, "Unknown state #{state}.  Valid states are #{Armagh::DocState::constants.collect{|c| c.to_s}}" unless DocState.valid_state?(state)
+      raise ActionErrors::DocSpecError, 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
 
       @type = type.freeze
       @state = state

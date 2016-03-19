@@ -56,22 +56,21 @@ module Armagh
       @defined_output_docspecs ||= {}
     end
 
-    def valid?
-      valid = true
-      valid &&= valid_action_type?
-      valid
+    def validate
+      validate_action_type
+
+      {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
     end
 
-    def validate
+    def custom_validation
       # Default has no Action level validation
       nil
     end
 
-    private def valid_action_type?
+    private def validate_action_type
       valid_actions = %w(Armagh::ParseAction Armagh::SubscribeAction Armagh::PublishAction Armagh::CollectAction)
       valid_type = (self.class.ancestors.collect{|a| a.name} & valid_actions).any?
-      @validation_errors['general'] = ["Unknown Action Type #{self.class.to_s.sub('Armagh::','')}.  Was #{self.class.superclass} but expected #{valid_actions}."] unless valid_type
-      valid_type
+      @validation_errors << "Unknown Action Type #{self.class.to_s.sub('Armagh::','')}.  Expected to be a descendant of #{valid_actions}." unless valid_type
     end
   end
 end

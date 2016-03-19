@@ -16,22 +16,29 @@
 #
 
 require_relative '../coverage_helper'
+require_relative '../../lib/armagh/actions/parameterized'
 
 require 'test/unit'
 require 'mocha/test_unit'
 
+module Armagh::ParameterDefinitions
+  # Simply unloading and reloading the module breaks code coverage.
+  # Can't call the class_variables method to overwite as they are protected from @class_vars (versus @member_vars or @@class_vars)
+  def clear_defined_parameters
+    @defined_parameters = nil
+  end
+end
+
 class TestParameterized < Test::Unit::TestCase
 
   def setup
-    load File.join(__dir__, '..', '..', 'lib', 'armagh', 'actions', 'parameterized.rb')
-
     @logger = mock
     @caller = mock
     @parameterized = Armagh::Parameterized.new({})
   end
 
   def teardown
-    Armagh.send(:remove_const, :Parameterized)
+    Armagh::Parameterized.clear_defined_parameters
   end
 
   def test_boolean
@@ -123,52 +130,71 @@ class TestParameterized < Test::Unit::TestCase
   end
 
   def test_valid
-    assert_true @parameterized.valid?
+    valid =  @parameterized.validate
+    assert_true valid['valid']
+    assert_empty valid['errors']
+    assert_empty valid['warnings']
   end
 
   def test_valid_missing_required
     Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true)
-    assert_false @parameterized.valid?
-    assert_equal('Required parameter is missing.', @parameterized.validation_errors['parameters']['name'])
+
+    valid =  @parameterized.validate
+    assert_false valid['valid']
+    assert_empty valid['warnings']
+    assert_equal(["Required parameter 'name' is missing."], valid['errors'])
   end
 
   def test_valid_wrong_type
     Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true)
     parameterized = Armagh::Parameterized.new({'name' => 123})
-    assert_false parameterized.valid?
-    assert_equal('Invalid type.  Expected String but was Fixnum.', parameterized.validation_errors['parameters']['name'])
+    valid =  parameterized.validate
+    assert_false valid['valid']
+    assert_empty valid['warnings']
+    assert_equal(["Invalid type for 'name'.  Expected String but was Fixnum."], valid['errors'])
   end
 
   def test_valid_callback_not_defined
     Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'undefined')
     parameterized = Armagh::Parameterized.new({'name' => 'name'})
-    assert_false parameterized.valid?
-    assert_equal('Invalid validation_callback.  Class does not respond to undefined.', parameterized.validation_errors['parameters']['name'])
+
+    valid =  parameterized.validate
+    assert_false valid['valid']
+    assert_empty valid['warnings']
+    assert_equal(["Invalid validation_callback for 'name'.  Class does not respond to method 'undefined'."], valid['errors'])
   end
 
   def test_valid_callback_exception
     Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'raise_callback')
     parameterized = Armagh::Parameterized.new({'name' => 'name'})
     parameterized.stubs(:raise_callback).raises(RuntimeError.new('Exception!'))
-    assert_false parameterized.valid?
-    assert_equal('Validation callback failed with exception: Exception!', parameterized.validation_errors['parameters']['name'])
+
+    valid =  parameterized.validate
+    assert_false valid['valid']
+    assert_empty valid['warnings']
+    assert_equal(["Validation callback of 'name' (method 'raise_callback') failed with exception: Exception!."], valid['errors'])
   end
 
   def test_valid_callback_failed
     Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'returns_callback')
     parameterized = Armagh::Parameterized.new({'name' => 'name'})
     parameterized.stubs(:returns_callback).returns('Callback was unsuccessful')
-    assert_false parameterized.valid?
-    assert_equal('Callback was unsuccessful', parameterized.validation_errors['parameters']['name'])
+    valid =  parameterized.validate
+    assert_false valid['valid']
+    assert_empty valid['warnings']
+    assert_equal(["Validation callback of 'name' (method 'returns_callback') failed with message: Callback was unsuccessful."], valid['errors'])
   end
 
-  def test_valid_general_validation_failure
-    @parameterized.stubs(:validate).returns('General Failure')
-    assert_false @parameterized.valid?
-    assert_equal('General Failure', @parameterized.validation_errors['general'])
+  def test_custom_validation_failure
+    @parameterized.stubs(:custom_validation).returns('General Failure')
+
+    valid =  @parameterized.validate
+    assert_false valid['valid']
+    assert_empty valid['warnings']
+    assert_equal(['Custom validation failed with message: General Failure'], valid['errors'])
   end
 
-  def test_validation_default
-    assert_nil @parameterized.validate
+  def test_custom_validation_default
+    assert_nil @parameterized.custom_validation
   end
 end

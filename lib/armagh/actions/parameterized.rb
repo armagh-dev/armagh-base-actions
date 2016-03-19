@@ -24,25 +24,22 @@ module Armagh
   class Parameterized
     extend ParameterDefinitions
 
-    attr_reader :validation_errors
-
     def initialize(parameters)
       @parameters = parameters
-      @validation_errors = {}
-    end
-
-    def valid?
-      valid = true
-      @validation_errors.clear
-
-      valid &&= validate_required_params
-      valid &&= validate_params
-      valid &&= validate_general
-
-      valid
+      @validation_errors = []
+      @validation_warnings = []
     end
 
     def validate
+      @validation_errors.clear
+      @validation_warnings.clear
+
+      validate_required_params && validate_params && validate_general
+
+      {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
+    end
+
+    def custom_validation
       # Default has no grouped parameter validation
       nil
     end
@@ -52,9 +49,7 @@ module Armagh
       self.class.defined_parameters.select{|_k,v| v['required']}.keys.each do |param|
         unless @parameters.has_key?(param)
           valid = false
-          @validation_errors['parameters'] ||= {}
-          @validation_errors['parameters'][param] = 'Required parameter is missing.'
-          next
+          @validation_errors << "Required parameter '#{param}' is missing."
         end
       end
       valid
@@ -66,8 +61,7 @@ module Armagh
         expected_type = self.class.defined_parameters[param]['type']
         unless value.is_a?(expected_type) || (expected_type == Boolean &&(Boolean.bool?(value)))
           valid = false
-          @validation_errors['parameters'] ||= {}
-          @validation_errors['parameters'][param] = "Invalid type.  Expected #{expected_type} but was #{value.class}."
+          @validation_errors << "Invalid type for '#{param}'.  Expected #{expected_type} but was #{value.class}."
           next
         end
 
@@ -80,21 +74,18 @@ module Armagh
               response = self.send(callback, value)
             rescue => e
               valid = false
-              @validation_errors['parameters'] ||= {}
-              @validation_errors['parameters'][param] = "Validation callback failed with exception: #{e}"
+              @validation_errors << "Validation callback of '#{param}' (method '#{callback}') failed with exception: #{e}."
               next
             end
 
             unless response.nil?
               valid = false
-              @validation_errors['parameters'] ||= {}
-              @validation_errors['parameters'][param] = response
+              @validation_errors << "Validation callback of '#{param}' (method '#{callback}') failed with message: #{response}."
               next
             end
           else
             valid = false
-            @validation_errors['parameters'] ||= {}
-            @validation_errors['parameters'][param] = "Invalid validation_callback.  Class does not respond to #{callback}."
+            @validation_errors << "Invalid validation_callback for '#{param}'.  Class does not respond to method '#{callback}'."
             next
           end
         end
@@ -104,10 +95,10 @@ module Armagh
 
     def validate_general
       valid = true
-      general_validation = validate
+      general_validation = custom_validation
       unless general_validation.nil?
         valid = false
-        @validation_errors['general'] = general_validation
+        @validation_errors << "Custom validation failed with message: #{general_validation}"
       end
       valid
     end

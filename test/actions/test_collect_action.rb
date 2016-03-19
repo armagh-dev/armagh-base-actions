@@ -93,15 +93,19 @@ class TestCollectAction < Test::Unit::TestCase
   end
 
   def test_valid
-    assert_true @collect_action.valid?
-    assert_empty @collect_action.validation_errors
+    valid = @collect_action.validate
+    assert_true valid['valid']
+    assert_empty valid['errors']
+    assert_empty valid['warnings']
   end
 
   def test_valid_invalid_out_state
     output_docspec = Armagh::DocSpec.new('Outputdocspec', Armagh::DocState::PUBLISHED)
     collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
-    assert_false collect_action.valid?
-    assert_equal({'output_type' => 'Output document state for a CollectAction must be ready or working.'}, collect_action.validation_errors['output_docspecs'])
+    valid = collect_action.validate
+    assert_false valid['valid']
+    assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
+    assert_empty valid['warnings']
   end
 
   def test_inheritence
@@ -113,7 +117,6 @@ class TestCollectAction < Test::Unit::TestCase
     assert_true Armagh::CollectAction.respond_to? :define_output_docspec
     assert_true Armagh::CollectAction.respond_to? :defined_output_docspecs
 
-    assert_true @collect_action.respond_to? :valid?
     assert_true @collect_action.respond_to? :validate
   end
 end
