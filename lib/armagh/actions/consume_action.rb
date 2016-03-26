@@ -18,13 +18,13 @@
 require_relative 'action'
 
 module Armagh
-  class SubscribeAction < Action
+  class ConsumeAction < Action
     # Triggered by a Doctype in a Published state.  The incoming document is unchanged.
     # Can create/edit additional documents of any type or state
 
     # Doc is an ActionDocument
-    def subscribe(doc)
-      raise ActionErrors::ActionMethodNotImplemented, 'SubscribeActions must overwrite the subscribe method.'
+    def consume(doc)
+      raise ActionErrors::ActionMethodNotImplemented, 'ConsumeActions must overwrite the consume method.'
     end
 
     # raises InvalidDoctypeError

@@ -68,7 +68,7 @@ module Armagh
     end
 
     private def validate_action_type
-      valid_actions = %w(Armagh::ParseAction Armagh::SubscribeAction Armagh::PublishAction Armagh::CollectAction)
+      valid_actions = %w(Armagh::ParseAction Armagh::ConsumeAction Armagh::PublishAction Armagh::CollectAction)
       valid_type = (self.class.ancestors.collect{|a| a.name} & valid_actions).any?
       @validation_errors << "Unknown Action Type #{self.class.to_s.sub('Armagh::','')}.  Expected to be a descendant of #{valid_actions}." unless valid_type
     end

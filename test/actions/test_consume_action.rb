@@ -21,59 +21,59 @@ require_relative '../coverage_helper'
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../lib/armagh/actions/subscribe_action'
+require_relative '../../lib/armagh/actions/consume_action'
 
-class TestSubscribeAction < Test::Unit::TestCase
+class TestConsumeAction < Test::Unit::TestCase
 
   def setup
     @logger = mock
     @caller = mock
     @output_docspec = Armagh::DocSpec.new('OutputDocument', Armagh::DocState::READY)
 
-    @subscribe_action = Armagh::SubscribeAction.new('subscribe', @caller, @logger, {}, {'output_type'=> @output_docspec})
+    @consume_action = Armagh::ConsumeAction.new('consume', @caller, @logger, {}, {'output_type'=> @output_docspec})
   end
 
-  def test_unimplemented_subscribe
-    assert_raise(Armagh::ActionErrors::ActionMethodNotImplemented) {@subscribe_action.subscribe(nil)}
+  def test_unimplemented_consume
+    assert_raise(Armagh::ActionErrors::ActionMethodNotImplemented) {@consume_action.consume(nil)}
   end
 
   def test_edit
     yielded_doc = mock
     @caller.expects(:edit_document).with('123', @output_docspec).yields(yielded_doc)
 
-    @subscribe_action.edit('123', 'output_type') do |doc|
+    @consume_action.edit('123', 'output_type') do |doc|
       assert_equal yielded_doc, doc
     end
   end
 
   def test_edit_undefined_type
     assert_raise(Armagh::ActionErrors::DocSpecError) do
-      @subscribe_action.edit('123', 'bad_type') {|doc|}
+      @consume_action.edit('123', 'bad_type') {|doc|}
     end
   end
 
   def test_valid
-    assert_equal({'errors' => [], 'valid' => true, 'warnings' => []}, @subscribe_action.validate)
+    assert_equal({'errors' => [], 'valid' => true, 'warnings' => []}, @consume_action.validate)
   end
 
   def test_valid_invalid_out_state
     output_docspec = Armagh::DocSpec.new('OutputDoctype', Armagh::DocState::PUBLISHED)
-    subscribe_action = Armagh::SubscribeAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
+    consume_action = Armagh::ConsumeAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
 
-    valid = subscribe_action.validate
+    valid = consume_action.validate
     assert_false valid['valid']
     assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
   end
 
   def test_inheritence
-    assert_true Armagh::SubscribeAction.respond_to? :define_parameter
-    assert_true Armagh::SubscribeAction.respond_to? :defined_parameters
+    assert_true Armagh::ConsumeAction.respond_to? :define_parameter
+    assert_true Armagh::ConsumeAction.respond_to? :defined_parameters
 
-    assert_true Armagh::SubscribeAction.respond_to? :define_input_type
-    assert_true Armagh::SubscribeAction.respond_to? :defined_input_type
-    assert_true Armagh::SubscribeAction.respond_to? :define_output_docspec
-    assert_true Armagh::SubscribeAction.respond_to? :defined_output_docspecs
+    assert_true Armagh::ConsumeAction.respond_to? :define_input_type
+    assert_true Armagh::ConsumeAction.respond_to? :defined_input_type
+    assert_true Armagh::ConsumeAction.respond_to? :define_output_docspec
+    assert_true Armagh::ConsumeAction.respond_to? :defined_output_docspecs
 
-    assert_true @subscribe_action.respond_to? :validate
+    assert_true @consume_action.respond_to? :validate
   end
 end
