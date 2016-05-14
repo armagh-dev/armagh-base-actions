@@ -17,11 +17,13 @@
 
 module Armagh
   module ActionErrors
-    class ActionError                 < StandardError; end
     class ActionMethodNotImplemented  < StandardError; end
     class DocSpecError                < StandardError; end
     class ParameterError              < StandardError; end
     class StateError                  < StandardError; end
     class CreateError                 < StandardError; end
+    class DocumentSizeError           < StandardError; end
+    class DocumentUniquenessError     < StandardError; end
+    class DocumentError               < StandardError; end
   end
 end
