@@ -29,7 +29,7 @@ module Armagh
 
     # Collected can either be a string or a filename
     # raises ActionErrors::DocSpecError
-    def create(id = nil, collected, meta, docspec_name)
+    def create(id = nil, collected, metadata, docspec_name)
       docspec = @output_docspecs[docspec_name]
       raise ActionErrors::DocSpecError, "Creating an unknown docspec #{docspec_name}.  Available docspecs are #{@output_docspecs.keys}" if docspec.nil?
       raise ActionErrors::CreateError, "Collect action content must be a String, was a #{collected.class}." unless collected.is_a?(String)
@@ -44,11 +44,12 @@ module Armagh
           File.write(collected_file, collected)
         end
 
-        collected_doc = CollectedDocument.new(id, collected_file, meta, docspec)
+        collected_doc = CollectedDocument.new(id: id, collected_file: collected_file, metadata: metadata, docspec: docspec)
         splitter.split(collected_doc)
       else
         content = File.file?(collected) ? File.read(collected_file) : collected
-        action_doc = ActionDocument.new(id, content, {}, meta, docspec)
+        action_doc = ActionDocument.new(id: id, draft_content: content, published_content: {},
+                                        draft_metadata: metadata, published_metadata: {}, docspec: docspec, new: true)
         @caller.create_document(action_doc)
       end
     end

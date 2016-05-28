@@ -39,7 +39,8 @@ module Armagh
 
     # raises InvalidDoctypeError
     def create(id=nil, draft_content, meta)
-      action_doc = ActionDocument.new(id, draft_content, {}, meta, @output_docspec)
+      action_doc = ActionDocument.new(id: id, draft_content: draft_content, published_content: {},
+                                      draft_metadata: meta, published_metadata: {}, docspec: @output_docspec, new: true)
       @caller.create_document(action_doc)
     end
   end

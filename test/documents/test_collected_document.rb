@@ -26,9 +26,9 @@ class TestCollectedDocument < Test::Unit::TestCase
 	def setup
     @id = 'id'
     @collected_file = 'content'
-    @meta = {'meta' => true}
+    @metadata = {'metadata' => true}
     @docspec = Armagh::DocSpec.new('doctype', Armagh::DocState::PUBLISHED)
-		@doc = Armagh::CollectedDocument.new(@id, @collected_file, @meta, @docspec)
+		@doc = Armagh::CollectedDocument.new(id: @id, collected_file: @collected_file, metadata: @metadata, docspec: @docspec)
   end
 
   def test_unable_modify_id
@@ -41,10 +41,10 @@ class TestCollectedDocument < Test::Unit::TestCase
     assert_raise {@collected_file.id << 'wee'}
   end
 
-  def test_meta
-    assert_true @doc.meta['meta']
-    @doc.meta['meta'] = false
-    assert_false @doc.meta['meta']
+  def test_metadata
+    assert_true @doc.metadata['metadata']
+    @doc.metadata['metadata'] = false
+    assert_false @doc.metadata['metadata']
   end
 
   def test_unable_to_modify_docspec

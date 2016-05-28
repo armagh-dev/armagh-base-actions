@@ -20,6 +20,7 @@ require_relative '../coverage_helper'
 require 'test/unit'
 
 require_relative '../../lib/armagh/documents/action_document'
+require_relative '../../lib/armagh/documents/doc_spec'
 require_relative '../../lib/armagh/documents/doc_state'
 
 class TestActionDocument < Test::Unit::TestCase
@@ -28,9 +29,11 @@ class TestActionDocument < Test::Unit::TestCase
     @id = '123'
     @draft_content = 'draft content'
     @published_content = 'published content'
-    @meta = {'meta' => true}
+    @draft_metadata = {'draft_meta' => true}
+    @published_metadata = {'published_meta' => true}
     @docspec = Armagh::DocSpec.new('doctype', Armagh::DocState::PUBLISHED)
-		@doc = Armagh::ActionDocument.new(@id, @draft_content, @published_content, @meta, @docspec)
+		@doc = Armagh::ActionDocument.new(id: @id, draft_content: @draft_content, published_content: @published_content, 
+                                      draft_metadata: @draft_metadata, published_metadata: @published_metadata, docspec: @docspec)
   end
 
   def test_draft_content
@@ -47,11 +50,18 @@ class TestActionDocument < Test::Unit::TestCase
     assert_equal(@published_content, @doc.published_content)
   end
 
-  def test_meta
-    assert_equal(@meta, @doc.meta)
+  def test_draft_metadata
+    assert_equal(@draft_metadata, @doc.draft_metadata)
     new_meta = {'new meta' => false}
-    @doc.meta = new_meta
-    assert_equal(new_meta, @doc.meta)
+    @doc.draft_metadata = new_meta
+    assert_equal(new_meta, @doc.draft_metadata)
+  end
+
+  def test_published_metadata
+    assert_equal(@published_metadata, @doc.published_metadata)
+    assert_raise {@doc.published_metadata = 'new metadata'}
+    assert_raise {@doc.published_metadata << 'new metadata'}
+    assert_equal(@published_metadata, @doc.published_metadata)
   end
 
   def test_docspec
@@ -63,7 +73,9 @@ class TestActionDocument < Test::Unit::TestCase
 
   def test_new_document?
     assert_false @doc.new_document?
-    @doc = Armagh::ActionDocument.new(@id, @draft_content, @published_content, @meta, @docspec, true)
+    @doc = Armagh::ActionDocument.new(id: @id, draft_content: @draft_content, published_content: @published_content,
+                                      draft_metadata: @draft_metadata, published_metadata: @published_metadata,
+                                      docspec: @docspec, new: true)
     assert_true @doc.new_document?
   end
 

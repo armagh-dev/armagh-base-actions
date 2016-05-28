@@ -17,24 +17,21 @@
 
 module Armagh
   class ActionDocument
-    attr_reader :id
-    attr_accessor :docspec, :meta, :draft_content
+    attr_reader :id, :published_metadata, :published_content
+    attr_accessor :docspec, :draft_metadata, :draft_content
 
-    def initialize(id, draft_content, published_content, meta, docspec, new_doc = false)
+    def initialize(id:, draft_content:, published_content:, draft_metadata:, published_metadata:, docspec:, new: false)
       @id = id.freeze
       @draft_content = draft_content
       @published_content = published_content.dup.freeze unless published_content.nil?
-      @meta = meta
+      @draft_metadata = draft_metadata
+      @published_metadata = published_metadata.dup.freeze unless published_metadata.nil?
       @docspec = docspec
-      @new_doc = new_doc
-    end
-
-    def published_content
-      @published_content
+      @new = new
     end
 
     def new_document?
-      @new_doc
+      @new
     end
   end
 end
