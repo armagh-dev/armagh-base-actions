@@ -28,14 +28,14 @@ class TestDocState < Test::Unit::TestCase
   end
 
   def test_valid_state
-    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::WORKING))
-    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::READY))
-    assert_true(Armagh::DocState.valid_state?(Armagh::DocState::PUBLISHED))
+    assert_true(Armagh::Documents::DocState.valid_state?(Armagh::Documents::DocState::WORKING))
+    assert_true(Armagh::Documents::DocState.valid_state?(Armagh::Documents::DocState::READY))
+    assert_true(Armagh::Documents::DocState.valid_state?(Armagh::Documents::DocState::PUBLISHED))
   end
 
   def test_invalid_state
-    assert_false(Armagh::DocState.valid_state?(123))
-    assert_false(Armagh::DocState.valid_state?('invalid state'))
+    assert_false(Armagh::Documents::DocState.valid_state?(123))
+    assert_false(Armagh::Documents::DocState.valid_state?('invalid state'))
   end
 
 end

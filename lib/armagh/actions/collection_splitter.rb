@@ -18,30 +18,32 @@
 require_relative 'action'
 
 module Armagh
-  class CollectionSplitter < Parameterized
-    # Splits a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
-    #  for dividing up work or handling files that are too large to store in Mongo.
+  module Actions
+    class CollectionSplitter < Parameterized
+      # Splits a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
+      #  for dividing up work or handling files that are too large to store in Mongo.
 
-    attr_reader :output_docspec
+      attr_reader :output_docspec
 
-    def initialize(caller, logger, parameters, output_docspec)
-      super(parameters)
-      @caller = caller
-      @logger = logger
-      @parameters = parameters
-      @output_docspec = output_docspec
-    end
+      def initialize(caller, logger, parameters, output_docspec)
+        super(parameters)
+        @caller = caller
+        @logger = logger
+        @parameters = parameters
+        @output_docspec = output_docspec
+      end
 
-    # Doc is a CollectedDocument
-    def split(doc)
-      raise ActionErrors::ActionMethodNotImplemented, 'CollectionSplitterActions must overwrite the split method.'
-    end
+      # Doc is a CollectedDocument
+      def split(doc)
+        raise Errors::ActionMethodNotImplemented, 'CollectionSplitterActions must overwrite the split method.'
+      end
 
-    # raises InvalidDoctypeError
-    def create(id=nil, draft_content, meta)
-      action_doc = ActionDocument.new(id: id, draft_content: draft_content, published_content: {},
-                                      draft_metadata: meta, published_metadata: {}, docspec: @output_docspec, new: true)
-      @caller.create_document(action_doc)
+      # raises InvalidDoctypeError
+      def create(id=nil, draft_content, meta)
+        action_doc = Documents::ActionDocument.new(id: id, draft_content: draft_content, published_content: {},
+                                        draft_metadata: meta, published_metadata: {}, docspec: @output_docspec, new: true)
+        @caller.create_document(action_doc)
+      end
     end
   end
 end

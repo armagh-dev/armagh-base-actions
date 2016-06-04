@@ -21,20 +21,20 @@ require_relative '../coverage_helper'
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../lib/armagh/actions/parse_action'
+require_relative '../../lib/armagh/actions/parse'
 
-class TestParseAction < Test::Unit::TestCase
+class TestParse < Test::Unit::TestCase
 
   def setup
     @logger = mock
     @caller = mock
-    @output_docspec = Armagh::DocSpec.new('OutputDocument', Armagh::DocState::READY)
+    @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
 
-    @parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'output_type'=> @output_docspec})
+    @parse_action = Armagh::Actions::Parse.new('action', @caller, @logger, {}, {'output_type'=> @output_docspec})
   end
 
   def test_unimplemented_parse
-    assert_raise(Armagh::ActionErrors::ActionMethodNotImplemented) {@parse_action.parse(nil)}
+    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@parse_action.parse(nil)}
   end
 
   def test_edit
@@ -47,7 +47,7 @@ class TestParseAction < Test::Unit::TestCase
   end
 
   def test_edit_undefined_type
-    assert_raise(Armagh::ActionErrors::DocSpecError) do
+    assert_raise(Armagh::Documents::Errors::DocSpecError) do
       @parse_action.edit('123', 'bad_type') {|doc|}
     end
   end
@@ -57,8 +57,8 @@ class TestParseAction < Test::Unit::TestCase
   end
 
   def test_validate_invalid_out_state
-    output_docspec = Armagh::DocSpec.new('OutputDoctype', Armagh::DocState::PUBLISHED)
-    parse_action = Armagh::ParseAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
+    output_docspec = Armagh::Documents::DocSpec.new('OutputDoctype', Armagh::Documents::DocState::PUBLISHED)
+    parse_action = Armagh::Actions::Parse.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
     valid = parse_action.validate
     assert_false valid['valid']
     assert_empty valid['warnings']
@@ -66,13 +66,13 @@ class TestParseAction < Test::Unit::TestCase
   end
 
   def test_inheritence
-    assert_true Armagh::ParseAction.respond_to? :define_parameter
-    assert_true Armagh::ParseAction.respond_to? :defined_parameters
+    assert_true Armagh::Actions::Parse.respond_to? :define_parameter
+    assert_true Armagh::Actions::Parse.respond_to? :defined_parameters
 
-    assert_true Armagh::ParseAction.respond_to? :define_input_type
-    assert_true Armagh::ParseAction.respond_to? :defined_input_type
-    assert_true Armagh::ParseAction.respond_to? :define_output_docspec
-    assert_true Armagh::ParseAction.respond_to? :defined_output_docspecs
+    assert_true Armagh::Actions::Parse.respond_to? :define_input_type
+    assert_true Armagh::Actions::Parse.respond_to? :defined_input_type
+    assert_true Armagh::Actions::Parse.respond_to? :define_output_docspec
+    assert_true Armagh::Actions::Parse.respond_to? :defined_output_docspecs
 
     assert_true @parse_action.respond_to? :validate
   end

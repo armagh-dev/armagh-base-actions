@@ -28,7 +28,7 @@ module Armagh
       constants.each do |name|
         class_name = "Armagh::CustomActions::#{name.to_s}"
         const_obj = const_get(class_name)
-        actions << class_name if const_obj.is_a?(Class) && const_obj < Action
+        actions << class_name if const_obj.is_a?(Class) && const_obj < Actions::Action
       end
       actions
     end

@@ -21,7 +21,7 @@ require_relative '../../lib/armagh/actions/parameterized'
 require 'test/unit'
 require 'mocha/test_unit'
 
-module Armagh::ParameterDefinitions
+module Armagh::Actions::ParameterDefinitions
   # Simply unloading and reloading the module breaks code coverage.
   # Can't call the class_variables method to overwite as they are protected from @class_vars (versus @member_vars or @@class_vars)
   def clear_defined_parameters
@@ -34,11 +34,11 @@ class TestParameterized < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    @parameterized = Armagh::Parameterized.new({})
+    @parameterized = Armagh::Actions::Parameterized.new({})
   end
 
   def teardown
-    Armagh::Parameterized.clear_defined_parameters
+    Armagh::Actions::Parameterized.clear_defined_parameters
   end
 
   def test_boolean
@@ -65,55 +65,55 @@ class TestParameterized < Test::Unit::TestCase
         name => {'description' => description, 'type' => type, 'required' => required, 'default' => default, 'validation_callback' => validation_callback, 'prompt' => prompt}
     }
 
-    Armagh::Parameterized.define_parameter(name: name, description: description, type: type, required: required,
+    Armagh::Actions::Parameterized.define_parameter(name: name, description: description, type: type, required: required,
                                            default: default, validation_callback: validation_callback,
                                            prompt: prompt)
 
-    assert_equal(expected, Armagh::Parameterized.defined_parameters)
+    assert_equal(expected, Armagh::Actions::Parameterized.defined_parameters)
   end
 
   def test_define_parameters_errors
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-      Armagh::Parameterized.define_parameter(name: nil, description: '', type: '')
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: nil, description: '', type: '')
     }
     assert_equal('Parameter name must be a String.', e.message)
 
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-      Armagh::Parameterized.define_parameter(name: 'name', description: nil, type: '')
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: nil, type: '')
     }
     assert_equal("Parameter name's description must be a String.", e.message)
 
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-      Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: nil)
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: nil)
     }
     assert_equal("Parameter name's type must be a class.", e.message)
 
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-      Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: 'true')
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: 'true')
     }
     assert_equal("Parameter name's required flag must be a Boolean.", e.message)
 
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-      Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
                                              default: 123)
     }
     assert_equal("Parameter name's default must be a String.", e.message)
 
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-     Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+     Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
                                             default: 'default', validation_callback: 123)
     }
     assert_equal("Parameter name's validation_callback must be a String.", e.message)
 
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-      Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
                                              default: 'default', validation_callback: 'validation_callback',
                                              prompt: 123)
     }
     assert_equal("Parameter name's prompt must be a String.", e.message)
 
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-      Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true,
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true,
                                              default: 'default', validation_callback: 'validation_callback',
                                              prompt: 'prompt')
     }
@@ -121,10 +121,10 @@ class TestParameterized < Test::Unit::TestCase
   end
 
   def test_define_parameters_duplicate
-    Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String)
+    Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String)
 
-    e = assert_raise(Armagh::ActionErrors::ParameterError) {
-      Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String)
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String)
     }
     assert_equal("A parameter named 'name' already exists.", e.message)
   end
@@ -137,7 +137,7 @@ class TestParameterized < Test::Unit::TestCase
   end
 
   def test_valid_missing_required
-    Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true)
+    Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true)
 
     valid =  @parameterized.validate
     assert_false valid['valid']
@@ -146,8 +146,8 @@ class TestParameterized < Test::Unit::TestCase
   end
 
   def test_valid_wrong_type
-    Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true)
-    parameterized = Armagh::Parameterized.new({'name' => 123})
+    Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true)
+    parameterized = Armagh::Actions::Parameterized.new({'name' => 123})
     valid =  parameterized.validate
     assert_false valid['valid']
     assert_empty valid['warnings']
@@ -155,8 +155,8 @@ class TestParameterized < Test::Unit::TestCase
   end
 
   def test_valid_callback_not_defined
-    Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'undefined')
-    parameterized = Armagh::Parameterized.new({'name' => 'name'})
+    Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'undefined')
+    parameterized = Armagh::Actions::Parameterized.new({'name' => 'name'})
 
     valid =  parameterized.validate
     assert_false valid['valid']
@@ -165,8 +165,8 @@ class TestParameterized < Test::Unit::TestCase
   end
 
   def test_valid_callback_exception
-    Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'raise_callback')
-    parameterized = Armagh::Parameterized.new({'name' => 'name'})
+    Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'raise_callback')
+    parameterized = Armagh::Actions::Parameterized.new({'name' => 'name'})
     parameterized.stubs(:raise_callback).raises(RuntimeError.new('Exception!'))
 
     valid =  parameterized.validate
@@ -176,8 +176,8 @@ class TestParameterized < Test::Unit::TestCase
   end
 
   def test_valid_callback_failed
-    Armagh::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'returns_callback')
-    parameterized = Armagh::Parameterized.new({'name' => 'name'})
+    Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true, validation_callback: 'returns_callback')
+    parameterized = Armagh::Actions::Parameterized.new({'name' => 'name'})
     parameterized.stubs(:returns_callback).returns('Callback was unsuccessful')
     valid =  parameterized.validate
     assert_false valid['valid']

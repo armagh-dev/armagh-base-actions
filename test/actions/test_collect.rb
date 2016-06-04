@@ -24,19 +24,19 @@ require 'fakefs/safe'
 
 require_relative '../../lib/armagh/actions'
 
-class TestCollectAction < Test::Unit::TestCase
+class TestCollect < Test::Unit::TestCase
 
   def setup
     @logger = mock
     @caller = mock
-    @output_docspec = Armagh::DocSpec.new('OutputDocument', Armagh::DocState::READY)
+    @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
     @content = 'collected content'
-    @collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'output_type'=> @output_docspec})
+    @collect_action = Armagh::Actions::Collect.new('action', @caller, @logger, {}, {'output_type'=> @output_docspec})
 
   end
 
   def test_unimplemented_collect
-    assert_raise(Armagh::ActionErrors::ActionMethodNotImplemented) {@collect_action.collect}
+    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@collect_action.collect}
   end
 
   def test_create_no_splitter
@@ -51,7 +51,7 @@ class TestCollectAction < Test::Unit::TestCase
       @caller.expects(:get_splitter).returns(splitter)
 
       splitter.expects(:split).with() do |collected_doc|
-        assert_true collected_doc.is_a?(Armagh::CollectedDocument)
+        assert_true collected_doc.is_a?(Armagh::Documents::CollectedDocument)
         assert_true File.file? collected_doc.collected_file
         assert_equal @content, File.read(collected_doc.collected_file)
         true
@@ -70,7 +70,7 @@ class TestCollectAction < Test::Unit::TestCase
 
       splitter.expects(:split).with() do |collected_doc|
         valid = true
-        valid &&= collected_doc.is_a?(Armagh::CollectedDocument)
+        valid &&= collected_doc.is_a?(Armagh::Documents::CollectedDocument)
         valid &&= File.file? collected_doc.collected_file
         valid &&= (File.read(collected_doc.collected_file) == @content)
         valid
@@ -81,13 +81,13 @@ class TestCollectAction < Test::Unit::TestCase
   end
 
   def test_create_undefined_type
-    assert_raise(Armagh::ActionErrors::DocSpecError) do
+    assert_raise(Armagh::Documents::Errors::DocSpecError) do
       @collect_action.create('123', 'something', {}, 'bad_type')
     end
   end
 
   def test_invalid_create_content
-    assert_raise(Armagh::ActionErrors::CreateError) do
+    assert_raise(Armagh::Actions::Errors::CreateError) do
       @collect_action.create('234', {}, {}, 'output_type')
     end
   end
@@ -100,8 +100,8 @@ class TestCollectAction < Test::Unit::TestCase
   end
 
   def test_valid_invalid_out_state
-    output_docspec = Armagh::DocSpec.new('Outputdocspec', Armagh::DocState::PUBLISHED)
-    collect_action = Armagh::CollectAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
+    output_docspec = Armagh::Documents::DocSpec.new('Outputdocspec', Armagh::Documents::DocState::PUBLISHED)
+    collect_action = Armagh::Actions::Collect.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
     valid = collect_action.validate
     assert_false valid['valid']
     assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
@@ -109,13 +109,13 @@ class TestCollectAction < Test::Unit::TestCase
   end
 
   def test_inheritence
-    assert_true Armagh::CollectAction.respond_to? :define_parameter
-    assert_true Armagh::CollectAction.respond_to? :defined_parameters
+    assert_true Armagh::Actions::Collect.respond_to? :define_parameter
+    assert_true Armagh::Actions::Collect.respond_to? :defined_parameters
 
-    assert_true Armagh::CollectAction.respond_to? :define_input_type
-    assert_true Armagh::CollectAction.respond_to? :defined_input_type
-    assert_true Armagh::CollectAction.respond_to? :define_output_docspec
-    assert_true Armagh::CollectAction.respond_to? :defined_output_docspecs
+    assert_true Armagh::Actions::Collect.respond_to? :define_input_type
+    assert_true Armagh::Actions::Collect.respond_to? :defined_input_type
+    assert_true Armagh::Actions::Collect.respond_to? :define_output_docspec
+    assert_true Armagh::Actions::Collect.respond_to? :defined_output_docspecs
 
     assert_true @collect_action.respond_to? :validate
   end

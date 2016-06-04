@@ -29,11 +29,11 @@ class TestCollectionSplitter < Test::Unit::TestCase
     @logger = mock
     @caller = mock
     @output_docspec = mock
-    @collection_splitter = Armagh::CollectionSplitter.new(@caller, @logger, {}, @output_docspec)
+    @collection_splitter = Armagh::Actions::CollectionSplitter.new(@caller, @logger, {}, @output_docspec)
   end
 
   def test_unimplemented_split
-    assert_raise(Armagh::ActionErrors::ActionMethodNotImplemented) {@collection_splitter.split(nil)}
+    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@collection_splitter.split(nil)}
   end
 
   def test_create
@@ -47,8 +47,8 @@ class TestCollectionSplitter < Test::Unit::TestCase
   end
 
   def test_inheritence
-    assert_true Armagh::CollectionSplitter.respond_to? :define_parameter
-    assert_true Armagh::CollectionSplitter.respond_to? :defined_parameters
+    assert_true Armagh::Actions::CollectionSplitter.respond_to? :define_parameter
+    assert_true Armagh::Actions::CollectionSplitter.respond_to? :defined_parameters
 
     assert_true @collection_splitter.respond_to? :validate
   end

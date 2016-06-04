@@ -18,13 +18,15 @@
 #
 
 module Armagh
-  module DocState
-    WORKING   = 'working'
-    READY     = 'ready'
-    PUBLISHED = 'published'
+  module Documents
+    module DocState
+      WORKING = 'working'
+      READY = 'ready'
+      PUBLISHED = 'published'
 
-    def self.valid_state?(state)
-      DocState::constants.collect{|c| DocState.const_get(c)}.include?(state)
+      def self.valid_state?(state)
+        DocState::constants.collect { |c| DocState.const_get(c) }.include?(state)
+      end
     end
   end
 end

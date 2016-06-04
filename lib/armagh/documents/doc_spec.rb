@@ -16,34 +16,36 @@
 #
 
 require_relative 'doc_state'
-require_relative '../action_errors'
+require_relative '../actions/errors'
 
 module Armagh
-  class DocSpec
-    attr_reader :type, :state
+  module Documents
+    class DocSpec
+      attr_reader :type, :state
 
-    def initialize(type, state)
-      raise ActionErrors::StateError, "Unknown state #{state}.  Valid states are #{Armagh::DocState::constants.collect{|c| c.to_s}}" unless DocState.valid_state?(state)
-      raise ActionErrors::DocSpecError, 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
+      def initialize(type, state)
+        raise Errors::DocStateError, "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }}" unless DocState.valid_state?(state)
+        raise Documents::Errors::DocSpecError, 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
 
-      @type = type.freeze
-      @state = state
-    end
+        @type = type.freeze
+        @state = state
+      end
 
-    def ==(other)
-      @type == other.type && @state == other.state
-    end
+      def ==(other)
+        @type == other.type && @state == other.state
+      end
 
-    def eql?(other)
-      self == other
-    end
+      def eql?(other)
+        self == other
+      end
 
-    def hash
-      to_s.hash
-    end
+      def hash
+        to_s.hash
+      end
 
-    def to_s
-      "#{type}:#{state}"
+      def to_s
+        "#{type}:#{state}"
+      end
     end
   end
 end

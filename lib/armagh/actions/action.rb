@@ -16,61 +16,63 @@
 #
 
 require_relative 'parameterized'
-require_relative '../action_errors'
+require_relative 'errors'
 require_relative '../documents'
 
 module Armagh
-  # TODO base actions lib/armagh/actions/action.rb - Add a deduplication by action instance (string)
-  # TODO base actions lib/armagh/actions/action.rb - Add a deduplication configuration for time to live per action instance
+  module Actions
+    # TODO base actions lib/armagh/actions/action.rb - Add a deduplication by action instance (string)
+    # TODO base actions lib/armagh/actions/action.rb - Add a deduplication configuration for time to live per action instance
 
-  class Action < Parameterized
-    attr_reader :output_docspecs, :name
+    class Action < Parameterized
+      attr_reader :output_docspecs, :name
 
-    def initialize(name, caller_instance, logger, parameters, output_docspecs)
-      super(parameters)
-      @name = name
-      @caller = caller_instance
-      @logger = logger
-      @output_docspecs = output_docspecs
-    end
+      def initialize(name, caller_instance, logger, parameters, output_docspecs)
+        super(parameters)
+        @name = name
+        @caller = caller_instance
+        @logger = logger
+        @output_docspecs = output_docspecs
+      end
 
-    def self.define_input_type(default_type)
-      raise ActionErrors::DocSpecError, "Default type is already defined as #{@defined_input_type}." unless @defined_input_type.nil?
-      raise ActionErrors::DocSpecError, "Default type #{default_type} must be a String." unless default_type.is_a? String
-      @defined_input_type = default_type
-    end
+      def self.define_input_type(default_type)
+        raise Documents::Errors::DocSpecError, "Default type is already defined as #{@defined_input_type}." unless @defined_input_type.nil?
+        raise Documents::Errors::DocSpecError, "Default type #{default_type} must be a String." unless default_type.is_a? String
+        @defined_input_type = default_type
+      end
 
-    def self.defined_input_type
-      @defined_input_type
-    end
+      def self.defined_input_type
+        @defined_input_type
+      end
 
-    def self.define_output_docspec(name, default_type: nil, default_state: nil)
-      raise ActionErrors::DocSpecError, 'Output DocSpec name must be a String.' unless name.is_a? String
-      raise ActionErrors::DocSpecError, "Output DocSpec #{name}'s default_type must be a String." unless default_type.nil? ||  default_type.is_a?(String)
-      raise ActionErrors::DocSpecError, "Output DocSpec #{name}'s default_state is invalid." unless default_state.nil? ||  DocState.valid_state?(default_state)
+      def self.define_output_docspec(name, default_type: nil, default_state: nil)
+        raise Documents::Errors::DocSpecError, 'Output DocSpec name must be a String.' unless name.is_a? String
+        raise Documents::Errors::DocSpecError, "Output DocSpec #{name}'s default_type must be a String." unless default_type.nil? || default_type.is_a?(String)
+        raise Documents::Errors::DocSpecError, "Output DocSpec #{name}'s default_state is invalid." unless default_state.nil? || Documents::DocState.valid_state?(default_state)
 
-      defined_output_docspecs[name] = {'default_type' => default_type, 'default_state' => default_state}
-    end
+        defined_output_docspecs[name] = {'default_type' => default_type, 'default_state' => default_state}
+      end
 
-    def self.defined_output_docspecs
-      @defined_output_docspecs ||= {}
-    end
+      def self.defined_output_docspecs
+        @defined_output_docspecs ||= {}
+      end
 
-    def validate
-      validate_action_type
+      def validate
+        validate_action_type
 
-      {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
-    end
+        {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
+      end
 
-    def custom_validation
-      # Default has no Action level validation
-      nil
-    end
+      def custom_validation
+        # Default has no Action level validation
+        nil
+      end
 
-    private def validate_action_type
-      valid_actions = %w(Armagh::ParseAction Armagh::ConsumeAction Armagh::PublishAction Armagh::CollectAction)
-      valid_type = (self.class.ancestors.collect{|a| a.name} & valid_actions).any?
-      @validation_errors << "Unknown Action Type #{self.class.to_s.sub('Armagh::','')}.  Expected to be a descendant of #{valid_actions}." unless valid_type
+      private def validate_action_type
+        valid_actions = %w(Armagh::Actions::Parse Armagh::Actions::Consume Armagh::Actions::Publish Armagh::Actions::Collect)
+        valid_type = (self.class.ancestors.collect { |a| a.name } & valid_actions).any?
+        @validation_errors << "Unknown Action Type #{self.class.to_s.sub('Armagh::', '')}.  Expected to be a descendant of #{valid_actions}." unless valid_type
+      end
     end
   end
 end

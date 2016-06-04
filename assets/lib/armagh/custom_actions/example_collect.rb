@@ -21,7 +21,7 @@ module Armagh
   module CustomActions
 
     # TODO base actions custom_actions example_collect_action... Create some example actions
-    class ExampleCollectAction < CollectAction
+    class ExampleCollect < Actions::Collect
 
     end
   end

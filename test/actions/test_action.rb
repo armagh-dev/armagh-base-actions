@@ -28,54 +28,54 @@ class TestAction < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    Armagh::Action.class_eval('@defined_input_type = nil')
-    Armagh::Action.defined_output_docspecs.clear
+    Armagh::Actions::Action.class_eval('@defined_input_type = nil')
+    Armagh::Actions::Action.defined_output_docspecs.clear
   end
 
   def test_define_input_type
     type = 'test_type1'
-    Armagh::Action.define_input_type type
-    assert_equal(type, Armagh::Action.defined_input_type)
+    Armagh::Actions::Action.define_input_type type
+    assert_equal(type, Armagh::Actions::Action.defined_input_type)
   end
 
   def test_define_input_type_bad_name
     type = 123
-    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_input_type(type)}
+    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_input_type(type)}
     assert_equal "Default type #{type} must be a String.", e.message
-    assert_nil Armagh::Action.defined_input_type
+    assert_nil Armagh::Actions::Action.defined_input_type
   end
 
   def test_define_output_docspec
-    Armagh::Action.define_output_docspec('test_type1')
-    Armagh::Action.define_output_docspec('test_type2', default_state: Armagh::DocState::READY, default_type: 'type')
+    Armagh::Actions::Action.define_output_docspec('test_type1')
+    Armagh::Actions::Action.define_output_docspec('test_type2', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
     expected = {
         'test_type1' => {'default_state' => nil, 'default_type' => nil},
         'test_type2' => {'default_state' => 'ready', 'default_type' => 'type'},
     }
-    assert_equal(expected, Armagh::Action.defined_output_docspecs)
+    assert_equal(expected, Armagh::Actions::Action.defined_output_docspecs)
   end
 
   def test_define_output_docspec_bad_name
-    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_output_docspec(nil)}
+    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_output_docspec(nil)}
     assert_equal 'Output DocSpec name must be a String.', e.message
-    assert_empty Armagh::Action.defined_output_docspecs
+    assert_empty Armagh::Actions::Action.defined_output_docspecs
   end
 
   def test_define_output_docspec_bad_default_state
-    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_output_docspec('name', default_state: 'invalid')}
+    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_output_docspec('name', default_state: 'invalid')}
     assert_equal "Output DocSpec name's default_state is invalid.", e.message
-    assert_empty Armagh::Action.defined_output_docspecs
+    assert_empty Armagh::Actions::Action.defined_output_docspecs
   end
 
   def test_define_output_docspec_bad_default_type
-    e = assert_raise(Armagh::ActionErrors::DocSpecError) {Armagh::Action.define_output_docspec('name', default_type: 123)}
+    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_output_docspec('name', default_type: 123)}
     assert_equal "Output DocSpec name's default_type must be a String.", e.message
-    assert_empty Armagh::Action.defined_output_docspecs
+    assert_empty Armagh::Actions::Action.defined_output_docspecs
   end
 
   def test_valid
-    action = Armagh::Action.new('name', @caller, @logger, {}, {})
-    action.class.stubs(:ancestors).returns([Armagh::ConsumeAction])
+    action = Armagh::Actions::Action.new('name', @caller, @logger, {}, {})
+    action.class.stubs(:ancestors).returns([Armagh::Actions::Consume])
     valid = action.validate
     assert_true valid['valid']
     assert_empty valid['errors']
@@ -83,10 +83,10 @@ class TestAction < Test::Unit::TestCase
   end
 
   def test_valid_bad_type
-    action = Armagh::Action.new('name', @caller, @logger, {}, {})
+    action = Armagh::Actions::Action.new('name', @caller, @logger, {}, {})
     valid = action.validate
     assert_false valid['valid']
-    assert_equal(['Unknown Action Type Action.  Expected to be a descendant of ["Armagh::ParseAction", "Armagh::ConsumeAction", "Armagh::PublishAction", "Armagh::CollectAction"].'],
+    assert_equal(['Unknown Action Type Actions::Action.  Expected to be a descendant of ["Armagh::Actions::Parse", "Armagh::Actions::Consume", "Armagh::Actions::Publish", "Armagh::Actions::Collect"].'],
                  valid['errors'])
     assert_empty valid['warnings']
   end

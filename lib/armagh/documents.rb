@@ -16,3 +16,8 @@
 #
 
 Dir[File.join(__dir__, 'documents', '*.rb')].each { |file| require file }
+
+module Armagh
+  module Documents
+  end
+end

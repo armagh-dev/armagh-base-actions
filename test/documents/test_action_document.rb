@@ -31,8 +31,8 @@ class TestActionDocument < Test::Unit::TestCase
     @published_content = 'published content'
     @draft_metadata = {'draft_meta' => true}
     @published_metadata = {'published_meta' => true}
-    @docspec = Armagh::DocSpec.new('doctype', Armagh::DocState::PUBLISHED)
-		@doc = Armagh::ActionDocument.new(id: @id, draft_content: @draft_content, published_content: @published_content, 
+    @docspec = Armagh::Documents::DocSpec.new('doctype', Armagh::Documents::DocState::PUBLISHED)
+		@doc = Armagh::Documents::ActionDocument.new(id: @id, draft_content: @draft_content, published_content: @published_content,
                                       draft_metadata: @draft_metadata, published_metadata: @published_metadata, docspec: @docspec)
   end
 
@@ -66,14 +66,14 @@ class TestActionDocument < Test::Unit::TestCase
 
   def test_docspec
     assert_equal(@docspec, @doc.docspec)
-    new_docspec = Armagh::DocSpec.new('doctype2', Armagh::DocState::WORKING)
+    new_docspec = Armagh::Documents::DocSpec.new('doctype2', Armagh::Documents::DocState::WORKING)
     @doc.docspec = new_docspec
     assert_equal(new_docspec, @doc.docspec)
   end
 
   def test_new_document?
     assert_false @doc.new_document?
-    @doc = Armagh::ActionDocument.new(id: @id, draft_content: @draft_content, published_content: @published_content,
+    @doc = Armagh::Documents::ActionDocument.new(id: @id, draft_content: @draft_content, published_content: @published_content,
                                       draft_metadata: @draft_metadata, published_metadata: @published_metadata,
                                       docspec: @docspec, new: true)
     assert_true @doc.new_document?

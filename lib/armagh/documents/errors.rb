@@ -15,9 +15,14 @@
 # limitations under the License.
 #
 
-Dir[File.join(__dir__, 'actions', '*.rb')].each { |file| require file }
-
 module Armagh
-  module Actions
+  module Documents
+    module Errors
+      class DocSpecError                < StandardError; end
+      class DocumentSizeError           < StandardError; end
+      class DocumentUniquenessError     < StandardError; end
+      class DocumentError               < StandardError; end
+      class DocStateError               < StandardError; end
+    end
   end
 end

@@ -24,19 +24,19 @@ require 'test/unit'
 require 'mocha/test_unit'
 
 module Helper
-  extend Armagh::ParameterDefinitions
+  extend Armagh::Actions::ParameterDefinitions
 
   define_parameter name: 'test_parameter', description: 'Test Parameter', type: String
 end
 
-class ExampleAction < Armagh::Action
+class ExampleAction < Armagh::Actions::Action
   include Helper
 end
 
 class TestParameterDefinitionExtension < Test::Unit::TestCase
 
   def test_defined_parameters_from_helper
-    expected = {'test_parameter' =>{'description' => 'Test Parameter', "type"=>String, 'required' =>false, 'default' =>nil, 'validation_callback' =>nil, 'prompt' =>nil}}
+    expected = {'test_parameter' =>{'description' => 'Test Parameter', 'type' =>String, 'required' =>false, 'default' =>nil, 'validation_callback' =>nil, 'prompt' =>nil}}
     assert_equal(expected, ExampleAction.defined_parameters)
   end
   # Deferred all testing of ParameterDefinitions to test_parameterized since ParameterDefinitions is a mixin

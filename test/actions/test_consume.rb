@@ -21,20 +21,20 @@ require_relative '../coverage_helper'
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../lib/armagh/actions/consume_action'
+require_relative '../../lib/armagh/actions/consume'
 
-class TestConsumeAction < Test::Unit::TestCase
+class TestConsume < Test::Unit::TestCase
 
   def setup
     @logger = mock
     @caller = mock
-    @output_docspec = Armagh::DocSpec.new('OutputDocument', Armagh::DocState::READY)
+    @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
 
-    @consume_action = Armagh::ConsumeAction.new('consume', @caller, @logger, {}, {'output_type'=> @output_docspec})
+    @consume_action = Armagh::Actions::Consume.new('consume', @caller, @logger, {}, {'output_type'=> @output_docspec})
   end
 
   def test_unimplemented_consume
-    assert_raise(Armagh::ActionErrors::ActionMethodNotImplemented) {@consume_action.consume(nil)}
+    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@consume_action.consume(nil)}
   end
 
   def test_edit
@@ -47,7 +47,7 @@ class TestConsumeAction < Test::Unit::TestCase
   end
 
   def test_edit_undefined_type
-    assert_raise(Armagh::ActionErrors::DocSpecError) do
+    assert_raise(Armagh::Documents::Errors::DocSpecError) do
       @consume_action.edit('123', 'bad_type') {|doc|}
     end
   end
@@ -57,8 +57,8 @@ class TestConsumeAction < Test::Unit::TestCase
   end
 
   def test_valid_invalid_out_state
-    output_docspec = Armagh::DocSpec.new('OutputDoctype', Armagh::DocState::PUBLISHED)
-    consume_action = Armagh::ConsumeAction.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
+    output_docspec = Armagh::Documents::DocSpec.new('OutputDoctype', Armagh::Documents::DocState::PUBLISHED)
+    consume_action = Armagh::Actions::Consume.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
 
     valid = consume_action.validate
     assert_false valid['valid']
@@ -66,13 +66,13 @@ class TestConsumeAction < Test::Unit::TestCase
   end
 
   def test_inheritence
-    assert_true Armagh::ConsumeAction.respond_to? :define_parameter
-    assert_true Armagh::ConsumeAction.respond_to? :defined_parameters
+    assert_true Armagh::Actions::Consume.respond_to? :define_parameter
+    assert_true Armagh::Actions::Consume.respond_to? :defined_parameters
 
-    assert_true Armagh::ConsumeAction.respond_to? :define_input_type
-    assert_true Armagh::ConsumeAction.respond_to? :defined_input_type
-    assert_true Armagh::ConsumeAction.respond_to? :define_output_docspec
-    assert_true Armagh::ConsumeAction.respond_to? :defined_output_docspecs
+    assert_true Armagh::Actions::Consume.respond_to? :define_input_type
+    assert_true Armagh::Actions::Consume.respond_to? :defined_input_type
+    assert_true Armagh::Actions::Consume.respond_to? :define_output_docspec
+    assert_true Armagh::Actions::Consume.respond_to? :defined_output_docspecs
 
     assert_true @consume_action.respond_to? :validate
   end
