@@ -74,7 +74,7 @@ class TestAction < Test::Unit::TestCase
   end
 
   def test_valid
-    action = Armagh::Actions::Action.new('name', @caller, @logger, {}, {})
+    action = Armagh::Actions::Action.new('name', @caller, 'logger_name', {}, {})
     action.class.stubs(:ancestors).returns([Armagh::Actions::Consume])
     valid = action.validate
     assert_true valid['valid']
@@ -83,7 +83,7 @@ class TestAction < Test::Unit::TestCase
   end
 
   def test_valid_bad_type
-    action = Armagh::Actions::Action.new('name', @caller, @logger, {}, {})
+    action = Armagh::Actions::Action.new('name', @caller, 'logger_name', {}, {})
     valid = action.validate
     assert_false valid['valid']
     assert_equal(['Unknown Action Type Actions::Action.  Expected to be a descendant of ["Armagh::Actions::Parse", "Armagh::Actions::Consume", "Armagh::Actions::Publish", "Armagh::Actions::Collect"].'],

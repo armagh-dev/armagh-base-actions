@@ -29,7 +29,7 @@ class TestCollectionSplitter < Test::Unit::TestCase
     @logger = mock
     @caller = mock
     @output_docspec = mock
-    @collection_splitter = Armagh::Actions::CollectionSplitter.new(@caller, @logger, {}, @output_docspec)
+    @collection_splitter = Armagh::Actions::CollectionSplitter.new('splitter_name', @caller, 'logger_name', {}, @output_docspec)
   end
 
   def test_unimplemented_split
@@ -51,6 +51,10 @@ class TestCollectionSplitter < Test::Unit::TestCase
     assert_true Armagh::Actions::CollectionSplitter.respond_to? :defined_parameters
 
     assert_true @collection_splitter.respond_to? :validate
+    assert_true @collection_splitter.respond_to? :log_debug
+    assert_true @collection_splitter.respond_to? :log_info
+    assert_true @collection_splitter.respond_to? :notify_dev
+    assert_true @collection_splitter.respond_to? :notify_ops
   end
 end
 

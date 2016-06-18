@@ -26,5 +26,5 @@ Rake::TestTask.new do |t|
 end
 
 task :clean do
-  rm_rf Dir.glob(%w(coverage test/**/coverage))
+  rm_rf Dir.glob(%w(coverage test/**/coverage doc))
 end

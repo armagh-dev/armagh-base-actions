@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require_relative 'loggable'
 require_relative 'parameterized'
 require_relative 'errors'
 require_relative '../documents'
@@ -27,11 +28,13 @@ module Armagh
     class Action < Parameterized
       attr_reader :output_docspecs, :name
 
-      def initialize(name, caller_instance, logger, parameters, output_docspecs)
+      include Loggable
+
+      def initialize(name, caller_instance, logger_name, parameters, output_docspecs)
         super(parameters)
         @name = name
         @caller = caller_instance
-        @logger = logger
+        @logger_name = logger_name
         @output_docspecs = output_docspecs
       end
 

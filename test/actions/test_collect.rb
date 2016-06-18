@@ -27,11 +27,10 @@ require_relative '../../lib/armagh/actions'
 class TestCollect < Test::Unit::TestCase
 
   def setup
-    @logger = mock
     @caller = mock
     @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
     @content = 'collected content'
-    @collect_action = Armagh::Actions::Collect.new('action', @caller, @logger, {}, {'output_type'=> @output_docspec})
+    @collect_action = Armagh::Actions::Collect.new('action', @caller, 'logger_name', {}, {'output_type'=> @output_docspec})
 
   end
 
@@ -101,7 +100,7 @@ class TestCollect < Test::Unit::TestCase
 
   def test_valid_invalid_out_state
     output_docspec = Armagh::Documents::DocSpec.new('Outputdocspec', Armagh::Documents::DocState::PUBLISHED)
-    collect_action = Armagh::Actions::Collect.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
+    collect_action = Armagh::Actions::Collect.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
     valid = collect_action.validate
     assert_false valid['valid']
     assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
@@ -118,5 +117,9 @@ class TestCollect < Test::Unit::TestCase
     assert_true Armagh::Actions::Collect.respond_to? :defined_output_docspecs
 
     assert_true @collect_action.respond_to? :validate
+    assert_true @collect_action.respond_to? :log_debug
+    assert_true @collect_action.respond_to? :log_info
+    assert_true @collect_action.respond_to? :notify_dev
+    assert_true @collect_action.respond_to? :notify_ops
   end
 end

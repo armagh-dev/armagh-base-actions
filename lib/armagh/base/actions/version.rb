@@ -18,7 +18,7 @@
 module Armagh
   module Base
     module Actions
-      VERSION = '0.0.15-dev'
+      VERSION = '0.0.16-dev'
     end
   end
 end

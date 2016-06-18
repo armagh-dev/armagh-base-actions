@@ -16,6 +16,7 @@
 #
 
 require_relative 'action'
+require_relative 'loggable'
 
 module Armagh
   module Actions
@@ -23,12 +24,15 @@ module Armagh
       # Splits a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
       #  for dividing up work or handling files that are too large to store in Mongo.
 
+      include Loggable
+
       attr_reader :output_docspec
 
-      def initialize(caller, logger, parameters, output_docspec)
+      def initialize(name, caller, logger_name, parameters, output_docspec)
         super(parameters)
+        @name = name
         @caller = caller
-        @logger = logger
+        @logger_name = logger_name
         @parameters = parameters
         @output_docspec = output_docspec
       end

@@ -26,11 +26,10 @@ require_relative '../../lib/armagh/actions/consume'
 class TestConsume < Test::Unit::TestCase
 
   def setup
-    @logger = mock
     @caller = mock
     @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
 
-    @consume_action = Armagh::Actions::Consume.new('consume', @caller, @logger, {}, {'output_type'=> @output_docspec})
+    @consume_action = Armagh::Actions::Consume.new('consume', @caller, 'logger_name', {}, {'output_type'=> @output_docspec})
   end
 
   def test_unimplemented_consume
@@ -58,7 +57,7 @@ class TestConsume < Test::Unit::TestCase
 
   def test_valid_invalid_out_state
     output_docspec = Armagh::Documents::DocSpec.new('OutputDoctype', Armagh::Documents::DocState::PUBLISHED)
-    consume_action = Armagh::Actions::Consume.new('action', @caller, @logger, {}, {'output_type'=> output_docspec})
+    consume_action = Armagh::Actions::Consume.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
 
     valid = consume_action.validate
     assert_false valid['valid']
@@ -75,5 +74,9 @@ class TestConsume < Test::Unit::TestCase
     assert_true Armagh::Actions::Consume.respond_to? :defined_output_docspecs
 
     assert_true @consume_action.respond_to? :validate
+    assert_true @consume_action.respond_to? :log_debug
+    assert_true @consume_action.respond_to? :log_info
+    assert_true @consume_action.respond_to? :notify_dev
+    assert_true @consume_action.respond_to? :notify_ops
   end
 end
