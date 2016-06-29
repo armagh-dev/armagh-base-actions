@@ -48,7 +48,7 @@ module Armagh
           collected_doc = Documents::CollectedDocument.new(id: id, collected_file: collected_file, metadata: metadata, docspec: docspec)
           splitter.split(collected_doc)
         else
-          content = File.file?(collected) ? File.read(collected_file) : collected
+          content = File.file?(collected) ? File.read(collected) : collected
           action_doc = Documents::ActionDocument.new(id: id, draft_content: content, published_content: {},
                                           draft_metadata: metadata, published_metadata: {}, docspec: docspec, new: true)
           @caller.create_document(action_doc)

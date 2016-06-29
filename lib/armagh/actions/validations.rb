@@ -16,12 +16,8 @@
 #
 
 module Armagh
-  module Actions
-    module Errors
-      class ActionMethodNotImplemented  < StandardError; end
-      class ParameterError              < StandardError; end
-      class CreateError                 < StandardError; end
-      class CollectError                < StandardError; end
-    end
+  module Validations
+    
+    module_function
   end
 end

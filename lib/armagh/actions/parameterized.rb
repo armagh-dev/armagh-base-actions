@@ -22,8 +22,10 @@ require_relative 'errors'
 
 module Armagh
   module Actions
+
     class Parameterized
       extend ParameterDefinitions
+      attr_accessor :parameters
 
       def initialize(parameters)
         @parameters = parameters
@@ -94,6 +96,7 @@ module Armagh
         valid
       end
 
+
       def validate_general
         valid = true
         general_validation = custom_validation
@@ -103,6 +106,7 @@ module Armagh
         end
         valid
       end
+            
     end
   end
 end

@@ -51,6 +51,7 @@ module Armagh
       def notify_dev(error)
         @caller.notify_dev(@name, error)
       end
+            
     end
   end
 end

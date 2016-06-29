@@ -15,13 +15,28 @@
 # limitations under the License.
 #
 
-module Armagh
-  module Actions
-    module Errors
-      class ActionMethodNotImplemented  < StandardError; end
-      class ParameterError              < StandardError; end
-      class CreateError                 < StandardError; end
-      class CollectError                < StandardError; end
-    end
+require 'base64'
+
+class EncodedString
+  
+  def self.from_plain_text( plain_text )
+    new( Base64.encode64( plain_text ))
   end
+  
+  def self.from_encoded( encoded )
+    new( encoded )
+  end
+    
+  def initialize( encoded )
+    @encoded_string = encoded
+  end
+  
+  def to_s
+    @encoded_string
+  end
+  
+  def plain_text
+    Base64.decode64( @encoded_string )
+  end
+  
 end

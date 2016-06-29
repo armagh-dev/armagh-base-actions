@@ -17,17 +17,14 @@
 
 require 'tmpdir'
 
-require_relative 'errors'
-
-class Boolean
-  def self.bool?(val)
-    val == true || val == false
-  end
-end
+require_relative 'errors.rb'
+require_relative '../common/boolean.rb'
+require_relative '../common/encoded_string.rb'
 
 module Armagh
   module Actions
     module ParameterDefinitions
+      
       def define_parameter(name:, description:, type:, required: false, default: nil, validation_callback: nil, prompt: nil)
         raise Errors::ParameterError, 'Parameter name must be a String.' unless name.is_a? String
         raise Errors::ParameterError, "Parameter #{name}'s description must be a String." unless description.is_a? String
@@ -36,9 +33,8 @@ module Armagh
         raise Errors::ParameterError, "Parameter #{name}'s default must be a #{type}." if default && !(default.is_a?(type) || (type == Boolean && Boolean.bool?(default)))
         raise Errors::ParameterError, "Parameter #{name}'s validation_callback must be a String." if validation_callback && !validation_callback.is_a?(String)
         raise Errors::ParameterError, "Parameter #{name}'s prompt must be a String." if prompt && !prompt.is_a?(String)
-        raise Errors::ParameterError, "Parameter #{name} cannot have a default value and be required." if required && default
 
-        param_config = {'description' => description, 'type' => type, 'required' => required, 'default' => default, 'validation_callback' => validation_callback, 'prompt' => prompt}
+        param_config = {'description' => description, 'type' => type, 'required' => required, 'default' => default, 'validation_callback' => validation_callback, 'prompt' => prompt }
 
         @defined_parameters ||= {}
 
@@ -61,6 +57,14 @@ module Armagh
           end
         end
         parameters
+      end
+    
+      def defined_parameter_defaults
+        Hash[@defined_parameters.collect{ |k,v| [ k, v['default']] unless v['default'].nil?}.compact]
+      end
+      
+      def defined_parameter_group( group_name )
+        @defined_parameters.select{ |k,v| v['group'] == group_name }
       end
     end
   end

@@ -112,12 +112,6 @@ class TestParameterized < Test::Unit::TestCase
     }
     assert_equal("Parameter name's prompt must be a String.", e.message)
 
-    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
-      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: true,
-                                             default: 'default', validation_callback: 'validation_callback',
-                                             prompt: 'prompt')
-    }
-    assert_equal('Parameter name cannot have a default value and be required.', e.message)
   end
 
   def test_define_parameters_duplicate

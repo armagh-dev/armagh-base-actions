@@ -15,13 +15,8 @@
 # limitations under the License.
 #
 
-module Armagh
-  module Actions
-    module Errors
-      class ActionMethodNotImplemented  < StandardError; end
-      class ParameterError              < StandardError; end
-      class CreateError                 < StandardError; end
-      class CollectError                < StandardError; end
-    end
+class Boolean
+  def self.bool?(val)
+    val == true || val == false
   end
 end

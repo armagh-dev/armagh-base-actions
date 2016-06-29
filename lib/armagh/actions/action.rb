@@ -60,7 +60,9 @@ module Armagh
         @defined_output_docspecs ||= {}
       end
 
+
       def validate
+        super
         validate_action_type
 
         {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
