@@ -1,0 +1,20 @@
+TEST FTP
+INTEGRATION TEST ENVIRONMENT
+
+The integration tests for FTP assume the existence of an active FTP server.  You must configure
+an FTP server in your environment as described below, and provide the hostname and credentials
+in a json configuration in this folder.
+
+The server you configure must have a password-protected account whose base directory has the 
+following subdirectories:
+
+   *  no_access_dir owned by a different user and group
+   *  read_only_dir with 500 permissions
+   *  readwrite_dir with 775 permissions, empty
+   
+Then you should create a JSON file with a hash containing members
+
+   'test_ftp_username' => username as a string
+   'test_ftp_password' => password as a Base64-encoded string
+   'test_ftp_host'     => FQDN of your ftp server as a string
+   
