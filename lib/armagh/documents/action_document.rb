@@ -15,19 +15,23 @@
 # limitations under the License.
 #
 
+require_relative 'errors'
+
 module Armagh
   module Documents
     class ActionDocument
-      attr_reader :id, :published_metadata, :published_content
-      attr_accessor :docspec, :draft_metadata, :draft_content
+      attr_reader :source
+      attr_accessor :document_id, :docspec, :metadata, :content, :title, :copyright, :document_timestamp
 
-      def initialize(id:, draft_content:, published_content:, draft_metadata:, published_metadata:, docspec:, new: false)
-        @id = id.freeze
-        @draft_content = draft_content
-        @published_content = published_content.dup.freeze unless published_content.nil?
-        @draft_metadata = draft_metadata
-        @published_metadata = published_metadata.dup.freeze unless published_metadata.nil?
+      def initialize(document_id:, title: nil, copyright: nil, content:, metadata:, docspec:, source:, document_timestamp: nil, new: false)
+        @document_id = document_id.freeze
+        @title = title
+        @copyright = copyright
+        @content = content
+        @metadata = metadata
         @docspec = docspec
+        @source = source.dup.freeze
+        @document_timestamp = document_timestamp
         @new = new
       end
 

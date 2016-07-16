@@ -64,6 +64,11 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
  
   end
   
+  def cleanup
+    
+    puts "\ntest: #{name} took #{Time.now-start_time}\n"
+  end
+  
   def load_local_integration_test_config
     
     config = nil
@@ -135,14 +140,15 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
 
   def test_fail_test_unwilling_host
     
-    @base_config[ 'ftp_host' ] = "www.noragh.com"
+    @base_config[ 'ftp_host' ] = "127.0.0.1"
+    @base_config[ 'ftp_port' ] = 999
     @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
     action_params = @fake_collect_action.parameters
     
     e = assert_raises( Armagh::Support::FTP::ConnectionError ) do
       Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
     end
-    assert_equal "The server www.noragh.com refused the connection.", e.message
+    assert_equal "The server 127.0.0.1 refused the connection.", e.message
   end
 
   def test_fail_test_nonexistent_user
@@ -249,6 +255,5 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
       end
     end
   end
- 
 end
     

@@ -21,63 +21,63 @@ require_relative '../coverage_helper'
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../lib/armagh/actions/parse'
+require_relative '../../lib/armagh/actions/split'
 
-class TestParse < Test::Unit::TestCase
+class TestSplit < Test::Unit::TestCase
 
   def setup
     @logger = mock
     @caller = mock
     @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
 
-    @parse_action = Armagh::Actions::Parse.new('action', @caller, 'logger_name', {}, {'output_type'=> @output_docspec})
+    @split_action = Armagh::Actions::Split.new('action', @caller, 'logger_name', {}, {'output_type'=> @output_docspec})
   end
 
-  def test_unimplemented_parse
-    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@parse_action.parse(nil)}
+  def test_unimplemented_split
+    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@split_action.split(nil)}
   end
 
   def test_edit
     yielded_doc = mock
     @caller.expects(:edit_document).with('123', @output_docspec).yields(yielded_doc)
 
-    @parse_action.edit('123', 'output_type') do |doc|
+    @split_action.edit('123', 'output_type') do |doc|
       assert_equal yielded_doc, doc
     end
   end
 
   def test_edit_undefined_type
     assert_raise(Armagh::Documents::Errors::DocSpecError) do
-      @parse_action.edit('123', 'bad_type') {|doc|}
+      @split_action.edit('123', 'bad_type') {|doc|}
     end
   end
 
   def test_validate
-    assert_equal({'errors' => [], 'valid' => true, 'warnings' => []}, @parse_action.validate)
+    assert_equal({'errors' => [], 'valid' => true, 'warnings' => []}, @split_action.validate)
   end
 
   def test_validate_invalid_out_state
     output_docspec = Armagh::Documents::DocSpec.new('OutputDoctype', Armagh::Documents::DocState::PUBLISHED)
-    parse_action = Armagh::Actions::Parse.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
-    valid = parse_action.validate
+    split_action = Armagh::Actions::Split.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
+    valid = split_action.validate
     assert_false valid['valid']
     assert_empty valid['warnings']
     assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
   end
 
   def test_inheritence
-    assert_true Armagh::Actions::Parse.respond_to? :define_parameter
-    assert_true Armagh::Actions::Parse.respond_to? :defined_parameters
+    assert_true Armagh::Actions::Split.respond_to? :define_parameter
+    assert_true Armagh::Actions::Split.respond_to? :defined_parameters
 
-    assert_true Armagh::Actions::Parse.respond_to? :define_input_type
-    assert_true Armagh::Actions::Parse.respond_to? :defined_input_type
-    assert_true Armagh::Actions::Parse.respond_to? :define_output_docspec
-    assert_true Armagh::Actions::Parse.respond_to? :defined_output_docspecs
+    assert_true Armagh::Actions::Split.respond_to? :define_input_type
+    assert_true Armagh::Actions::Split.respond_to? :defined_input_type
+    assert_true Armagh::Actions::Split.respond_to? :define_output_docspec
+    assert_true Armagh::Actions::Split.respond_to? :defined_output_docspecs
 
-    assert_true @parse_action.respond_to? :validate
-    assert_true @parse_action.respond_to? :log_debug
-    assert_true @parse_action.respond_to? :log_info
-    assert_true @parse_action.respond_to? :notify_dev
-    assert_true @parse_action.respond_to? :notify_ops
+    assert_true @split_action.respond_to? :validate
+    assert_true @split_action.respond_to? :log_debug
+    assert_true @split_action.respond_to? :log_info
+    assert_true @split_action.respond_to? :notify_dev
+    assert_true @split_action.respond_to? :notify_ops
   end
 end

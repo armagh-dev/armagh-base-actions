@@ -19,17 +19,15 @@ require_relative 'action'
 
 module Armagh
   module Actions
-    class Parse < Action
+    class Split < Action
       # Triggered by DocType:ready
-      # Doc is deleted after the parse is complete
+      # Doc is deleted after the split is complete
       # Can create/edit additional documents of any type or state
 
       # Doc is an ActionDocument
-      def parse(doc)
-        raise Errors::ActionMethodNotImplemented, 'ParseActions must overwrite the parse method.'
+      def split(doc)
+        raise Errors::ActionMethodNotImplemented, 'Split actions must overwrite the split method.'
       end
-
-      # raises InvalidDoctypeError
 
       def edit(id, docspec_name)
         docspec = @output_docspecs[docspec_name]

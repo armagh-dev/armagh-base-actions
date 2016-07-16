@@ -82,7 +82,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
   
   def test_validate_good_configuration
 
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path ).returns(true)
     @mock_ftp.stubs(:putbinaryfile)
@@ -123,7 +124,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
    
   def test_failed_custom_validation
     
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
 
     @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config) 
@@ -135,7 +137,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
   def test_default_connect
     
     
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path ).returns(true)
     @mock_ftp.expects(:close)
@@ -150,7 +153,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
   
   def test_open_timeout
     
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::OpenTimeout)
     
     @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
@@ -164,7 +168,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
 
   def test_connection_refused
     
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Errno::ECONNREFUSED)
 
     @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
@@ -178,7 +183,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
   
   def test_auth_error
     
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
     
     @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
@@ -193,7 +199,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
   def test_reply_error_blank_password_servers_sends_ftppermerror
     
     @base_config[ 'ftp_password' ] = EncodedString.from_plain_text( '' )
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, '' ).raises(Net::FTPPermError)
      
     @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
@@ -208,7 +215,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
   def test_reply_error_blank_password_servers_sends_ftpreplyerror
     
     @base_config[ 'ftp_password' ] = EncodedString.from_plain_text( '' )
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, '').raises( Net::FTPReplyError)
      
     @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
@@ -222,7 +230,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
  
   def test_reply_error_with_password
     
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
     
     @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
@@ -236,7 +245,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
   
   def test_chdir
     
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
     @mock_ftp.expects(:chdir).with( 'test' ).returns( true )
@@ -256,7 +266,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
     
     test_ftp_filename_pattern = '*.txt'
 
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
     @mock_ftp.expects(:nlst).with( test_ftp_filename_pattern ).returns( (1..9).collect{ |i| "file#{i}.txt" } )
@@ -280,7 +291,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
   
   def test_put_files
     
-    Net::FTP.expects(:new).with( @test_ftp_host ).returns( @mock_ftp )
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
     @mock_ftp.expects(:putbinaryfile).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)

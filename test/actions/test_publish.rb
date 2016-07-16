@@ -59,13 +59,13 @@ class TestPublish < Test::Unit::TestCase
     publish_action = Armagh::Actions::Publish.new('action', @caller, 'logger_name', {}, output_docspecs)
     valid = publish_action.validate
     assert_false valid['valid']
-    assert_equal(['PublishActions can only have one output docspec.'], valid['errors'])
+    assert_equal(['Publish actions can only have one output docspec.'], valid['errors'])
 
     output_docspecs = {}
     publish_action = Armagh::Actions::Publish.new('action', @caller, 'logger_name', {}, output_docspecs)
     valid = publish_action.validate
     assert_false valid['valid']
-    assert_equal(['PublishActions can only have one output docspec.'], valid['errors'])
+    assert_equal(['Publish actions can only have one output docspec.'], valid['errors'])
   end
 
   def test_validate_invalid_out_state
@@ -73,13 +73,22 @@ class TestPublish < Test::Unit::TestCase
     publish_action = Armagh::Actions::Publish.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
     valid = publish_action.validate
     assert_false valid['valid']
-    assert_equal(['Output document state for a PublishAction must be published.'], valid['errors'])
+    assert_equal(['Output document state for a Publish action must be published.'], valid['errors'])
 
     output_docspec = Armagh::Documents::DocSpec.new('PublishDocument', Armagh::Documents::DocState::READY)
     publish_action = Armagh::Actions::Publish.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
     valid = publish_action.validate
     assert_false valid['valid']
-    assert_equal(['Output document state for a PublishAction must be published.'], valid['errors'])
+    assert_equal(['Output document state for a Publish action must be published.'], valid['errors'])
+  end
+
+  def test_get_existing_published_document
+    docspec = Armagh::Documents::DocSpec.new('PublishDocument', Armagh::Documents::DocState::WORKING)
+    doc = Armagh::Documents::ActionDocument.new(document_id: 'id', content: 'content', metadata: 'meta',
+                                                 docspec: docspec, source: {}, new: true)
+
+    @caller.expects(:get_existing_published_document).with(doc)
+    @publish_action.get_existing_published_document doc
   end
 
   def test_inheritence

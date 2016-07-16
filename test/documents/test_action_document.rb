@@ -26,42 +26,52 @@ require_relative '../../lib/armagh/documents/doc_state'
 class TestActionDocument < Test::Unit::TestCase
 
 	def setup
-    @id = '123'
-    @draft_content = 'draft content'
-    @published_content = 'published content'
-    @draft_metadata = {'draft_meta' => true}
-    @published_metadata = {'published_meta' => true}
+    @document_id = '123'
+    @content = 'content'
+    @metadata = {'meta' => true}
+    @document_timestamp = 'fake_timestamp'
     @docspec = Armagh::Documents::DocSpec.new('doctype', Armagh::Documents::DocState::PUBLISHED)
-		@doc = Armagh::Documents::ActionDocument.new(id: @id, draft_content: @draft_content, published_content: @published_content,
-                                      draft_metadata: @draft_metadata, published_metadata: @published_metadata, docspec: @docspec)
+    @source = {'source' => 'something'}
+    @title = 'title'
+    @copyright = 'copyright'
+		@doc = Armagh::Documents::ActionDocument.new(document_id: @document_id, content: @content,
+                                                 metadata: @metadata, docspec: @docspec, source: @source,
+                                                 document_timestamp: @document_timestamp, title: @title, copyright: @copyright)
   end
 
-  def test_draft_content
-    assert_equal(@draft_content, @doc.draft_content)
+  def test_title
+    assert_equal(@title, @doc.title)
+    new = 'new'
+    @doc.title = new
+    assert_equal(new, @doc.title)
+  end
+
+  def test_copyright
+    assert_equal(@copyright, @doc.copyright)
+    new = 'new'
+    @doc.copyright = new
+    assert_equal(new, @doc.copyright)
+  end
+
+  def test_document_timestamp
+    assert_equal(@document_timestamp, @doc.document_timestamp)
+    new_timestamp = 'new timestamp'
+    @doc.document_timestamp = new_timestamp
+    assert_equal(new_timestamp, @doc.document_timestamp)
+  end
+
+  def test_content
+    assert_equal(@content, @doc.content)
     new_content = {'new content' => false}
-    @doc.draft_content = new_content
-    assert_equal(new_content, @doc.draft_content)
+    @doc.content = new_content
+    assert_equal(new_content, @doc.content)
   end
 
-  def test_published_content
-    assert_equal(@published_content, @doc.published_content)
-    assert_raise {@doc.published_content = 'new content'}
-    assert_raise {@doc.published_content << 'new content'}
-    assert_equal(@published_content, @doc.published_content)
-  end
-
-  def test_draft_metadata
-    assert_equal(@draft_metadata, @doc.draft_metadata)
+  def test_metadata
+    assert_equal(@metadata, @doc.metadata)
     new_meta = {'new meta' => false}
-    @doc.draft_metadata = new_meta
-    assert_equal(new_meta, @doc.draft_metadata)
-  end
-
-  def test_published_metadata
-    assert_equal(@published_metadata, @doc.published_metadata)
-    assert_raise {@doc.published_metadata = 'new metadata'}
-    assert_raise {@doc.published_metadata << 'new metadata'}
-    assert_equal(@published_metadata, @doc.published_metadata)
+    @doc.metadata = new_meta
+    assert_equal(new_meta, @doc.metadata)
   end
 
   def test_docspec
@@ -71,11 +81,14 @@ class TestActionDocument < Test::Unit::TestCase
     assert_equal(new_docspec, @doc.docspec)
   end
 
+  def test_source
+    assert_equal(@source, @doc.source)
+  end
+
   def test_new_document?
     assert_false @doc.new_document?
-    @doc = Armagh::Documents::ActionDocument.new(id: @id, draft_content: @draft_content, published_content: @published_content,
-                                      draft_metadata: @draft_metadata, published_metadata: @published_metadata,
-                                      docspec: @docspec, new: true)
+    @doc = Armagh::Documents::ActionDocument.new(document_id: @document_id, content: @content, metadata: @metadata,
+                                      docspec: @docspec, source: @source, new: true)
     assert_true @doc.new_document?
   end
 

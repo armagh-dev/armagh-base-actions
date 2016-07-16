@@ -20,25 +20,20 @@ require_relative '../coverage_helper'
 require 'test/unit'
 
 require_relative '../../lib/armagh/documents/collected_document'
+require_relative '../../lib/armagh/documents/doc_spec'
 
 class TestCollectedDocument < Test::Unit::TestCase
 
 	def setup
-    @id = 'id'
     @collected_file = 'content'
     @metadata = {'metadata' => true}
     @docspec = Armagh::Documents::DocSpec.new('doctype', Armagh::Documents::DocState::PUBLISHED)
-		@doc = Armagh::Documents::CollectedDocument.new(id: @id, collected_file: @collected_file, metadata: @metadata, docspec: @docspec)
-  end
-
-  def test_unable_modify_id
-    assert_raise {@doc.id = 'something'}
-    assert_raise {@doc.id << 'wee'}
+		@doc = Armagh::Documents::CollectedDocument.new(collected_file: @collected_file, metadata: @metadata, docspec: @docspec)
   end
 
   def test_unable_to_modify_collected_file
-    assert_raise {@collected_file.id = 'something'}
-    assert_raise {@collected_file.id << 'wee'}
+    assert_raise {@doc.document_id = 'something'}
+    assert_raise {@doc.document_id << 'wee'}
   end
 
   def test_metadata

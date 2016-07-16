@@ -61,36 +61,40 @@ module Armagh
       private def validate_params
         valid = true
         @parameters.each do |param, value|
-          expected_type = self.class.defined_parameters[param]['type']
-          unless value.is_a?(expected_type) || (expected_type == Boolean &&(Boolean.bool?(value)))
-            valid = false
-            @validation_errors << "Invalid type for '#{param}'.  Expected #{expected_type} but was #{value.class}."
-            next
-          end
-
-          return false unless valid
-
-          callback = self.class.defined_parameters[param]['validation_callback']
-          if callback
-            if self.respond_to? callback
-              begin
-                response = self.send(callback, value)
-              rescue => e
-                valid = false
-                @validation_errors << "Validation callback of '#{param}' (method '#{callback}') failed with exception: #{e}."
-                next
-              end
-
-              unless response.nil?
-                valid = false
-                @validation_errors << "Validation callback of '#{param}' (method '#{callback}') failed with message: #{response}."
-                next
-              end
-            else
+          if self.class.defined_parameters[param]
+            expected_type = self.class.defined_parameters[param]['type']
+            unless value.is_a?(expected_type) || (expected_type == Boolean &&(Boolean.bool?(value)))
               valid = false
-              @validation_errors << "Invalid validation_callback for '#{param}'.  Class does not respond to method '#{callback}'."
+              @validation_errors << "Invalid type for '#{param}'.  Expected #{expected_type} but was #{value.class}."
               next
             end
+
+            return false unless valid
+
+            callback = self.class.defined_parameters[param]['validation_callback']
+            if callback
+              if self.respond_to? callback
+                begin
+                  response = self.send(callback, value)
+                rescue => e
+                  valid = false
+                  @validation_errors << "Validation callback of '#{param}' (method '#{callback}') failed with exception: #{e}."
+                  next
+                end
+
+                unless response.nil?
+                  valid = false
+                  @validation_errors << "Validation callback of '#{param}' (method '#{callback}') failed with message: #{response}."
+                  next
+                end
+              else
+                valid = false
+                @validation_errors << "Invalid validation_callback for '#{param}'.  Class does not respond to method '#{callback}'."
+                next
+              end
+            end
+          else
+            @validation_warnings << "Parameter '#{param}' not defined for class #{self.class}."
           end
         end
         valid

@@ -31,6 +31,10 @@ class TestCollect < Test::Unit::TestCase
     @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
     @content = 'collected content'
     @collect_action = Armagh::Actions::Collect.new('action', @caller, 'logger_name', {}, {'output_type'=> @output_docspec})
+    @source = {
+        'type' => 'url',
+        'url' => 'some url'
+    }
 
   end
 
@@ -38,36 +42,38 @@ class TestCollect < Test::Unit::TestCase
     assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@collect_action.collect}
   end
 
-  def test_create_no_splitter
-    @caller.expects(:get_splitter).returns(nil)
+  def test_create_no_divider
+    @caller.expects(:get_divider).returns(nil)
     @caller.expects(:create_document)
-    @collect_action.create('123', @content, {'meta'=>true}, 'output_type')
+    @collect_action.create(@content, {'meta'=>true}, 'output_type', @source)
   end
 
-  def test_create_with_splitter_content
+  def test_create_with_divider_content
     FakeFS do
-      splitter = mock
-      @caller.expects(:get_splitter).returns(splitter)
+      divider = mock
+      @caller.expects(:get_divider).returns(divider)
+      divider.expects(:source=).twice
 
-      splitter.expects(:split).with() do |collected_doc|
+      divider.expects(:divide).with() do |collected_doc|
         assert_true collected_doc.is_a?(Armagh::Documents::CollectedDocument)
         assert_true File.file? collected_doc.collected_file
         assert_equal @content, File.read(collected_doc.collected_file)
         true
       end
 
-      @collect_action.create('123', @content, {'meta'=>true}, 'output_type')
+      @collect_action.create(@content, {'meta'=>true}, 'output_type', @source)
     end
   end
 
-  def test_create_with_splitter_file
+  def test_create_with_divider_file
     FakeFS do
-      splitter = mock
-      @caller.expects(:get_splitter).returns(splitter)
+      divider = mock
+      @caller.expects(:get_divider).returns(divider)
+      divider.expects(:source=).twice
       collected_file = 'filename'
       File.write(collected_file, @content)
 
-      splitter.expects(:split).with() do |collected_doc|
+      divider.expects(:divide).with() do |collected_doc|
         valid = true
         valid &&= collected_doc.is_a?(Armagh::Documents::CollectedDocument)
         valid &&= File.file? collected_doc.collected_file
@@ -75,20 +81,85 @@ class TestCollect < Test::Unit::TestCase
         valid
       end
 
-      @collect_action.create('123', collected_file, {'meta'=>true}, 'output_type')
+      @collect_action.create(collected_file, {'meta'=>true}, 'output_type', @source)
     end
   end
 
   def test_create_undefined_type
     assert_raise(Armagh::Documents::Errors::DocSpecError) do
-      @collect_action.create('123', 'something', {}, 'bad_type')
+      @collect_action.create('something', {}, 'bad_type', @source)
     end
   end
 
   def test_invalid_create_content
     assert_raise(Armagh::Actions::Errors::CreateError) do
-      @collect_action.create('234', {}, {}, 'output_type')
+      @collect_action.create({}, {}, 'output_type', @source)
     end
+  end
+
+  def test_file_source
+    source = {
+        'type' => 'file',
+        'filename' => 'filename',
+        'host' => 'host',
+        'path' => 'path'
+    }
+
+    @caller.expects(:get_divider).returns(nil)
+    @caller.expects(:create_document).returns(nil)
+
+    @collect_action.create(@content, {'meta'=>true}, 'output_type', source)
+  end
+
+  def test_file_source_bad_filename
+    source = {
+        'type' => 'file',
+        'host' => 'host',
+        'path' => 'path'
+    }
+
+    e = Armagh::Actions::Errors::CreateError.new('Source filename must be set.')
+    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+  end
+
+  def test_file_source_bad_path
+    source = {
+        'type' => 'file',
+        'filename' => 'filename',
+        'host' => 'host'
+    }
+
+    e = Armagh::Actions::Errors::CreateError.new('Source path must be set.')
+    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+  end
+
+  def test_file_source_bad_host
+    source = {
+        'type' => 'file',
+        'filename' => 'filename',
+        'path' => 'path'
+    }
+
+    e = Armagh::Actions::Errors::CreateError.new('Source host must be set.')
+    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+  end
+
+  def test_url_source_bad_url
+    source = {
+        'type' => 'url'
+    }
+
+    e = Armagh::Actions::Errors::CreateError.new('Source url must be set.')
+    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+  end
+
+  def test_source_bad_type
+    source = {
+        'type' => 'invalid'
+    }
+
+    e = Armagh::Actions::Errors::CreateError.new('Source type must be url or file.')
+    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
   end
 
   def test_valid

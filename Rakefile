@@ -17,8 +17,9 @@
 
 require 'noragh/gem/tasks'
 require 'rake/testtask'
+require 'yard'
 
-task :default => :test
+task :default => [:clean, :yard, :test]
 
 Rake::TestTask.new do |t|
   t.libs << 'test'
@@ -28,3 +29,5 @@ end
 task :clean do
   rm_rf Dir.glob(%w(coverage test/**/coverage doc))
 end
+
+YARD::Rake::YardocTask.new

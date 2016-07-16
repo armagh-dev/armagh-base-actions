@@ -15,37 +15,43 @@
 # limitations under the License.
 #
 
+require 'bson'
+
 require_relative 'action'
 require_relative 'loggable'
 
 module Armagh
   module Actions
-    class CollectionSplitter < Parameterized
-      # Splits a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
+    class Divide < Parameterized
+      # Divides a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
       #  for dividing up work or handling files that are too large to store in Mongo.
 
       include Loggable
 
       attr_reader :output_docspec
+      attr_accessor :source
 
       def initialize(name, caller, logger_name, parameters, output_docspec)
         super(parameters)
         @name = name
         @caller = caller
         @logger_name = logger_name
-        @parameters = parameters
         @output_docspec = output_docspec
+        @source = nil
       end
 
       # Doc is a CollectedDocument
-      def split(doc)
-        raise Errors::ActionMethodNotImplemented, 'CollectionSplitterActions must overwrite the split method.'
+      def divide(doc)
+        raise Errors::ActionMethodNotImplemented, 'Dividers must overwrite the divide method.'
       end
 
       # raises InvalidDoctypeError
-      def create(id=nil, draft_content, meta)
-        action_doc = Documents::ActionDocument.new(id: id, draft_content: draft_content, published_content: {},
-                                        draft_metadata: meta, published_metadata: {}, docspec: @output_docspec, new: true)
+      def create(content, metadata)
+        raise Errors::CreateError, "Divider metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
+
+        content_hash = {'bson_binary' => BSON::Binary.new(content)}
+        action_doc = Documents::ActionDocument.new(document_id: SecureRandom.uuid, content: content_hash, metadata: metadata,
+                                                   docspec: @output_docspec, source: @source, new: true)
         @caller.create_document(action_doc)
       end
     end

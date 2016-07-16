@@ -18,6 +18,7 @@
 module Armagh
   module Documents
     module Errors
+      class IDError                     < StandardError; end
       class DocSpecError                < StandardError; end
       class DocumentSizeError           < StandardError; end
       class DocumentUniquenessError     < StandardError; end

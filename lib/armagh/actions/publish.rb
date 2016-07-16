@@ -32,19 +32,24 @@ module Armagh
         raise Documents::Errors::DocSpecError.new 'Publish actions have no usable Output DocSpecs.'
       end
 
+      # Gets the published action document
+      def get_existing_published_document(doc)
+        @caller.get_existing_published_document(doc)
+      end
+
       # Doc is an ActionDocument
       def publish(doc)
-        raise Actions::Errors::ActionMethodNotImplemented, 'PublishActions must overwrite the publish method.'
+        raise Actions::Errors::ActionMethodNotImplemented, 'Publish actions must overwrite the publish method.'
       end
 
       def validate
         super
-        @validation_errors << 'PublishActions can only have one output docspec.' unless @output_docspecs.length == 1
+        @validation_errors << 'Publish actions can only have one output docspec.' unless @output_docspecs.length == 1
 
         output = @output_docspecs.first
 
         if output && output.last.state != Documents::DocState::PUBLISHED
-          @validation_errors << "Output document state for a PublishAction must be #{Documents::DocState::PUBLISHED}."
+          @validation_errors << "Output document state for a Publish action must be #{Documents::DocState::PUBLISHED}."
         end
 
         {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}

@@ -25,7 +25,7 @@ module Armagh
 
       # Doc is an ActionDocument
       def consume(doc)
-        raise Errors::ActionMethodNotImplemented, 'ConsumeActions must overwrite the consume method.'
+        raise Errors::ActionMethodNotImplemented, 'Consume actions must overwrite the consume method.'
       end
 
       # raises InvalidDoctypeError

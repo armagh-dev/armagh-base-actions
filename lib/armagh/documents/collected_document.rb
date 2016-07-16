@@ -18,10 +18,9 @@
 module Armagh
   module Documents
     class CollectedDocument
-      attr_reader :id, :collected_file, :metadata, :docspec
+      attr_reader :collected_file, :metadata, :docspec
 
-      def initialize(id:, collected_file:, metadata:, docspec:)
-        @id = id.freeze
+      def initialize(collected_file:, metadata:, docspec:)
         @collected_file = collected_file.freeze
         @metadata = metadata
         @docspec = docspec

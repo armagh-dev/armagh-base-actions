@@ -37,6 +37,12 @@ module Armagh
                               type:        String, 
                               required:    true, 
                               prompt:      "host.example.com or 10.0.0.1"
+                              
+        base.define_parameter name:        "ftp_port",
+                              description: "FTP port",
+                              type:        Integer,
+                              required:    true,
+                              default:     21
                                             
         base.define_parameter name:        "ftp_directory_path",
                               description: "FTP base directory path",
@@ -77,7 +83,7 @@ module Armagh
         base.define_parameter name:        "ftp_open_timeout",
                               description: "Timeout (seconds) when opening a new connection",
                               type:        Integer,
-                              default:     60,
+                              default:     30,
                               required:    true
                      
         base.define_parameter name:        "ftp_read_timeout",
@@ -140,10 +146,11 @@ module Armagh
       
           password = p['ftp_password'].plain_text
       
-          @priv_ftp = Net::FTP.new( p['ftp_host'] )
+          @priv_ftp = Net::FTP.new
           @priv_ftp.passive = p['ftp_passive_mode'] 
           @priv_ftp.open_timeout = p['ftp_open_timeout']
           @priv_ftp.read_timeout = p['ftp_read_timeout']
+          @priv_ftp.connect( p['ftp_host'], p['ftp_port'])
           @priv_ftp.login( p['ftp_username'], password )
       
           @filename_pattern = p['ftp_filename_pattern']

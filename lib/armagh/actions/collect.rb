@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require 'bson'
 require 'securerandom'
 
 require_relative 'action'
@@ -25,19 +26,32 @@ module Armagh
 
       # Doc is an ActionDocument
       def collect
-        raise Errors::ActionMethodNotImplemented.new 'CollectActions must overwrite the collect method.'
+        raise Errors::ActionMethodNotImplemented.new 'Collect actions must overwrite the collect method.'
       end
 
       # Collected can either be a string or a filename
       # raises ActionDocuments::Errors::DocSpecError
-      def create(id = nil, collected, metadata, docspec_name)
+      def create(collected, metadata, docspec_name, source)
         docspec = @output_docspecs[docspec_name]
         raise Documents::Errors::DocSpecError, "Creating an unknown docspec #{docspec_name}.  Available docspecs are #{@output_docspecs.keys}" if docspec.nil?
         raise Errors::CreateError, "Collect action content must be a String, was a #{collected.class}." unless collected.is_a?(String)
+        raise Errors::CreateError, "Collect action source must be a Hash, was a #{source.class}." unless source.is_a?(Hash)
+        raise Errors::CreateError, "Collect action metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
 
-        splitter = @caller.get_splitter(@name, docspec_name)
+        case source['type']
+          when 'file'
+            raise Errors::CreateError, 'Source filename must be set.' unless source['filename'].is_a?(String) && !source['filename'].empty?
+            raise Errors::CreateError, 'Source host must be set.' unless source['host'].is_a?(String) && !source['host'].empty?
+            raise Errors::CreateError, 'Source path must be set.' unless source['path'].is_a?(String) && !source['path'].empty?
+          when 'url'
+            raise Errors::CreateError, 'Source url must be set.' unless source['url'].is_a?(String) && !source['url'].empty?
+          else
+            raise Errors::CreateError, 'Source type must be url or file.'
+        end
 
-        if splitter
+        divider = @caller.get_divider(@name, docspec_name)
+
+        if divider
           if File.file? collected
             collected_file = collected
           else
@@ -45,12 +59,15 @@ module Armagh
             File.write(collected_file, collected)
           end
 
-          collected_doc = Documents::CollectedDocument.new(id: id, collected_file: collected_file, metadata: metadata, docspec: docspec)
-          splitter.split(collected_doc)
+          collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
+          divider.source = source
+          divider.divide(collected_doc)
+          divider.source = nil
         else
           content = File.file?(collected) ? File.read(collected) : collected
-          action_doc = Documents::ActionDocument.new(id: id, draft_content: content, published_content: {},
-                                          draft_metadata: metadata, published_metadata: {}, docspec: docspec, new: true)
+          content_hash = {'bson_binary' => BSON::Binary.new(content)}
+          action_doc = Documents::ActionDocument.new(document_id: SecureRandom.uuid, content: content_hash, metadata: metadata,
+                                                     docspec: docspec, source: source, new: true)
           @caller.create_document(action_doc)
         end
       end

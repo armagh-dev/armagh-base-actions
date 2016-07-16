@@ -86,7 +86,7 @@ class TestAction < Test::Unit::TestCase
     action = Armagh::Actions::Action.new('name', @caller, 'logger_name', {}, {})
     valid = action.validate
     assert_false valid['valid']
-    assert_equal(['Unknown Action Type Actions::Action.  Expected to be a descendant of ["Armagh::Actions::Parse", "Armagh::Actions::Consume", "Armagh::Actions::Publish", "Armagh::Actions::Collect"].'],
+    assert_equal(['Unknown Action Type Actions::Action.  Expected to be a descendant of ["Armagh::Actions::Split", "Armagh::Actions::Consume", "Armagh::Actions::Publish", "Armagh::Actions::Collect"].'],
                  valid['errors'])
     assert_empty valid['warnings']
   end

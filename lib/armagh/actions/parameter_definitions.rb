@@ -63,9 +63,6 @@ module Armagh
         Hash[@defined_parameters.collect{ |k,v| [ k, v['default']] unless v['default'].nil?}.compact]
       end
       
-      def defined_parameter_group( group_name )
-        @defined_parameters.select{ |k,v| v['group'] == group_name }
-      end
     end
   end
 end

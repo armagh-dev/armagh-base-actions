@@ -179,6 +179,14 @@ class TestParameterized < Test::Unit::TestCase
     assert_equal(["Validation callback of 'name' (method 'returns_callback') failed with message: Callback was unsuccessful."], valid['errors'])
   end
 
+  def test_valid_unexpected_param
+    parameterized = Armagh::Actions::Parameterized.new({'name' => 'name'})
+    valid =  parameterized.validate
+    assert_true valid['valid']
+    assert_empty valid['errors']
+    assert_equal(["Parameter 'name' not defined for class Armagh::Actions::Parameterized."], valid['warnings'])
+  end
+
   def test_custom_validation_failure
     @parameterized.stubs(:custom_validation).returns('General Failure')
 
