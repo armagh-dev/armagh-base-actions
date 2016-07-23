@@ -85,7 +85,7 @@ module Armagh
         element.to_s.gsub(/\$|\./, '_')
       end
 
-      private; class Hasher < Ox::Sax
+      class Hasher < Ox::Sax
         def initialize(text_nodes = nil, xml = nil)
           @stack       = []
           @text_values = {}

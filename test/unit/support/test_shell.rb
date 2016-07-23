@@ -16,11 +16,11 @@
 #
 
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 
-require_relative '../../lib/armagh/support/shell'
+require_relative '../../../lib/armagh/support/shell'
 
 class TestShell < Test::Unit::TestCase
   def test_call

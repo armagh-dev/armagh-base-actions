@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-require_relative '../coverage_helper'
-require_relative '../../lib/armagh/actions/loggable'
+require_relative '../../helpers/coverage_helper'
+require_relative '../../../lib/armagh/actions/loggable'
 
 require 'test/unit'
 require 'mocha/test_unit'

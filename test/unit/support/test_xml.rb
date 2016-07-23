@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 require 'fakefs/safe'
 
-require_relative '../../lib/armagh/support/xml'
+require_relative '../../../lib/armagh/support/xml'
 
 class TestXML < Test::Unit::TestCase
   def setup

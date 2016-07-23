@@ -170,7 +170,7 @@ module Armagh
             raise PermissionsError, "Permissions failure when logging in as #{ p['ftp_username'] }."
   
           rescue Net::FTPReplyError => e
-            if password == "" 
+            if password == ""
               raise ReplyError, "FTP Reply error from server; probably not allowed to have a blank password."
             else
               raise ReplyError, "Ambiguous FTP Reply error from server."

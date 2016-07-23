@@ -16,18 +16,19 @@
 #
 
 
-require_relative '../coverage_helper'
+require_relative '../helpers/coverage_helper'
 
 require 'test/unit'
 
 require_relative '../../lib/armagh/support/shell'
 require_relative '../../lib/armagh/support/html'
 
-class TestShell < Test::Unit::TestCase
+class TestIntegrationHTML < Test::Unit::TestCase
+
   def setup
     @expected_web_chars = %q[' " & < > € ‚ ƒ „ … † ‡ ˆ ‰ Š ‹ œ Œ ‘ ’ “ ” • – — ∼ ˜ ™ š › Ÿ   ¡ ¢ £ ¤ ¥ ¦ § ¨ © ª « ¬ ­ ® ¯ ° ± ² ³ ´ µ ¶ · ¸ ¹ º » ¼ ½ ¾ ¿ À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï Ð Ñ Ò Ó Ô Õ Ö × Ø Ù Ú Û Ü Ý Þ ß à á â ã ä å æ ç è é ê ë ì í î ï ð ñ ò ó ô õ ö ÷ ø ù ú û ü ý þ ÿ]
   end
-=begin
+
   def test_to_text
     set_program_path
     assert_equal "Just a normal sentence here.\n\nvérité është σε на očné của очевидец\n\nCopyright © 1999. Product™ ®",
@@ -88,5 +89,5 @@ class TestShell < Test::Unit::TestCase
     shell[0] = program
     Armagh::Support::HTML::HTML_TO_TEXT_SHELL.replace shell
   end
-=end
+
 end

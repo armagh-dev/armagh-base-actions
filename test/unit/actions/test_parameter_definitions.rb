@@ -16,7 +16,7 @@
 #
 
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'

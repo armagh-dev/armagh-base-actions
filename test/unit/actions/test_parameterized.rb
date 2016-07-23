@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-require_relative '../coverage_helper'
-require_relative '../../lib/armagh/actions/parameterized'
+require_relative '../../helpers/coverage_helper'
+require_relative '../../../lib/armagh/actions/parameterized'
 
 require 'test/unit'
 require 'mocha/test_unit'
@@ -66,8 +66,8 @@ class TestParameterized < Test::Unit::TestCase
     }
 
     Armagh::Actions::Parameterized.define_parameter(name: name, description: description, type: type, required: required,
-                                           default: default, validation_callback: validation_callback,
-                                           prompt: prompt)
+                                                    default: default, validation_callback: validation_callback,
+                                                    prompt: prompt)
 
     assert_equal(expected, Armagh::Actions::Parameterized.defined_parameters)
   end
@@ -95,20 +95,20 @@ class TestParameterized < Test::Unit::TestCase
 
     e = assert_raise(Armagh::Actions::Errors::ParameterError) {
       Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
-                                             default: 123)
+                                                      default: 123)
     }
     assert_equal("Parameter name's default must be a String.", e.message)
 
     e = assert_raise(Armagh::Actions::Errors::ParameterError) {
-     Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
-                                            default: 'default', validation_callback: 123)
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
+                                                      default: 'default', validation_callback: 123)
     }
     assert_equal("Parameter name's validation_callback must be a String.", e.message)
 
     e = assert_raise(Armagh::Actions::Errors::ParameterError) {
       Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
-                                             default: 'default', validation_callback: 'validation_callback',
-                                             prompt: 123)
+                                                      default: 'default', validation_callback: 'validation_callback',
+                                                      prompt: 123)
     }
     assert_equal("Parameter name's prompt must be a String.", e.message)
 

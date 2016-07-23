@@ -15,11 +15,11 @@
 # limitations under the License.
 #
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 
-require_relative '../../lib/armagh/documents/doc_state'
+require_relative '../../../lib/armagh/documents/doc_state'
 
 class TestDocState < Test::Unit::TestCase
 

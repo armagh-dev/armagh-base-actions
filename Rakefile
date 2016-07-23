@@ -19,11 +19,16 @@ require 'noragh/gem/tasks'
 require 'rake/testtask'
 require 'yard'
 
-task :default => [:clean, :yard, :test]
+task :default => [:clean, :yard, :test, :integration]
 
-Rake::TestTask.new do |t|
+Rake::TestTask.new(:test) do |t|
   t.libs << 'test'
-  t.pattern = 'test/**/test_*.rb'
+  t.pattern = 'test/unit/**/test_*.rb'
+end
+
+Rake::TestTask.new(:integration) do |t|
+  t.libs << 'test'
+  t.pattern = 'test/integration/**/test_*.rb'
 end
 
 task :clean do

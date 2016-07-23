@@ -16,9 +16,9 @@
 #
 
 
-require_relative '../coverage_helper'
-require_relative '../../lib/armagh/actions'
-require_relative '../../lib/armagh/actions/parameter_definitions'
+require_relative '../../helpers/coverage_helper'
+require_relative '../../../lib/armagh/actions'
+require_relative '../../../lib/armagh/actions/parameter_definitions'
 
 require 'test/unit'
 require 'mocha/test_unit'

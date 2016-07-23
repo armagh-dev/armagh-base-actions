@@ -16,13 +16,13 @@
 #
 
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
 
-require_relative '../../lib/armagh/actions'
+require_relative '../../../lib/armagh/actions'
 
 class TestCollect < Test::Unit::TestCase
 

@@ -20,11 +20,11 @@
 require_relative 'lib/armagh/base/actions/name'
 require_relative 'lib/armagh/base/actions/version'
 
-def get_build_version(version)
+def self.get_build_version(version)
   if ENV['ARMAGH_PRODUCTION_RELEASE']
     version
   else
-    revision = `hg identify --num 2>/dev/null`.strip.gsub('+', '-dev')
+    revision = ENV['ARMAGH_INTEG_BUILD_REVISION']
     if revision.empty?
       "#{version}-dev"
     else
@@ -56,10 +56,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '~> 1.7'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'noragh-gem-tasks', '~> 0.1'
-  spec.add_development_dependency 'test-unit', '~> 3.0'
+  spec.add_development_dependency 'test-unit', '~> 3.1'
   spec.add_development_dependency 'mocha', '~> 1.1'
   spec.add_development_dependency 'simplecov', '~> 0.11'
   spec.add_development_dependency 'simplecov-rcov', '~> 0.2'
   spec.add_development_dependency 'fakefs', '~> 0.6'
-  spec.add_development_dependency 'yard', '~> 0.8'
+  spec.add_development_dependency 'yard', '~> 0.9'
 end

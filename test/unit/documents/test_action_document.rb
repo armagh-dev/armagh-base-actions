@@ -15,13 +15,13 @@
 # limitations under the License.
 #
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 
-require_relative '../../lib/armagh/documents/action_document'
-require_relative '../../lib/armagh/documents/doc_spec'
-require_relative '../../lib/armagh/documents/doc_state'
+require_relative '../../../lib/armagh/documents/action_document'
+require_relative '../../../lib/armagh/documents/doc_spec'
+require_relative '../../../lib/armagh/documents/doc_state'
 
 class TestActionDocument < Test::Unit::TestCase
 

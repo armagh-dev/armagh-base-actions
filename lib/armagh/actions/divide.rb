@@ -16,6 +16,7 @@
 #
 
 require 'bson'
+require 'securerandom'
 
 require_relative 'action'
 require_relative 'loggable'

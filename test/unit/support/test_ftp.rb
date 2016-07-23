@@ -16,15 +16,15 @@
 #
 
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
 
-require_relative '../../lib/armagh/actions/collect.rb'
-require_relative '../../lib/armagh/actions/consume.rb'
-require_relative '../../lib/armagh/support/ftp.rb'
+require_relative '../../../lib/armagh/actions/collect.rb'
+require_relative '../../../lib/armagh/actions/consume.rb'
+require_relative '../../../lib/armagh/support/ftp.rb'
 
 module Armagh
   module Actions
@@ -92,7 +92,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
     @mock_ftp.expects(:close)
 
     @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    assert_true @fake_collect_action.validate[ 'valid' ]
+    validation = @fake_collect_action.validate
+    assert_true validation[ 'valid' ]
   end
   
   def test_missing_host

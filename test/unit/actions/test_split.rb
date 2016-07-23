@@ -16,12 +16,12 @@
 #
 
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../lib/armagh/actions/split'
+require_relative '../../../lib/armagh/actions/split'
 
 class TestSplit < Test::Unit::TestCase
 

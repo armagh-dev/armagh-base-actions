@@ -16,7 +16,7 @@
 #
 
 
-require_relative '../coverage_helper'
+require_relative '../helpers/coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
@@ -138,18 +138,18 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
     assert_equal "Unable to resolve host idontexist.kurmudgeon.edu", e.message
   end
 
-  def test_fail_test_unwilling_host
+#  def test_fail_test_unwilling_host
     
-    @base_config[ 'ftp_host' ] = "127.0.0.1"
-    @base_config[ 'ftp_port' ] = 999
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
+#    @base_config[ 'ftp_host' ] = "127.0.0.1"
+#    @base_config[ 'ftp_port' ] = 999
+#    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
+#    action_params = @fake_collect_action.parameters
     
-    e = assert_raises( Armagh::Support::FTP::ConnectionError ) do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
-    end
-    assert_equal "The server 127.0.0.1 refused the connection.", e.message
-  end
+#    e = assert_raises( Armagh::Support::FTP::ConnectionError ) do
+#      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+#    end
+#    assert_equal "The server 127.0.0.1 refused the connection.", e.message
+#  end
 
   def test_fail_test_nonexistent_user
     

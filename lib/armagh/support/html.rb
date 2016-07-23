@@ -20,9 +20,14 @@ module Armagh
     module HTML
       module_function
 
-      HTML_TO_TEXT_SHELL = %w(w3m -T text/html -cols 10000 -O UTF-8 -o display_link_num=true -o alt_entity=false)
+      class HTMLError      < StandardError; end
+      class MismatchError  < HTMLError; end
+
+      HTML_TO_TEXT_SHELL = %w(w3m -T text/html -cols 10000 -O UTF-8 -o alt_entity=false)
 
       def to_text(html, force_breaks: false)
+        raise MismatchError, "HTML must be a String, instead: #{html.class}" unless html.is_a?(String)
+
         html.gsub!(/&apos;/i, "'")
         html.gsub!(/<sup>|<\/sup>/i, '')
         html.gsub!(/\n/, '<br \>') if force_breaks
@@ -36,6 +41,7 @@ module Armagh
           raise e
         end
       end
+
     end
   end
 end

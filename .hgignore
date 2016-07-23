@@ -7,3 +7,5 @@ Gemfile.lock
 coverage
 pkg
 *.gem
+doc
+.yarddoc
