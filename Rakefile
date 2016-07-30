@@ -17,9 +17,10 @@
 
 require 'noragh/gem/tasks'
 require 'rake/testtask'
+require 'cucumber/rake/task'
 require 'yard'
 
-task :default => [:clean, :yard, :test, :integration]
+task :default => [:clean, :yard, :test, :integration, :cucumber]
 
 Rake::TestTask.new(:test) do |t|
   t.libs << 'test'
@@ -36,3 +37,5 @@ task :clean do
 end
 
 YARD::Rake::YardocTask.new
+
+Cucumber::Rake::Task.new

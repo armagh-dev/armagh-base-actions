@@ -40,18 +40,19 @@ Gem::Specification.new do |spec|
   spec.version       = get_build_version Armagh::Base::Actions::VERSION
   spec.authors       = ['Armagh Dev Team']
   spec.email         = 'armagh-dev@noragh.com'
-  spec.summary       = 'Actions generator'
+  spec.summary       = 'Armagh Base Actions'
   spec.description   = ''
   spec.homepage      = ''
   spec.license       = 'Apache-2.0'
 
-  spec.files         = Dir.glob('{bin,lib,assets}/**/*') + %w(README LICENSE)
+  spec.files         = Dir.glob('{bin,lib,assets}/**/*') + %w(README.md LICENSE)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
   spec.add_dependency 'ox', '~> 2.4'
   spec.add_dependency 'bson', '~> 4.0'
+  spec.add_dependency 'httpclient', '~>2.8'
 
   spec.add_development_dependency 'bundler', '~> 1.7'
   spec.add_development_dependency 'rake', '~> 10.0'
@@ -62,4 +63,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov-rcov', '~> 0.2'
   spec.add_development_dependency 'fakefs', '~> 0.6'
   spec.add_development_dependency 'yard', '~> 0.9'
+  spec.add_development_dependency 'cucumber', '~> 2.0'
+  spec.add_development_dependency 'webmock', '~> 2.1'
 end

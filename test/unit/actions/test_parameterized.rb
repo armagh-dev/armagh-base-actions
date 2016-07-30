@@ -40,18 +40,7 @@ class TestParameterized < Test::Unit::TestCase
   def teardown
     Armagh::Actions::Parameterized.clear_defined_parameters
   end
-
-  def test_boolean
-    assert_true Boolean.bool?(true)
-    assert_true Boolean.bool?(false)
-
-    assert_false Boolean.bool?('true')
-    assert_false Boolean.bool?('false')
-
-    assert_false Boolean.bool?(0)
-    assert_false Boolean.bool?(1)
-  end
-
+  
   def test_define_parameters
     name = 'name'
     description = 'description'
@@ -65,8 +54,60 @@ class TestParameterized < Test::Unit::TestCase
         name => {'description' => description, 'type' => type, 'required' => required, 'default' => default, 'validation_callback' => validation_callback, 'prompt' => prompt}
     }
 
-    Armagh::Actions::Parameterized.define_parameter(name: name, description: description, type: type, required: required,
-                                                    default: default, validation_callback: validation_callback,
+    Armagh::Actions::Parameterized.define_parameter(name: name,
+                                                    description: description,
+                                                    type: type,
+                                                    required: required,
+                                                    default: default,
+                                                    validation_callback: validation_callback,
+                                                    prompt: prompt)
+
+    assert_equal(expected, Armagh::Actions::Parameterized.defined_parameters)
+  end
+
+  def test_define_parameters_boolean
+    name = 'name'
+    description = 'description'
+    type = Boolean
+    required = false
+    default = false
+    validation_callback = 'callback'
+    prompt = 'Number name blah'
+
+    expected = {
+        name => {'description' => description, 'type' => type, 'required' => required, 'default' => default, 'validation_callback' => validation_callback, 'prompt' => prompt}
+    }
+
+    Armagh::Actions::Parameterized.define_parameter(name: name,
+                                                    description: description,
+                                                    type: type,
+                                                    required: required,
+                                                    default: default,
+                                                    validation_callback: validation_callback,
+                                                    prompt: prompt)
+
+    assert_equal(expected, Armagh::Actions::Parameterized.defined_parameters)
+  end
+
+  def test_define_parameters_encoded_string
+    name = 'name'
+    description = 'description'
+    type = EncodedString
+    required = false
+    default = 'some string'
+    validation_callback = 'callback'
+    prompt = 'Number name blah'
+
+    expected = {
+        name => {'description' => description, 'type' => type, 'required' => required, 'default' => default, 'validation_callback' => validation_callback, 'prompt' => prompt}
+    }
+
+    Armagh::Actions::Parameterized.define_parameter(name: name,
+                                                    description: description,
+                                                    type: type,
+                                                    required: required,
+                                                    default: default,
+                                                    validation_callback: validation_callback,
                                                     prompt: prompt)
 
     assert_equal(expected, Armagh::Actions::Parameterized.defined_parameters)
@@ -94,21 +135,33 @@ class TestParameterized < Test::Unit::TestCase
     assert_equal("Parameter name's required flag must be a Boolean.", e.message)
 
     e = assert_raise(Armagh::Actions::Errors::ParameterError) {
-      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: Boolean, required: false,
                                                       default: 123)
     }
-    assert_equal("Parameter name's default must be a String.", e.message)
+    assert_equal("Parameter name's default must be a Boolean.  Was a Fixnum.", e.message)
+
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+      Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: EncodedString, required: false,
+                                                      default: 123)
+    }
+    assert_equal("Parameter name's default must be a String (that will later be encoded).  Was a Fixnum.", e.message)
 
     e = assert_raise(Armagh::Actions::Errors::ParameterError) {
       Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
-                                                      default: 'default', validation_callback: 123)
+                                             default: 123)
+    }
+    assert_equal("Parameter name's default must be a String.  Was a Fixnum.", e.message)
+
+    e = assert_raise(Armagh::Actions::Errors::ParameterError) {
+     Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
+                                            default: 'default', validation_callback: 123)
     }
     assert_equal("Parameter name's validation_callback must be a String.", e.message)
 
     e = assert_raise(Armagh::Actions::Errors::ParameterError) {
       Armagh::Actions::Parameterized.define_parameter(name: 'name', description: 'description', type: String, required: false,
-                                                      default: 'default', validation_callback: 'validation_callback',
-                                                      prompt: 123)
+                                             default: 'default', validation_callback: 'validation_callback',
+                                             prompt: 123)
     }
     assert_equal("Parameter name's prompt must be a String.", e.message)
 

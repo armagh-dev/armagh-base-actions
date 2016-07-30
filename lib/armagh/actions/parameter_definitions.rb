@@ -30,9 +30,18 @@ module Armagh
         raise Errors::ParameterError, "Parameter #{name}'s description must be a String." unless description.is_a? String
         raise Errors::ParameterError, "Parameter #{name}'s type must be a class." unless type.is_a? Class
         raise Errors::ParameterError, "Parameter #{name}'s required flag must be a Boolean." unless Boolean.bool?(required)
-        raise Errors::ParameterError, "Parameter #{name}'s default must be a #{type}." if default && !(default.is_a?(type) || (type == Boolean && Boolean.bool?(default)))
         raise Errors::ParameterError, "Parameter #{name}'s validation_callback must be a String." if validation_callback && !validation_callback.is_a?(String)
         raise Errors::ParameterError, "Parameter #{name}'s prompt must be a String." if prompt && !prompt.is_a?(String)
+
+        if default
+          if type == Boolean
+            raise Errors::ParameterError, "Parameter #{name}'s default must be a #{type}.  Was a #{default.class}." unless Boolean.bool? default
+          elsif type == EncodedString
+            raise Errors::ParameterError, "Parameter #{name}'s default must be a String (that will later be encoded).  Was a #{default.class}." unless default.is_a? String
+          else
+            raise Errors::ParameterError, "Parameter #{name}'s default must be a #{type}.  Was a #{default.class}." unless default.is_a? type
+          end
+        end
 
         param_config = {'description' => description, 'type' => type, 'required' => required, 'default' => default, 'validation_callback' => validation_callback, 'prompt' => prompt }
 
@@ -60,9 +69,12 @@ module Armagh
       end
     
       def defined_parameter_defaults
-        Hash[@defined_parameters.collect{ |k,v| [ k, v['default']] unless v['default'].nil?}.compact]
+        Hash[defined_parameters.collect{ |k,v| [ k, v['default']] unless v['default'].nil?}.compact]
       end
       
+      def defined_parameter_group( group_name )
+        defined_parameters.select{ |k,v| v['group'] == group_name }
+      end
     end
   end
 end

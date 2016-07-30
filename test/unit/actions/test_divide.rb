@@ -28,7 +28,7 @@ class TestDivide < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    @output_docspec = mock
+    @output_docspec = Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)
     @divider = Armagh::Actions::Divide.new('divider_name', @caller, 'logger_name', {}, @output_docspec)
   end
 
@@ -37,7 +37,7 @@ class TestDivide < Test::Unit::TestCase
   end
 
   def test_create
-    content = 'content'
+    content = {'content' => true}
     meta = {'meta' => true}
 
     @caller.expects(:create_document)

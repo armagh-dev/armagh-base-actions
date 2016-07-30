@@ -38,5 +38,8 @@ class EncodedString
   def plain_text
     Base64.decode64( @encoded_string )
   end
-  
+
+  def encoded
+    to_s
+  end
 end

@@ -68,8 +68,8 @@ class TestConsume < Test::Unit::TestCase
     assert_true Armagh::Actions::Consume.respond_to? :define_parameter
     assert_true Armagh::Actions::Consume.respond_to? :defined_parameters
 
-    assert_true Armagh::Actions::Consume.respond_to? :define_input_type
-    assert_true Armagh::Actions::Consume.respond_to? :defined_input_type
+    assert_true Armagh::Actions::Consume.respond_to? :define_default_input_type
+    assert_true Armagh::Actions::Consume.respond_to? :defined_default_input_type
     assert_true Armagh::Actions::Consume.respond_to? :define_output_docspec
     assert_true Armagh::Actions::Consume.respond_to? :defined_output_docspecs
 

@@ -24,10 +24,6 @@ module Armagh
       # Content within doc is committed to a finalized state of the document
       # Can create/edit additional documents of any type or state
 
-      def self.define_input_type(input_type)
-        raise Documents::Errors::DocSpecError.new 'Publish actions have no usable Input doc types.'
-      end
-
       def self.define_output_docspec(name, default_type: nil, default_state: nil)
         raise Documents::Errors::DocSpecError.new 'Publish actions have no usable Output DocSpecs.'
       end

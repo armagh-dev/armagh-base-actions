@@ -37,7 +37,8 @@ class TestCustomActions < Test::Unit::TestCase
     assert_not_empty(Armagh::CustomActions::VERSION, 'No VERSION defined for CustomActions')
   end
 
-  def test_defined_actions
-    assert_not_empty(Armagh::CustomActions.defined_actions, 'No available CustomActions were discovered')
+  def test_defined_actions_and_dividers
+    combined = Armagh::Actions.defined_actions + Armagh::Actions.defined_dividers
+    assert_not_empty(combined, 'No available custom actions or dividers were discovered')
   end
 end

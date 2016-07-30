@@ -15,21 +15,22 @@
 # limitations under the License.
 #
 
-require_relative '../coverage_helper'
+require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../lib/armagh/support/csv'
+require_relative '../../../lib/armagh/support/csv'
 
 class TestCsv < Test::Unit::TestCase
   include Armagh::Support::CSV
 
   def setup
-    @csv = "./test/fixtures/test.csv"
-    @csv_with_extra_values_path = "./test/fixtures/row_with_extra_values.csv"
-    @csv_with_extra_values_last_row_path = "./test/fixtures/extra_values_on_last_row.csv"
-    @csv_with_newline_in_field = "./test/fixtures/newline_in_field.csv"
+    fixtures_path = File.join(__dir__, '..', '..', 'fixtures')
+    @csv = File.join fixtures_path, 'test.csv'
+    @csv_with_extra_values_path = File.join fixtures_path, 'row_with_extra_values.csv'
+    @csv_with_extra_values_last_row_path = File.join fixtures_path, 'extra_values_on_last_row.csv'
+    @csv_with_newline_in_field = File.join fixtures_path, 'newline_in_field.csv'
 
     @expected_divided_content = ["Name,Email,Phone\nBrian,brian@example.com,555-1212\nChuck,chuck@example.com,555-1212\n",
                                  "Name,Email,Phone\nDale,dale@example.com,555-1212\nEric,eric@example.com,555-1212\nFrank,frank@example.com,555-1212\n",

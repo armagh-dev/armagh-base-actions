@@ -20,8 +20,6 @@ require 'simplecov-rcov'
 
 SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
 
-Coverage.start
-
 SimpleCov.start do
   add_filter '/test/'
 end

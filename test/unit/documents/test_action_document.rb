@@ -27,9 +27,9 @@ class TestActionDocument < Test::Unit::TestCase
 
 	def setup
     @document_id = '123'
-    @content = 'content'
+    @content = {'content' => true}
     @metadata = {'meta' => true}
-    @document_timestamp = 'fake_timestamp'
+    @document_timestamp = Time.now
     @docspec = Armagh::Documents::DocSpec.new('doctype', Armagh::Documents::DocState::PUBLISHED)
     @source = {'source' => 'something'}
     @title = 'title'
@@ -39,32 +39,12 @@ class TestActionDocument < Test::Unit::TestCase
                                                  document_timestamp: @document_timestamp, title: @title, copyright: @copyright)
   end
 
-  def test_title
-    assert_equal(@title, @doc.title)
+  def test_document_id
+    assert_equal(@document_id, @doc.document_id)
     new = 'new'
-    @doc.title = new
-    assert_equal(new, @doc.title)
-  end
-
-  def test_copyright
-    assert_equal(@copyright, @doc.copyright)
-    new = 'new'
-    @doc.copyright = new
-    assert_equal(new, @doc.copyright)
-  end
-
-  def test_document_timestamp
-    assert_equal(@document_timestamp, @doc.document_timestamp)
-    new_timestamp = 'new timestamp'
-    @doc.document_timestamp = new_timestamp
-    assert_equal(new_timestamp, @doc.document_timestamp)
-  end
-
-  def test_content
-    assert_equal(@content, @doc.content)
-    new_content = {'new content' => false}
-    @doc.content = new_content
-    assert_equal(new_content, @doc.content)
+    @doc.document_id = new
+    assert_equal(new, @doc.document_id)
+    assert_raise(TypeError){@doc.document_id = {}}
   end
 
   def test_metadata
@@ -72,6 +52,34 @@ class TestActionDocument < Test::Unit::TestCase
     new_meta = {'new meta' => false}
     @doc.metadata = new_meta
     assert_equal(new_meta, @doc.metadata)
+    assert_raise(TypeError){@doc.metadata = 'meta'}
+  end
+
+  def test_content
+    assert_equal(@content, @doc.content)
+    new_content = {'new content' => false}
+    @doc.content = new_content
+    assert_equal(new_content, @doc.content)
+    assert_raise(TypeError){@doc.content = 'meta'}
+  end
+
+  def test_title
+    assert_equal(@title, @doc.title)
+    new = 'new'
+    @doc.title = new
+    assert_equal(new, @doc.title)
+    assert_raise(TypeError){@doc.title = {}}
+  end
+
+  def test_copyright
+    assert_equal(@copyright, @doc.copyright)
+    new = 'new'
+    @doc.copyright = new
+    assert_equal(new, @doc.copyright)
+    assert_raise(TypeError){@doc.copyright = {}}
+
+    @doc.copyright = nil
+    assert_equal(nil, @doc.copyright)
   end
 
   def test_docspec
@@ -79,10 +87,20 @@ class TestActionDocument < Test::Unit::TestCase
     new_docspec = Armagh::Documents::DocSpec.new('doctype2', Armagh::Documents::DocState::WORKING)
     @doc.docspec = new_docspec
     assert_equal(new_docspec, @doc.docspec)
+    assert_raise(TypeError){@doc.docspec = {}}
+  end
+
+  def test_document_timestamp
+    assert_equal(@document_timestamp, @doc.document_timestamp)
+    new_timestamp = Time.now
+    @doc.document_timestamp = new_timestamp
+    assert_equal(new_timestamp, @doc.document_timestamp)
+    assert_raise(TypeError){@doc.document_timestamp = {}}
   end
 
   def test_source
     assert_equal(@source, @doc.source)
+    assert_raise(NoMethodError){@doc.source={}}
   end
 
   def test_new_document?

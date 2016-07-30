@@ -63,10 +63,11 @@ module Armagh
         @parameters.each do |param, value|
           if self.class.defined_parameters[param]
             expected_type = self.class.defined_parameters[param]['type']
-            unless value.is_a?(expected_type) || (expected_type == Boolean &&(Boolean.bool?(value)))
-              valid = false
+
+            begin
+              expected_type.new(value) unless value.is_a? expected_type
+            rescue
               @validation_errors << "Invalid type for '#{param}'.  Expected #{expected_type} but was #{value.class}."
-              next
             end
 
             return false unless valid

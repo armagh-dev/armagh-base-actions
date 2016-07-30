@@ -8,4 +8,5 @@ coverage
 pkg
 *.gem
 doc
-.yarddoc
+.bundle
+.yardoc

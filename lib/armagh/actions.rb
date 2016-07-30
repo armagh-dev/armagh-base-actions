@@ -19,5 +19,38 @@ Dir[File.join(__dir__, 'actions', '*.rb')].each { |file| require file }
 
 module Armagh
   module Actions
+    def self.defined_actions
+      load_actions_and_dividers unless @defined_actions
+      @defined_actions.dup
+    end
+
+    def self.defined_dividers
+      load_actions_and_dividers unless @defined_dividers
+      @defined_dividers.dup
+    end
+
+    private_class_method def self.load_actions_and_dividers
+      @defined_actions = []
+      @defined_dividers = []
+
+      packages = []
+      packages << CustomActions if defined? CustomActions
+      packages << StandardActions if defined? StandardActions
+
+      packages.each do |package|
+        next unless defined? package
+        package.constants.each do |name|
+          class_name = "#{package}::#{name}"
+          const_obj = package.const_get(class_name)
+          if const_obj.is_a?(Class)
+            if const_obj < Actions::Action
+              @defined_actions << const_obj
+            elsif const_obj < Actions::Divide
+              @defined_dividers << const_obj
+            end
+          end
+        end
+      end
+    end
   end
 end

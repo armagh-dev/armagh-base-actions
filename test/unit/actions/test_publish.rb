@@ -37,11 +37,6 @@ class TestPublish < Test::Unit::TestCase
     assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@publish_action.publish(nil)}
   end
 
-  def test_no_define_input_type
-    e = assert_raise(Armagh::Documents::Errors::DocSpecError){Armagh::Actions::Publish.define_input_type 'type'}
-    assert_equal('Publish actions have no usable Input doc types.', e.message)
-  end
-
   def test_no_define_output_docspec
     e = assert_raise(Armagh::Documents::Errors::DocSpecError){Armagh::Actions::Publish.define_output_docspec 'type'}
     assert_equal('Publish actions have no usable Output DocSpecs.', e.message)
@@ -84,7 +79,7 @@ class TestPublish < Test::Unit::TestCase
 
   def test_get_existing_published_document
     docspec = Armagh::Documents::DocSpec.new('PublishDocument', Armagh::Documents::DocState::WORKING)
-    doc = Armagh::Documents::ActionDocument.new(document_id: 'id', content: 'content', metadata: 'meta',
+    doc = Armagh::Documents::ActionDocument.new(document_id: 'id', content: {'content' => 'old'}, metadata: {'meta' => 'old'},
                                                  docspec: docspec, source: {}, new: true)
 
     @caller.expects(:get_existing_published_document).with(doc)
@@ -95,8 +90,8 @@ class TestPublish < Test::Unit::TestCase
     assert_true Armagh::Actions::Publish.respond_to? :define_parameter
     assert_true Armagh::Actions::Publish.respond_to? :defined_parameters
 
-    assert_true Armagh::Actions::Publish.respond_to? :define_input_type
-    assert_true Armagh::Actions::Publish.respond_to? :defined_input_type
+    assert_true Armagh::Actions::Publish.respond_to? :define_default_input_type
+    assert_true Armagh::Actions::Publish.respond_to? :defined_default_input_type
     assert_true Armagh::Actions::Publish.respond_to? :define_output_docspec
     assert_true Armagh::Actions::Publish.respond_to? :defined_output_docspecs
 

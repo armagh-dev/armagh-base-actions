@@ -23,14 +23,5 @@ Dir[File.join(__dir__, 'custom_actions', '*.rb')].each { |file| require file }
 
 module Armagh
   module CustomActions
-    def self.defined_actions
-      actions = []
-      constants.each do |name|
-        class_name = "Armagh::CustomActions::#{name.to_s}"
-        const_obj = const_get(class_name)
-        actions << class_name if const_obj.is_a?(Class) && const_obj < Actions::Action
-      end
-      actions
-    end
   end
 end

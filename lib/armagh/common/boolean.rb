@@ -16,6 +16,17 @@
 #
 
 class Boolean
+
+  def self.new(val)
+    raise TypeError, 'A boolean must either be true or false.' unless bool? val
+    super
+    val
+  end
+
+  def initialize(_val)
+
+  end
+
   def self.bool?(val)
     val == true || val == false
   end

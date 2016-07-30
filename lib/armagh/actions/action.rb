@@ -38,14 +38,14 @@ module Armagh
         @output_docspecs = output_docspecs
       end
 
-      def self.define_input_type(default_type)
+      def self.define_default_input_type(default_type)
         raise Documents::Errors::DocSpecError, "Default type is already defined as #{@defined_input_type}." unless @defined_input_type.nil?
         raise Documents::Errors::DocSpecError, "Default type #{default_type} must be a String." unless default_type.is_a? String
-        @defined_input_type = default_type
+        @defined_default_input_type = default_type
       end
 
-      def self.defined_input_type
-        @defined_input_type
+      def self.defined_default_input_type
+        @defined_default_input_type
       end
 
       def self.define_output_docspec(name, default_type: nil, default_state: nil)

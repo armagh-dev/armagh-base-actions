@@ -28,21 +28,21 @@ class TestAction < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    Armagh::Actions::Action.class_eval('@defined_input_type = nil')
+    Armagh::Actions::Action.class_eval('@defined_default_input_type = nil')
     Armagh::Actions::Action.defined_output_docspecs.clear
   end
 
-  def test_define_input_type
+  def test_default_input_type
     type = 'test_type1'
-    Armagh::Actions::Action.define_input_type type
-    assert_equal(type, Armagh::Actions::Action.defined_input_type)
+    Armagh::Actions::Action.define_default_input_type type
+    assert_equal(type, Armagh::Actions::Action.defined_default_input_type)
   end
 
   def test_define_input_type_bad_name
     type = 123
-    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_input_type(type)}
+    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_default_input_type(type)}
     assert_equal "Default type #{type} must be a String.", e.message
-    assert_nil Armagh::Actions::Action.defined_input_type
+    assert_equal(nil, Armagh::Actions::Action.defined_default_input_type)
   end
 
   def test_define_output_docspec
