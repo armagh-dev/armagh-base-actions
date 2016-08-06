@@ -64,11 +64,6 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
  
   end
   
-  def cleanup
-    
-    puts "\ntest: #{name} took #{Time.now-start_time}\n"
-  end
-  
   def load_local_integration_test_config
     
     config = nil

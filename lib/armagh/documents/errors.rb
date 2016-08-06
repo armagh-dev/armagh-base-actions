@@ -18,12 +18,12 @@
 module Armagh
   module Documents
     module Errors
-      class IDError                     < StandardError; end
-      class DocSpecError                < StandardError; end
-      class DocumentSizeError           < StandardError; end
-      class DocumentUniquenessError     < StandardError; end
       class DocumentError               < StandardError; end
-      class DocStateError               < StandardError; end
+      class IDError                     < DocumentError; end
+      class DocSpecError                < DocumentError; end
+      class DocumentSizeError           < DocumentError; end
+      class DocumentUniquenessError     < DocumentError; end
+      class DocStateError               < DocumentError; end
     end
   end
 end

@@ -23,7 +23,7 @@ module Armagh
       # Triggered by a Doctype in a Published state.  The incoming document is unchanged.
       # Can create/edit additional documents of any type or state
 
-      # Doc is an ActionDocument
+      # Doc is an PublishedDocument
       def consume(doc)
         raise Errors::ActionMethodNotImplemented, 'Consume actions must overwrite the consume method.'
       end
