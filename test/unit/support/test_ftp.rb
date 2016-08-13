@@ -67,6 +67,10 @@ class TestUnitFTPAction < Test::Unit::TestCase
     @mock_ftp.stubs(:read_timeout=)
 
   end
+
+  def teardown
+    FakeFS::FileSystem.clear
+  end
     
   def create_action_and_confirm_validate_returns_errors_warnings( missing_params, changed_params, expected_errors, expected_warnings )
     use_configs = @base_config

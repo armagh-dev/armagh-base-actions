@@ -18,6 +18,8 @@
 require_relative 'errors'
 require_relative 'doc_spec'
 
+require 'json'
+
 module Armagh
   module Documents
     class ActionDocument
@@ -73,6 +75,19 @@ module Armagh
       def document_timestamp=(document_timestamp)
         raise TypeError, 'Document timestamp expected to be a Time.' unless document_timestamp.nil? || document_timestamp.is_a?(Time)
         @document_timestamp = document_timestamp
+      end
+
+      def to_json
+        {
+            "document_id" => @document_id,
+            "title" => @title,
+            "copyright" => @copyright,
+            "metadata" => @metadata,
+            "content" => @content,
+            "source" => @source,
+            "document_timestamp" => @document_timestamp,
+            "docspec" => @docspec.to_hash
+        }.to_json
       end
     end
   end

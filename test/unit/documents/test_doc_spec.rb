@@ -74,4 +74,10 @@ class TestDocSpec < Test::Unit::TestCase
     assert_equal 'third:ready', Armagh::Documents::DocSpec.new('third', Armagh::Documents::DocState::READY).to_s
   end
 
+  def test_to_hash
+    assert_equal({'type' => 'type', 'state' => 'published'}, Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::PUBLISHED).to_hash)
+    assert_equal({'type' => 'another', 'state' => 'working'}, Armagh::Documents::DocSpec.new('another', Armagh::Documents::DocState::WORKING).to_hash)
+    assert_equal({'type' => 'third', 'state' => 'ready'}, Armagh::Documents::DocSpec.new('third', Armagh::Documents::DocState::READY).to_hash)
+  end
+
 end

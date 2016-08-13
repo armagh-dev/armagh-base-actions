@@ -48,6 +48,10 @@ class TestXML < Test::Unit::TestCase
     @expected = {"book"=>{"authors"=>{"name"=>["Someone","Sometwo"]},"chapters"=>{"chapter"=>[{"attr_key"=>"chappy","number"=>"1","title"=>"A Fine Beginning"},{"number"=>"2","title"=>"A Terrible End"}]},"data"=>"Some Data","title"=>"Book Title"}}
   end
 
+  def teardown
+    FakeFS::FileSystem.clear
+  end
+
   def test_text_node
     xml = @xml.sub(/<\/chapter>/, <<-end.gsub(/^\s+\|/, '')
       |  <body.content>

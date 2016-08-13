@@ -38,6 +38,10 @@ class TestCollect < Test::Unit::TestCase
 
   end
 
+  def teardown
+    FakeFS::FileSystem.clear
+  end
+
   def test_unimplemented_collect
     assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@collect_action.collect}
   end

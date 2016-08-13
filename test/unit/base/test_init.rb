@@ -20,6 +20,7 @@ require_relative '../../helpers/coverage_helper'
 require 'test/unit'
 require 'mocha/test_unit'
 require 'fileutils'
+require 'fakefs/safe'
 
 require_relative '../../../lib/armagh/base/actions/init'
 
@@ -28,10 +29,13 @@ class TestInit < Test::Unit::TestCase
   def setup
     @base_dir = '/tmp/test_actions'
     @asset_dir = File.join(__dir__, '..', '..', '..', 'assets')
+    FakeFS.activate!
   end
 
   def teardown
     FileUtils.rm_rf @base_dir
+    FakeFS.deactivate!
+    FakeFS::FileSystem.clear
   end
 
   def test_create_scaffolding
@@ -82,5 +86,4 @@ class TestInit < Test::Unit::TestCase
       end
     end
   end
-
 end

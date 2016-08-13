@@ -19,6 +19,7 @@ require 'bson'
 require 'securerandom'
 
 require_relative 'action'
+require_relative 'encodable'
 require_relative 'loggable'
 
 module Armagh
@@ -28,6 +29,7 @@ module Armagh
       #  for dividing up work or handling files that are too large to store in Mongo.
 
       include Loggable
+      include Encodable
 
       attr_reader :output_docspec
       attr_accessor :source

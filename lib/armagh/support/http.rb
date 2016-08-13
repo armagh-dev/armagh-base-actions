@@ -177,8 +177,11 @@ module Armagh
           set_proxy(proxy)
           set_auth(url, auth)
 
+          # verbose toggle because httpclient internally uses Kernel#warn
+          old_verbose = $VERBOSE = nil
           response = request(url, method, fields, DEFAULT_HEADERS.merge(headers))
           @client.save_cookie_store
+          $VERBOSE = old_verbose
           response
         rescue URI::InvalidURIError
           raise HTTP::URLError, "'#{url}' is not a valid HTTP or HTTPS URL."

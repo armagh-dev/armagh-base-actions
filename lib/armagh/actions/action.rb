@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require_relative 'encodable'
 require_relative 'loggable'
 require_relative 'parameterized'
 require_relative 'errors'
@@ -29,6 +30,7 @@ module Armagh
       attr_reader :output_docspecs, :name
 
       include Loggable
+      include Encodable
 
       def initialize(name, caller_instance, logger_name, parameters, output_docspecs)
         super(parameters)

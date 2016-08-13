@@ -15,12 +15,17 @@
 # limitations under the License.
 #
 
-require_relative "../actions/divide"
+require 'csv'
+require 'armagh/actions'
 
 module Armagh
   module Support
     module CSV
       extend Armagh::Actions::ParameterDefinitions
+
+      class CSVError < StandardError; end
+      class RowMissingValueError < CSVError; end
+      class RowWithExtraValuesError < CSVError; end
 
       module_function
 
@@ -79,6 +84,17 @@ module Armagh
 
           offset += sub_string.size
           eof    = true if (sub_string_size == sub_string.size) && (sub_string_size < size_per_part)
+        end
+      end
+
+      def split_parts(source:, col_sep:, row_sep:, quote_char:)
+        csv_string = source.content
+
+        ::CSV.parse(csv_string, headers: true) do |row|
+            errors = []
+            errors << RowMissingValueError    if row.fields.include?(nil)
+            errors << RowWithExtraValuesError if row.headers.include?(nil)
+            yield row.to_hash, errors if block_given?
         end
       end
 

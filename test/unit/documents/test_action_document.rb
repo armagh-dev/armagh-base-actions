@@ -18,6 +18,7 @@
 require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
+require 'json'
 
 require_relative '../../../lib/armagh/documents/action_document'
 require_relative '../../../lib/armagh/documents/doc_spec'
@@ -108,6 +109,20 @@ class TestActionDocument < Test::Unit::TestCase
     @doc = Armagh::Documents::ActionDocument.new(document_id: @document_id, content: @content, metadata: @metadata,
                                       docspec: @docspec, source: @source, new: true)
     assert_true @doc.new_document?
+  end
+
+  def test_to_json
+    expected = {
+        'document_id' => @doc.document_id,
+        'title' => @doc.title,
+        'copyright' => @doc.copyright,
+        'metadata' => @doc.metadata,
+        'content' => @doc.content,
+        'source' => @doc.source,
+        'document_timestamp' => @doc.document_timestamp,
+        'docspec' => @doc.docspec.to_hash
+    }.to_json
+    assert_equal(expected, @doc.to_json)
   end
 
 end

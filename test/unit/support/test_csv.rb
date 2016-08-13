@@ -28,9 +28,10 @@ class TestCsv < Test::Unit::TestCase
   def setup
     fixtures_path = File.join(__dir__, '..', '..', 'fixtures')
     @csv = File.join fixtures_path, 'test.csv'
-    @csv_with_extra_values_path = File.join fixtures_path, 'row_with_extra_values.csv'
+    @csv_row_with_missing_value_path     = File.join fixtures_path, 'row_with_missing_value.csv'
+    @csv_row_with_extra_values_path      = File.join fixtures_path, 'row_with_extra_values.csv'
     @csv_with_extra_values_last_row_path = File.join fixtures_path, 'extra_values_on_last_row.csv'
-    @csv_with_newline_in_field = File.join fixtures_path, 'newline_in_field.csv'
+    @csv_with_newline_in_field           = File.join fixtures_path, 'newline_in_field.csv'
 
     @expected_divided_content = ["Name,Email,Phone\nBrian,brian@example.com,555-1212\nChuck,chuck@example.com,555-1212\n",
                                  "Name,Email,Phone\nDale,dale@example.com,555-1212\nEric,eric@example.com,555-1212\nFrank,frank@example.com,555-1212\n",
@@ -65,6 +66,27 @@ class TestCsv < Test::Unit::TestCase
                                                   "Name,Email,Phone\nMike,mike@example.com,555-1212\nBob,bob@example.com,555-1212\nJoe,joe@example.com,555-1212\n",
                                                   "Name,Email,Phone\nJane,jane@example.com,555-1212\nPaul,paul@example.com,555-1212\nSame,same@example.com,555-1212\n",
                                                   "Name,Email,Phone\nBill,bill@example.com,555-1212\nJim,jim@example.com,555-1212\nKevin,kevin@example.com,555-1212\n"]
+
+    @expected_split_content = [{"Name"=>"Brian", "Email"=>"brian@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Chuck", "Email"=>"chuck@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Dale", "Email"=>"dale@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Eric", "Email"=>"eric@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Frank", "Email"=>"frank@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"George", "Email"=>"george@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Henry", "Email"=>"henry@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Ivan", "Email"=>"ivan@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Jack", "Email"=>"jack@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Ken", "Email"=>"ken@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Larry", "Email"=>"larry@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Mike", "Email"=>"mike@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Bob", "Email"=>"bob@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Joe", "Email"=>"joe@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Jane", "Email"=>"jane@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Paul", "Email"=>"paul@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Same", "Email"=>"same@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Bill", "Email"=>"bill@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Jim", "Email"=>"jim@example.com", "Phone"=>"555-1212"},
+                               {"Name"=>"Kevin", "Email"=>"kevin@example.com", "Phone"=>"555-1212"}]
   end
 
   test "divides source csv into array of multiple csv strings having max size of 'size_per_part' bytes" do
@@ -81,7 +103,7 @@ class TestCsv < Test::Unit::TestCase
   test "properly divides source csv when row contains extra values" do
     actual_divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv_with_extra_values_path, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(source: @csv_row_with_extra_values_path, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
       actual_divided_content << part
     end
 
@@ -112,10 +134,10 @@ class TestCsv < Test::Unit::TestCase
   end
 
   test "when csv has row with extra values, divided parts match source csv when recombined" do
-    expected_combined_content = IO.binread(@csv_with_extra_values_path)
+    expected_combined_content = IO.binread(@csv_row_with_extra_values_path)
     divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv_with_extra_values_path, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(source: @csv_row_with_extra_values_path, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
       divided_content << part
     end
 
@@ -153,5 +175,46 @@ class TestCsv < Test::Unit::TestCase
     end
 
     assert_equal expected_combined_content, Armagh::Support::CSV.combine_parts(divided_content)
+  end
+
+  test "splits source file into individual rows" do
+    doc = mock('document', content: File.read(@csv))
+    actual_split_content = []
+
+    Armagh::Support::CSV.split_parts(source: doc, col_sep: ',', row_sep: :auto, quote_char: '"') do |row|
+      actual_split_content << row
+    end
+
+    assert_equal @expected_split_content, actual_split_content
+  end
+
+  test "returns an error when csv row is missing a value" do
+    doc = mock('document', content: File.read(@csv_row_with_missing_value_path))
+    actual_split_content = []
+    actual_errors = nil
+    expected_split_content = @expected_split_content.dup
+    expected_split_content.delete_at(1)
+
+    Armagh::Support::CSV.split_parts(source: doc, col_sep: ',', row_sep: :auto, quote_char: '"') do |row, errors|
+      actual_split_content << row if errors.empty?
+      actual_errors = errors if !errors.empty?
+    end
+
+    assert_equal expected_split_content, actual_split_content
+    assert_equal Armagh::Support::CSV::RowMissingValueError, actual_errors.first
+  end
+
+  test "returns an error when csv row has extra values" do
+    doc = mock('document', content: File.read(@csv_row_with_extra_values_path))
+    actual_split_content = []
+    actual_errors = nil
+
+    Armagh::Support::CSV.split_parts(source: doc, col_sep: ',', row_sep: :auto, quote_char: '"') do |row, errors|
+      actual_split_content << row if errors.empty?
+      actual_errors = errors if !errors.empty?
+    end
+
+    assert_equal @expected_split_content, actual_split_content
+    assert_equal Armagh::Support::CSV::RowWithExtraValuesError, actual_errors.first
   end
 end

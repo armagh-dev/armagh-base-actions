@@ -48,7 +48,7 @@ module Armagh
                               description: "FTP base directory path",
                               type:        String,
                               required:    true,
-                              default:     '/'
+                              default:     './'
     
         base.define_parameter name:        "ftp_filename_pattern",
                               description: "Linux file pattern",

@@ -16,7 +16,7 @@
 #
 
 require_relative 'doc_state'
-require_relative '../actions/errors'
+require_relative 'errors'
 
 module Armagh
   module Documents
@@ -25,7 +25,7 @@ module Armagh
 
       def initialize(type, state)
         raise Errors::DocStateError, "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }}" unless DocState.valid_state?(state)
-        raise Documents::Errors::DocSpecError, 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
+        raise Errors::DocSpecError, 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
 
         @type = type.freeze
         @state = state
@@ -45,6 +45,13 @@ module Armagh
 
       def to_s
         "#{type}:#{state}"
+      end
+
+      def to_hash
+        {
+            "type" => @type,
+            "state" => @state
+        }
       end
     end
   end
