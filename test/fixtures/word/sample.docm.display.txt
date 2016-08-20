@@ -1,0 +1,133 @@
+Sample document created with MS Word
+Page 1 of 5
+This page is Size Letter
+
+               If this was a real document it would have more here.
+               Sample: Times New Roman
+               Sample: Courier New
+               Sample: Arial
+               Sample: Times New Roman Bold
+               Sample: Courier New Bold
+               Sample: Arial Bold
+
+        We the People of the United States, in Order to form a more perfect Union,
+establish Justice, insure domestic Tranquility, provide for the common defence, promote
+the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do
+ordain and establish this Constitution for the United States of America.
+
+Bullet indentation sample:
+
+   •   1st Indent
+            o 2nd Indent
+                   • 3rd Indent
+                          • 4th Indent
+
+Bullet style sample:
+
+   o Circle
+   • Square
+     Colors
+   • Quad
+   • Vector
+   • Checkmark
+   • Diamond
+   • Diamond Outline
+   • Arrow
+
+
+
+
+Last line on letter page.
+Sample document created with MS Word
+Page 2 of 5
+This page is Size Letter
+
+Centered text samples:
+
+                                Sample: Times New Roman
+                                Sample: Courier New
+                                      Sample: Arial
+                              Sample: Times New Roman Bold
+                             Sample: Courier New Bold
+                            Sample: Arial Bold And Underlined
+
+Table 3x3 sample:
+
+Top-Left                         Top-Center              Top-Right
+Mid-Left                         Mid-Center              Mid-Right
+Bot-Left                         Bot-Center              Bot-Right
+
+Table 2x2 with whitespace sample:
+
+Field 1:
+                                              Line 2
+
+                                              Line 4
+
+
+                                              Line 7
+
+
+
+
+Field 2                                       Line 3
+
+
+
+
+Last line on letter page.
+Sample document created with MS Word
+Page 3 of 5
+This page is Size Legal
+
+                If this was a real document it would have more here.
+                Sample: Times New Roman
+                Sample: Courier New
+                Sample: Arial
+                Sample: Times New Roman Bold
+                Sample: Courier New Bold
+                Sample: Arial Bold
+
+Clipart sample:
+
+
+
+
+Shape sample:
+
+
+
+
+Last line on legal page.
+Sample document created with MS Word
+Page 4 of 5
+This page is Size Legal
+
+               If this was a real document it would have more here.
+               Sample: Times New Roman
+               Sample: Courier New
+               Sample: Arial
+               Sample: Times New Roman Bold
+               Sample: Courier New Bold
+               Sample: Arial Bold
+
+
+
+
+Last line on legal page.
+Sample document created with MS Word
+Page 5 of 5
+This page is Size Legal
+
+               If this was a real document it would have more here.
+               Sample: Times New Roman
+               Sample: Courier New
+               Sample: Arial
+               Sample: Times New Roman Bold
+               Sample: Courier New Bold
+               Sample: Arial Bold
+
+
+
+
+Last line on legal page.

@@ -15,54 +15,99 @@
 # limitations under the License.
 #
 
-require 'open3'
+require 'timeout'
 
 module Armagh
   module Support
     module Shell
       module_function
 
+      DEFAULT_TIMEOUT = 60
+
       class ShellError          < StandardError; end
       class MissingProgramError < ShellError; end
+      class TimeoutError        < ShellError; end
 
-      def call(*args)
-        command = parse_args(args)
-        stdout, stderr, _status = Open3.capture3(command)
-        handle_error(stderr, command) unless stderr.empty?
-      rescue => e
-        handle_error(e, command)
-      else
-        stdout.strip
+      def call(*args, timeout: DEFAULT_TIMEOUT, ignore_error: nil)
+        call_shell(*args, timeout: timeout, ignore_error: ignore_error)
       end
 
-      def call_with_input(*args, input)
-        unless args.any?
+      def call_with_input(*args, input, timeout: DEFAULT_TIMEOUT, ignore_error: nil)
+        call_shell(*args, input: input, timeout: timeout, ignore_error: ignore_error)
+      end
+
+      private_class_method def call_shell(*args, input: nil, timeout: DEFAULT_TIMEOUT, ignore_error: nil)
+        if args.empty?
           command = input
-          raise ShellError, 'Missing standard input (must be the last argument)'
+          raise ShellError, 'Missing standard input'
         end
+
         command = parse_args(args)
-        stdout, stderr, _status = Open3.capture3(command, stdin_data: input)
-        handle_error(stderr, command) unless stderr.empty?
+
+        pid = nil
+        stdout = stderr = status = ''
+        in_read, in_write   = IO.pipe
+        out_read, out_write = IO.pipe
+        err_read, err_write = IO.pipe
+        in_write.sync = true
+
+        opts = {
+          in: in_read,
+          out: out_write,
+          err: err_write,
+          pgroup: true
+        }
+
+        Timeout.timeout(timeout) do
+          pid = spawn(command, opts)
+          wait = Process.detach(pid)
+
+          in_read.close
+          out_write.close
+          err_write.close
+
+          stdout = Thread.new { out_read.read }
+          stderr = Thread.new { err_read.read }
+
+          in_write.write input if input
+          in_write.close
+
+          status = wait.value
+        end
+
+        if stderr && !stderr.value.empty?
+          handle_error(stderr.value, command, ignore_error)
+        elsif !status.success?
+          handle_error("Process was not successful: #{status.inspect}", command, ignore_error)
+        end
+      rescue Timeout::Error => e
+        Process.kill('TERM', -pid)
+        handle_error(e, command, ignore_error)
       rescue => e
-        handle_error(e, command)
+        handle_error(e, command, ignore_error)
       else
-        stdout.strip
+        stdout.value.strip
+      ensure
+        out_read.close if out_read && !out_read.closed?
+        err_read.close if err_read && !err_read.closed?
       end
 
-      private def parse_args(args)
+      private_class_method def parse_args(args)
         args.flatten!
-        # TODO test empty argument, e.g., "echo 'test' | grep ''"
         args.collect! { |arg| arg.to_s.strip.empty? ? "''" : arg }
         args.join(' ')
       end
 
-      private def handle_error(error, command)
+      private_class_method def handle_error(error, command, ignore_error = nil)
         if error.is_a? Exception
-          raise ShellError, %Q[Unable to execute "#{command}": #{error.message}]
+          raise TimeoutError, %Q(Execution expired "#{command}") if error.class == Timeout::Error
+          raise ShellError, %Q(Unable to execute "#{command}": #{error.message})
         else
-          raise ShellError, %Q[Shell command "#{command}" exited with error: #{error}]
+          return if ignore_error && error.include?(ignore_error)
+          raise ShellError, %Q(Shell command "#{command}" exited with error: #{error})
         end
       end
+
     end
   end
 end

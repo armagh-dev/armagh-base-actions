@@ -23,9 +23,9 @@ require 'test/unit'
 require_relative '../../../lib/armagh/support/shell'
 
 class TestShell < Test::Unit::TestCase
+
   def test_call
-    assert_equal Date.today.strftime('%Y%m%d'),
-      Armagh::Support::Shell.call('date', '+%Y%m%d')
+    assert_equal Date.today.strftime('%Y%m%d'), Armagh::Support::Shell.call('date', '+%Y%m%d')
   end
 
   def test_call_error
@@ -43,6 +43,7 @@ class TestShell < Test::Unit::TestCase
     e = assert_raise Armagh::Support::Shell::ShellError do
       Armagh::Support::Shell.call_with_input('cat')
     end
-    assert_equal 'Unable to execute "cat": Missing standard input (must be the last argument)', e.message
+    assert_equal 'Unable to execute "cat": Missing standard input', e.message
   end
+
 end

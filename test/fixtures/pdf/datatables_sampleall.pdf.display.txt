@@ -1,0 +1,1345 @@
+Instructions and Sample Data Tables for all Tables
+
+
+Table 1 Membership of Participating Departments/Programs (New Applications)
+Table 1 Membership of Participating Departments/Programs (Renewal/Revision Applications)
+Table 2 Participating Faculty Members
+Table 3 Institutional Training Grant Support Available to Participating Faculty Members, Departments, or Programs
+Table 4 Grant and Contract Support of the Participating Faculty Members
+Table 5A Predoctoral Trainees of Participating Faculty Members
+Table 5B Postdoctoral Trainees of Participating Faculty Members
+Table 6A Publications of Research Completed by Predoctoral Trainees (New Applications)
+Table 6B Publications of Research Completed by Postdoctoral Trainees (New Applications)
+Table 6A Publications of Research Completed by Predoctoral Trainees (Renewal Applications)
+Table 6B Publications of Research Completed by Postdoctoral Trainees (Renewal Applications)
+Table 7A Admissions and Completion Records for the Participating Departments and Programs During the Past Five Years (Predoctoral
+Applicants)
+Table 7B Admissions and Completion Records for the Participating Departments and Programs During the Past Five Years (Postdoctoral
+Applicants)
+Table 8A Qualifications of Recent Predoctoral Applicants
+Table 8B Qualifications of Recent Postdoctoral Applicants
+Table 9A Qualifications of the Current Predoctoral Trainees Clearly Associated with the Training Program (New Applications)
+Table 9B Qualifications of the Current Postdoctoral Trainees Clearly Associated with the Training Program (New Applications)
+Table 9A Qualifications of the Current Predoctoral Trainees Clearly Associated with the Training Program (Renewal/Revision Applications)
+Table 9B Qualifications of the Current Postdoctoral Trainees Clearly Associated with the Training Program (Renewal/Revision
+Applications)
+Table 10 Admissions and Completion Records for Underrepresented Minority (URM), Trainees with Disabilities, and Trainees from
+Disadvantaged Backgrounds Clearly Associated with the Training Program (Renewal Applications, Optional for New Applications)
+
+
+Instructions and Sample Data Tables                                                                                                    1
+Table 11 Appointments to the Training Grant For Each Year of the Past Award (Renewal Applications Only)
+Table 12A Predoctoral Trainees Supported by this Training Grant (Renewal Applications Only)
+Table 12B Postdoctoral Trainees Supported by this Training Grant (Renewal Applications Only)
+
+
+
+
+Instructions and Sample Data Tables                                                                       2
+Table 1. Membership of Participating Departments and Programs (New Applications)
+                                                                                           OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                         Faculty        Faculty       Predoctoral   Predoctoral                    Postdoctoral Postdoctoral
+                        Members        Members         Trainees      Trainees                        Trainees     Trainees
+                                                           in                                            in
+                                                      Department                                   Department
+                                                      or Program         With                       or Program       With
+                                                      [Supported    Participating                   [Supported Participating
+    Participating           In        Participating   by Any NIH      Faculty          Leave        by Any NIH     Faculty               Leave
+    Department         Department        in This        Training    Total (TGE)       Column          Training   Total (TGE)            Column
+     or Program        or Program     Application        Grant]        A/B/C           Blank           Grant]       A/B/C                Blank
+Dept. of Biology           45              14           38 [15]        12 (6)                          50 [5]           15 (7)
+                                                                       1/1/0                                            1/0/0
+Neuroscience               32              20           31 [20]        14 (7)                          40 [7]          23 (10)
+Program                                                                2/0/1                                            0/0/1
+Dept. of                   25              5            30 [10]         5 (3)                          28 [0]           12 (6)
+Pharmacology                                                            1/0/0                                           0/0/1
+(Medical School)
+
+                                                                       31 (16)                                         50 (23)
+Totals                Need not sum Need not sum         99 [45]         4/1/1                        118 [12]           1/0/2
+
+
+
+Table 1 Instructions: Provide the total number of current faculty members, predoctoral trainees, and postdoctoral trainees in each
+participating department/program. Faculty members may be counted more than once if they participate in a departmental as well as an
+interdepartmental program(s). Predoctoral and postdoctoral trainees are counted only once and should be associated with a single
+department or program. In brackets, indicate the number of predoctoral trainees and postdoctoral trainees who are supported by any NIH
+training grant. Indicate the number of faculty members participating in this training grant application, and the numbers of predoctoral and
+postdoctoral trainees with the participating faculty. In parentheses, put the number of trainees with the participating faculty who are
+Kirschstein-NRSA training grant eligible (TGE). Include the number of TGE predoctoral and postdoctoral trainees who are from
+underrepresented groups that fulfill the diversity requirement: TGE predoctoral and postdoctoral trainees who are underrepresented
+minorities (Group A), who are individuals with disabilities (Group B), or who are individuals from disadvantaged backgrounds (Group C).
+Individuals may be counted in more than one of these groups if applicable. Data on Group C may not be required by the specific
+instructions in the FOA to which you are responding.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                                 3
+Summarize these data in the Background Section 2.2 of the Research Training Program Plan. Use the narrative to comment on the
+organization of the training program, the participating departments/programs, the extent to which faculty and students from those
+departments/programs participate in the program of activities to be supported by the training grant.
+
+
+Rationale: This table provides insight into the environment in which training will take place. It allows reviewers to assess whether the
+program has the "critical mass" (trainees, faculty and other research personnel) and representation/distribution of scientific disciplines to be
+successful.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                            4
+Table 1. Membership of Participating Departments and Programs (Renewal/Revision Applications)
+                                                                                           OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                        Faculty         Faculty       Predoctoral   Predoctoral     Predoctoral   Postdoctoral Postdoctoral Postdoctoral
+                        Members        Members         Trainees      Trainees        Trainees       Trainees     Trainees     Trainees
+                                                           in                                           in
+                                                      Department                                  Department
+                                                      or Program         With       Supported by or Program         With    Supported by
+                                                      [Supported    Participating   This Training [Supported Participating This Training
+    Participating           In        Participating   by Any NIH      Faculty           Grant      by Any NIH     Faculty      Grant
+    Department         Department        in This        Training    Total (TGE)      Total (TGE)    Training    Total (TGE)    (TGE)
+     or Program        or Program     Application        Grant]        A/B/C           A/B/C         Grant]        A/B/C       A/B/C
+Dept. of Biology           45              14           38 [15]        12 (6)          2 (2)           50 [5]           15 (7)            2 (2)
+                                                                       1/1/0           1/0/0                            1/0/0             0/0/0
+Neuroscience               32              20           31 [20]        14 (7)          4 (4)           40 [7]          23 (10)            2 (2)
+Program                                                                2/0/1           0/1/0                            0/0/1             1/0/0
+Dept. of                   25              5            30 [10]         5 (3)          3 (3)           28 [0]           12 (6)            0 (0)
+Pharmacology                                                            1/0/0          0/0/0                            0/0/1             0/0/0
+(Medical School)
+
+                                                                       31 (16)         9 (9)                           50 (23)            4 (4)
+Totals                Need not sum Need not sum         99 [45]         4/1/1          1/1/0         118 [12]           1/0/2             1/0/0
+
+
+
+Table 1 Instructions: Provide the total number of current faculty members, predoctoral trainees, and postdoctoral trainees in each
+participating department/program. Faculty members may be counted more than once if they participate in a departmental as well as an
+interdepartmental program(s). Predoctoral and postdoctoral trainees are counted only once and should be associated with a single
+department or program. In brackets, indicate the number of predoctoral trainees and postdoctoral trainees who are supported by any NIH
+training grant. Indicate the number of faculty members participating in this training grant application, and the numbers of predoctoral and
+postdoctoral trainees with the participating faculty. Include the number of trainees currently supported by this training grant. In
+parentheses, put the number of trainees with the participating faculty who are Kirschstein-NRSA training grant eligible (TGE). Include the
+number of TGE predoctoral and postdoctoral trainees who are from underrepresented groups that fulfill the diversity requirement: TGE
+predoctoral and postdoctoral trainees who are underrepresented minorities (Group A), who are individuals with disabilities (Group B), or
+who are individuals from disadvantaged backgrounds (Group C). Individuals may be counted in more than one of these groups if
+applicable. Data on Group C may not be required by the specific instructions in the FOA to which you are responding.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                                 5
+Summarize these data in the Background Section 2.2 of the Research Training Program Plan. Use the narrative to comment on the
+organization of the training program, the participating departments/programs, the extent to which faculty and students from those
+departments/programs participate in the program of activities to be supported by the training grant.
+Rationale: This table provides insight into the environment in which training will take place. It allows reviewers to assess whether the
+program has the "critical mass" (trainees, faculty and other research personnel) and representation/distribution of scientific disciplines to be
+successful.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                            6
+Table 2. Participating Faculty Members
+(Alphabetically by Faculty Member)
+                                                                                             OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+     Name/Degree(s)              Rank            Primary (& Secondary) Appointment(s)           Role in Program              Research Interest
+Abrams-Johnson, Jane, PhD Asst. Prof.       Pharmacology;                                    Mentor                    Regulation of Synthesis of
+                                            (Biochemistry-Medical School)                                              Biogenic Amines
+Jones, Lisa S., MD           Res. Asst.     Microbiology and Immunology                      Mentor                    Protein Structure, Folding,
+                             Prof.          (Neuroscience Program)                           Exec Com                  and Immunogenicity
+Sandoz, J. Miguel, MD, PhD   Assoc. Prof.   Neuroscience Program                             Mentor                    Developmental Genetics in
+                                                                                                                       Drosophila
+Thomas, C. James, III, PhD   Prof. & Chr.   Biochemistry and Molecular Biophysics            Program Director          Molecular and Genetic
+                                                                                                                       Analysis of RNA Viruses
+
+
+
+Table 2 Instructions: List each training faculty member with his/her degree(s), academic rank, primary departmental affiliation and
+secondary appointments, role in the proposed training grant program, and research interests that are relevant to the proposed program.
+Summarize these data in the Background Section 2.2 of the Research Training Program Plan. Use the narrative to comment on the
+distribution of mentors by academic rank and department, to discuss areas of research emphasis, and the rationale for the selection of
+participating faculty.
+Rationale: This information allows reviewers to assess the distribution of junior versus senior faculty and clinical versus basic scientists
+participating in the training program, as well as their distribution by department. The data concisely summarize the scientific areas of the
+training faculty.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                                   7
+Table 3. Institutional Training Grant Support Available to Participating Faculty Members, Department(s), or Program(s)
+                                                                                              OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                                                      Short-   Total No. of
+                             Funding Source    Active or                    Predoctoral Postdoctoral   Term    Participating
+                                Including      Pending        Program        Trainees     Trainees   Trainees     Faculty                Names of
+                               Identifying      Project       Director      Supported    Supported Supported     (Number                Overlapping
+ Title of Training Grant         Number         Period      (Department)     This Year   This Year   This Year Overlapping)               Faculty
+Bioimmunotherapy             T32 CA05964-11 06/09-07/13 Baker, A.               12                                          25         Abelson
+Training Grant                                          (Pathology)                                                         (6)        Brown
+                                                                                                                                       Fields
+                                                                                                                                       Johnson
+                                                                                                                                       Sung
+                                                                                                                                       Watson
+Pharmacological              T32 GM04823-01 Pending        James, C.            10                                          19         Jones
+Sciences                                                   (Pharmacology)                                                   (3)        Jenson
+                                                                                                                                       Watson
+Genetic Basis of Mental      T32 MH02708-07 06/07-07/12 Johnson, A.              4             4                              7        Johnson
+Illness                                                 (Psychiatry)                                                        (2)        Watson
+
+Interdisciplinary Training   Dept of Ed       Pending      Small, V.             6             0             2              12         Small
+in Nanotechnology                                          (Engineering)                                                    (2)        Wee
+
+Med into Grad                HHMI             Pending      Brown                 4             0                            10         Brown
+                                                           (Cell Biology)                                                   (2)        Jones
+
+
+
+Totals                       N/A              N/A          N/A                  36             4             2             N/A         N/A
+
+
+
+Table 3 Instructions: List all sources of current and pending training support available to the participating faculty members. It is not
+necessary to list every training grant at the institution, only those with overlapping faculty mentors or student pools. For each grant, include
+the title of the training grant; funding source and complete identifying number; status (active or pending) and dates of the active or pending
+project period; name of the program director and department; number(s) of training positions (predoctoral, postdoctoral, and short term),
+number of participating faculty members; and list overlapping participating faculty members who are also named in this application.
+
+
+
+Instructions and Sample Data Tables                                                                                                                    8
+Rationale: This table will permit an evaluation of the level of support for training available to each of the participating
+departments/programs and the extent to which the proposed training grant overlaps with or duplicates available training grant support. It is
+useful in determining the number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                            9
+Table 4. Grant and Contract Support of the Participating Faculty Members
+(Alphabetically by Faculty Member)
+                                                                                              OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                                                                      Current Year Direct Costs
+                                                                                                                               Awarded
+                                                                     Source of Support                              (Total Direct Costs for Awards
+  Faculty                                                              Grant Number                                    With Substantial Future
+  Member       Faculty Member Role on Project and Grant Title           and Status           Project Period                    Changes)
+Jones, J.     PI - Structure and Function of Acetylcholine Receptors NIH 1 R01 CA76259-       05/09-05/014                                 $190,000
+                                                                     01*
+Jones, J.     PI - Purification & Identification of Receptors       NIH 5 K08 AI00091-03       11/10-11/13                                 $140,000
+Mack, T.      PI - Control of Angiogenesis                          American Heart Assoc.      03/8-03/11                                  $185,000
+Mack, T.      Co-PI - Cell Culture Center                           NSF PCM 80-12935           12/10-12/13                                 $180,000
+                                                                    (D. Stockton, PD/PI)
+Mack, T.      Project Leader of Subproject 4: "Genetic Control of   NIH 1 P01 CA71802-         10/07-10/12                                 $165,000
+              Cell Division"                                        02
+                                                                    (D. Stockton, PD/PI)
+Smith, J.                                                           None
+Zachary, A.   PI – Human Monoclonal Antibodies as a Therapy for     NIH 1 U01 AI-28507-        07/09-07/14                                 $200,000
+              Staphyloccal Enterotoxin                              01 *                                                                 ($3 million)
+
+
+
+Table 4 Instructions: For each participating faculty member, list active and pending research grant and contract support from all sources
+(including Federal, non-Federal, and institutional research grant and contract support) that will provide the context for research training
+experiences. Exclude research training grants. If none, state "None." Include the role of the participating faculty member (PD/PI, co-
+investigator, etc.) in the grant and grant title; source of support, grant number, and status (use an asterisk (*) to indicate pending sources of
+support); dates of the entire project period; and the current year annual direct costs. If the source of support is part of a multiple project
+grant (for example, a P01), additionally identify the PD/PI of the overall project, and provide the above information for that component of
+the grant with which the faculty member is associated. For grants with major budget changes in future years such as clinical trials, include
+the total direct costs of the award in parentheses. Do not list grants that have expired unless a pending continuation application has been
+submitted.
+Summarize these data the Program Plan Section 2.3.b Program Faculty. Analyze the data in terms of total and average grant support.
+Comment on the inclusion of faculty without research grant support and explain how the research of students that may work with them
+would be supported.
+
+
+Instructions and Sample Data Tables                                                                                                                     10
+Rationale: This table provides evidence of the strength of the research environment, the availability of funds to support research
+conducted by the trainees, and the appropriateness of the participating faculty members in terms of their active research support.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                  11
+Table 5A. Predoctoral Trainees of Participating Faculty Members
+(Alphabetically by Faculty Member for the Past Ten Years)
+                                                                                               OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                  Trainee                  Prior
+                                   Name                  Academic               Prior                                 Current Position of Past
+                       Past /     (Where        Training Degree       Prior   Academic                                       Trainees /
+                      Current     Training       Period Institution Academic Degree         Title of Research       Source of Support of Current
+ Faculty Member       Trainee    Occurred)      (Degree)    (s)     Degree(s) Year(s)             Project                     Trainees
+Abbott-Miller, Jane    Past     *Schwartz, A.    94-99   U. of WI      BA          94      Role of              Asst. Scientist, Scripps Research
+                                (Cornell)        (PhD)                                     Transcription Factor Foundation
+                                                                                           X in Synaptic
+                                                                                           Plasticity
+Abbott-Miller, Jane    Past     **Jones, J.      95-00   Grinnell      AB          93      Protein kinase        Res. Assoc. Prof. Microbiol., U CA,
+                                                 (PhD)                                     signaling cascades    Berkeley
+                                                                                           in C elegans
+Abbott-Miller, Jane   Current   **Baker, A.       04-    Cornell       BS          04      Gene Expression in NIH 2 R01 GM05964-06
+                                                                                           Drosophila
+Zyskind, J. Quincy     Past     None
+
+Zyskind J. Quincy     Current   **Bunting, C.     05-    Vanderbilt    BA          05      Title not yet         NIH 1 T32 GM05066-05
+                                                                                           determined
+
+
+
+Table 5A Instructions: For each participating faculty member, list in groups all past and current predoctoral trainees for whom the faculty
+member was/is the thesis advisor (past 10 years only). Indicate in parentheses under the trainee name where the predoctoral training with
+the faculty member occurred, if at a different institution. Exclude medical interns and residents, unless they are heavily engaged in
+laboratory research. For each trainee indicate period of predoctoral training and degree received; previous institution, degree, and year
+awarded prior to entry into training; title of the research project; and for past students, their current positions or for current students, their
+source of support. Designate Kirschstein-NSRA training grant eligible trainees (TGE) by an asterisk (*). In renewal applications,
+denote trainees who were or are supported by this training grant with a double asterisk (**).
+Summarize these data in the Program Plan Section 2.3.b Program Faculty. Analyze the data in terms of the overall experience of the
+faculty in training predoctoral students. Comment on the inclusion of faculty whose training records may not indicate much recent
+predoctoral training experience.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                                    12
+Rationale: The data in this table permit an evaluation of the success of the proposed faculty in facilitating the progression of students in
+their research careers, the ability of the faculty to commit appropriate time to mentoring additional trainees, and the institutions from which
+their trainees are selected.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                           13
+Table 5B. Postdoctoral Trainees of Participating Faculty Members
+(Alphabetically by Faculty Member for the Past Ten Years)
+                                                                                                OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                  Trainee
+                                   Name        Postdoc              Prior     Prior                                      Current Position of Past
+                       Past /     (Where       Research   Prior   Academic Academic                                             Trainees /
+                      Current     Training     Training Academic Degree      Degree            Title of Research       Source of Support of Current
+ Faculty Member       Trainee    Occurred)      Period  Degree(s) Year(s) Institution(s)             Project                     Trainees
+Abbott-Miller, Jane    Past     Schwartz, A.    97-02    MD/PhD         97     U. of WI       Role of              Asst. Scientist, Scripps Research
+                                (Cornell)                                                     Transcription Factor Foundation
+                                                                                              X in Synaptic
+                                                                                              Plasticity
+Abbott-Miller, Jane    Past     **Jones, J.     98-03    PharmD         96     Grinnell       Protein kinase     Res. Assoc. Prof. Microbiol., U
+                                (Cornell)                                                     signaling cascades CA, Berkeley
+                                                                                              in C elegans
+Abbott-Miller, Jane    Past     Howard, R.      01-04      PhD          01     Purdue         Excision Repair in     Postdoc, Pathology, Yale, lab of
+                                                                                              Multiple Myeloma       I.M. Sickly
+                                                                                              Cells
+Abbott-Miller, Jane   Current **Baker, A.        07-       MD           07     Cornell        Gene Expression in NIH 2 T32 GM05964-06
+                                                                                              Drosophila
+Abbott-Miller, Jane   Current Smith, D.          08-       PhD          08     U. of CT       DNA Repair and         NIH 1 F32 ES06942-01
+                                                                                              Chemical
+                                                                                              Carcinogenesis
+Abbott-Miller, Jane   Current Haggerty, D.       09-       PhD          08     U. of MI       Cell Cycle Control     NIH 1 R01 CA76259-01
+                                                                                              in Yeast
+Zyskind, J. Quincy     Past     None
+Zyskind, J. Quincy    Current Bunting, C.        08-       DMD          08     Vanderbilt     Title not yet          NIH 1 T32 GM05066-05
+                                                                                              determined
+
+
+
+Table 5B Instructions: For each participating faculty member, list in groups all past and current postdoctoral trainees for whom the faculty
+member was/is the sponsor (past 10 years only). Indicate in parentheses under the trainee name where the postdoctoral training with the
+faculty member occurred, if at a different institution. Exclude medical interns and residents unless they are heavily engaged in laboratory
+research. For each trainee indicate period of postdoctoral training and any degree received; previous institution, degree, and year awarded
+prior to entry into training; title of the research project; and for past trainees, their current positions; or for current trainees their source of
+
+Instructions and Sample Data Tables                                                                                                                     14
+support. Designate Kirschstein-NSRA training grant eligible trainees (TGE) by an asterisk (*). In renewal applications, denote
+trainees who were or are supported by this training grant with a double asterisk (**).
+Summarize these data in the Program Plan Section 2.3.b Program Faculty. Analyze the data in terms of the overall experience of the
+faculty in training postdoctoral trainees. Comment on the inclusion of faculty whose training records may not indicate much recent
+postdoctoral training experience.
+Rationale: The data in this table permit an evaluation of the success of the proposed faculty in facilitating the progression of students in
+their research careers, the ability of the faculty to commit appropriate time to mentoring additional trainees, and the institutions from which
+their trainees are selected.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                           15
+Table 6A. Publications of Research Completed by Predoctoral Trainees (New Applications)
+(Group Past and Current Trainees Separately, then sort by Year of Entry)
+                                                                                                 OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+              Past /     Name of Trainee
+Mentor(s)    Current    (Years in Program)                               Publication (Authors, Year, Title, Journal, PMCID)
+Berg        Past       Thompson, P.*         Miter, M.H., Owens, R., Thompson, P., and Berg, L., 2004, "Insulin Treatment of Diabetic Rats," J.
+                       (1998-2003)           Comp. Neurol., 373:350-378.
+Chu         Current    Greenstein, M.*       Greenstein, M., and Chu, J., 2010, "Sympathetic Noradrenergic Innervation of Drosophila," Genetics (In
+                       (2008- )              press). PMC Journal in process.
+Jones       Past       Brown, B.*            Brown, B. and Jones J., 2005, "Repeated Sequences in Drosophila," J. Mol. Biol., 242:503-510.
+                       (2000-2006)           Corman, T., Walker, J.D., and Brown, B., 2006, "Ontogeny of Tolerance to Alloantigens," Am. J. Anat.,
+                                             146:156.
+Layback     Past       Wand, D.              No Publications
+                       (2000-2007)
+Neustaff    Current    Smith, B.*            Smith, B. and Neustaff, 2010, Preliminary x-ray crystal structure of beta-adrenergic receptor.
+                       (2009- )              Biophysical J., Abstract.
+Peters      Current    Samuels, J.*          Samuels, J. and Peters M., 2009, "Molecular Analysis of RNA Viruses," Molecular Biology of the Cell,
+                       (2007- )              Vol. 11, 12-18. PMCID: PMC2583929
+
+
+
+Table 6A Instructions: For New (Type 1) Applications
+Read FOA, SF424 (R&R) Application Guide Section 8, and Introduction to NRSA Data Tables first.
+List publications of representative previous predoctoral trainees and of ALL current predoctoral trainees of the proposed mentors. Only
+include previous trainees over the last ten years and only trainees who would have been considered for appointment, if this program had
+been supported by an NIH training grant during their period of training. Sort trainees by Mentor. For each mentor, group past trainees
+separately from current trainees. Sort each group by the year of entry into the graduate program. In parenthesis, include the year the
+trainee started graduate studies, and if appropriate, when they completed their training. Designate Kirschstein-NSRA training grant eligible
+trainees (TGE) by an asterisk (*). List all publications of trainees resulting from their period of training in the faculty member’s laboratory or
+in association with the training program, through completion of their doctoral degree regardless of when the publication actually appeared.
+List abstracts only if a more complete publication has not appeared and label these clearly as abstracts. List publications followed by
+abstracts in chronological order. Boldface the trainee’s name in the author list.
+When citing articles that fall under the Public Access Policy, were authored or co-authored by the trainee and arose from NIH support,
+provide the NIH Manuscript Submission reference number (e.g., NIHMS97531) or the PubMed Central (PMC) reference number (e.g.,
+
+Instructions and Sample Data Tables                                                                                                                      16
+PMCID234567) for each article. If the PMCID is not yet available because the Journal submits articles directly to PMC on behalf of their
+authors, indicate "PMC Journal - In Process." A list of these Journals is posted at:
+http://publicaccess.nih.gov/submit_process_journals.htm.
+Summarize these data in the body of the proposal. For example, what is the average number of papers published by trainees, how many
+as first author, how many trainees graduate without any first author publication.
+Rationale: This information provides an indicator of the ability of the mentor to foster trainee productivity and allows assessment of the
+research quality and authorship priority of previous predoctoral trainees.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                          17
+Table 6B. Publications of Research Completed by Postdoctoral Trainees (New Applications)
+(Group Past and Current Trainees Separately, then sort by Year of Entry)
+                                                                                                  OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+              Past /     Name of Trainee
+Mentor(s)    Current    (Years in Program)                             Publication (Authors, Year, Title, Journal, PMCID)
+Berg        Past       Thomas, P*            Miter, M.H., Owens, R., Thomas, P., and Berg, L., 2006, "Insulin Deficiency in Diabetic Rats," J.
+                       (2005-2007)           Nutrition, 373:350-378.
+Chew        Current    Greenstuff, M.*       Greenstuff, M., and Chew, J., 2010, "Non-digestible fibre influences bioavailability of vitamins”, J.
+                       (2010- )              Pharm Sci. (In press). PMCID: PMC Journal in Press.
+Easygai     Past       Schultz, H.           No Publications
+                       (2006-2008)
+Newpeeye Current       Jones, W.*            No Publications
+                       (2010 )
+Peters      Current    Samuels, J.*          Samuels, J. and Peters M., 2009, "Molecular Analysis of DNA Viruses," Molecular Biology of the Cell,
+                       (2009- )              Vol. 11, 12-18. PMCID: PMC2985900
+Smith       Past       Green, V.*            Green, V. and Smith, S., 2006, "Repeated Sequences in Xenopus," J. Mol. Biol., 244:103-110.
+                       (2005-2008)           Smith, S., Watkins, J.D., and Green, V., 2007, "Tolerance to Alloantigens in Frogs," Am. J. Anat.,
+                                             146:156 (abstract).
+
+
+
+Table 6B Instructions: For New (Type 1) Applications
+Read FOA, SF424 (R&R) Application Guide Section 8, and Introduction to NRSA Data Tables first.
+List publications of representative previous postdoctoral trainees and all current postdoctoral trainees of the proposed mentors. Only
+include previous trainees over the last ten years and only trainees who would have been considered for appointment, if this program had
+been supported by an NIH training grant during their period of training. Sort trainees by mentor. Group past trainees separately from
+current trainees. Sort each group by their year of entry into postdoctoral training with their current faculty mentor or in association with the
+program. In parenthesis, include the year they began their training and, if appropriate, the year they completed training. Designate
+Kirschstein-NSRA training grant eligible trainees (TGE) by an asterisk (*). List all publications of trainees resulting from their period of
+training in the faculty member’s laboratory or in association with the training program, regardless of when the publication actually
+appeared. List abstracts only if a more complete publication has not appeared and label these clearly as abstracts. List publications
+followed by abstracts in chronological order. Boldface the trainee’s name in the author list.
+When citing articles that fall under the Public Access Policy, were authored or co-authored by the trainee and arose from NIH support,
+provide the NIH Manuscript Submission reference number (e.g., NIHMS97531) or the PubMed Central (PMC) reference number (e.g.,
+
+Instructions and Sample Data Tables                                                                                                                       18
+PMCID234567) for each article. If the PMCID is not yet available because the Journal submits articles directly to PMC on behalf of their
+authors, indicate "PMC Journal - In Process." A list of these Journals is posted at:
+http://publicaccess.nih.gov/submit_process_journals.htm.
+Summarize these data in the body of the proposal. For example, what is the average number of papers published by trainees, how many
+first author, what has been the impact of these publications on their field of science.
+Rationale: This information provides an indicator of the ability of the mentor to foster trainee productivity and allows assessment of the
+research quality and authorship priority of previous postdoctoral trainees.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                          19
+Table 6A. Publications of Research Completed by Predoctoral Trainees (Renewal/Revision Applications)
+(Group Past and Current Trainees Separately, then sort by Year of Entry)
+                                                                                              OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+  Name of Trainee        Past /
+ (Years in Program)     Current                  Mentor(s)                      Publication (Authors, Year, Title, Journal, PMCID)
+Thompson, P.**        Past            Berg                        Miter, M.H., Owens, R., Thompson, P., and Berg, L., 2004, "Insulin Treatment
+(1998-2003)                                                       of Diabetic Rats," J. Comp. Neurol., 373:350-378.
+Brown, B.**           Past            Jones                       Brown, B. and Jones J., 2005, "Repeated Sequences in Drosophila," J. Mol.
+(2000-2006)                                                       Biol., 242:503-510.
+                                                                  Corman, T., Walker, J.D., and Brown, B., 2006, "Ontogeny of Tolerance to
+                                                                  Alloantigens," Am. J. Anat., 146:156.
+Wand, D.              Past            Layback                     No Publications
+(2000-2007)
+Samuels, J.*          Current         Peters                      Samuels, J. and Peters M., 2009, "Molecular Analysis of RNA Viruses,"
+(2007- )                                                          Molecular Biology of the Cell, Vol. 11, 12-18. PMCID: PMC2583929
+Greenstein, M.**      Current         Chu                         Greenstein, M., and Chu, J., 2010, "Sympathetic Noradrenergic Innervation of
+(2008- )                                                          Drosophila," Genetics (In press). PMC Journal in process.
+Smith, B**            Current         Neustaff                    Smith, B. and Neustaff, 2010, Preliminary x-ray crystal structure of beta-
+(2009- )                                                          adrenergic receptor. Biophysical J., Abstract.
+
+
+
+Table 6A Instructions: For Renewal (Type 2) Applications
+Read FOA, SF424 (R&R) Application Guide Section 8, and Introduction to NRSA Data Tables first.
+List publications of ALL predoctoral trainees currently or previously supported by the training grant and of other representative trainees
+clearly associated with the training program. Include trainees appointed/representative for the past 10 years. Group past trainees
+separately from current trainees. Sort each group by their year of entry into the graduate program. In parenthesis, include the year the
+trainee started graduate studies, and if appropriate, when they completed their training. Designate Kirschstein-NSRA training grant eligible
+trainees (TGE) by an asterisk (*). Designate those supported by this training grant with a double asterisk (**). Indicate the trainee’s current
+mentor(s), if chosen. List all publications of trainees resulting from work conducted during their period of predoctoral training in the faculty
+member’s laboratory or in association with the training program through completion of their doctoral degree, regardless of when the
+publication actually appeared. List abstracts only if a more complete publication has not appeared and label these clearly as abstracts. List
+publications followed by abstracts in chronological order. Boldface the trainee’s name in the author list.
+
+
+
+Instructions and Sample Data Tables                                                                                                                   20
+When citing articles that fall under the Public Access Policy, were authored or co-authored by the trainee and arose from NIH support,
+provide the NIH Manuscript Submission reference number (e.g., NIHMS97531) or the PubMed Central (PMC) reference number (e.g.,
+PMCID234567) for each article. If the PMCID is not yet available because the Journal submits articles directly to PMC on behalf of their
+authors, indicate "PMC Journal - In Process." A list of these Journals is posted at:
+http://publicaccess.nih.gov/submit_process_journals.htm.
+Summarize these data in the body of the proposal. For example, what is the average number of papers published by trainees, how many
+first author, how many trainees graduate without any first author publication.
+Rationale: This information provides an indicator of trainee productivity, research quality, and priority of authorship; and the success of
+faculty members in facilitating predoctoral trainee publication.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                           21
+Table 6B. Publications of Research Completed by Postdoctoral Trainees (Renewal/Revision Application)
+(Group Past and Current Trainees Separately, then sort by Year of Entry)
+                                                                                               OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+  Name of Trainee         Past /
+ (Years in Program)      Current                Mentor(s)                        Publication (Authors, Year, Title, Journal, PMCID)
+Green, V.*            Past            Smith                        Green, V. and Smith, S., 2006, "Repeated Sequences in Xenopus," J. Mol. Biol.,
+(2005-2008)                                                        244:103-110.
+                                                                   Smith, S., Watkins, J.D., and Green, V., 2007, "Tolerance to Alloantigens in
+                                                                   Frogs," Am. J. Anat., 146:156 (abstract).
+Thomas, P*            Past            Berg                         Miter, M.H., Owens, R., Thomas, P., and Berg, L., 2006, "Insulin Deficiency in
+(2005-2007)                                                        Diabetic Rats," J. Nutrition, 373:350-378.
+Schultz, H.           Past            Easygai                      No Publications
+(2006-2008)
+Samuels, J.*          Current         Peters                       Samuels, J. and Peters M., 2009, "Molecular Analysis of DNA Viruses,"
+(2009- )                                                           Molecular Biology of the Cell, Vol. 11, 12-18. PMCID: PMC2985900
+Greenstuff, M.*       Current         Chew                         Greenstuff, M., and Chew, J., 2010, "Non-digestible fibre influences
+(2010- )                                                           bioavailability of vitamins”, J. Pharm Sci. (In press). PMCID: PMC Journal in
+                                                                   Press.
+Jones, W.*            Current         Newpeeye                     No Publications
+(2010 )
+
+
+
+Table 6B Instructions: For Renewal (Type 2) Applications
+Read FOA, SF424 (R&R) Application Guide Section 8, and Introduction to NRSA Data Tables first.
+For Renewal/Revision applications, list publications of ALL postdoctoral trainees currently or previously supported by the training grant and
+all other representative trainees clearly associated with the training program. Include trainees appointed/representative for the past 10
+years. Group past trainees separately from current trainees. Sort each group by their year of entry into postdoctoral training with their
+current faculty mentor or association with the program. In parenthesis, include the year they began their training and, if appropriate, the
+year they completed training. Designate Kirschstein-NSRA training grant eligible trainees (TGE) by an asterisk (*). Designate those
+supported by this training grant with a double asterisk (**). Indicate the trainee’s current mentor(s), if chosen. List All publications of
+trainees resulting from work during their period of postdoctoral training in the faculty member’s laboratory or in association with the training
+program, regardless of when the publication actually appeared. List abstracts only if a more complete publication has not appeared and
+label these clearly as abstracts. List publications followed by abstracts in chronological order. Boldface the trainee’s name in the author list.
+
+
+Instructions and Sample Data Tables                                                                                                                    22
+When citing articles that fall under the Public Access Policy, were authored or co-authored by the trainee and arose from NIH support,
+provide the NIH Manuscript Submission reference number (e.g., NIHMS97531) or the PubMed Central (PMC) reference number (e.g.,
+PMCID234567) for each article. If the PMCID is not yet available because the Journal submits articles directly to PMC on behalf of their
+authors, indicate "PMC Journal - In Process." A list of these Journals is posted at:
+http://publicaccess.nih.gov/submit_process_journals.htm.
+Summarize these data in the body of the proposal. For example, what is the average number of papers published by trainees, how many
+first author, what has been the impact of these publications on their field of science.
+Rationale: This information provides an indicator of trainee productivity, research quality, and priority of authorship; and the success of
+faculty members in facilitating postdoctoral trainee publication.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                           23
+Table 7A. Admissions and Completion Records for the Participating Departments and Programs During the Past Five
+Years (Predoctoral Applicants)
+                                                                                            OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                                  Trainees                Trainees
+                                                                                Completed      Trainees     Left
+                                                                   Trainees       Program    Left Program Program
+                               Applicants Applicants Applicants     Still in   Earned PhD or Earned Other Without Reason for Leaving
+                                Applied   Accepted    Enrolled     Program        MD/PhD        Degree     Degree         Program
+   Department /       Entering   (TGE)      (TGE)      (TGE)        (TGE)          (TGE)        (TGE)      (TGE)   (if training was not
+     Program           Year        A          A        A/B/C        A/B/C          A/B/C        A/B/C      A/B/C         completed)
+Department of           2006          8 (5)     6 (4)     4 (3)      2 (1)         1 (1)              0 (0)         1 (1)     Changed career
+Biochemistry                            0         0       1/0/0      1/0/0         0/0/0              0/0/0         0/0/0     interests
+Department of           2007          9 (7)     6 (4)     5 (3)      4 (3)         1 (1)              0(0)          0 (0)
+Biochemistry                            1         1       0/0/0      0/0/0         0/0/0              0/0/0         0/0/0
+Department of           2008          10 (6)    8 (5)     5 (3)      4 (3)         0 (0)            1 (1) MS        0 (0)     Went to medical
+Biochemistry                            2         1       1/0/0      0/0/0         0/0/0              1/0/0         0/0/0     school
+Department of           2009          12 (9)   10 (6)     8 (5)      6 (4)         0 (0)              0 (0)         2 (1)     1 left for a job in
+Biochemistry                            3        1        1/0/0      0/0/0         0/0/0              0/0/0         0/0/0     industry;
+                                                                                                                              1 left for reasons
+                                                                                                                              unknown
+Department of           2010      15 (12)      10 (8)     8 (6)      8 (6)         0 (0)              0 (0)         0 (0)
+Biochemistry                         4           2        2/1/0      2/1/0         0/0/0              0/0/0         0/0/0
+Dept Genetics           2006      30 (25)      15 (12)    8 (7)      7(6)          1 (0)              0 (0)         0 (0)
+                      Last Year      3            2       1/0/0      1/0/0         0/0/0              0/0/0         0/0/0
+Interdepartmental       2007      125 (90)     24 (18)   18 (15)     5 (4)        12 (11)             0 (0)         1 (0)     Transferred to
+Graduate Program in     Newly        5            0       0/0/0      00/0          0/0/0              0/0/0         0/0/0     Bioengineering PhD
+Genetics               Formed                                                                                                 program
+Interdepartmental       2008      123 (91)     22 (17)   16 (16)    10 (10)        4 (4)              0 (0)         2 (2)     1 transferred to
+Graduate Program in                  3            1       1/0/0      0/0/0         0/0/0              0/0/0         1/0/0     another institution; 1
+Genetics                                                                                                                      enrolled in medical
+                                                                                                                              school
+Interdepartmental       2009      122 (85)     21 (19)   17 (16)    14 (14)        0 (0)            1 (1) MS        2 (1)     1 left for industry;
+Graduate Program in                  5            0       0/0/0      0/0/0         0/0/0              0/0/0         0/0/0     1 enrolled in dental
+Genetics                                                                                                                      school
+
+
+
+Instructions and Sample Data Tables                                                                                                                  24
+                                                                                   Trainees                Trainees
+                                                                                 Completed      Trainees     Left
+                                                                    Trainees       Program    Left Program Program
+                               Applicants Applicants Applicants      Still in   Earned PhD or Earned Other Without Reason for Leaving
+                                Applied   Accepted    Enrolled      Program        MD/PhD        Degree     Degree         Program
+   Department /       Entering   (TGE)      (TGE)      (TGE)         (TGE)          (TGE)        (TGE)      (TGE)   (if training was not
+     Program           Year        A          A        A/B/C         A/B/C          A/B/C        A/B/C      A/B/C         completed)
+Interdepartmental      20010      130 (83)    35 (22)    20 (19)     18 (17)        0 (0)         0 (0)       2 (2)    1 transferred to
+Graduate Program in                  5           4        3/0/0       2/0/0         0/0/0         0/0/0       1/0/0    neuroscience training
+Genetics                                                                                                               program; 1 teaching
+                                                                                                                       science in high school
+
+
+Total All Programs      2006      38 (30)     21 (16)    12 (10)      9 (7)         2 (1)         0 (0)       1 (1)    Need not repeat
+                                     3           2        2/0/0       2/0/0         0/0/0         0/0/0       0/0/0    above explanations
+                        2007      134 (97)    30 (22)    23 (18)      9 (7)        13 (12)        0 (0)       1 (0)
+                                     6           1        0/0/0       0/0/0         0/0/0         0/0/0       0/0/0
+                        2008      133 (97)    30 (22)    21 (19)     14 (13)        4 (4)         1 (1)       2 (1)
+                                     5           2        2/0/0       0/0/0         0/0/0         1/0/0       1/0/0
+                        2009      134 (94)    31 (25)    25 (21)     20 (18)        0 (0)         1 (1)       4 (2)
+                                     8           1        1/0/0       0/0/0         0/0/0         0/0/0       0/0/0
+                        2010      145 (95)    45 (30)    28 (25)     26 (23)        0 (0)         0 (0)       2 (2)
+                                     9           6        5/1/0       4/1/0         0/0/0         0/0/0       1/0/0
+Sums all Years                   584 (413)   157 (115)   109 (93)    78 (68)       19 (17)        2 (2)       10 (6)
+                                    31          12        10/1/0      6/1/0         0/0/0         1/0/0       2/0/0
+Average all Years                 117 (83)    31 (23)    22 (19)      N/A            N/A           N/A         N/A
+                                     6           2        2/0/0
+
+
+
+Table 7A Instructions: For each participating department/program for each of the past 5 years, list the following information: number(s) of
+individuals who have formally applied for training; have been accepted for admission; enrolled; are still in the program; completed the
+program; and left the program. In parenthesis, put the number of the trainees in each group who were Kirschstein-NRSA training grant
+eligible (TGE). Where indicated, include the number of TGE trainees who were underrepresented minorities (Group A), the number of the
+TGE trainees who were individuals with disabilities (Group B), and the number of the TGE trainees who were individuals from
+disadvantaged backgrounds (Group C). Data on Group C may not be required by the specific instructions in the FOA to which you are
+responding. Do not include students admitted solely to obtain master’s degrees. For those who left the program without completing their
+
+
+Instructions and Sample Data Tables                                                                                                         25
+training, include the reason for leaving the program. Sort data by department/program and then by year. For programs with multiple
+entering department/program trainee pools, provide totals for each year, and sums and averages.
+Summarize these data in the Program Plan Section 2.3.e Trainee Candidates. Analyze the data in terms of the overall numbers of potential
+trainees, their sources and enrollment trends, their eligibility for Kirschstein-NRSA support, diversity, and overall success in completing the
+training program.
+Rationale: These data permit the evaluation of the participating departments/programs’ abilities to recruit and retain predoctoral trainees
+through the completion of their PhD requirements. The data permit separate analyses of total trainees, TGE trainees, and the diversity of
+the trainees. These data are useful in determining the selectivity of the admissions process, the success of recruitment and retention of
+trainees from diverse backgrounds, and the appropriate number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                           26
+Table 7B. Admissions and Completion Records for the Participating Departments and Programs During the Past Five
+Years (Postdoctoral Applicants)
+                                                                                              OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                     Applicants   Trainees     Trainees      Trainees
+                                           Applicants   Applicants    Entered      Still in   Completed        Left          Reason for Leaving
+                              Previous      Applied     Accepted      Program     Program      Program       Program                Program
+  Department /    Entering     Degree        (TGE)        (TGE)        (TGE)       (TGE)        (TGE)         (TGE)          (if training was not
+    Program        Year         Type           A            A          A/B/C       A/B/C        A/B/C         A/B/C                completed)
+Department of       2006        PhD           6(4)        3 (3)        1 (1)        1 (1)        0 (0)         0 (0)
+Pathology                                      0            0          0/1/0        0/1/0        0/0/0         0/0/0
+Department of       2006         MD          4 (3)        3 (2)        2 (1)        2 (1)        0 (0)         0 (0)
+Pathology                                      1            1          1/0/0        1/0/0        0/0/0         0/0/0
+Department of       2006      MD/PhD         4 (4)        3 (2)        3 (2)        2 (1)        0 (0)         1 (1)     1 career change – law
+Pathology                                      0            0          0/1/0        0/1/0        0/0/0         0/0/0     school
+Department of       2006      List Other     1 (1)        0 (0)        0 (0)        0 (0)        0 (0)         0 (0)
+Pathology                     Relevant         0            0          0/0/0        0/0/0        0/0/0         0/0/0
+Department of       2006        Total       15 (12)       9 (7)        6 (4)        5 (3)        0 (0)         1 (1)
+Pathology                                      2            1          1/2/0        1/2/0        0/0/0         0/0/0
+Department of       2007        PhD          8 (6)        7 (6)        6 (5)        5 (4)        0 (0)         1 (1)
+                                                                                                                         1 left for industry
+Pathology                                      2            1          1/0/0        1/0/0        0/0/0         0/0/0
+Department of       2007         MD          3 (3)        2 (2)        1 (1)        1 (1)        0 (0)         0 (0)
+Pathology                                      1            1          1/0/0        1/0/0        0/0/0         0/0/0
+Department of       2007      MD/PhD         2 (2)        2 (2)        2 (2)        2 (2)        0 (0)         0 (0)
+Pathology                                      0            0          0/1/0        0/1/0        0/0/0         0/0/0
+Department of       2007        DDS          3 (2)        2 (2)        2 (1)        2 (1)        0 (0)         0 (0)
+Pathology                                      0            0          0/0/1        0/0/1        0/0/0         0/0/0
+Department of       2007        Total       16 (13)      13 (12)       11 (9)      10 (8)        0 (0)         1 (1)
+Pathology                                      3            2          2/1/1       2/1/1         0/0/0         0/0/0
+Department of       2008        PhD          10 (9)       8 (7)        6 (5)        3 (3)        1 (1)         2(1)      1 took a teaching postion; 1
+Pathology                                      2            1          1/0/1        0/0/1        0/0/0         1/0/0     took a job in industry
+Department of       2008         MD          4 (3)        4 (3)        3 (2)        3 (2)        0 (0)         0 (0)
+Pathology                                      1            1          1/0/1        1/0/1        0/0/0         0/0/0
+Department of       2008      MD/PhD         5 (4)        4 (3)        3 (3)        3 (3)        0 (0)         0 (0)
+Pathology                                      0            0          0/1/0        0/1/0        0/0/0         0/0/0
+
+Instructions and Sample Data Tables                                                                                                                   27
+                                                                    Applicants   Trainees     Trainees    Trainees
+                                          Applicants   Applicants    Entered      Still in   Completed      Left          Reason for Leaving
+                               Previous    Applied     Accepted      Program     Program      Program     Program                Program
+  Department /      Entering    Degree      (TGE)        (TGE)        (TGE)       (TGE)        (TGE)       (TGE)          (if training was not
+    Program          Year        Type         A            A          A/B/C       A/B/C        A/B/C       A/B/C                completed)
+Department of        2008       DVM         1 (0)        0 (0)        0 (0)        0 (0)       0 (0)       0 (0)
+Pathology                                     0            0          0/0/0        0/0/0       0/0/0       0/0/0
+Department of        2008       Total      20 (16)      16 (13)      12 (10)       9 (8)       1 (1)       2 (1)
+Pathology                                     3            2          2/1/2        1/1/2       0/0/0       1/0/0
+List similar data
+for other
+Department /
+Programs
+Total All            2006                  15 (12)       9 (7)        6 (4)        5 (3)       0 (0)       1 (1)
+                                                                                                                      Moved to another program
+Programs                                      2            1          1/2/0        1/2/0       0/0/0       0/0/0
+                     2007                  16 (13)      13 (12)       11 (9)      10 (8)       0 (0)       1 (1)      Dismissed for harassing
+                                              3            2          2/1/1       2/1/1        0/0/0       0/0/0      other lab members
+                     2008                  20 (16)      16 (13)      12 (10)       9 (8)       1 (1)       2 (1)      1 left to run R43 grant for PI
+                                              3            2          2/1/2        1/1/2       0/0/0       1/0/0      1 returned to clinical interest
+                     2009                  18 (15)      15 (12)       10 (8)       8 (7)       0 (0)       0 (0)
+                                              3            2          1/0/1        1/0/1       0/0/0       0/0/0
+                     2010                  17 (14)      14 (11)       9 (7)        9 (7)       0 (0)       0 (0)
+                                              2            2          1/0/1        1/0/1       0/0/0       0/0/0
+Sums                                       86 (70)      67 (55)      48 (38)      41 (33)      1 (1)       4 (3)
+                                             13            9          7/4/5        6/4/5       0/0/0       1/0/0
+Averages                                   17 (14)      13 (11)      9.6 (7.6)   8.2 (6.6)    0.2 (0.2)   0.8 (0.6)
+                                             2.6          1.8          1/1/1       1/1/1        0/0/0      0.2/0/0
+
+
+
+Table 7B Instructions: For each participating department/program for each of the past 5 years, list the following information: number(s) of
+individuals who have formally applied for training; have been accepted for admission; enrolled; are still in the program; completed the
+program; and left the program. In parenthesis put the number of these trainees in each group who were Kirschstein-NRSA training grant
+eligible (TGE). Where indicated, include the number of the TGE trainees who were underrepresented minorities (Group A), the number of
+the TGE trainees who were individuals with disabilities (Group B), and the number of the TGE trainees who were individuals from
+disadvantaged backgrounds (Group C). Data on Group C may not be required by the specific instructions in the FOA to which you are
+responding. For those who left the program without completing their training, include the reason for leaving the program. Sort data by
+
+Instructions and Sample Data Tables                                                                                                               28
+department/program, year of application, and previous doctoral degree type of entering trainees. For programs with multiple entering
+department/program trainee pools, provide totals for each year, and sums and averages.
+Programs that select postdoctoral trainees exclusively from candidates who apply to academic department(s) or programs (e.g.,
+Department of Hematology or Interdepartmental Program in Cancer Therapeutics), please provide data for each participating
+department/program. Include only those postdoctoral applicants who could be considered candidates for the proposed training program.
+Programs that select trainees exclusively from candidates who are recruited directly to the laboratories of the proposed faculty mentors
+should list only those candidates who were actually in the laboratories of the faculty mentors and considered for the program. Please
+indicate in a footnote which system of recruitment is used by this program. Applicants are strongly urged to contact IC staff mentioned
+in the FOA for guidance on what data to include in this table.
+Summarize these data in the Program Plan Section 2.3.e Trainee Candidates. Analyze the data in terms of the overall numbers of potential
+trainees, their sources and trends, their eligibility for Kirschstein-NRSA support, diversity, and overall success in completing the training
+program.
+Rationale: These data permit evaluation of the abilities of the participating departments/programs to recruit and retain postdoctoral
+trainees through the completion of their training. The data permit separate analyses of total trainees, TGE trainees, and the diversity of the
+trainees. These data are useful in determining the selectivity of the admissions process, the success of recruitment and retention of
+trainees from diverse backgrounds, and the appropriate number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                         29
+Table 8A. Qualifications of Recent Predoctoral Applicants
+                                                                                                       OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                                           GRE Scores
+                                                                                             V, Q, A, S                                     Support
+                               Applicant                                                   (Percentiles)                                   from this
+           Department /         (List by          Previous       Degree(s)   Undergrad     and/or MCAT       Interviewed Accepted Enrolled   Grant
+Year        Program            Number)          Institution(s)   & Year(s)     GPA            Scores             (Y/N)     (Y/N)   (Y/N)     (Y/N)
+2010 Medical Scientist            1*          U. of WI           BSN '09        3.63        12, 11, 10, Q          Y             Y            Y             Y
+     Training Program
+2010 Medical Scientist            2*          Stanford            BS '09        3.72        11, 13, 11, N          Y             Y           N              N
+     Training Program                                                                                                                       JHU
+2010 Medical Scientist                3       Yale U.             BA '07        3.78                               Y             N            N             N
+     Training Program                         Wash. U.            MS '09                  660 680 740
+                                                                                            10, 9, 11, O
+2010 Molecular Biophysics         1*          U. of IL            BS '09         4.0      700 730 720 690          Y             Y            Y             Y
+     Program
+2010 Molecular Biophysics         2*          Rutgers             BS '07        3.36      710   690   680          Y             Y            Y             Y
+     Program
+2010 Molecular Biophysics             3       Berkeley            BS '08        3.68      680   710   720          Y             Y          N               N
+     Program                                                                                                                               UCSF
+2010 Molecular Biophysics         4*          U. of TX            BS '09        3.73       720 690 750             Y             Y           N              N
+     Program                                                                              (97%, 79%, 85%)                                   JHU
+2010 Molecular Biophysics         5*          Tufts U.            BS '07        3.32      650   670   630          N             N            N             N
+     Program
+2010 Molecular Biophysics             6       U. of Kyoto         BS '05         N/A      480   710   720          N             N            N             N
+     Program
+
+
+
+Program Statistics
+
+                                                                                           Applicants
+ Total Number    Number of TGE             Applicants       Applicants       Applicants   Supported By       Average GRE and/or
+ of Applicants     Applicants             Interviewed       Accepted          Enrolled     This Grant           MCAT Scores              Average GPA
+
+
+
+
+Instructions and Sample Data Tables                                                                                                                    30
+                                                                                      Applicants
+ Total Number    Number of TGE         Applicants    Applicants       Applicants     Supported By      Average GRE and/or
+ of Applicants     Applicants         Interviewed    Accepted          Enrolled       This Grant          MCAT Scores          Average GPA
+
+       9                6                 7               6                3                3             702 705 718               3.65
+                                                                                                           11, 11, 11, P
+
+
+
+Table 8A Instructions: List the qualifications and application outcomes of predoctoral applicants to each participating
+department/program for the most recent year. Applicants should be listed anonymously and identified by a number in sequence, rather
+than by name, to safeguard privacy. Indicate applicants who are Kirschstein-NRSA training grant eligible (TGE) with an asterisk (*). For
+each applicant provide: previous institution(s) attended, degree(s) and year awarded; GPA normalized to a 4.0 scale; and GRE scores for
+Verbal, Quantitative, Analytical tests, and any Subject tests if taken (and/or percentiles) or MCAT scores Verbal Reasoning, Physical
+Sciences, Biological Sciences, and Writing Sample (or DAT scores if relevant). Indicate which applicants were or were not interviewed;
+accepted; and enrolled. For those who declined an offer of admission, indicate the institution in which they enrolled, if this is known. For
+renewal applications, indicate those applicants who have been or are currently supported by this grant. Sort applicants by
+department/program and then in the following order: 1) those who enrolled; 2) those who were accepted, but did not enroll; 3) those who
+were interviewed, but not offered admission; and 4) any additional applicants that would have been seriously considered for admission, if
+sufficient funds were available to support them. It may be appropriate to truncate this data after the first 10-20% of those who were not
+accepted. Applicants are strongly urged to contact IC staff mentioned in the FOA for guidance on what data to include in this
+table.
+At the bottom of the table include summary statistics: average GRE and/or MCAT/DAT scores and average GPAs of all applicants listed;
+and total numbers of students interviewed, offered admission, and enrolled. Indicate the numbers in each group who were TGE. Average
+GRE and/or MCAT/DAT scores and average GPAs for students who were accepted, and for those who enrolled, would also be useful to
+include.
+Summarize these data in the Program Plan Section 2.3.e Trainee Candidates. Analyze the data in terms of the overall numbers of potential
+trainees, their previous training, and credentials.
+Rationale: The data provided in this table will permit an evaluation of the quality and depth of the applicant pool. The data permit separate
+analyses for TGE and non-TGE applicants. These data are useful in determining the selectivity of the admissions process, the
+competitiveness of the program, and the appropriate number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                        31
+Table 8B. Qualifications of Recent Postdoctoral Applicants
+                                                                                              OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                 Doctoral Thesis or Other                                        Support
+                        Applicant                                Research Experience &                          Offered Entered from this
+        Department/      (List by      Previous     Degree(s)      Research Advisor          Residency Training Position Program  Grant
+Year     Program        Number)       Institution   & Year(s)          (if relevant)           Institution PGY   (Y/N)     (Y/N)  (Y/N)
+2010 Pathology              1*         U. of WI     DVM '08     Inhibitors of Nitric Oxide    Pathology Cornell         Y            Y           Y
+                                                                Synthase; James, L.              Vet PGY2
+2010 Pathology              2*         Stanford      MD '09     Pharmacogenetics of            Anesthesiology           Y           N            N
+                                                                anesthetics in wound            UCSF PGY1                          UNC
+                                                                healing; Jones, J.
+2010 Pathology              3          Yale U.       MD '09     G Protein Coupled            Pediatrics Harvard         Y            N           N
+                                                                Receptors; Wilson, G.              PGY1
+2010 Molecular              1*         U. of IL      PhD '09    Developmental Genetics in            N/A                Y            Y           Y
+     Biophysics                                                 Drosophila Smith, J
+     Program
+2010 Molecular              2*         Rutgers       PhD '7     Regulation of NF-kB;                 N/A                Y            Y           Y
+     Biophysics                                                 Felman, R.
+     Program
+2010 Molecular              3          Berkeley      PhD '09    Molecular and Genetic                N/A                Y            Y           N
+     Biophysics                                                 Analysis of RNA Viruses;
+     Program                                                    Thomas, JC
+2010 Molecular              4*          Baylor       MD '08     P53 mutations; Johns, L       Oncology Mount            Y          N             N
+     Biophysics                                                                                 Sinai PGY2                        UCSD
+     Program
+2010 Molecular              5*         Tufts U.     PhD. '07    Genetics of Neuronal Cell        Neurology              N            N           N
+     Biophysics                                     MD ‘09      Division; Crocker, S            MGH PGY1
+     Program
+2010 Molecular              6         U. of Kyoto   DPhil'08    Regulation of Gene                   N/A                N            N           N
+     Biophysics                                                 Expression; Roberston
+     Program
+
+
+
+Table 8B Instructions: List the qualifications and application outcomes of recent postdoctoral applicants to each participating
+department/program for the most recent year. Data may be included for an additional year, if desired, and may be helpful in the case of
+
+Instructions and Sample Data Tables                                                                                                                   32
+small, variable applicant pools. Applicants should be listed anonymously and identified by a number in sequence, rather than by name, to
+safeguard privacy. Indicate applicants who are Kirschstein-NRSA training grant eligible (TGE) with an asterisk (*). For each applicant,
+provide: previous institutions(s) attended, degree(s) and year awarded; thesis research topic or other research topic (if relevant) and
+research advisor; and residency training (when appropriate), including area of specialization, institution, and PGY. Indicate whether
+applicants were or were not offered admission and whether they entered the program. For renewal, indicate those applicants who have
+been or are currently supported by this grant. Sort applicants by department/program, year of application (if data on more than one year
+are included), and then list those who entered followed by those who did not enter.
+Programs that select postdoctoral trainees exclusively from candidates who are recruited to academic department(s) or programs (e.g.,
+Department of Hematology or Interdepartmental Program in Cancer Therapeutics), should provide data for each participating
+department/program. Include only those postdoctoral applicants who could be considered candidates for the proposed training program.
+Programs that select trainees exclusively from candidates who are recruited directly to the laboratories of the proposed faculty mentors
+should list only those candidates who are in the laboratories of the faculty mentors and considered for the program. Please indicate in a
+footnote which system of recruitment is used by this program. Applicants are strongly urged to contact IC staff mentioned in the FOA
+for guidance on what data to include in this table.
+Summarize these data in the Program Plan Section 2.3.e Trainee Candidates. Analyze the data in terms of the overall numbers of potential
+trainees, their previous training, and credentials.
+Rationale: The data provided in this table will permit an evaluation of the quality and depth of the applicant pool. The data permit separate
+analyses for TGE and non-TGE applicants. These data are useful in determining the selectivity of the admissions process, the
+competitiveness of the program, and the appropriate number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                        33
+Table 9A. Qualifications of the Current Predoctoral Trainees Clearly Associated with the Training Program
+(New Applications)
+                                                                                                 OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                                            GRE Scores
+                                                                                              V, Q, A, S
+                                                                                            (Percentiles)         Current                        Leave
+  Department /            Trainee         Previous          Degree(s) &   Undergraduate        and/or            Research       Years in        Column
+    Program          (List by Number)   Institution(s)        Year(s)         GPA           MCAT Scores           Mentor        Program          Blank
+Biochem                     1*            U. of WI             BSN '07        3.63         680   720    750       Jones, J.    '08-present
+Genetics                    2*               MIT               BS '08         3.72           12, 12, 14, R       Huerta, X.    '08-present
+Genetics                    3*            U. Penn.             BA '07         3.75          700 710 640          Felman, R.    '09-present
+                                          Wash. U.             MS '09                      (96% 82% 84%)
+Genetics                    4             U. Mich.             BA '09         3.34          650 710 630             TBN        '09-present
+                                                                                           (80% 92% 83%)
+
+
+
+Program Statistics
+
+ Total Number    Number of TGE             Average GRE /
+  of Trainees      Trainees    Average GPA MCAT Scores
+                                                         690, 705, 695
+       4                   3             3.61
+                                                         12, 12, 14, R
+
+
+
+Table 9A Instructions: List the qualifications of ALL predoctoral trainees currently participating in the activities of the program (including
+trainees who have not yet chosen a mentor), regardless of source of support or year of training. Trainees should be listed anonymously
+and identified by a number in sequence, rather than by name, to safeguard privacy. Indicate applicants who are Kirschstein-NRSA training
+grant eligible (TGE) with an asterisk (*). Include trainees whose training experience is similar to that for the proposed training grant
+program. For each trainee, list: department/program of entry; previous institutions(s), degree(s) and year awarded; undergraduate GPA;
+and GRE scores for Verbal, Quantitative, Analytical tests, and any Subject tests if taken (and/or percentiles) or MCAT scores for Verbal
+Reasoning, Physical Sciences, Biological Sciences tests, and Writing Sample (or DAT scores if relevant); current research mentor; and
+years in the training program. Sort trainees by year of admission into the program, then by department/program through which they were
+recruited. Group Kirschstein-NRSA training grant eligible (TGE) trainees first, followed by non-TGE trainees. At the bottom of the table,
+include summary statistics: average GPAs and average GRE and/or MCAT/DAT scores of all trainees and summary totals for all trainees
+and TGE trainees.
+
+Instructions and Sample Data Tables                                                                                                                 34
+Summarize these data in the Program Plan Section 2.3.e Trainee Candidates. Analyze the data in terms of the overall numbers of potential
+trainees, their previous training, and credentials.
+Rationale: These data are useful in determining the number and quality of all trainees currently enrolled in the program, and their
+distribution by department and mentor. These data are useful in determining the appropriate number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                       35
+Table 9B. Qualifications of the Current Postdoctoral Trainees Clearly Associated with the Training Program
+(New Applications)
+                                                                                                  OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                         Doctoral Thesis or
+                                                                          Other Previous
+                                                                             Research
+                                                                           Experience &          Residency         Current                        Leave
+  Department /            Trainee          Previous        Degree(s) &   Research Advisor         Training        Research       Years in        Column
+    Program          (List by Number)    Institution(s)      Year(s)       (If Relevant)         Institution       Mentor        Program          Blank
+Clin Pharm                  1*              U. Penn         DVM '07      Pharmacogenetics       Anesthesiology      Smith       '09-present
+                                                                         of anesthetics in         U. Penn
+                                                                         wound healing.
+                                                                         Jones, J.
+Neurosci                    2*             Vanderbilt        MD. '05     G Protein Coupled      Neurology U.        Green       '07-present
+                                           University                    Receptors Wilson,       Michigan
+                                                                         G.
+Neurosci                    3*           U. of Michigan      MD '08      Physiology of CCK        Internal          Jones       '08-present
+                                                                         Evans, K.               Medicine U.
+                                                                                                 Washington
+Biochemistry                4*           Washington U.       PhD '04     Inhibitors of Nitric     Cardiology       Johnson         '08-09
+                                                             MD '06      Oxide Synthatase          UTSW
+                                                                         James, L.
+Medicine                    5*          Duke University      PhD '08     Regulation of NF-kB                         Diaz       '08-present
+                                                                         Felman, R.
+Pathology                      6        Emory University     MD '08      None                    Hematology       Valentino     '09-present
+                                                                                                   UAZ
+
+
+
+Program Statistics
+
+ Total Number    Number of TGE
+  of Trainees      Trainees
+       6                   5
+
+Table 9B Instructions: List the qualifications of ALL postdoctoral trainees currently participating in the activities of the program (including
+trainees who have not yet chosen a mentor), regardless of source of support or year of training. Trainees should be listed anonymously
+
+Instructions and Sample Data Tables                                                                                                                       36
+and identified by a number in sequence, rather than by name, to safeguard privacy. Indicate applicants who are Kirschstein-NRSA training
+grant eligible (TGE) with an asterisk (*). For each trainee, list: department/program of entry; previous institution(s), degree(s) and year
+awarded; thesis research topic or other previous research experience (if relevant) and research advisor; current research mentor; and
+years in the program. Sort trainees by year of admission into the program, then by department/program through which they were recruited.
+Group Kirschstein-NRSA training grant eligible (TGE) trainees first, followed by non-TGE trainees. At the bottom of the table, include
+summary totals for all trainees and TGE trainees.
+Programs that select postdoctoral trainees exclusively from candidates who are recruited to academic department(s) or programs (e.g.,
+Department of Hematology or Interdepartmental Program in Cancer Therapeutics) should provide data for each participating
+department/program. Include only those postdoctoral applicants who could be considered candidates for the proposed training program.
+Programs that select trainees exclusively from candidates who are recruited directly to the laboratories of the proposed faculty mentors
+should list only those candidates who are in the laboratories of the faculty mentors and considered for the program. Please indicate in a
+footnote which system of recruitment is used by this program. Applicants are strongly urged to contact IC staff mentioned in the FOA
+for guidance on what data to include in this table.
+Summarize these data in the Program Plan Section 2.3.e Trainee Candidates. Analyze the data in terms of the overall numbers of potential
+trainees, their previous training, and credentials.
+Rationale: These data are useful in determining the number and quality of all trainees currently associated with the program, and their
+distribution by department and mentor. These data highlight the selectivity of the program over time. These data are useful in determining
+the appropriate number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                      37
+Table 9A. Qualifications of the Current Predoctoral Trainees Clearly Associated with the Training Program
+(Renewals/Revisions Applications)
+                                                                                                  OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                                             GRE Scores /                                      Calendar
+                                                                                             (Percentiles)                                       Years
+                                                                                               V, Q, Adv           Current                     Appointed
+  Department /            Trainee         Previous          Degree(s) &   Undergraduate         and/or            Research       Years in       to This
+    Program          (List by Number)   Institution(s)        Year(s)         GPA            MCAT Scores           Mentor        Program         Grant
+Biochem                     1*            U. of WI             BSN '07        3.63          680   720    750       Jones, J.    '08-present    2008-2009
+Genetics                    2*               MIT               BS '08         3.72            12, 12, 14, R       Huerta, X.    '08-present    2009-2010
+Genetics                    3*            U. Penn.             BA '07         3.75           700 710 640          Felman, R.    '09-present    2009-2010
+                                          Wash. U.             MS '09                       (96% 82% 84%)
+Genetics                    4             U. Mich.             BA '09         3.34           650 710 630             TBN        '09-present        N/A
+                                                                                            (80% 92% 83%)
+
+
+
+Program Statistics
+
+ Total Number    Number of TGE             Average GRE /
+  of Trainees      Trainees    Average GPA MCAT Scores
+                                                         690, 705, 695
+       4                   3             3.61
+                                                         12, 12, 14, R
+
+
+
+Table 9A Instructions: List the qualifications of ALL predoctoral trainees currently participating in the activities of the program (including
+trainees who have not yet chosen a mentor), regardless of source of support or year of training. Trainees should be listed anonymously
+and identified by a number in sequence, rather than by name, to safeguard privacy. Indicate trainees who are Kirschstein-NRSA training
+grant eligible (TGE) with an asterisk (*). Include all trainees supported by the training grant in any year of their studies and designate them
+with a double asterisk (**). Include also trainees from the same training cohorts who were not supported by the training grant. For each
+trainee, list: department/program of entry; previous institutions(s), degree(s) and year awarded; undergraduate GPA; and GRE scores for
+Verbal, Quantitative, Analytical tests, and any Subject tests if taken (and/or percentiles) or MCAT scores for Verbal Reasoning, Physical
+Sciences, Biological Sciences tests, and Writing Sample (or DAT scores if relevant); current research mentor; and years in the training
+program. List years of support for those appointed to the training grant. Sort trainees by year of admission into the program, then by
+department/program through which they were recruited. Group Kirschstein-NRSA training grant eligible (TGE) trainees first, followed by
+
+
+Instructions and Sample Data Tables                                                                                                                  38
+non-TGE trainees. At the bottom of the table, include summary statistics: average GPAs and average GRE and/or MCAT/DAT scores of all
+trainees and summary totals for all trainees and TGE trainees.
+Summarize these data in the Program Plan Section 2.3.e Trainee Candidates. Analyze the data in terms of the overall numbers of potential
+trainees, their previous training, and credentials.
+Rationale: These data are useful in determining the number and quality of all trainees currently enrolled in the program, and their
+distribution by department and mentor. These data highlight the selectivity of appointments to the training grant over time. These data are
+useful in determining the appropriate number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                       39
+Table 9B. Qualifications of the Current Postdoctoral Trainees Clearly Associated with the Training Program
+(Renewals/Revisions)
+                                                                                                  OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+                                                                         Doctoral Thesis or
+                                                                          Other Previous                                                       Calendar
+                                                                             Research                                                            Years
+                                                                           Experience &          Residency         Current                     Appointed
+  Department /            Trainee          Previous        Degree(s) &   Research Advisor         Training        Research       Years in       to This
+    Program          (List by Number)    Institution(s)      Year(s)       (If Relevant)         Institution       Mentor        Program         Grant
+Clin Pharm                  1*              U. Penn         DVM '07      Pharmacogenetics       Anesthesiology      Smith       '09-present        2009
+                                                                         of anesthetics in         U. Penn
+                                                                         wound healing.
+                                                                         Jones, J.
+Neurosci                    2*             Vanderbilt        MD. '05     G Protein Coupled      Neurology U.        Green       '07-present        2009
+                                           University                    Receptors Wilson,       Michigan
+                                                                         G.
+Neurosci                    3*           U. of Michigan      MD '08      Physiology of CCK        Internal          Jones       '08-present        2010
+                                                                         Evans, K.               Medicine U.
+                                                                                                 Washington
+Biochemistry                4*           Washington U.       PhD '04     Inhibitors of Nitric     Cardiology       Johnson         '08-09       2009-2010
+                                                             MD '06      Oxide Synthatase          UTSW
+                                                                         James, L.
+Medicine                    5*          Duke University      PhD '08     Regulation of NF-kB                         Diaz       '08-present        2010
+                                                                         Felman, R.
+Pathology                      6        Emory University     MD '08      None                    Hematology       Valentino     '09-present        2009
+                                                                                                   UAZ
+
+
+
+Program Statistics
+
+ Total Number    Number of TGE
+  of Trainees      Trainees
+       6                   5
+
+
+
+
+Instructions and Sample Data Tables                                                                                                                       40
+Table 9B Instructions: List the qualifications of ALL postdoctoral trainees currently participating in the activities of the program (including
+trainees who have not yet chosen a mentor), regardless of source of support or year of training. Trainees should be listed anonymously
+and identified by a number in sequence, rather than by name, to safeguard privacy. Indicate applicants who are Kirschstein-NRSA training
+grant eligible (TGE) with an asterisk (*). For renewal applications, include all trainees supported by the training grant in any year of their
+studies and designate them with a double asterisk (**). Include also equivalent trainees from the same training cohort who were not
+supported by the training grant. For new applications, include trainees whose training experience is similar to that for the proposed training
+grant program. For each trainee, list: department/program of entry; previous institution(s), degree(s) and year awarded; thesis research
+topic or other previous research experience (if relevant) and research advisor; current research mentor; and years in the program. For
+renewal applications, list years of support for those appointed to the training grant. Sort trainees by year of admission into the program,
+then by department/program through which they were recruited. Group Kirschstein-NRSA training grant eligible (TGE) trainees first,
+followed by non-TGE trainees. At the bottom of the table, include summary totals for all trainees and TGE trainees.
+Programs that select postdoctoral trainees exclusively from candidates who are recruited to academic department(s) or programs (e.g.,
+Department of Hematology or Interdepartmental Program in Cancer Therapeutics) should provide data for each participating
+department/program. Include only those postdoctoral applicants who could be considered candidates for the proposed training program.
+Programs that select trainees exclusively from candidates who are recruited directly to the laboratories of the proposed faculty mentors
+should list only those candidates who are in the laboratories of the faculty mentors and considered for the program. Please indicate in a
+footnote which system of recruitment is used by this program. Applicants are strongly urged to contact IC staff mentioned in the FOA
+for guidance on what data to include in this table.
+Summarize these data in the Program Plan Section 2.3.e Trainee Candidates. Analyze the data in terms of the overall numbers of potential
+trainees, their previous training, and credentials.
+Rationale: These data are useful in determining the number and quality of all trainees currently associated with the program, and their
+distribution by department and mentor. For renewal applications, these data highlight the selectivity of appointments to the training grant
+over time. These data are useful in determining the appropriate number of training positions to be awarded.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                           41
+Table 10: Admissions and Completion Records for Underrepresented Minority (URM) Trainees, Trainees with
+Disabilities, and Trainees from Disadvantaged Backgrounds Clearly Associated With the Training Program
+                                                                                                OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+  Diversity       Trainee     Entering                       Source of Support                                   Left Without        Current Status
+ Recruitment      (List by      Year       Department /      and if Support by          In       Completed       Completing            Career or
+   Group          Number)    (Pre/Post)      Program           NRSA Grant            Training     Training         Training           Employment
+URM Trainees         1*         2008         Genetics          T32 GM001122                            Y                         Postdoctoral Trainee
+                                (Pre)                               F31                                                          UCSF
+URM Trainees         2*         2009        Cell Biology     University Fellowship                                     Y         Mentor and student
+                               (Post)                             Research                                                       both moved to another
+                                                                                                                                 institution
+URM Trainees         3*         2009         Chemistry           Lectureship            Y
+                               (Post)
+Trainees With        1*         2005       Pharmacology        T32 GM001144                            Y                         Postdoctoral Trainee
+Disabilities                    (Pre)                               F31                                                          NYU
+Trainees With        2*         2008        Cell Biology             R01                                               Y         Career Change
+Disabilities                   (Post)
+Trainees With        3          2009         Medicine        Research Associate         Y
+Disabilities                   (Post)
+Trainees From        1*         2007         Genetics          T32 GM001155                            Y                         Postdoctoral Trainee
+Disadvantaged                   (Pre)                               F31                                                          U. Chicago
+Backgrounds
+
+
+
+Table 10 Instructions: List anonymously by number all underrepresented minority (URM) trainees, trainees with disabilities, and trainees
+from disadvantaged backgrounds (previously defined) who have been or are currently clearly associated with the training program for the
+past 5 years, regardless of their source of support. For renewal applications, include all trainees supported by the training grant in any year
+of their studies and include equivalent trainees from the same training cohort. For New Applications, include trainees whose training
+experience is similar to that for the proposed training grant program. Indicate their year of entry, whether predoctoral or postdoctoral
+trainee, entering department/program, and all sources of support during their training with the program (bold grant number if for this training
+grant). Indicate their current status (i.e., in training, completed training, or left without completing training). For those who have left the
+program or completed training, include information about their subsequent career development or employment. Indicate Kirschstein-NRSA
+training grant eligible (TGE) trainees with an asterisk (*). For mixed training grant programs, list predoctoral trainees first and then
+postdoctoral trainees in each diversity category.
+
+Instructions and Sample Data Tables                                                                                                                     42
+Summarize this data in Research Training Program Plan Section 2.4 Recruitment and Retention Plan to Enhance Diversity.
+Rationale: The data provided in this table will permit evaluation of the success of the program in recruiting and retaining URM trainees,
+and analysis of their support, and begin to establish a record of NIH training of other Diversity Recruitment groups.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                         43
+Table 11. Appointments to the Training Grant For Each Year of the Past Award (Renewal Applications Only)
+                                                                                                                   OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+
+Grant Year                                                                                      2005-2006        2006-2007       2007-2008      2008-2009       2009-2010
+Predoctoral Positions Awarded (Months of Support)                                                 10 (120)        12 (144)         14 (168)      14 (168)        14 (168)
+                                                                                                                     a                              b
+Predoctoral Trainees Appointed (Months of Support Used)                                           10 (120)        13 (144)         14 (168)      13 (156)        14 (168)
+Predoctoral URM Trainees Appointed (Months of Support)                                             1 (12)           2 (24)               (0)       1 (12)         1 (12)
+Predoctoral Trainees with Disabilities Appointed (Months of Support)                               1 (12)           0 (0)           1 (12)         2 (12)          0 (0)
+Predoctoral Trainees from Disadvantaged Background Appointed                                        0 (0)           0 (0)               0 (0)      0 (0)          1 (12)
+(Months of Support)
+Postdoctoral Positions Awarded (Months of Support)                                                 4 (48)           4 (48)          4 (48)         4 (48)         4 (48)
+Postdoctoral Trainees With MD Appointed                                                               1                  1               2              1            2
+Postdoctoral Trainees With MD/PhD Appointed                                                           2                  1               1              0            0
+Postdoctoral Trainees With PhD Appointed                                                              1                  1               0              1            2
+Postdoctoral Trainees With Other Degree Appointed                                                     0             DrPH                DrPH     PharmD              0
+                                                                                                                                                            c
+Postdoctoral Trainees Appointed (Months of Support Used)                                           4 (48)           4 (48)          4 (48)        3 (38)          4 (48)
+Postdoctoral URM Trainees Appointed (Months of Support)                                            1 (12)           2 (24)              0 (0)      1 (12)         1 (12)
+Postdoctoral Trainees with Disabilities Appointed (Months of Support)                               0 (0)           0 (0)               0 (0)      0 (0)           0 (0)
+Postdoctoral Trainees from Disadvantaged Background Appointed                                       0 (0)            0 (0               0 (0)      0 (0)          1 (12)
+(Months of Support)
+a
+  One trainee left after 6 months and a second trainee was appointed for the remainder of the year.
+b
+  One position was not filled.
+c
+  A fourth trainee was appointed, but fell ill and dropped out after 2 months. It was then too late to recruit a replacement trainee.
+
+The sample data is for Institutes that allow trainees to be appointed for less than 12 months in a given budget year. Institute policies may vary. Check with the relevant IC
+specific program announcements and instructions.
+
+Table 11 Instructions: For each year of the grant since the last competing application, list the following: 1) total number of positions
+awarded in each training category and in parenthesis the number of months; 2) number of predoctoral trainees appointed and in
+parenthesis the number of months of support used; and 3) number of postdoctoral trainees appointed, with entering degrees, and in
+parenthesis the number of months used. Delete rows that are not relevant to the type of training support awarded. For both types of
+training position, indicate the number of trainees from underrepresented groups who are appointed and in parenthesis the months of
+support used. If any trainee positions were not filled, provide the reason in a footnote.
+
+Instructions and Sample Data Tables                                                                                                                                         44
+Summarize this data in Research Training Program Plan Section 2.6 Progress Report. It may be useful to mention this under Section 2.4
+Recruitment and Retention Plan to Enhance Diversity as well.
+Rationale: For renewal applications, the data provided in this table permits evaluation of the utilization of awarded training positions.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                         45
+Table 12A. Predoctoral Trainees Supported by This Training Grant (Renewal/Revision Applications and Non-
+Competing Continuation Progress Reports Only)
+                                                                                         OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+Predoctoral (and MSTP) Trainees (Listed Sequentially by Entering Class)
+Enter Source(s) of Support and Academic Year for Each Grant Year
+
+  Trainee, Year of                                                                                 Title of                     Current
+Entry, Prior Degree & Grant Grant Grant Grant Grant Grant Grant Grant Grant Grant                 Research                   Position and
+Institution (Mentor – Year Year Year Year Year Year Year Year Year Year                           Project or       Degree(s)  Institution
+    Department /       -01   -02   -03   -04   -05   -06   -07   -08   -09   -10                  Research         Received (Grant Support
+      Program)        00-01 01-02 02-03 03-04 04-05 05-06 06-07 07-08 08-09 09-10                   Topic           (Year)    Obtained)
+  Cox, C., 1996 BA,      TG     TG      RG      RG/                                              Cloning of         MD, PhD        Asst. Prof.
+    Cornell Univ.                               TG3                                             Human Globin         (2002)       Hematology,
+  (Jones-Biochem.)                                                                                 Genes                         Rutgers (50%
+                                                                                                                                  clinical, 50%
+                                                                                                                                 research, NIH
+                                                                                                                                       K11)
+Smith, J. G., 1997 BS,   TG     TG      RG                                                        Structural          M.S.        Parke-Davis
+    Iowa State U.                                                                                 Studies of         (2001)          (Lab.
+   (Gordon-MCB)                                                                                  Membrane-                        Technician)
+                                                                                                Bound Proteins
+  Johnson, J., 2004                                    TG2      TG        TG   RG   RG           Regulation of        PhD         Postdoctoral
+ BPharm, Duquesne                                                                                 EBV Gene           (2007)      Trainee w/C.
+  (Jacobs-Virology)                                                                               Expression                     Chen, Univ. of
+                                                                                                                                   CA, Davis
+Smolock, Y., 2007 BS,                                                          UF   UF   TG         Purine                         In Training
+        UCLA                                                                                      Synthesis
+ (Rifkind-Genetics)                                                                               Mutants in
+                                                                                                  Mammalian
+                                                                                                    Cells
+  Thomas, G., 2009                                                                       TG                                        In Training
+       DVM,
+      U. Penn
+    (unassigned)
+
+
+
+
+Instructions and Sample Data Tables                                                                                                              46
+Program Statistics
+
+Percentage of T32 Appointees Entering Graduate School 10 Years Ago           Average Time to Ph.D. for T32 Appointees in the Last 10 Years
+                      That Completed Ph.D.s                                               (not including leaves of absence)
+                                  50%                                                                   6.5 years
+
+
+
+Table 12 A Instructions: List sequentially, by entering year, all trainees who were or are currently supported by this training grant. For
+previous trainees, include up to the previous 10 years. For each student provide: 1) name; 2) year of entry into the training program; 3)
+prior institution and degree at entry; 4) in parenthesis name of research mentor and department/program; 5) the source of support during
+each year of training, e.g., this training grant, another training grant (specify), research grant, university fellowship, individual fellowship
+(specify), etc.; 6) research topic; 7) degree and year awarded, and 8) for trainees who have completed the program, their current positions,
+rank and/or title and institutional affiliations, and grants obtained, if any. Enter all trainees who received support from this grant including
+those who did not complete the training program for any reason.
+In the Program Statistics section, report: 1) the percentage of trainees entering 10 years ago and receiving support from this training grant
+at some point during graduate school that received Ph.D.s or equivalent research doctoral degrees, and 2) the average time to degree for
+all trainees appointed to this training grant completing Ph.D.s in the last ten years, calculated to one decimal place (e.g., 5.5 years),
+excluding any officially-approved leaves of absence. In calculating these program statistics, students transferring to medical school or other
+doctoral-level professional programs should be included in the entering class, but not considered to have earned a Ph.D.-equivalent
+degree. Individuals transferring to or from Ph.D. programs in similar fields at other institutions should be excluded from both the entering
+and graduating cohorts in calculating completion and time to degree.
+Time to degree should be calculated as the period from enrollment in a doctoral degree program at the reporting institution to the conferral
+of a Ph.D. or equivalent research doctoral degree, less any officially-approved leaves of absence. If a student earns a master’s degree
+from the reporting institution prior to and in conjunction with fulfilling the requirements for the research doctoral degree, or an additional
+doctoral degree as part of a dual-degree program (e.g., M.D./Ph.D., D.D.S/Ph.D.), time to degree should be calculated from entry into the
+first degree program.
+For Non-Competing Continuation Progress Reports, provide updated trainee information, reflecting new appointments and other changes
+over the reporting period. Do not include data that is older than ten years.
+Explain coding of source of support in a footnote. For example: TG = this training grant, RG = research grant, UF = university funds, TA=
+teaching assistantships, TG2 = another training grant (e.g., Neuroscience training), F = individual fellowships (e.g. university fellow, NRSA,
+NSF, foundations, etc.).
+For Noncompeting Continuation Progress Reports, summarize this data under Research Training Program Plan Section 2.6.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                           47
+Rationale: For renewal applications, this table provides detailed information about how predoctoral training positions are used (i.e.,
+distribution by mentor, year in program, years of support per trainee). The data also permit an evaluation of the success of the program in
+achieving the training objectives of the prior award period(s) for up to 10 years.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                       48
+Table 12B. Postdoctoral Trainees Supported by This Training Grant (Renewal/Revision Applications and Non-
+Competing Continuation Progress Reports Only)
+                                                                                                    OMB Number 0925-0001 (Rev. 8/12 Approved Through 8/31/2015)
+Postdoctoral Trainees (Listed Sequentially by Year of Entry)
+Enter Source(s) of Support and Academic Year for Each Grant Year
+
+                                                                                                                             Degree or
+                                                                                                                            Certification     Current
+Trainee, Year of Entry, Grant Grant Grant Grant Grant Grant Grant Grant Grant Grant                                          (Year) or     Position and
+    Prior Degree &      Year Year Year Year Year Year Year Year Year Year                            Title of Research         Other        Institution
+ Institution (Mentor –   -01   -02   -03   -04   -05   -06   -07   -08   -09   -10                       Project or          Relevant     (Grant Support
+Department / Program) 00-01 01-02 02-03 03-04 04-05 05-06 06-07 07-08 08-09 09-10                    Research Topic          Outcome        Obtained)
+Jones, C., 2003 MD,                              PGY    PGY     TG      TG    PGY                        Membrane                N/A           Assistant
+CWRU                                              1      2                     5                         Structures                            Professor
+(Wu-Pharmacology)                                                                                                                                (Dept.
+                                                                                                                                             Pharmacology)
+                                                                                                                                              (R01 NIMH)
+Rivera, M., 2004 MD-                                    PGY    PGY      TG     TG     CCF    PGY       Transdermal          Certificate of      Pediatric
+PhD, Yale                                                1      2                             6     Pharmacodynamics           Clinical         Resident
+(Frank-Pharmacology)                                                                                                        Investigation
+                                                                                                                                2006
+Stone, V. 2006 PhD,                                                     TG     TG     RG      RG    Genetic Variation in         N/A           In Training
+Harvard                                                                                              Fruit Fly Nymphs
+(Hahn-Medicine)
+
+
+
+Table 12B Instructions: List sequentially, by entering year, all trainees who were or are currently supported by this training grant. For
+previous trainees, include up to the previous 10 years. For each trainee, provide: 1) name; 2) year of entry into the training program; 3)
+prior institution and degree at entry; 4) in parenthesis name of research mentor and department/program; 5) source of support during each
+year of training, e.g., this training grant, another training grant (specify), research grant, university fellowship, individual fellowship (specify),
+etc.; 6) research topic; 7) degree or certifications or other relevant outcomes completed during training and year awarded, and 8) for
+trainees who have completed the program, their current positions, rank and/or title and institutional affiliations, and grants obtained, if any.
+Enter all trainees who received support from this grant, including those who did not complete the training program for any reason.
+For Non-Competing Continuation Progress Reports, provide updated trainee information, reflecting new appointments and other changes
+over the reporting period. Do not include data that is older than ten years.
+
+
+Instructions and Sample Data Tables                                                                                                                      49
+Explain coding of source of support in a footnote. For example: TG = this training grant, RG = research grant, UF = university funds, TG2 =
+another training grant (Neuroscience training), PGYn = postgraduate year (n) of internship or residence; F = individual fellowships (e.g.
+university fellow, NRSA, NSF, foundations, etc.); CCF = cancer clinical fellowship.
+For Noncompeting Continuation Progress Reports, summarize this data under Research Training Program Plan Section 2.6.
+Rationale: For renewal applications, this table provides detailed information about how postdoctoral training positions are used (i.e.,
+distribution by mentor, year in program, years of support per trainee). The data also permit an evaluation of the success of the program in
+achieving the training objectives of the prior award period(s) for up to 10 years.
+
+
+
+
+Instructions and Sample Data Tables                                                                                                       50

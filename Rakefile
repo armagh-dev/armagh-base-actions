@@ -19,7 +19,9 @@ require 'noragh/gem/tasks'
 require 'rake/testtask'
 require 'yard'
 
-task :default => [:clean, :yard, :test, :integration]
+task :ci => [:clean, :yard]
+task :ci_vm => [:ci, :test, :integration]
+task :default => [:ci_vm]
 
 Rake::TestTask.new(:test) do |t|
   t.libs << 'test'

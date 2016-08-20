@@ -174,7 +174,7 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
     FakeFS::FileSystem.clear
 
-    assert_empty Dir.glob(@parameters['sftp_filename_pattern'])
+    assert_empty FakeFS { Dir.glob(@parameters['sftp_filename_pattern']) }
 
     got_files = []
     files_on_fs = []
