@@ -16,12 +16,14 @@
 #
 
 require 'securerandom'
+require 'configh'
 
 require_relative 'shell'
 
 module Armagh
   module Support
     module PDF
+
       module_function
 
       class PDFError     < StandardError; end
@@ -33,34 +35,34 @@ module Armagh
       PDF_TO_IMAGE_SHELL  = %w(gs -dSAFER -sDEVICE=png16m -dINTERPOLATE -dNumRenderingThreads=8 -dFirstPage= -dLastPage= -r300 -o <output_image_file> -c 30000000 setvmthreshold -f <input_pdf_file>)
       IMAGE_TO_TEXT_SHELL = %w(tesseract <input_image_file> <output_pdf_file> -psm 1)
 
-      def to_search_text(binary, timeout: DEFAULT_TIMEOUT)
+      def to_search_text(binary, timeout: nil)
         process_pdf(binary, :search, timeout: timeout)
       end
 
-      def to_display_text(binary, timeout: DEFAULT_TIMEOUT)
+      def to_display_text(binary, timeout: nil)
         process_pdf(binary, :display, timeout: timeout)
       end
 
-      def to_search_and_display_text(binary, timeout: DEFAULT_TIMEOUT)
+      def to_search_and_display_text(binary, timeout: nil)
         process_pdf(binary, :search, :display, timeout: timeout)
       end
 
-      private_class_method def process_pdf(binary, *modes, timeout: DEFAULT_TIMEOUT)
+      private_class_method def process_pdf(binary, *modes, timeout:)
         result   = {}
         pdf_file = SecureRandom.uuid + '.pdf'
         File.open(pdf_file, 'wb') { |file| file << binary }
 
-        Timeout.timeout(timeout) do
+        Timeout.timeout(timeout || DEFAULT_TIMEOUT) do
           modes.each do |mode|
             command    = PDF_TO_TEXT_SHELL.dup
             command[1] = pdf_file
             command.insert(1, '-layout') if mode == :display
 
-            result[mode] = Shell.call(command, timeout: timeout)
+            result[mode] = Shell.call(command)
 
             result[mode] = optical_character_recognition(pdf_file) if result[mode].empty?
-
             raise NoTextError, 'Unable to extract PDF text content' if result[mode].empty?
+            sanitize_bullet_points(result[mode])
           end
         end
 
@@ -106,6 +108,11 @@ module Armagh
         end
 
         result.strip
+      end
+
+      private_class_method def sanitize_bullet_points(content)
+        content.gsub!(/\uf0b7|\uf0a7|\uf076|\uf0d8|\uf0fc|\uf0a8|\uf0de|\uf0e0/, "\u2022")
+        content.gsub!(/[\ue800-\uf799]/, ' ')
       end
 
     end

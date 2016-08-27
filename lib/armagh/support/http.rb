@@ -16,12 +16,13 @@
 #
 
 require 'httpclient'
-
-require_relative '../actions/parameter_definitions'
+require 'configh'
 
 module Armagh
   module Support
     module HTTP
+      include Configh::Configurable
+      
       class HTTPError          < StandardError; end
       class URLError           < HTTPError; end
       class RedirectError      < HTTPError; end
@@ -29,117 +30,91 @@ module Armagh
       class ConnectionError    < HTTPError; end
       class MethodError        < HTTPError; end
 
-      extend Armagh::Actions::ParameterDefinitions
-
       POST = 'post'.freeze
       GET = 'get'.freeze
 
       METHODS = [POST, GET]
 
-      define_parameter name: 'http_url',
-                       description: 'URL to collect from',
-                       type: String,
-                       required: true,
-                       prompt: 'http://www.example.com/page'
+      define_parameter name: 'url',                 description: 'URL to collect from',                             type: 'populated_string', required: true,  prompt: 'http://www.example.com/page'
+      define_parameter name: 'method',              description: 'HTTP Method to use for collection (get or post)', type: 'populated_string', required: true,  prompt: 'get or post', default: 'get'
+      define_parameter name: 'fields',              description: 'Fields to send as part of the request',           type: 'hash',               required: false, prompt: 'Hash of fields to send as part of the request', default: {}
+      define_parameter name: 'headers',             description: 'HTTP Headers to send as part of the request',     type: 'hash',               required: false, prompt: 'Hash of headers to send as part of the request', default: {}
+      define_parameter name: 'username',            description: 'Username for basic http authentication',          type: 'string',           required: false
+      define_parameter name: 'password',            description: 'Password for basic http authentication',          type: 'encoded_string',   required: false
+      define_parameter name: 'certificate',         description: 'Certificate for key based http authentication',   type: 'string',           required: false
+      define_parameter name: 'key',                 description: 'Key for key based http authentication',           type: 'string',           required: false
+      define_parameter name: 'key_password',        description: 'Key Password for key based http authentication',  type: 'encoded_string',   required: false
+      define_parameter name: 'proxy_url',           description: 'URL of the proxy server',                         type: 'string',           required: false, prompt: 'http://myproxy:8080'
+      define_parameter name: 'proxy_username',      description: 'Username for proxy authentication',               type: 'string',           required: false
+      define_parameter name: 'proxy_password',      description: 'Password for proxy authentication',               type: 'encoded_string',   required: false
+      define_parameter name: 'follow_redirects',    description: 'Follow HTTP Redirects?',                         type: 'boolean',          required: true,  default: true
+      define_parameter name: 'allow_https_to_http', description: 'Allow redirection from https to http.  Enabling this may be a security concern.', type: 'boolean', required: true, default: false
 
-      define_parameter name: 'http_method',
-                       description: 'HTTP Method to use for collection (get or post)',
-                       type: String,
-                       required: true,
-                       prompt: 'get or post',
-                       validation_callback: 'check_method',
-                       default: 'get'
+      define_group_validation_callback callback_class: Armagh::Support::HTTP, callback_method: :validate
+      
+      def HTTP.validate( candidate_config )
 
-      define_parameter name: 'http_fields',
-                       description: 'Fields to send as part of the request',
-                       type: Hash,
-                       required: false,
-                       prompt: 'Hash of fields to send as part of the request'
-
-      define_parameter name: 'http_headers',
-                       description: 'HTTP Headers to send as part of the request',
-                       type: Hash,
-                       required: false,
-                       prompt: 'Hash of headers to send as part of the request'
-
-      define_parameter name: 'http_username',
-                       description: 'Username for basic http authentication',
-                       type: String,
-                       required: false
-
-      define_parameter name: 'http_password',
-                       description: 'Password for basic http authentication',
-                       type: EncodedString,
-                       required: false
-
-      define_parameter name: 'http_certificate',
-                       description: 'Certificate for key based http authentication',
-                       type: String,
-                       required: false
-
-      define_parameter name: 'http_key',
-                       description: 'Key for key based http authentication',
-                       type: String,
-                       required: false
-
-      define_parameter name: 'http_key_password',
-                       description: 'Key Password for key based http authentication',
-                       type: EncodedString,
-                       required: false
-
-      define_parameter name: 'http_proxy_url',
-                       description: 'URL of the proxy server',
-                       type: String,
-                       required: false,
-                       prompt: 'http://myproxy:8080'
-
-      define_parameter name: 'http_proxy_username',
-                       description: 'Username for proxy authentication',
-                       type: String,
-                       required: false
-
-      define_parameter name: 'http_proxy_password',
-                       description: 'Password for proxy authentication',
-                       type: EncodedString,
-                       required: false
-
-      define_parameter name: 'http_follow_redirects',
-                       description: 'Follow HTTP Redirects?',
-                       type: Boolean,
-                       required: true,
-                       default: true
-
-      define_parameter name: 'allow_https_to_http',
-                       description: 'Allow redirection from https to http.  Enabling this may be a security concern.',
-                       type: Boolean,
-                       required: true,
-                       default: false
-
-      def check_method(proposed_method)
-        METHODS.include?(proposed_method.downcase) ? nil : "Allowed HTTP Methods are #{METHODS}.  Was set to '#{proposed_method}'."
-      end
-
-      def custom_validation
-        # @parameters expected to be defined in class utilizing this module
+        hc = candidate_config.http        
         messages = []
-
-        if (@parameters['http_proxy_username'] || @parameters['http_proxy_password']) && !(@parameters['http_proxy_username'] && @parameters['http_proxy_password'])
-          messages << 'In order to use proxy authentication, both user and pass must be defined.'
+        
+        messages << validate_url( hc.url )
+        messages << validate_method( hc.method )
+          if ( hc.proxy_username || hc.proxy_password ) && !(hc.proxy_username && hc.proxy_password )
+          messages << 'In order to use proxy authentication, both proxy_username and proxy_password must be defined.'
         end
-
-        if (@parameters['http_certificate'] || @parameters['http_key']) && !(@parameters['http_certificate'] && @parameters['http_key'])
-          messages << 'In order to use SSL certificate authentication, both cert and key must be defined.'
+        if (hc.certificate || hc.key) && !(hc.certificate && hc.key)
+          messages << 'In order to use SSL certificate authentication, both certificate and key must be defined.'
         end
-
-        if (@parameters['http_username'] || @parameters['http_password']) && !(@parameters['http_username'] && @parameters['http_password'])
-          messages <<  'In order to use authentication, both user and pass must be defined.'
+        if hc.certificate && hc.key
+          begin
+            OpenSSL::X509::Certificate.new( hc.certificate )
+          rescue => e
+            messages << "Certificate Error: #{e.message}."
+          end
         end
+        if hc.certificate && hc.key && hc.key_password
+          begin
+            OpenSSL::PKey::RSA.new( hc.key, hc.key_password.plain_text )
+          rescue => e
+            messages << "Key Error: #{e.message}."
+          end
+        end
+        if (hc.username|| hc.password) && !(hc.username && hc.password)
+          messages <<  'In order to use authentication, both username and password must be defined.'
+        end
+        if hc.proxy_url
+          begin
+            raise unless URI.parse(hc.proxy_url).is_a? URI::HTTP
+          rescue
+            messages << "'#{hc.proxy_url}' proxy is not a valid HTTP or HTTPS URL."
+          end
+        end
+        messages.compact!
         if messages.empty?
-          nil
+         return  nil
         else
-          messages.join(', ')
+          return messages.join(', ')
         end
       end
+      
+      def HTTP.validate_url( candidate_url )
+        message = nil
+        begin
+          raise unless URI.parse(candidate_url).is_a? URI::HTTP   # weird structure because error may be raised or thru is_a fail
+        rescue
+          message = "'#{candidate_url}' is not a valid HTTP or HTTPS URL."
+        end
+        message
+      end
+      
+      def HTTP.validate_method( candidate_method )
+        "Allowed HTTP Methods are #{METHODS.join(", ")}.  Was set to '#{candidate_method}'." unless METHODS.include?(candidate_method.downcase)
+      end
+      
+      def HTTP.validate_fields( candidate_fields )
+        "Fields must be a hash" unless candidate_fields.is_a?( Hash )
+      end
+      
 
       class Connection
         DEFAULT_HEADERS = {
@@ -149,117 +124,119 @@ module Armagh
 
         COOKIE_STORE = File.join('', 'tmp', 'armagh_cookie.dat').freeze
 
-        def initialize(follow_redirects: true, allow_https_to_http: false)
+        def initialize( config )
+          
+          raise ConfigurationError, "Connection must be initialized with a Configh configuration object" unless config.is_a?( Configh::BaseConfiguration )
+          @cfg     = config.http
+          @url     = @cfg.url.strip
+          @method  = @cfg.method.downcase
+          @headers = DEFAULT_HEADERS.merge @cfg.headers
+          
           @client = HTTPClient.new # Don't add agent to the new call as library details are appended to the end
-          @client.follow_redirect_count = 0 unless follow_redirects
+          @client.follow_redirect_count = 0 unless @cfg.follow_redirects
           @client.set_cookie_store COOKIE_STORE
-          @client.redirect_uri_callback = method(:alternative_uri_callback) if allow_https_to_http
+          @client.redirect_uri_callback = method(:alternative_uri_callback) if @cfg.allow_https_to_http
+          
+          set_proxy
+          set_auth
         end
 
         # Fetches the content of a given URL.
-        # @param url [String] the url to request
-        # @param method [HTTP::POST, HTTP::GET]
-        # @param fields [Hash] fields to include in the request
-        # @param proxy [Hash] proxy configuration.  Available fields are: url, user, pass
-        # @param auth [Hash] authentication configuration.  Available fields are: cert, key, key_pass, user, pass
-        # @param headers [Hash] headers to include in the request
-        # @raise [URLError] an error with the url scheme
-        # @raise [ConfigurationError] an error with configuration
-        # @raise [MethodError] an unknown method type was attempted.  Valid types are HTTP::POST and HTTP::GET
-        # @raise [RedirectError] a problem with redirection
-        # @raise [ConnectionError] an error with the http connection
-        # @return [Hash] response containing the response body in the 'body' field and response header in the 'head' field
-        def fetch(url, method: GET, fields: {}, proxy: {}, auth: {}, headers: {})
-          url.strip!
-          method = method.downcase
-          raise HTTP::URLError, "'#{url}' is not a valid HTTP or HTTPS URL." unless URI.parse(url).is_a? URI::HTTP
-
-          set_proxy(proxy)
-          set_auth(url, auth)
+        def fetch( override_url = nil, override_method = nil, override_fields = nil)
+      
+          url = override_url || @url
+          method = override_method || @cfg.method
+          fields = override_fields || @cfg.fields
+          
+          override_error_messages = []
+          override_error_messages << HTTP.validate_url( url )
+          override_error_messages << HTTP.validate_method( method )
+          override_error_messages << HTTP.validate_fields( fields )
+          override_error_messages.compact!
+          
+          unless override_error_messages.empty?
+            raise ConfigurationError, "code overrode parameters for fetch with bad values: #{ override_error_messages.join(', ')}"
+          end
 
           # verbose toggle because httpclient internally uses Kernel#warn
-          old_verbose = $VERBOSE = nil
-          response = request(url, method, fields, DEFAULT_HEADERS.merge(headers))
+          old_verbose = $VERBOSE = nil          
+          response = request( url, method, fields )
+
           @client.save_cookie_store
           $VERBOSE = old_verbose
           response
         rescue URI::InvalidURIError
-          raise HTTP::URLError, "'#{url}' is not a valid HTTP or HTTPS URL."
+          raise HTTP::URLError, "'#{@url}' is not a valid HTTP or HTTPS URL."
         end
 
-        private def set_proxy(proxy)
-          @client.proxy = proxy['url'] if proxy['url']
-          if proxy['user'] && proxy['pass'] && proxy['url']
-            @client.set_proxy_auth(proxy['user'], proxy['pass'])
-          elsif proxy['user'] || proxy['pass']
-            raise HTTP::ConfigurationError, 'In order to use proxy authentication, both user and pass must be defined'
+        private def set_proxy
+          @client.proxy = @cfg.proxy_url if @cfg.proxy_url
+          if @cfg.proxy_username && @cfg.proxy_password && @cfg.proxy_url
+            @client.set_proxy_auth( @cfg.proxy_username, @cfg.proxy_password.plain_text )
           end
-        rescue => e
-          raise HTTP::ConfigurationError, "Unable to set proxy.  #{e.message}."
         end
-
-        private def set_auth(url, auth)
-          if auth['cert'] && auth['key']
+  
+        private def set_auth
+          if @cfg.certificate && @cfg.key 
             begin
-              @client.ssl_config.client_cert = OpenSSL::X509::Certificate.new(auth['cert'])
+              @client.ssl_config.client_cert = OpenSSL::X509::Certificate.new( @cfg.certificate )
             rescue => e
               raise HTTP::ConfigurationError, "Certificate Error: #{e.message}."
             end
 
             begin
-              @client.ssl_config.client_key = OpenSSL::PKey::RSA.new(auth['key'], auth['key_pass'])
+              @client.ssl_config.client_key = OpenSSL::PKey::RSA.new( @cfg.key, @cfg.key_password.plain_text )
             rescue => e
               raise HTTP::ConfigurationError, "Key Error: #{e.message}."
             end
-          elsif auth['cert'] || auth['key']
-            raise HTTP::ConfigurationError, 'In order to use SSL certificate authentication, both cert and key must be defined.'
           end
 
-          if auth['user'] && auth['pass']
-            @client.set_auth(url, auth['user'], auth['pass'])
+          if @cfg.username && @cfg.password 
+            @client.set_auth(@url, @cfg.username, @cfg.password.plain_text)
             @client.force_basic_auth = true
-          elsif auth['user'] || auth['pass']
-            raise HTTP::ConfigurationError, 'In order to use authentication, both user and pass must be defined.'
           end
         rescue => e
           raise HTTP::ConfigurationError, "Unable to set authentication.  #{e.message}"
         end
 
-        private def request(url, method, fields, headers)
+        private def request( url, method, fields )
+          
           case method
             when GET
-              response = @client.get(url, query: fields, header: headers, follow_redirect: true)
+              response = @client.get(url, query: fields, header: @headers, follow_redirect: @cfg.follow_redirects)
             when POST
-              response = @client.post(url, body: fields, header: headers, follow_redirect: true)
-            else
-              raise HTTP::MethodError, "Unknown HTTP method '#{method}'.  Expected 'get' or 'post'."
+              response = @client.post(url, body: fields, header: @headers, follow_redirect: @cfg.follow_redirects)
           end
 
           if response.ok?
             {'head' => header_to_hash(response.header), 'body' => response.content}
           else
-            raise HTTP::ConnectionError, "Unexpected HTTP response from '#{url}': #{response.status} - #{response.reason}."
+            if response.status == 302
+              raise HTTP::RedirectError, "Attempted to redirect from '#{@url}' but redirection is not allowed."
+            else
+              raise HTTP::ConnectionError, "Unexpected HTTP response from '#{@url}': #{response.status} - #{response.reason}."
+            end
           end
         rescue HTTPClient::TimeoutError # KEEP
-          raise HTTP::ConnectionError, "HTTP response from '#{url}' timed out."
+          raise HTTP::ConnectionError, "HTTP response from '#{@url}' timed out."
         rescue HTTPClient::ConfigurationError => e # KEEP
-          raise HTTP::ConfigurationError, "HTTP configuration error from '#{url}': #{e.message}."
+          raise HTTP::ConfigurationError, "HTTP configuration error from '#{@url}': #{e.message}."
         rescue HTTPClient::BadResponseError => e
           if e.message == 'retry count exceeded'
             if @client.follow_redirect_count == 0
-              raise HTTP::RedirectError, "Attempted to redirect from '#{url}' but redirection is not allowed."
+              raise HTTP::RedirectError, "Attempted to redirect from '#{@url}' but redirection is not allowed."
             else
-              raise HTTP::RedirectError, "Too many redirects from '#{url}'."
+              raise HTTP::RedirectError, "Too many redirects from '#{@url}'."
             end
           elsif e.message == 'redirecting to non-https resource'
-            raise HTTP::RedirectError, "Attempted to redirect from an https resource to a no non-https resource while retrieving '#{url}'.  Considering enabling allow_https_to_http."
+            raise HTTP::RedirectError, "Attempted to redirect from an https resource to a no non-https resource while retrieving '#{@url}'.  Considering enabling allow_https_to_http."
           else
-            raise HTTP::ConnectionError, "Unexpected error requesting '#{url}' - #{e.message}."
+            raise HTTP::ConnectionError, "Unexpected error requesting '#{@url}' - #{e.message}."
           end
         rescue HTTP::HTTPError
           raise
         rescue => e
-          raise HTTP::ConnectionError, "Unexpected error requesting '#{url}' - #{e.message}."
+          raise HTTP::ConnectionError, "Unexpected error requesting '#{@url}' - #{e.message}."
         end
 
         private def header_to_hash(head)

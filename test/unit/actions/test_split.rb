@@ -28,9 +28,17 @@ class TestSplit < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
-
-    @split_action = Armagh::Actions::Split.new('action', @caller, 'logger_name', {}, {'output_type'=> @output_docspec})
+    if Object.const_defined?( :SubSplit )
+      Object.send( :remove_const, :SubSplit )
+    end
+    Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
+    SubSplit.include Configh::Configurable
+    SubSplit.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
+    @config = SubSplit.use_static_config_values ( {
+      'action' => { 'name' => 'mysubcollect' },
+      'input'  => { 'doctype' => 'randomdoc' }
+      })
+    @split_action = Armagh::Actions::Split.new( @caller, 'logger_name', @config)
   end
 
   def test_unimplemented_split
@@ -39,7 +47,7 @@ class TestSplit < Test::Unit::TestCase
 
   def test_edit
     yielded_doc = mock
-    @caller.expects(:edit_document).with('123', @output_docspec).yields(yielded_doc)
+    @caller.expects(:edit_document).with('123', @config.output.output_type).yields(yielded_doc)
 
     @split_action.edit('123', 'output_type') do |doc|
       assert_equal yielded_doc, doc
@@ -52,17 +60,20 @@ class TestSplit < Test::Unit::TestCase
     end
   end
 
-  def test_validate
-    assert_equal({'errors' => [], 'valid' => true, 'warnings' => []}, @split_action.validate)
-  end
-
   def test_validate_invalid_out_state
-    output_docspec = Armagh::Documents::DocSpec.new('OutputDoctype', Armagh::Documents::DocState::PUBLISHED)
-    split_action = Armagh::Actions::Split.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
-    valid = split_action.validate
-    assert_false valid['valid']
-    assert_empty valid['warnings']
-    assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
+    if Object.const_defined?( :SubSplit )
+      Object.send( :remove_const, :SubSplit )
+    end
+    Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
+    SubSplit.include Configh::Configurable
+    SubSplit.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
+    e = assert_raises( Configh::ConfigValidationError ) {
+      config = SubSplit.use_static_config_values ({
+        'action' => { 'name' => 'mysubcollect' },
+        'input'  => { 'doctype' => 'randomdoc' }
+      })
+    }
+    assert_equal('Output docspec \'output_type\' state must be one of: ready, working.', e.message )
   end
 
   def test_inheritence
@@ -70,11 +81,9 @@ class TestSplit < Test::Unit::TestCase
     assert_true Armagh::Actions::Split.respond_to? :defined_parameters
 
     assert_true Armagh::Actions::Split.respond_to? :define_default_input_type
-    assert_true Armagh::Actions::Split.respond_to? :defined_default_input_type
     assert_true Armagh::Actions::Split.respond_to? :define_output_docspec
     assert_true Armagh::Actions::Split.respond_to? :defined_output_docspecs
 
-    assert_true @split_action.respond_to? :validate
     assert_true @split_action.respond_to? :log_debug
     assert_true @split_action.respond_to? :log_info
     assert_true @split_action.respond_to? :notify_dev

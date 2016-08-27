@@ -1,0 +1,98 @@
+<?xml version="1.0" standalone="yes"?>
+<sdnList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://tempuri.org/sdnList.xsd">
+  <publshInformation>
+    <Publish_Date>05/30/2014</Publish_Date>
+    <Record_Count>5931</Record_Count>
+  </publshInformation>
+  <sdnEntry>
+    <uid>10</uid>
+    <lastName>ABASTECEDORA NAVAL Y INDUSTRIAL, S.A.</lastName>
+    <sdnType>Entity</sdnType>
+    <programList>
+      <program>CUBA</program>
+    </programList>
+    <akaList>
+      <aka>
+        <uid>4</uid>
+        <type>a.k.a.</type>
+        <category>strong</category>
+        <lastName>ANAINSA</lastName>
+      </aka>
+    </akaList>
+    <addressList>
+      <address>
+        <uid>7</uid>
+        <country>Panama</country>
+      </address>
+    </addressList>
+  </sdnEntry>
+  <sdnEntry>
+    <uid>15</uid>
+    <firstName>Nury de Jesus</firstName>
+    <lastName>ABDELNUR</lastName>
+    <sdnType>Individual</sdnType>
+    <programList>
+      <program>CUBA</program>
+    </programList>
+    <addressList>
+      <address>
+        <uid>12</uid>
+        <country>Panama</country>
+      </address>
+    </addressList>
+  </sdnEntry>
+  <sdnEntry>
+    <uid>25</uid>
+    <lastName>ACEFROSTY SHIPPING CO., LTD.</lastName>
+    <sdnType>Entity</sdnType>
+    <programList>
+      <program>CUBA</program>
+    </programList>
+    <addressList>
+      <address>
+        <uid>16</uid>
+        <address1>171 Old Bakery Street</address1>
+        <city>Valletta</city>
+        <country>Malta</country>
+      </address>
+    </addressList>
+  </sdnEntry>
+  <sdnEntry>
+    <uid>36</uid>
+    <lastName>AEROCARIBBEAN AIRLINES</lastName>
+    <sdnType>Entity</sdnType>
+    <programList>
+      <program>CUBA</program>
+    </programList>
+    <akaList>
+      <aka>
+        <uid>12</uid>
+        <type>a.k.a.</type>
+        <category>strong</category>
+        <lastName>AERO-CARIBBEAN</lastName>
+      </aka>
+    </akaList>
+    <addressList>
+      <address>
+        <uid>25</uid>
+        <city>Havana</city>
+        <country>Cuba</country>
+      </address>
+    </addressList>
+  </sdnEntry>
+  <sdnEntry>
+    <uid>39</uid>
+    <lastName>AEROTAXI EJECUTIVO, S.A.</lastName>
+    <sdnType>Entity</sdnType>
+    <programList>
+      <program>CUBA</program>
+    </programList>
+    <addressList>
+      <address>
+        <uid>27</uid>
+        <city>Managua</city>
+        <country>Nicaragua</country>
+      </address>
+    </addressList>
+  </sdnEntry>
+</sdnList>

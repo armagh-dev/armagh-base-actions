@@ -65,13 +65,13 @@ class TestIntegrationPDF < Test::Unit::TestCase
   end
 
   def test_to_search_and_display_text_timeout
-    start = Time.now.to_i
+    start = Time.now
     binary = fixture('rotated.pdf')
     e = assert_raise Armagh::Support::PDF::TimeoutError do
       Armagh::Support::PDF.to_search_and_display_text(binary, timeout: 1)
     end
     assert_equal 'Execution expired while processing PDF', e.message
-    assert_in_delta 1, Time.now.to_i - start
+    assert_in_delta 1, Time.now - start, 0.5
   end
 
   def test_to_search_text_invalid_pdf

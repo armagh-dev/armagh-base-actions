@@ -52,7 +52,7 @@ class TestIntegrationHTML < Test::Unit::TestCase
     e = assert_raise Armagh::Support::Shell::MissingProgramError do
       Armagh::Support::HTML.to_text('anything')
     end
-    assert_equal 'Missing required w3m_missing program, please make sure it is installed', e.message
+    assert_equal 'Please install required program "w3m_missing"', e.message
   end
 
   def test_to_text_web_chars

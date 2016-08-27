@@ -27,9 +27,18 @@ class TestConsume < Test::Unit::TestCase
 
   def setup
     @caller = mock
-    @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
-
-    @consume_action = Armagh::Actions::Consume.new('consume', @caller, 'logger_name', {}, {'output_type'=> @output_docspec})
+    if Object.const_defined?( :SubConsume )
+      Object.send( :remove_const, :SubConsume )
+    end
+    Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
+    SubConsume.include Configh::Configurable
+    SubConsume.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
+    @config = SubConsume.use_static_config_values ( {
+      'action' => { 'name' => 'mysubcollect' },
+      'input'  => { 'doctype' => 'randomdoc' }
+      })
+    
+    @consume_action = SubConsume.new( @caller, 'logger_name', @config )
   end
 
   def test_unimplemented_consume
@@ -38,7 +47,7 @@ class TestConsume < Test::Unit::TestCase
 
   def test_edit
     yielded_doc = mock
-    @caller.expects(:edit_document).with('123', @output_docspec).yields(yielded_doc)
+    @caller.expects(:edit_document).with('123', @config.output.output_type ).yields(yielded_doc)
 
     @consume_action.edit('123', 'output_type') do |doc|
       assert_equal yielded_doc, doc
@@ -51,17 +60,21 @@ class TestConsume < Test::Unit::TestCase
     end
   end
 
-  def test_valid
-    assert_equal({'errors' => [], 'valid' => true, 'warnings' => []}, @consume_action.validate)
-  end
 
   def test_valid_invalid_out_state
-    output_docspec = Armagh::Documents::DocSpec.new('OutputDoctype', Armagh::Documents::DocState::PUBLISHED)
-    consume_action = Armagh::Actions::Consume.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
-
-    valid = consume_action.validate
-    assert_false valid['valid']
-    assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
+    if Object.const_defined?( :SubConsume )
+      Object.send( :remove_const, :SubConsume )
+    end
+    Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
+    SubConsume.include Configh::Configurable
+    SubConsume.define_output_docspec( 'consumed_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
+    e = assert_raises( Configh::ConfigValidationError ) {
+      config = SubConsume.use_static_config_values ({
+        'action' => { 'name' => 'mysubcollect' },
+        'input'  => { 'doctype' => 'randomdoc' }
+      })
+    }
+    assert_equal "Output docspec 'consumed_doc' state must be one of: ready, working.", e.message
   end
 
   def test_inheritence
@@ -69,11 +82,8 @@ class TestConsume < Test::Unit::TestCase
     assert_true Armagh::Actions::Consume.respond_to? :defined_parameters
 
     assert_true Armagh::Actions::Consume.respond_to? :define_default_input_type
-    assert_true Armagh::Actions::Consume.respond_to? :defined_default_input_type
     assert_true Armagh::Actions::Consume.respond_to? :define_output_docspec
-    assert_true Armagh::Actions::Consume.respond_to? :defined_output_docspecs
 
-    assert_true @consume_action.respond_to? :validate
     assert_true @consume_action.respond_to? :log_debug
     assert_true @consume_action.respond_to? :log_info
     assert_true @consume_action.respond_to? :notify_dev

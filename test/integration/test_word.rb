@@ -89,9 +89,19 @@ class TestIntegrationWord < Test::Unit::TestCase
 
   def test_to_search_text_invalid_document
     e = assert_raise Armagh::Support::Word::WordError do
-      Armagh::Support::Word.to_search_text(nil)
+      Armagh::Support::Word.to_search_text(StringIO.new('not a Word document'))
     end
-    assert_match %r/^Unable to extract PDF text content/, e.message
+    assert_match %r/Document is empty$/, e.message
+  end
+
+  def test_to_search_text_missing_program
+    program = Armagh::Support::Word::WORD_TO_TEXT_SHELL[0]
+    Armagh::Support::Word::WORD_TO_TEXT_SHELL[0] = 'missing_program'
+    e = assert_raise Armagh::Support::Shell::MissingProgramError do
+      Armagh::Support::Word.to_search_text(StringIO.new('fake Word document'))
+    end
+    assert_equal 'Please install required program "missing_program"', e.message
+    Armagh::Support::Word::WORD_TO_TEXT_SHELL[0] = program
   end
 
 end

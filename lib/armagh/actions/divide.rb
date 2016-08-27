@@ -24,21 +24,20 @@ require_relative 'loggable'
 
 module Armagh
   module Actions
-    class Divide < Parameterized
+    class Divide
       # Divides a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
       #  for dividing up work or handling files that are too large to store in Mongo.
 
       include Loggable
       include Encodable
-
-      attr_reader :output_docspec
+      include Configh::Configurable
+      
       attr_accessor :source
 
-      def initialize(name, caller, logger_name, parameters, output_docspec)
-        super(parameters)
-        @name = name
+      def initialize(caller, logger_name, config, output_docspec)
         @caller = caller
         @logger_name = logger_name
+        @config = config
         @output_docspec = output_docspec
         @source = nil
       end
@@ -48,7 +47,6 @@ module Armagh
         raise Errors::ActionMethodNotImplemented, 'Dividers must overwrite the divide method.'
       end
 
-      # raises InvalidDoctypeError
       def create(content, metadata)
         raise Errors::CreateError, "Divider metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
 

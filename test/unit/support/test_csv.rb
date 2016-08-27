@@ -22,11 +22,28 @@ require 'mocha/test_unit'
 
 require_relative '../../../lib/armagh/support/csv'
 
+
+module CSVTestHelpers
+  def combine_parts(parts)
+    parts.inject("") do |complete_content, part|
+      part = remove_header_from_part(part) if !complete_content.empty?
+      complete_content << part
+    end
+  end
+
+  def remove_header_from_part(part)
+    rows = part.split("\n")
+    rows.shift
+    rows.join("\n") + "\n"
+  end
+end
+
 class TestCsv < Test::Unit::TestCase
+  include CSVTestHelpers
   include Armagh::Support::CSV
 
   def setup
-    fixtures_path = File.join(__dir__, '..', '..', 'fixtures')
+    fixtures_path = File.join(__dir__, '..', '..', 'fixtures', 'csv')
     @csv = File.join fixtures_path, 'test.csv'
     @csv_row_with_missing_value_path     = File.join fixtures_path, 'row_with_missing_value.csv'
     @csv_row_with_extra_values_path      = File.join fixtures_path, 'row_with_extra_values.csv'
@@ -87,101 +104,104 @@ class TestCsv < Test::Unit::TestCase
                                {"Name"=>"Bill", "Email"=>"bill@example.com", "Phone"=>"555-1212"},
                                {"Name"=>"Jim", "Email"=>"jim@example.com", "Phone"=>"555-1212"},
                                {"Name"=>"Kevin", "Email"=>"kevin@example.com", "Phone"=>"555-1212"}]
+
+    @config_size_default = Armagh::Support::CSV.use_static_config_values( {} )
+    @config_size_100 = Armagh::Support::CSV.use_static_config_values( 'csv' => { 'size_per_part'  => 100 })
   end
 
   test "divides source csv into array of multiple csv strings having max size of 'size_per_part' bytes" do
     actual_divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(@csv, @config_size_100) do |part|
       actual_divided_content << part
     end
 
     assert_equal @expected_divided_content, actual_divided_content
-    assert_equal false, Armagh::Support::CSV.parts_sizes(actual_divided_content).any? {|x| x > 100}
+    assert_equal false, Armagh::Support::CSV.parts_sizes(actual_divided_content).map(&:size).any? {|x| x > 100}
   end
 
   test "properly divides source csv when row contains extra values" do
     actual_divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv_row_with_extra_values_path, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(@csv_row_with_extra_values_path, @config_size_100) do |part|
       actual_divided_content << part
     end
 
     assert_equal @expected_divided_content_malformed_row, actual_divided_content
-    assert_equal false, Armagh::Support::CSV.parts_sizes(actual_divided_content).any? {|x| x > 100}
+    assert_equal false, Armagh::Support::CSV.parts_sizes(actual_divided_content).map(&:size).any? {|x| x > 100}
   end
 
   test "properly divides source csv when row contains extra values on last row" do
     actual_divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv_with_extra_values_last_row_path, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(@csv_with_extra_values_last_row_path, @config_size_100) do |part|
       actual_divided_content << part
     end
 
     assert_equal @expected_divided_content_malformed_last_row, actual_divided_content
-    assert_equal false, Armagh::Support::CSV.parts_sizes(actual_divided_content).any? {|x| x > 100}
+    assert_equal false, Armagh::Support::CSV.parts_sizes(actual_divided_content).map(&:size).any? {|x| x > 100}
   end
 
   test "properly divides source csv when row contains newline in one of its fields" do
     actual_divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv_with_newline_in_field, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(@csv_with_newline_in_field, @config_size_100) do |part|
       actual_divided_content << part
     end
 
     assert_equal @expected_divided_content_newline_in_field, actual_divided_content
-    assert_equal false, Armagh::Support::CSV.parts_sizes(actual_divided_content).any? {|x| x > 100}
+    assert_equal false, Armagh::Support::CSV.parts_sizes(actual_divided_content).map(&:size).any? {|x| x > 100}
   end
 
   test "when csv has row with extra values, divided parts match source csv when recombined" do
     expected_combined_content = IO.binread(@csv_row_with_extra_values_path)
     divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv_row_with_extra_values_path, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(@csv_row_with_extra_values_path, @config_size_100) do |part|
       divided_content << part
     end
 
-    assert_equal expected_combined_content, Armagh::Support::CSV.combine_parts(divided_content)
+    assert_equal expected_combined_content, combine_parts(divided_content)
   end
 
   test "when csv has last row with extra values, divided parts match source csv when recombined" do
     expected_combined_content = IO.binread(@csv_with_extra_values_last_row_path)
     divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv_with_extra_values_last_row_path, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(@csv_with_extra_values_last_row_path, @config_size_100) do |part|
       divided_content << part
     end
 
-    assert_equal expected_combined_content, Armagh::Support::CSV.combine_parts(divided_content)
+    assert_equal expected_combined_content, combine_parts(divided_content)
   end
 
   test "when csv is well-formed, divided parts match source csv when recombined" do
     expected_combined_content = IO.binread(@csv)
     divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(@csv, @config_size_100) do |part|
       divided_content << part
     end
 
-    assert_equal expected_combined_content, Armagh::Support::CSV.combine_parts(divided_content)
+    assert_equal expected_combined_content, combine_parts(divided_content)
   end
 
   test "when csv has field with a newline, divided parts match source csv when recombined" do
     expected_combined_content = IO.binread(@csv_with_newline_in_field)
     divided_content = []
 
-    Armagh::Support::CSV.divided_parts(source: @csv_with_newline_in_field, size_per_part: 100, col_sep: ',', row_sep: :auto, quote_char: '"') do |part|
+    Armagh::Support::CSV.divided_parts(@csv_with_newline_in_field, @config_size_100) do |part|
       divided_content << part
     end
 
-    assert_equal expected_combined_content, Armagh::Support::CSV.combine_parts(divided_content)
+    assert_equal expected_combined_content, combine_parts(divided_content)
   end
 
   test "splits source file into individual rows" do
     doc = mock('document', content: File.read(@csv))
     actual_split_content = []
 
-    Armagh::Support::CSV.split_parts(source: doc, col_sep: ',', row_sep: :auto, quote_char: '"') do |row|
+    Armagh::Support::CSV.split_parts(doc, @config_size_default ) do |row|
       actual_split_content << row
     end
 
@@ -195,13 +215,13 @@ class TestCsv < Test::Unit::TestCase
     expected_split_content = @expected_split_content.dup
     expected_split_content.delete_at(1)
 
-    Armagh::Support::CSV.split_parts(source: doc, col_sep: ',', row_sep: :auto, quote_char: '"') do |row, errors|
+    Armagh::Support::CSV.split_parts(doc, @config_size_default) do |row, errors|
       actual_split_content << row if errors.empty?
       actual_errors = errors if !errors.empty?
     end
 
     assert_equal expected_split_content, actual_split_content
-    assert_equal Armagh::Support::CSV::RowMissingValueError, actual_errors.first
+    assert_equal Armagh::Support::CSV::Splitter::RowMissingValueError, actual_errors.first
   end
 
   test "returns an error when csv row has extra values" do
@@ -209,12 +229,13 @@ class TestCsv < Test::Unit::TestCase
     actual_split_content = []
     actual_errors = nil
 
-    Armagh::Support::CSV.split_parts(source: doc, col_sep: ',', row_sep: :auto, quote_char: '"') do |row, errors|
+    Armagh::Support::CSV.split_parts(doc, @config_size_default) do |row, errors|
       actual_split_content << row if errors.empty?
       actual_errors = errors if !errors.empty?
     end
 
     assert_equal @expected_split_content, actual_split_content
-    assert_equal Armagh::Support::CSV::RowWithExtraValuesError, actual_errors.first
+    assert_equal Armagh::Support::CSV::Splitter::RowWithExtraValuesError, actual_errors.first
   end
 end
+

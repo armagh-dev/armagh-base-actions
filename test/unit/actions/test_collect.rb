@@ -21,6 +21,7 @@ require_relative '../../helpers/coverage_helper'
 require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
+require 'configh'
 
 require_relative '../../../lib/armagh/actions'
 
@@ -28,9 +29,19 @@ class TestCollect < Test::Unit::TestCase
 
   def setup
     @caller = mock
-    @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
+    if Object.const_defined?( :SubCollect )
+      Object.send( :remove_const, :SubCollect )
+    end
+    Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
+    SubCollect.include Configh::Configurable
+    SubCollect.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
+    config = SubCollect.use_static_config_values ( {
+      'action' => { 'name' => 'mysubcollect' },
+      'input'  => { 'doctype' => 'randomdoc' }
+      })
+    
+    @collect_action = SubCollect.new( @caller, 'logger_name', config )
     @content = 'collected content'
-    @collect_action = Armagh::Actions::Collect.new('action', @caller, 'logger_name', {}, {'output_type'=> @output_docspec})
     @source = {
         'type' => 'url',
         'url' => 'some url'
@@ -166,32 +177,29 @@ class TestCollect < Test::Unit::TestCase
     assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
   end
 
-  def test_valid
-    valid = @collect_action.validate
-    assert_true valid['valid']
-    assert_empty valid['errors']
-    assert_empty valid['warnings']
-  end
-
   def test_valid_invalid_out_state
-    output_docspec = Armagh::Documents::DocSpec.new('Outputdocspec', Armagh::Documents::DocState::PUBLISHED)
-    collect_action = Armagh::Actions::Collect.new('action', @caller, 'logger_name', {}, {'output_type'=> output_docspec})
-    valid = collect_action.validate
-    assert_false valid['valid']
-    assert_equal(['Output docspec \'output_type\' state must be one of: ["ready", "working"].'], valid['errors'])
-    assert_empty valid['warnings']
+    if Object.const_defined?( :SubCollect )
+      Object.send( :remove_const, :SubCollect )
+    end
+    Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
+    SubCollect.include Configh::Configurable
+    SubCollect.define_output_docspec( 'collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
+    e = assert_raises( Configh::ConfigValidationError ) {
+      config = SubCollect.use_static_config_values ({
+        'action' => { 'name' => 'mysubcollect' },
+        'input'  => { 'doctype' => 'randomdoc' }
+      })
+    }
+    assert_equal "Output docspec 'collected_doc' state must be one of: ready, working.", e.message
   end
 
-  def test_inheritence
+  def test_inheritance
     assert_true Armagh::Actions::Collect.respond_to? :define_parameter
     assert_true Armagh::Actions::Collect.respond_to? :defined_parameters
 
     assert_true Armagh::Actions::Collect.respond_to? :define_default_input_type
-    assert_true Armagh::Actions::Collect.respond_to? :defined_default_input_type
     assert_true Armagh::Actions::Collect.respond_to? :define_output_docspec
-    assert_true Armagh::Actions::Collect.respond_to? :defined_output_docspecs
 
-    assert_true @collect_action.respond_to? :validate
     assert_true @collect_action.respond_to? :log_debug
     assert_true @collect_action.respond_to? :log_info
     assert_true @collect_action.respond_to? :notify_dev

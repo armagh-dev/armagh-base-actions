@@ -18,10 +18,27 @@
 require_relative 'doc_state'
 require_relative 'errors'
 
+module Configh
+  module DataTypes
+    
+    def DataTypes.ensure_is_docspec( value )
+      raise TypeError, "value #{value} is not a docspec" unless value.is_a?( Armagh::Documents::DocSpec )
+      value
+    end
+  end
+end
+
 module Armagh
   module Documents
     class DocSpec
       attr_reader :type, :state
+      
+      def self.report_validation_errors( type, state )
+        errors = []
+        errors << "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }.join(", ")}" unless DocState.valid_state?(state)
+        errors << 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
+        errors.empty? ? nil : errors.join(", ")
+      end  
 
       def initialize(type, state)
         raise Errors::DocStateError, "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }}" unless DocState.valid_state?(state)

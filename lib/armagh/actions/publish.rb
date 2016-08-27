@@ -23,10 +23,13 @@ module Armagh
       # Triggered by DocType:ready
       # Content within doc is committed to a finalized state of the document
       # Can create/edit additional documents of any type or state
+      
+      include Configh::Configurable
+      define_group_validation_callback callback_class: Publish, callback_method: :report_validation_errors
 
-      def self.define_output_docspec(name, default_type: nil, default_state: nil)
-        raise Documents::Errors::DocSpecError.new 'Publish actions have no usable Output DocSpecs.'
-      end
+#      def self.define_output_docspec(name, description, default_type: nil, default_state: nil)
+#        raise Documents::Errors::DocSpecError.new 'Publish actions have no usable Output DocSpecs.'
+#      end
 
       # Gets the published action document
       def get_existing_published_document(doc)
@@ -38,18 +41,26 @@ module Armagh
         raise Actions::Errors::ActionMethodNotImplemented, 'Publish actions must overwrite the publish method.'
       end
 
-      def validate
-        super
-        @validation_errors << 'Publish actions can only have one output docspec.' unless @output_docspecs.length == 1
+      def Publish.report_validation_errors( candidate_config )
 
-        output = @output_docspecs.first
-
-        if output && output.last.state != Documents::DocState::PUBLISHED
-          @validation_errors << "Output document state for a Publish action must be #{Documents::DocState::PUBLISHED}."
+        valid_states = [Documents::DocState::PUBLISHED ]
+        
+        output_docspec_params = candidate_config.find_all{ |p| p.group == 'output' }
+        docspec_param = output_docspec_params.first
+        
+        return "Publish actions must have exactly one output type" unless output_docspec_params.length == 1
+        
+        docspec_param = output_docspec_params.first
+        output_doctype = docspec_param.value.type
+        
+        unless output_doctype == candidate_config.input.doctype
+          return "Input doctype (#{candidate_config.input.doctype}) and output doctype (#{output_doctype}) must be the same"
         end
-
-        {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
-      end
-    end
+        
+        return "Output document state for a Publish action must be published." unless valid_states.include?(docspec_param.value.state)
+        
+        return nil
+       end
+     end
   end
 end

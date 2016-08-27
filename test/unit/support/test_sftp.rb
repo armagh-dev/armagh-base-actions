@@ -24,31 +24,32 @@ require 'fakefs/safe'
 require 'fileutils'
 
 require 'net/sftp'
-require 'armagh/common/encoded_string'
 
 require_relative '../../../lib/armagh/actions/collect.rb'
 require_relative '../../../lib/armagh/actions/consume.rb'
 require_relative '../../../lib/armagh/support/sftp.rb'
-
-class SFTPTestAction < Armagh::Actions::Action
-  include Armagh::Support::SFTP
-  attr_accessor :parameters
-end
 
 class UnknownSSHError < Net::SSH::Exception; end
 
 class TestSFTP < Test::Unit::TestCase
 
   def setup
-    @parameters = {
-      'sftp_maximum_number_to_transfer' => 4,
-      'sftp_directory_path' => '/',
-      'sftp_password' => EncodedString.from_plain_text('password_123'),
-      'sftp_username' => 'test_user',
-    }
-
-    @mocked_sftp_lib = mock('sftp')
+    session = mock
+    session.stubs( 'close')
+    session.stubs( closed?: false )
+    @mocked_sftp_lib = stub( 'sftp' )
+    @mocked_sftp_lib.stubs( 'upload!')
+    @mocked_sftp_lib.stubs( 'remove!')
+    @mocked_sftp_lib.stubs( session: session )
     Net::SFTP.stubs(start: @mocked_sftp_lib)
+    @config_values = {
+      'host' => 'localhost',
+      'maximum_transfer' => 4,
+      'directory_path' => '/',
+      'password' => Configh::DataTypes::EncodedString.from_plain_text('password_123'),
+      'username' => 'test_user',
+    }
+    @config = Armagh::Support::SFTP.use_static_config_values( { 'sftp' => @config_values })
   end
 
   def teardown
@@ -56,15 +57,16 @@ class TestSFTP < Test::Unit::TestCase
   end
 
   def assert_start_error(cause_class, expected_class)
-    Net::SFTP.expects(:start).raises(cause_class.new)
-    assert_raise(expected_class) { Armagh::Support::SFTP::Connection.open(@parameters) {} }
+    
+    Net::SFTP.stubs(:start).raises(cause_class.new)
+    assert_raise(expected_class) {  Armagh::Support::SFTP::Connection.open( @config ){ |conn| }}
   end
 
   def assert_sftp_start_status_error(error_code, expected_class)
     response = stub ({code: error_code, message: nil})
     e = Net::SFTP::StatusException.new response
-    Net::SFTP.expects(:start).raises(e)
-    assert_raise(expected_class) { Armagh::Support::SFTP::Connection.open(@parameters) {} }
+    Net::SFTP.stubs(:start).raises(e)
+    assert_raise(expected_class) { Armagh::Support::SFTP::Connection.open( @config ){ |conn| }  }
   end
 
   def stub_close
@@ -106,10 +108,9 @@ class TestSFTP < Test::Unit::TestCase
   end
 
   def test_custom_validation
-    action = SFTPTestAction.new('', mock('caller'), 'logger', {}, mock)
     Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection)
     Armagh::Support::SFTP::Connection.any_instance.expects(:close)
-    action.custom_validation
+    Armagh::Support::SFTP.use_static_config_values( { 'sftp' => @config_values })
   end
 
   def test_error_handler
@@ -188,7 +189,7 @@ class TestSFTP < Test::Unit::TestCase
 
     seen_errors = []
 
-    Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+    Armagh::Support::SFTP::Connection.open(@config) do |sftp|
       sftp.get_files { |file, error|
         expected_files.delete(file)
         seen_errors << error if error
@@ -215,7 +216,7 @@ class TestSFTP < Test::Unit::TestCase
     @mocked_sftp_lib.expects(:download!).raises(RuntimeError.new).at_least_once
 
     assert_raise(Armagh::Support::SFTP::SFTPError.new('Three files failed in a row.  Aborting.')) do
-      Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+      Armagh::Support::SFTP::Connection.open(@config) do |sftp|
         sftp.get_files { |file, error|}
       end
     end
@@ -239,7 +240,7 @@ class TestSFTP < Test::Unit::TestCase
       puts Dir.glob('*')
       files = make_files
 
-      Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+      Armagh::Support::SFTP::Connection.open(@config) do |sftp|
         sftp.put_files do |file, error|
           files.delete(file)
           seen_errors << error if error
@@ -258,34 +259,34 @@ class TestSFTP < Test::Unit::TestCase
     stub_close
 
     assert_raise(Armagh::Support::SFTP::SFTPError.new('Three files failed in a row.  Aborting.')) do
-      Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+      Armagh::Support::SFTP::Connection.open(@config) do |sftp|
         sftp.put_files { |file, error|}
       end
     end
   end
 
   def test_test_connection
-    @mocked_sftp_lib.expects(:upload!).with do |local, remote|
-      @mocked_sftp_lib.expects(:remove!).with(remote)
+    @mocked_sftp_lib.stubs(:upload!).with do |local, remote|
+      @mocked_sftp_lib.stubs(:remove!).with(remote)
     end
 
     stub_close
 
     result = 'placeholder'
-    Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+    Armagh::Support::SFTP::Connection.open(@config) do |sftp|
       result = sftp.test_connection
     end
     assert_nil result
   end
 
   def test_test_connection_bad
-    @mocked_sftp_lib.expects(:upload!).raises(RuntimeError.new)
+    @mocked_sftp_lib.stubs(:upload!).raises(RuntimeError.new)
     stub_close
     result = 'placeholder'
-    Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+    Armagh::Support::SFTP::Connection.open(@config) do |sftp|
       result = sftp.test_connection
     end
-    assert_equal 'SFTP Connection Test error: Unexpected SFTP error from host : RuntimeError', result
+    assert_equal 'Unexpected SFTP error from host : RuntimeError', result
   end
 
   def test_mkdir_p
@@ -300,7 +301,7 @@ class TestSFTP < Test::Unit::TestCase
     @mocked_sftp_lib.expects(:mkdir!).with('/make/some')
     @mocked_sftp_lib.expects(:stat!).with('/make/some/path').raises(no_file_error)
     @mocked_sftp_lib.expects(:mkdir!).with('/make/some/path')
-    Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+    Armagh::Support::SFTP::Connection.open(@config) do |sftp|
       sftp.mkdir_p('/make/some/path')
     end
   end
@@ -314,7 +315,7 @@ class TestSFTP < Test::Unit::TestCase
     @mocked_sftp_lib.expects(:stat!).with('/').returns(dir)
     @mocked_sftp_lib.expects(:stat!).with('/make').returns(file)
     assert_raise(Armagh::Support::SFTP::FileError.new('Could not create /make/some/path.  /make is a file.')) do
-      Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+      Armagh::Support::SFTP::Connection.open(@config) do |sftp|
         sftp.mkdir_p('/make/some/path')
       end
     end
@@ -325,7 +326,7 @@ class TestSFTP < Test::Unit::TestCase
 
     @mocked_sftp_lib.expects(:stat!).with('/').raises(RuntimeError.new('error'))
     assert_raise(Armagh::Support::SFTP::SFTPError) do
-      Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+      Armagh::Support::SFTP::Connection.open(@config) do |sftp|
         sftp.mkdir_p('/make/some/path')
       end
     end
@@ -337,7 +338,7 @@ class TestSFTP < Test::Unit::TestCase
     unknown_error = Net::SFTP::StatusException.new(stub({code: 123, message: nil}))
     @mocked_sftp_lib.expects(:stat!).with('/').raises(unknown_error)
     assert_raise(Armagh::Support::SFTP::SFTPError) do
-      Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+      Armagh::Support::SFTP::Connection.open(@config) do |sftp|
         sftp.mkdir_p('/make/some/path')
       end
     end
@@ -346,7 +347,7 @@ class TestSFTP < Test::Unit::TestCase
   def test_rmdir
     stub_close
     @mocked_sftp_lib.expects(:rmdir!).with('/path')
-    Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+    Armagh::Support::SFTP::Connection.open(@config) do |sftp|
       sftp.rmdir('path')
     end
   end
@@ -355,7 +356,7 @@ class TestSFTP < Test::Unit::TestCase
     stub_close
     @mocked_sftp_lib.expects(:rmdir!).raises(RuntimeError.new)
     assert_raise(Armagh::Support::SFTP::SFTPError) do
-      Armagh::Support::SFTP::Connection.open(@parameters) do |sftp|
+      Armagh::Support::SFTP::Connection.open(@config) do |sftp|
         sftp.rmdir('path')
       end
     end
@@ -363,12 +364,14 @@ class TestSFTP < Test::Unit::TestCase
 
   def test_sftp_key
     stub_close
-    @parameters.delete('password')
-    @parameters['sftp_key'] = 'some key'
+    test_config_values = Marshal.load( Marshal.dump( @config_values ))
+    test_config_values.delete 'password'
+    test_config_values['key'] = 'some key'
 
     FakeFS do
-      Armagh::Support::SFTP::Connection.open(@parameters) { |sftp|}
-      assert_equal(@parameters['sftp_key'], File.read('.ssh_key'))
+      Dir.mkdir( '/tmp' )
+      c = Armagh::Support::SFTP.use_static_config_values( { 'sftp' => test_config_values } ) { |sftp|}
+      assert_equal(c.sftp.key, File.read('.ssh_key'))
     end
   end
 end

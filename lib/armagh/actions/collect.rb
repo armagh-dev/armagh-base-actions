@@ -17,12 +17,16 @@
 
 require 'bson'
 require 'securerandom'
+require 'configh'
 
 require_relative 'action'
 
 module Armagh
   module Actions
     class Collect < Action
+      include Configh::Configurable
+      
+      define_group_validation_callback callback_class: Collect, callback_method: :report_validation_errors
 
       # Doc is an ActionDocument
       def collect
@@ -32,8 +36,10 @@ module Armagh
       # Collected can either be a string or a filename
       # raises ActionDocuments::Errors::DocSpecError
       def create(collected, metadata, docspec_name, source)
-        docspec = @output_docspecs[docspec_name]
-        raise Documents::Errors::DocSpecError, "Creating an unknown docspec #{docspec_name}.  Available docspecs are #{@output_docspecs.keys}" if docspec.nil?
+        
+        docspec_param = @config.find_all{ |p| p.group == 'output' && p.name == docspec_name }.first
+        docspec = docspec_param&.value
+        raise Documents::Errors::DocSpecError, "Creating an unknown docspec #{docspec_name}" unless docspec
         raise Errors::CreateError, "Collect action content must be a String, was a #{collected.class}." unless collected.is_a?(String)
         raise Errors::CreateError, "Collect action source must be a Hash, was a #{source.class}." unless source.is_a?(Hash)
         raise Errors::CreateError, "Collect action metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
@@ -49,7 +55,7 @@ module Armagh
             raise Errors::CreateError, 'Source type must be url or file.'
         end
 
-        divider = @caller.get_divider(@name, docspec_name)
+        divider = @caller.get_divider(@config.action.name, docspec_name)
 
         if divider
           if File.file? collected
@@ -72,15 +78,15 @@ module Armagh
         end
       end
 
-      def validate
-        super
+      def Collect.report_validation_errors( candidate_config )
 
+        errors = []
         valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
-        @output_docspecs.each do |name, docspec|
-          @validation_errors << "Output docspec '#{name}' state must be one of: #{valid_states}." unless valid_states.include?(docspec.state)
+        candidate_config.find_all{ |p| p.group == 'output' }.each do |docspec_param|
+          errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
         end
 
-        {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
+        errors.empty? ? nil : errors.join(", ")
       end
     end
   end

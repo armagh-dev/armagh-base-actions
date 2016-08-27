@@ -15,20 +15,30 @@
 # limitations under the License.
 #
 
-
-require 'armagh/actions'
-Dir[File.join(__dir__, File.basename(__FILE__, ".*"), "*.rb")].each { |file| require file }
-
-require 'configh'
+require 'csv'
 
 module Armagh
   module Support
     module CSV
-      extend CSV::Divider
-      extend CSV::Splitter
+      module Splitter
 
-      module_function
+        class CSVError < StandardError; end
+        class RowMissingValueError < CSVError; end
+        class RowWithExtraValuesError < CSVError; end
 
+        def split_parts(source, options)
+          csv_string = source.content
+
+          ::CSV.parse(csv_string, headers: true) do |row|
+              errors = []
+              errors << RowMissingValueError    if row.fields.include?(nil)
+              errors << RowWithExtraValuesError if row.headers.include?(nil)
+              yield row.to_hash, errors if block_given?
+          end
+        end
+
+      end
     end
   end
 end
+

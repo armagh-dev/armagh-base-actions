@@ -28,22 +28,71 @@ class TestShell < Test::Unit::TestCase
     assert_equal Date.today.strftime('%Y%m%d'), Armagh::Support::Shell.call('date', '+%Y%m%d')
   end
 
-  def test_call_error
-    e = assert_raise Armagh::Support::Shell::ShellError do
+  def test_call_missing_program
+    e = assert_raise Armagh::Support::Shell::MissingProgramError do
       Armagh::Support::Shell.call('cmd_does_not_exist')
     end
-    assert_equal 'Unable to execute "cmd_does_not_exist": No such file or directory - cmd_does_not_exist', e.message
+    assert_equal 'Please install required program "cmd_does_not_exist"', e.message
+  end
+
+  def test_call_shell_error
+    e = assert_raise Armagh::Support::Shell::ShellError do
+      Armagh::Support::Shell.call('date', '-unknown')
+    end
+    assert_match %r(^Command "date -unknown" exited with error "date: \w+ option), e.message
   end
 
   def test_call_with_input
     assert_equal 'anything', Armagh::Support::Shell.call_with_input('cat', 'anything')
   end
 
-  def test_call_with_input_missing_stdin
+  def test_call_with_input_missing_standard_input
     e = assert_raise Armagh::Support::Shell::ShellError do
       Armagh::Support::Shell.call_with_input('cat')
     end
     assert_equal 'Unable to execute "cat": Missing standard input', e.message
+  end
+
+  def test_call_timeout
+    start = Time.now
+    e = assert_raise Armagh::Support::Shell::TimeoutError do
+      Armagh::Support::Shell.call('sleep 10', timeout: 0.01)
+    end
+    assert_in_delta 0.01, Time.now - start, 0.02
+    assert_equal 'Execution expired "sleep 10"', e.message
+  end
+
+  def test_call_ignore_error
+    assert_nothing_raised do
+      Armagh::Support::Shell.call('date', '-unknown', ignore_error: 'option')
+    end
+  end
+
+  def test_call_ignore_errors
+    assert_nothing_raised do
+      Armagh::Support::Shell.call('date', '-unknwon', ignore_error: ['not used', 'option'])
+    end
+  end
+
+  def test_call_catch_error
+    e = assert_raise Armagh::Support::Shell::ShellError do
+      Armagh::Support::Shell.call('cat', '-unknown', ignore_error: 'cat', catch_error: 'option')
+    end
+    assert_match %r(^Command "cat -unknown" exited with error "cat: \w+ option), e.message
+  end
+
+  def test_call_catch_errors
+    e = assert_raise Armagh::Support::Shell::ShellError do
+      Armagh::Support::Shell.call('cat', '-unknown', ignore_error: ['not used', 'cat'],
+                                                      catch_error: ['not used', 'option'])
+    end
+    assert_match %r(^Command "cat -unknown" exited with error "cat: \w+ option), e.message
+  end
+
+  def test_call_ignore_error_not_string
+    assert_nothing_raised do
+      Armagh::Support::Shell.call('cat', '-unknown', ignore_error: :option)
+    end
   end
 
 end

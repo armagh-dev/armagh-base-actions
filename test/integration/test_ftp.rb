@@ -22,22 +22,7 @@ require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
 
-require_relative '../../lib/armagh/actions/collect.rb'
-require_relative '../../lib/armagh/actions/consume.rb'
 require_relative '../../lib/armagh/support/ftp.rb'
-
-module Armagh
-  module Actions
-    
-    class FakeCollect < Collect
-      extend Armagh::Support::FTP
-    end
-
-    class FakeConsume < Consume
-      extend Armagh::Support::FTP
-    end
-  end
-end
 
 # integration test of Armagh::Support::FTP with Net::FTP
 
@@ -51,16 +36,14 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
     @test_ftp_password = local_integration_test_config[ 'test_ftp_password' ]
     @test_ftp_directory_path = 'readwrite_dir'
 
-    @config_defaults = Armagh::Actions::FakeCollect.defined_parameter_defaults    
-    @base_config = @config_defaults.merge( { 
-      'ftp_host'     => @test_ftp_host,
-      'ftp_username' => @test_ftp_username, 
-      'ftp_password' => @test_ftp_password,
-      'ftp_directory_path' => @test_ftp_directory_path
-    })
-    @collect_docspec_config = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
-    @consume_docspec_config = Armagh::Documents::DocSpec.new('InputDocument', Armagh::Documents::DocState::READY)
-    @docspec_config = { 'output_type' => @output_docspec }
+    @base_config = { 
+      'ftp' => {
+        'host'     => @test_ftp_host,
+        'username' => @test_ftp_username, 
+        'password' => @test_ftp_password,
+        'directory_path' => @test_ftp_directory_path
+      }
+    }
  
   end
   
@@ -82,7 +65,7 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
       end
       
       if errors.empty?
-        config[ 'test_ftp_password' ] = EncodedString.from_encoded( config[ 'test_ftp_password' ])
+        config[ 'test_ftp_password' ] = Configh::DataTypes::EncodedString.from_encoded( config[ 'test_ftp_password' ])
         
       else
         raise errors.join("\n")
@@ -101,36 +84,29 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
 
   def test_successful_test
     
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
-    
     assert_nothing_raised do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+      Armagh::Support::FTP.use_static_config_values( @base_config )
     end
   end
  
   def test_fail_test_bad_domain
     
-    @base_config[ 'ftp_host' ] = "idontexist.kurmudgeon.edd"
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
+    @base_config[ 'ftp'][ 'host' ] = "idontexist.kurmudgeon.edd"
     
-    e = assert_raises( Armagh::Support::FTP::ConnectionError ) do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+    e = assert_raises( Configh::ConfigValidationError ) do
+      Armagh::Support::FTP.use_static_config_values( @base_config )
     end
-    assert_equal "Unable to resolve host idontexist.kurmudgeon.edd", e.message
+    assert_equal "FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd", e.message
   end
   
   def test_fail_test_bad_host
     
-    @base_config[ 'ftp_host' ] = "idontexist.kurmudgeon.edu"
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
+    @base_config[ 'ftp' ][ 'host' ] = "idontexist.kurmudgeon.edu"
     
-    e = assert_raises( Armagh::Support::FTP::ConnectionError ) do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+    e = assert_raises( Configh::ConfigValidationError ) do
+      Armagh::Support::FTP.use_static_config_values( @base_config )
     end
-    assert_equal "Unable to resolve host idontexist.kurmudgeon.edu", e.message
+    assert_equal "FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu", e.message
   end
 
 #  def test_fail_test_unwilling_host
@@ -148,75 +124,63 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
 
   def test_fail_test_nonexistent_user
     
-    @base_config[ 'ftp_username' ] = "idontexisteither"
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
+    @base_config[ 'ftp'][ 'username' ] = "idontexisteither"
     
-    e = assert_raises( Armagh::Support::FTP::PermissionsError ) do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+    e = assert_raises( Configh::ConfigValidationError ) do
+      Armagh::Support::FTP.use_static_config_values( @base_config )
     end
-    assert_equal "Permissions failure when logging in as idontexisteither.", e.message
+    assert_equal "FTP Connection Test error: Permissions failure when logging in as idontexisteither.", e.message
   end
 
   def test_fail_test_wrong_password
     
-    @base_config[ 'ftp_password' ] = EncodedString.from_plain_text "NotMyPassword"
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
+    @base_config[ 'ftp' ][ 'password' ] = Configh::DataTypes::EncodedString.from_plain_text "NotMyPassword"
     
-    e = assert_raises( Armagh::Support::FTP::PermissionsError ) do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+    e = assert_raises( Configh::ConfigValidationError ) do
+      Armagh::Support::FTP.use_static_config_values( @base_config )
     end
-    assert_equal "Permissions failure when logging in as ftptest.", e.message
+    assert_equal "FTP Connection Test error: Permissions failure when logging in as ftptest.", e.message
   end
 
   def test_fail_test_blank_password
     
-    @base_config[ 'ftp_password' ] = EncodedString.from_plain_text "NotMyPassword"
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
+    @base_config[ 'ftp' ][ 'password' ] = Configh::DataTypes::EncodedString.from_plain_text "NotMyPassword"
     
-    e = assert_raises( Armagh::Support::FTP::PermissionsError ) do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+    e = assert_raises( Configh::ConfigValidationError ) do
+      Armagh::Support::FTP.use_static_config_values( @base_config )
     end
-    assert_true [ "Permissions failure when logging in as ftptest.",
-                  "FTP Reply error from server; probably not allowed to have a blank password." 
+    
+    assert_true [ "FTP Connection Test error: Permissions failure when logging in as ftptest.",
+                  "FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." 
                 ].include? e.message
   end
   
   def test_fail_test_noexistent_directory
     
-    @base_config[ 'ftp_directory_path' ] = "no_such_dir"
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
+    @base_config[ 'ftp' ][ 'directory_path' ] = "no_such_dir"
 
-    e = assert_raises( Armagh::Support::FTP::PermissionsError ) do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+    e = assert_raises( Configh::ConfigValidationError ) do
+      Armagh::Support::FTP.use_static_config_values( @base_config )
     end
-    assert_equal "User does not have access to directory no_such_dir.", e.message
+    assert_equal "FTP Connection Test error: User does not have access to directory no_such_dir.", e.message
   end    
     
   def test_fail_test_readonly_directory
     
-    @base_config[ 'ftp_directory_path' ] = "read_only_dir"
-    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-    action_params = @fake_collect_action.parameters
+    @base_config[ 'ftp' ][ 'directory_path' ] = "read_only_dir"
     
-    e = assert_raises( Armagh::Support::FTP::PermissionsError ) do
-      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
+    e = assert_raises( Configh::ConfigValidationError ) do
+      Armagh::Support::FTP.use_static_config_values( @base_config )
     end
-    assert_equal "Unable to write / delete a test file.  Verify path and permissions on the server.", e.message
+    assert_equal "FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server.", e.message
   end    
  
   def test_put_then_get_files
     
-    @base_config[ 'ftp_maximum_number_to_transfer' ] = 5
-    @base_config[ 'ftp_filename_pattern' ] = '*.txt' 
-    @fake_collect_action = Armagh::Actions::FakeCollect.new( 'fake_collect', @caller, @logger, @base_config, @collect_docspec_config )
-    @base_config[ 'ftp_delete_on_put' ] = true
-    @fake_consume_action = Armagh::Actions::FakeConsume.new( 'fake_consume', @caller, @logger, @base_config, @consume_docspec_config )
-    collect_action_params = @fake_collect_action.parameters
-    consume_action_params = @fake_consume_action.parameters
+    @base_config[ 'ftp' ][ 'maximum_transfer' ] = 5
+    @base_config[ 'ftp' ][ 'filename_pattern' ] = '*.txt' 
+    @base_config[ 'ftp' ][ 'delete_on_put' ] = true
+    config = Armagh::Support::FTP.use_static_config_values( @base_config )
     
     FakeFS do
       
@@ -225,7 +189,7 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
       
       put_files = []
       assert_nothing_raised do
-        Armagh::Support::FTP::Connection.open( consume_action_params ) do |ftp_connection|
+        Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
           
           ftp_connection.put_files do |filename,error_string|
             assert_nil error_string
@@ -239,7 +203,7 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
       end
     
       assert_nothing_raised do
-        Armagh::Support::FTP::Connection.open( collect_action_params ) do |ftp_connection|
+        Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
           
           ftp_connection.get_files do |local_filename,error_string|
             assert_nil error_string

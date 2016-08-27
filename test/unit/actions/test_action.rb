@@ -22,72 +22,62 @@ require 'test/unit'
 require 'mocha/test_unit'
 
 require_relative '../../../lib/armagh/actions'
+require_relative '../../../lib/armagh/documents/doc_spec'
 
 class TestAction < Test::Unit::TestCase
 
   def setup
     @logger = mock
     @caller = mock
-    Armagh::Actions::Action.class_eval('@defined_default_input_type = nil')
-    Armagh::Actions::Action.defined_output_docspecs.clear
+    if Object.constants.include?( :SubCollect )
+       Object.send( :remove_const, :SubCollect )
+    end
+    Object.const_set "SubCollect", Class.new( Armagh::Actions::Collect )
+    SubCollect.include Configh::Configurable
   end
 
   def test_default_input_type
     type = 'test_type1'
-    Armagh::Actions::Action.define_default_input_type type
-    assert_equal(type, Armagh::Actions::Action.defined_default_input_type)
-  end
-
-  def test_define_input_type_bad_name
-    type = 123
-    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_default_input_type(type)}
-    assert_equal "Default type #{type} must be a String.", e.message
-    assert_equal(nil, Armagh::Actions::Action.defined_default_input_type)
+    config = nil
+    assert_nothing_raised { 
+      SubCollect.define_default_input_type type
+      config = SubCollect.use_static_config_values( { 'action' => { 'name' => 'fred_the_action'}}) 
+      SubCollect.new( @caller, 'logger_name', config )
+    }
+    assert_equal type, config.input.doctype
   end
 
   def test_define_output_docspec
-    Armagh::Actions::Action.define_output_docspec('test_type1')
-    Armagh::Actions::Action.define_output_docspec('test_type2', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
-    expected = {
-        'test_type1' => {'default_state' => nil, 'default_type' => nil},
-        'test_type2' => {'default_state' => 'ready', 'default_type' => 'type'},
+
+    config = nil
+    assert_nothing_raised { 
+      SubCollect.define_output_docspec('test_type1', 'do the hokey pokey')
+      SubCollect.define_output_docspec('test_type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
+      config = SubCollect.use_static_config_values( { 
+        'action' => { 'name' => 'fred_the_action'}, 
+        'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
+      }) 
+      SubCollect.new( @caller, 'logger_name', config )
     }
-    assert_equal(expected, Armagh::Actions::Action.defined_output_docspecs)
+    docspec = config.output.test_type2
+    assert docspec.is_a?( Armagh::Documents::DocSpec )
   end
 
   def test_define_output_docspec_bad_name
-    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_output_docspec(nil)}
-    assert_equal 'Output DocSpec name must be a String.', e.message
-    assert_empty Armagh::Actions::Action.defined_output_docspecs
+    e = assert_raise(Configh::ParameterDefinitionError) {SubCollect.define_output_docspec(nil,nil)}
+    assert_equal 'name: value cannot be nil', e.message
+    assert_empty SubCollect.defined_parameters.find_all{ |p| p.type == 'docspec' }
   end
 
   def test_define_output_docspec_bad_default_state
-    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_output_docspec('name', default_state: 'invalid')}
-    assert_equal "Output DocSpec name's default_state is invalid.", e.message
-    assert_empty Armagh::Actions::Action.defined_output_docspecs
+    e = assert_raise(Configh::ParameterDefinitionError) {SubCollect.define_output_docspec('generated_doctype', 'description', default_state: 'invalid')}
+    assert_equal "generated_doctype output document spec: Unknown state invalid.  Valid states are WORKING, READY, PUBLISHED, Type must be a non-empty string.", e.message
   end
 
-  def test_define_output_docspec_bad_default_type
-    e = assert_raise(Armagh::Documents::Errors::DocSpecError) {Armagh::Actions::Action.define_output_docspec('name', default_type: 123)}
-    assert_equal "Output DocSpec name's default_type must be a String.", e.message
-    assert_empty Armagh::Actions::Action.defined_output_docspecs
-  end
-
-  def test_valid
-    action = Armagh::Actions::Action.new('name', @caller, 'logger_name', {}, {})
-    action.class.stubs(:ancestors).returns([Armagh::Actions::Consume])
-    valid = action.validate
-    assert_true valid['valid']
-    assert_empty valid['errors']
-    assert_empty valid['warnings']
-  end
-
-  def test_valid_bad_type
-    action = Armagh::Actions::Action.new('name', @caller, 'logger_name', {}, {})
-    valid = action.validate
-    assert_false valid['valid']
-    assert_equal(['Unknown Action Type Actions::Action.  Expected to be a descendant of ["Armagh::Actions::Split", "Armagh::Actions::Consume", "Armagh::Actions::Publish", "Armagh::Actions::Collect"].'],
-                 valid['errors'])
-    assert_empty valid['warnings']
+  def test_valid_bad_type    
+    Object.const_set "BadClass", Class.new( Armagh::Actions::Action )
+    e = assert_raises( Armagh::Actions::ActionError) { BadClass.new( @caller, 'logger_name', Object.new )}
+    assert_equal "Unknown Action Type Actions::Action.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect.", e.message
+    
   end
 end

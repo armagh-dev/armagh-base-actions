@@ -16,12 +16,16 @@
 #
 
 require_relative 'action'
+require 'configh'
 
 module Armagh
   module Actions
     class Consume < Action
       # Triggered by a Doctype in a Published state.  The incoming document is unchanged.
       # Can create/edit additional documents of any type or state
+      
+      include Configh::Configurable
+      define_group_validation_callback callback_class: Consume, callback_method: :report_validation_errors
 
       # Doc is an PublishedDocument
       def consume(doc)
@@ -30,22 +34,23 @@ module Armagh
 
       # raises InvalidDoctypeError
       def edit(id, docspec_name)
-        docspec = @output_docspecs[docspec_name]
-        raise Documents::Errors::DocSpecError.new "Editing an unknown docspec #{docspec_name}.  Available docspecs are #{@output_docspecs.keys}" if docspec.nil?
+        docspec_param = @config.find_all{ |p| p.group == 'output' && p.name == docspec_name }.first
+        docspec = docspec_param&.value
+        raise Documents::Errors::DocSpecError.new "Editing an unknown docspec #{docspec_name}. " if docspec.nil?
         @caller.edit_document(id, docspec) do |external_doc|
           yield external_doc
         end
       end
 
-      def validate
-        super
+      def Consume.report_validation_errors( candidate_config )
 
+        errors = []
         valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
-        @output_docspecs.each do |name, docspec|
-          @validation_errors << "Output docspec '#{name}' state must be one of: #{valid_states}." unless valid_states.include?(docspec.state)
+        candidate_config.find_all{ |p| p.group == 'output' }.each do |docspec_param|
+          errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
         end
 
-        {'valid' => @validation_errors.empty?, 'errors' => @validation_errors, 'warnings' => @validation_warnings}
+        errors.empty? ? nil : errors.join(", ")
       end
     end
   end

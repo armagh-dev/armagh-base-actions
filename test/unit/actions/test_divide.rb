@@ -22,14 +22,25 @@ require 'test/unit'
 require 'mocha/test_unit'
 
 require_relative '../../../lib/armagh/actions/divide'
+require_relative '../../../lib/armagh/actions/collect'
 
 class TestDivide < Test::Unit::TestCase
 
   def setup
     @logger = mock
     @caller = mock
-    @output_docspec = Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)
-    @divider = Armagh::Actions::Divide.new('divider_name', @caller, 'logger_name', {}, @output_docspec)
+    if Object.const_defined?( :SubCollect )
+      Object.send( :remove_const, :SubCollect )
+    end
+    Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
+    SubCollect.include Configh::Configurable
+    SubCollect.define_output_docspec( 'output_type', 'action description', default_type: 'type', default_state: Armagh::Documents::DocState::WORKING )
+    config = SubCollect.use_static_config_values ( {
+      'action' => { 'name' => 'mysubcollect' },
+      'input'  => { 'doctype' => 'randomdoc' }
+      })
+    
+    @divider = Armagh::Actions::Divide.new( @caller, 'logger_name', config, config.output.output_type )
   end
 
   def test_unimplemented_divide
@@ -50,7 +61,6 @@ class TestDivide < Test::Unit::TestCase
     assert_true Armagh::Actions::Divide.respond_to? :define_parameter
     assert_true Armagh::Actions::Divide.respond_to? :defined_parameters
 
-    assert_true @divider.respond_to? :validate
     assert_true @divider.respond_to? :log_debug
     assert_true @divider.respond_to? :log_info
     assert_true @divider.respond_to? :notify_dev

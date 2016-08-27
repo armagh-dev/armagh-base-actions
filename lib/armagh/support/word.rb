@@ -24,10 +24,11 @@ require_relative 'pdf'
 module Armagh
   module Support
     module Word
-      module_function
 
       class WordError   < StandardError; end
       class NoTextError < WordError; end
+
+      module_function
 
       WORD_TO_TEXT_SHELL = %w(soffice -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_word_file>)
 
@@ -46,12 +47,12 @@ module Armagh
       private_class_method def process_word(binary, *modes)
         result   = {}
         uuid     = SecureRandom.uuid
-        doc_file = uuid + '.doc'
         work_dir = File.join(Dir.pwd, uuid)
-        pdf_file = File.basename(doc_file, '.*') + '.pdf'
+        doc_file = uuid + '.doc'
+        pdf_file = uuid + '.pdf'
 
         FileUtils.mkdir(work_dir)
-        File.open(doc_file, 'wb') { |f| f << binary }
+        File.write(doc_file, binary)
 
         command     = WORD_TO_TEXT_SHELL.dup
         command[1] += work_dir
@@ -69,22 +70,16 @@ module Armagh
               PDF.to_display_text(pdf_binary)
             end
 
-          sanitize_bullet_points(result[mode])
-
           raise NoTextError, 'Unable to extract text from Word document' if result[mode].empty?
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
+      rescue Shell::MissingProgramError => e
+        raise e
       rescue => e
         raise WordError, e
       ensure
         Dir.glob(work_dir + '*').each { |entry| FileUtils.rm_rf(entry) }
-      end
-
-      private_class_method def sanitize_bullet_points(text)
-        # TODO move this windows bullet special character cleanup to a common place
-        text.gsub!(/\uf0b7|\uf0a7|\uf076|\uf0d8|\uf0fc|\uf0a8|\uf0de|\uf0e0/, "\u2022")
-        text.gsub!(/[\ue800-\uf799]/, ' ')
       end
 
     end

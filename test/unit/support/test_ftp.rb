@@ -22,44 +22,40 @@ require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
 
-require_relative '../../../lib/armagh/actions/collect.rb'
-require_relative '../../../lib/armagh/actions/consume.rb'
 require_relative '../../../lib/armagh/support/ftp.rb'
 
-module Armagh
-  module Actions
-    
-    class FakeCollectMocked < Collect
-      extend Armagh::Support::FTP
-    end
-
-    class FakeConsumeMocked < Consume
-      extend Armagh::Support::FTP
-    end
-  end
-end
-
-
-class TestUnitFTPAction < Test::Unit::TestCase
+class TestUnitFTPSupport < Test::Unit::TestCase
 
   def setup
     
     @logger = mock
     @caller = mock
-    @config_defaults = Armagh::Actions::FakeCollectMocked.defined_parameter_defaults
-    
-    @test_ftp_host = 'testserver'
-    @test_ftp_username = 'myftpuser'
-    @test_ftp_password = EncodedString.from_plain_text( 'MyFtpPassword' )
+        
+    @test_ftp_host           = 'testserver'
+    @test_ftp_username       = 'myftpuser'
+    @test_ftp_password       = Configh::DataTypes::EncodedString.from_plain_text( 'MyFtpPassword' )
     @test_ftp_directory_path = 'readable_test_dir'
-    @base_config = @config_defaults.merge( { 
-      'ftp_host'     => @test_ftp_host,
-      'ftp_username' => @test_ftp_username, 
-      'ftp_password' => @test_ftp_password,
-      'ftp_directory_path' => @test_ftp_directory_path,
-    })
-    @output_docspec = Armagh::Documents::DocSpec.new('OutputDocument', Armagh::Documents::DocState::READY)
-    @docspec_config = { 'output_type' => @output_docspec }
+    @base_config_ftp = 
+    
+    config_defaults_ftp = {
+      'port'              => 21,                                
+      'directory_path'    => './',
+      'passive_mode'      => true,
+      'maximum_transfer'  => 50,
+      'open_timeout'      => 30,
+      'read_timeout'      => 60,
+      'delete_on_put'     => false
+    }
+    
+    @base_valid_config = {
+      
+      'ftp' => config_defaults_ftp.merge({ 
+                'host'           => @test_ftp_host,
+                'username'       => @test_ftp_username, 
+                'password'       => @test_ftp_password,
+                'directory_path' => @test_ftp_directory_path,
+       })
+     }
     
     @mock_ftp = mock('Ftp server')
     @mock_ftp.stubs(:passive=)
@@ -72,19 +68,52 @@ class TestUnitFTPAction < Test::Unit::TestCase
     FakeFS::FileSystem.clear
   end
     
-  def create_action_and_confirm_validate_returns_errors_warnings( missing_params, changed_params, expected_errors, expected_warnings )
-    use_configs = @base_config
-    use_configs.delete_if{ |k,v| missing_params.include? k }
-    use_configs = use_configs.merge( changed_params )
-
-    fake_collect_action = Armagh::Actions::FakeCollectMocked.new( 'action', @caller, @logger, use_configs, @docspec_config )
-    validate_result = fake_collect_action.validate
-    assert_equal expected_errors.empty?, validate_result[ 'valid' ], "valid wrong"
-    assert_equal expected_errors, validate_result[ 'errors' ], "errors wrong"
-    assert_equal expected_warnings, validate_result[ 'warnings' ], "warnings wrong"
+  def merge_config_values( values1, values2 )
+    
+    return values1 if values2.nil?
+    
+    static_values = values1.dup
+    values2.each do |grp,grp_hash|
+      
+      grp_hash.each do |pname, new_val|
+        
+        if new_val
+          static_values[ grp ][ pname ] = new_val
+        else
+          static_values[ grp ].delete pname
+        end
+      end
+    end
+    static_values
+  end
+    
+    
+  def assert_use_static_config_values_returns_config_or_errors( changed_params, expected_errors )
+    
+    static_values = merge_config_values( @base_valid_config, changed_params )
+    
+    check_errors = nil
+    config       = nil
+    begin
+      config = Armagh::Support::FTP.use_static_config_values( static_values )
+    rescue Configh::ConfigValidationError => e
+      check_errors = e.message
+    end
+    
+    if expected_errors 
+      
+      assert_equal( expected_errors, check_errors, "config errors were incorrect" ) if expected_errors
+      
+    else
+      static_values.each do |grp,grp_hash|  
+        grp_hash.each do |pname,val|
+          assert_equal val, config.send(grp.to_sym).send(pname.to_sym)
+        end
+      end
+    end
   end
   
-  def test_validate_good_configuration
+  def config_good( changes =  nil )
 
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
@@ -95,160 +124,146 @@ class TestUnitFTPAction < Test::Unit::TestCase
     @mock_ftp.stubs(:delete)
     @mock_ftp.expects(:close)
 
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    validation = @fake_collect_action.validate
-    assert_true validation[ 'valid' ]
+    Armagh::Support::FTP.use_static_config_values( merge_config_values( @base_valid_config, changes ))
   end
   
-  def test_missing_host
-    create_action_and_confirm_validate_returns_errors_warnings( 
-      [ 'ftp_host'], 
-      {},
-      [ "Required parameter 'ftp_host' is missing." ],
-      []
-    )
+  def test_config_good
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
+    @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
+    @mock_ftp.expects(:chdir).with( @test_ftp_directory_path ).returns(true)
+    @mock_ftp.stubs(:putbinaryfile)
+    @mock_ftp.stubs(:getbinaryfile)
+    @mock_ftp.stubs(:delete)
+    @mock_ftp.expects(:close)
+
+    assert_use_static_config_values_returns_config_or_errors( {}, nil )
+  end
+  
+  def test_config_missing_host
+    assert_use_static_config_values_returns_config_or_errors( { 'ftp' => { 'host' => nil }}, "ftp host: type validation failed: value cannot be nil" )
   end
     
-  def test_missing_username
-    create_action_and_confirm_validate_returns_errors_warnings( 
-      [ 'ftp_username'], 
-      {},
-      [ "Required parameter 'ftp_username' is missing." ],
-      []
-    )
+  def test_config_missing_username
+    assert_use_static_config_values_returns_config_or_errors( { 'ftp' => { 'username' => nil }}, "ftp username: type validation failed: value cannot be nil" )
   end
     
-  def test_missing_password
-    create_action_and_confirm_validate_returns_errors_warnings( 
-      [ 'ftp_password'], 
-      {},
-      [ "Required parameter 'ftp_password' is missing." ],
-      []
-    )
+  def test_config_missing_password
+    assert_use_static_config_values_returns_config_or_errors( { 'ftp' => { 'password' => nil }}, "ftp password: type validation failed: value cannot be nil" )
   end
    
-  def test_failed_custom_validation
+  def test_config_failed_group_validation
     
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
-
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config) 
-    validation_results = @fake_collect_action.validate
-    assert_false validation_results[ 'valid' ]
+    e = assert_raises( Configh::ConfigValidationError ) { Armagh::Support::FTP.use_static_config_values( @base_valid_config )}
+    assert_equal "FTP Connection Test error: Permissions failure when logging in as myftpuser.", e.message
   end   
  
         
   def test_default_connect
     
-    
+    config = config_good
+
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path ).returns(true)
     @mock_ftp.expects(:close)
     
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config) 
-    action_params = @fake_collect_action.parameters
-    
     assert_nothing_raised do
-      Armagh::Support::FTP::Connection.open( action_params ) { |ftp_connection| }
+      Armagh::Support::FTP::Connection.open( config ) { |ftp_connection| }
     end
   end   
   
   def test_open_timeout
     
+    config = config_good
+    
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::OpenTimeout)
     
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    action_params = @fake_collect_action.parameters
-
     e = assert_raise( Armagh::Support::FTP::TimeoutError ) do
-      Armagh::Support::FTP::Connection.open( action_params ) { |ftp_connection| }
+      Armagh::Support::FTP::Connection.open( config ) { |ftp_connection| }
     end
     assert_equal "Opening the connection to #{@test_ftp_host} timed out.", e.message
   end
 
   def test_connection_refused
     
+    config = config_good
+    
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Errno::ECONNREFUSED)
 
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    action_params = @fake_collect_action.parameters
-
     e = assert_raise( Armagh::Support::FTP::ConnectionError ) do
-      Armagh::Support::FTP::Connection.open( action_params ) { |ftp_connection| }
+      Armagh::Support::FTP::Connection.open( config ) { |ftp_connection| }
      end
     assert_equal "The server #{@test_ftp_host} refused the connection.", e.message
   end
   
   def test_auth_error
     
+    config = config_good
+    
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
     
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    action_params = @fake_collect_action.parameters
-
     e = assert_raise( Armagh::Support::FTP::PermissionsError ) do
-      Armagh::Support::FTP::Connection.open( action_params ) { |ftp_connection| }
+      Armagh::Support::FTP::Connection.open( config ) { |ftp_connection| }
     end
     assert_equal "Permissions failure when logging in as #{@test_ftp_username}.", e.message
   end
 
   def test_reply_error_blank_password_servers_sends_ftppermerror
     
-    @base_config[ 'ftp_password' ] = EncodedString.from_plain_text( '' )
+    use_config = merge_config_values( @base_valid_config, { 'ftp' => { 'password' =>  Configh::DataTypes::EncodedString.from_plain_text( '' )}})
+
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, '' ).raises(Net::FTPPermError)
      
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    action_params = @fake_collect_action.parameters
-
-    e = assert_raise( Armagh::Support::FTP::PermissionsError ) do
-      Armagh::Support::FTP::Connection.open( action_params ) { |ftp_connection| }
+    e = assert_raise( Configh::ConfigValidationError ) do
+      config = Armagh::Support::FTP.use_static_config_values( use_config )
     end
-    assert_equal "Permissions failure when logging in as #{@test_ftp_username}.", e.message
+    assert_equal "FTP Connection Test error: Permissions failure when logging in as myftpuser.", e.message
   end
     
   def test_reply_error_blank_password_servers_sends_ftpreplyerror
     
-    @base_config[ 'ftp_password' ] = EncodedString.from_plain_text( '' )
+    use_config = merge_config_values( @base_valid_config, { 'ftp' => { 'password' =>  Configh::DataTypes::EncodedString.from_plain_text( '' )}})
+    
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
-    @mock_ftp.expects(:login).with( @test_ftp_username, '').raises( Net::FTPReplyError)
+    @mock_ftp.expects(:login).with( @test_ftp_username, '').raises( Net::FTPReplyError )
      
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    action_params = @fake_collect_action.parameters
-
-    e = assert_raise( Armagh::Support::FTP::ReplyError ) do
-      Armagh::Support::FTP::Connection.open( action_params ) { |ftp_connection| }
+    e = assert_raise( Configh::ConfigValidationError ) do
+      config = Armagh::Support::FTP.use_static_config_values( use_config )
     end
-    assert_equal "FTP Reply error from server; probably not allowed to have a blank password.", e.message
+    assert [ "FTP Connection Test error: Ambiguous FTP Reply error from server.", "FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." ].include? e.message
   end
  
   def test_reply_error_with_password
+    
+    config = config_good
     
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
     
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    action_params = @fake_collect_action.parameters
-
     e = assert_raise( Armagh::Support::FTP::PermissionsError ) do
-      Armagh::Support::FTP::Connection.open( action_params ) { |ftp_connection| }
+      Armagh::Support::FTP::Connection.open( config ) { |ftp_connection| }
     end
     assert_equal "Permissions failure when logging in as #{@test_ftp_username}.", e.message
   end
   
   def test_chdir
+    
+    config = config_good
     
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
@@ -257,11 +272,8 @@ class TestUnitFTPAction < Test::Unit::TestCase
     @mock_ftp.expects(:chdir).with( 'test' ).returns( true )
     @mock_ftp.expects(:close)
 
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new('action', @caller, @logger, @base_config, @docspec_config)
-    action_params = @fake_collect_action.parameters
-
     assert_nothing_raised do
-      Armagh::Support::FTP::Connection.open( action_params ) do |ftp_connection| 
+      Armagh::Support::FTP::Connection.open( config ) do |ftp_connection| 
         ftp_connection.chdir( 'test' )
       end
     end
@@ -270,6 +282,7 @@ class TestUnitFTPAction < Test::Unit::TestCase
   def test_get_files
     
     test_ftp_filename_pattern = '*.txt'
+    config = config_good( { 'ftp' => { 'maximum_transfer' => 5, 'filename_pattern' => test_ftp_filename_pattern }})
 
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
@@ -279,14 +292,9 @@ class TestUnitFTPAction < Test::Unit::TestCase
     @mock_ftp.expects(:getbinaryfile).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)
     @mock_ftp.expects(:delete).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)
     @mock_ftp.expects(:close)
-
-    @base_config[ 'ftp_maximum_number_to_transfer' ] = 5
-    @base_config[ 'ftp_filename_pattern' ] = test_ftp_filename_pattern 
-    @fake_collect_action = Armagh::Actions::FakeCollectMocked.new( 'action', @caller, @logger, @base_config, @docspec_config )
-    action_params = @fake_collect_action.parameters
     
     assert_nothing_raised do
-      Armagh::Support::FTP::Connection.open( action_params ) do |ftp_connection|
+      Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
         ftp_connection.get_files do |local_filename, error_string|
           assert_nil error_string
         end
@@ -296,17 +304,14 @@ class TestUnitFTPAction < Test::Unit::TestCase
   
   def test_put_files
     
+    config = config_good( { 'ftp' => { 'maximum_transfer' => 5, 'delete_on_put' => true }})
+    
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
     @mock_ftp.expects(:putbinaryfile).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)
     @mock_ftp.expects(:close)
-
-    @base_config[ 'ftp_maximum_number_to_transfer' ] = 5
-    @base_config[ 'ftp_delete_on_put' ] = true
-    @fake_consume_action = Armagh::Actions::FakeConsumeMocked.new( 'action', @caller, @logger, @base_config, @docspec_config )
-    action_params = @fake_consume_action.parameters
     
     FakeFS do
       FileUtils.mkdir_p( '/tmp' )
@@ -314,7 +319,7 @@ class TestUnitFTPAction < Test::Unit::TestCase
       Dir.chdir( '/tmp' )
     
       put_files = []
-      Armagh::Support::FTP::Connection.open( action_params ) do |ftp_connection|
+      Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
         ftp_connection.put_files do |local_filename, error_string|
           assert_nil error_string
           put_files << local_filename

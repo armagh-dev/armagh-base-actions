@@ -22,41 +22,37 @@ module Armagh
     module Shell
       module_function
 
-      DEFAULT_TIMEOUT = 60
-
       class ShellError          < StandardError; end
       class MissingProgramError < ShellError; end
       class TimeoutError        < ShellError; end
 
-      def call(*args, timeout: DEFAULT_TIMEOUT, ignore_error: nil)
-        call_shell(*args, timeout: timeout, ignore_error: ignore_error)
+      DEFAULT_TIMEOUT = 60
+
+      def call(*args, timeout: nil, ignore_error: nil, catch_error: nil)
+        call_shell(*args, input: nil, timeout: timeout, ignore_error: ignore_error, catch_error: catch_error)
       end
 
-      def call_with_input(*args, input, timeout: DEFAULT_TIMEOUT, ignore_error: nil)
-        call_shell(*args, input: input, timeout: timeout, ignore_error: ignore_error)
+      def call_with_input(*args, input, timeout: nil, ignore_error: nil, catch_error: nil)
+        call_shell(*args, input: input, timeout: timeout, ignore_error: ignore_error, catch_error: catch_error)
       end
 
-      private_class_method def call_shell(*args, input: nil, timeout: DEFAULT_TIMEOUT, ignore_error: nil)
+      private_class_method def call_shell(*args, input:, timeout:, ignore_error:, catch_error:)
         if args.empty?
           command = input
-          raise ShellError, 'Missing standard input'
+          raise %Q(Unable to execute "#{command}": Missing standard input)
         end
 
-        command = parse_args(args)
+        command   = parse_args(args)
 
-        pid = nil
-        stdout = stderr = status = ''
-        in_read, in_write   = IO.pipe
+        timeout ||= DEFAULT_TIMEOUT
+        pid       = nil
+        stdout    = stderr = status = ''
+
+        in_read,  in_write  = IO.pipe; in_write.sync = true
         out_read, out_write = IO.pipe
         err_read, err_write = IO.pipe
-        in_write.sync = true
 
-        opts = {
-          in: in_read,
-          out: out_write,
-          err: err_write,
-          pgroup: true
-        }
+        opts = {in: in_read, out: out_write, err: err_write, pgroup: true}
 
         Timeout.timeout(timeout) do
           pid = spawn(command, opts)
@@ -69,22 +65,27 @@ module Armagh
           stdout = Thread.new { out_read.read }
           stderr = Thread.new { err_read.read }
 
-          in_write.write input if input
+          in_write.write(input) if input
           in_write.close
 
           status = wait.value
         end
 
-        if stderr && !stderr.value.empty?
-          handle_error(stderr.value, command, ignore_error)
-        elsif !status.success?
-          handle_error("Process was not successful: #{status.inspect}", command, ignore_error)
+        unless status.success? && stderr&.value&.empty?
+          error = stderr&.value&.empty? ? 'Process was not successful' : stderr.value
+          handle_error(error, command, ignore_error, catch_error)
+        end
+      rescue Errno::ENOENT => e
+        if e.message.include?('No such file or directory - ' + args.first)
+          raise MissingProgramError, 'Please install required program ' + args.first.inspect
+        else
+          handle_error(e, command, ignore_error, catch_error)
         end
       rescue Timeout::Error => e
         Process.kill('TERM', -pid)
-        handle_error(e, command, ignore_error)
+        handle_error(e, command, ignore_error, catch_error)
       rescue => e
-        handle_error(e, command, ignore_error)
+        handle_error(e, command, ignore_error, catch_error)
       else
         stdout.value.strip
       ensure
@@ -98,13 +99,24 @@ module Armagh
         args.join(' ')
       end
 
-      private_class_method def handle_error(error, command, ignore_error = nil)
-        if error.is_a? Exception
-          raise TimeoutError, %Q(Execution expired "#{command}") if error.class == Timeout::Error
-          raise ShellError, %Q(Unable to execute "#{command}": #{error.message})
+      private_class_method def handle_error(error, command, ignore_error = nil, catch_error = nil)
+        if error.is_a?(Exception)
+          if error.class == Timeout::Error
+            raise TimeoutError, %Q(Execution expired "#{command}")
+          else
+            raise ShellError, error
+          end
         else
-          return if ignore_error && error.include?(ignore_error)
-          raise ShellError, %Q(Shell command "#{command}" exited with error: #{error})
+          error_caught = false
+          Array(catch_error).each do |e|
+            if error.to_s.include?(e.to_s)
+              error_caught = true
+              break
+            end
+          end
+          Array(ignore_error).each { |e| return if error.to_s.include?(e.to_s) } unless error_caught
+
+          raise ShellError, %Q(Command "#{command}" exited with error "#{error.strip}")
         end
       end
 

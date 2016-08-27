@@ -20,78 +20,40 @@ require 'fileutils'
 require 'pathname'
 require 'tempfile'
 
-require_relative '../actions/validations.rb'
-require_relative '../actions/parameter_definitions.rb'
+require 'configh'
 
 module Armagh
   module Support
     module SFTP
-      extend Armagh::Actions::ParameterDefinitions
+      include Configh::Configurable
 
-      class SFTPError < StandardError;
-      end
-      class ConnectionError < SFTPError;
-      end
-      class PermissionError < SFTPError;
-      end
-      class FileError < SFTPError;
-      end
-      class TimeoutError < SFTPError;
-      end
+      class SFTPError < StandardError;   end
+      class ConnectionError < SFTPError; end
+      class PermissionError < SFTPError; end
+      class FileError < SFTPError;       end
+      class TimeoutError < SFTPError;    end
 
-      define_parameter name: 'sftp_host',
-                       description: 'SFTP host or IP',
-                       type: String,
-                       required: true,
-                       prompt: 'host.example.com or 10.0.0.1'
+      define_parameter name: 'host',             description: 'SFTP host or IP',             type: 'populated_string',  required: true,  prompt: 'host.example.com or 10.0.0.1'
+      define_parameter name: 'port',             description: 'SFTP port',                   type: 'positive_integer',  required: true,  default: 22
+      define_parameter name: 'directory_path',   description: 'SFTP base directory path',    type: 'populated_string',  required: true,  default: './'
+      define_parameter name: 'filename_pattern', description: 'Glob file pattern',           type: 'string',            required: false, prompt: '*.pdf'
+      define_parameter name: 'username',         description: 'SFTP user name',              type: 'populated_string',  required: true,  prompt: 'user'
+      define_parameter name: 'password',         description: 'SFTP user password',          type: 'encoded_string',    required: false, prompt: 'password'
+      define_parameter name: 'key',              description: 'SSH Key for SFTP connection', type: 'string',            required: false, prompt: 'password'
+      define_parameter name: 'maximum_transfer', description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
 
-      define_parameter name: 'sftp_port',
-                       description: 'SFTP port',
-                       type: Integer,
-                       required: true,
-                       default: 22
-
-      define_parameter name: 'sftp_directory_path',
-                       description: 'SFTP base directory path',
-                       type: String,
-                       required: true,
-                       default: './'
-
-      define_parameter name: 'sftp_filename_pattern',
-                       description: 'Glob file pattern',
-                       type: String,
-                       required: false,
-                       prompt: '*.pdf'
-
-      define_parameter name: 'sftp_username',
-                       description: 'SFTP user name',
-                       type: String,
-                       required: true,
-                       prompt: 'user'
-
-      define_parameter name: 'sftp_password',
-                       description: 'SFTP user password',
-                       type: EncodedString,
-                       required: false,
-                       prompt: 'password'
-
-
-      define_parameter name: 'sftp_key',
-                       description: 'SSH Key for SFTP connection',
-                       type: String,
-                       required: false,
-                       prompt: 'password'
-
-      define_parameter name: 'sftp_maximum_number_to_transfer',
-                       description: 'Max documents matching filter to collect or put in one run',
-                       type: Integer,
-                       default: 50,
-                       required: true
-
-      def custom_validation
-        Connection.open(@parameters) do |sftp|
-          return sftp.test_connection
+      define_group_validation_callback callback_class: self, callback_method: :validate
+      
+      def SFTP.validate( candidate_config )
+        error = nil
+        begin
+          Connection.open( candidate_config ) do |sftp|
+            error = sftp.test_connection
+          end
+        rescue => e
+          error = e.message
         end
+        error
       end
 
       class Connection
@@ -99,20 +61,22 @@ module Armagh
 
         private_class_method :new
 
-        def self.open(params)
-          ftp_connection = new(params)
+        def self.open(config)
+          ftp_connection = new(config)
           yield ftp_connection
         ensure
           ftp_connection.close if ftp_connection
         end
 
-        def initialize(p)
-          @host = p['sftp_host']
-          @directory_path = p['sftp_directory_path']
-          @filename_pattern = p['sftp_filename_pattern'] || '*'
-          username = p['sftp_username']
-          @maximum_number_to_transfer = p['sftp_maximum_number_to_transfer']
-          options = connection_options_from_params p
+        def initialize(config)
+          sc = config.sftp
+          
+          @host = sc.host
+          @directory_path = sc.directory_path
+          @filename_pattern = sc.filename_pattern || '*'
+          username = sc.username
+          @maximum_number_to_transfer = sc.maximum_transfer
+          options = connection_options_from_params config
 
           @sftp = Net::SFTP.start(@host, username, options)
         rescue => e
@@ -182,6 +146,8 @@ module Armagh
         end
 
         def test_connection
+          
+          error = nil
           test_filename = 'sftp_test'
           test_file = Tempfile.new test_filename
           test_file.write 'This is test content'
@@ -193,10 +159,12 @@ module Armagh
           @sftp.remove!(remote_file)
           nil
         rescue => e
-          e = convert_errors(e)
-          return "SFTP Connection Test error: #{e.message}"
+          error = convert_errors(e)
+          error = error&.message
+          
         ensure
           test_file.unlink if test_file
+          return error
         end
 
         def mkdir_p(dir)
@@ -296,7 +264,7 @@ module Armagh
             when 31
               FileError.new("#{prefix}The requested operation could not be completed because the specified byte range lock has not been granted. (#{e.description})")
             else
-              SFTPError.new("#{prefix}Unexpected error occurred (#{e.description}): #{e.text}")
+              SFTPError.new("#{prefix}Unexpected error occurred (#{e.description}): #{e.text.class}")
           end
         end
 
@@ -337,14 +305,15 @@ module Armagh
           end
         end
 
-        private def connection_options_from_params(p)
+        private def connection_options_from_params( config )
+          sc = config.sftp
           connection_options = {}
 
-          connection_options[:port] = p['sftp_port'] if p['sftp_port']
-          connection_options[:password] = p['sftp_password'].plain_text if p['sftp_password']
+          connection_options[:port] = sc.port if sc.port
+          connection_options[:password] = sc.password.plain_text if sc.password
 
-          if p['sftp_key']
-            File.write(KEY_FILE_NAME, p['sftp_key'])
+          if sc.key
+            File.write(KEY_FILE_NAME, sc.key)
             connection_options[:keys] = [KEY_FILE_NAME]
           end
 

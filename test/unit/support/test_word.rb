@@ -28,7 +28,7 @@ class TestWord < Test::Unit::TestCase
 
   def setup
     @binary = StringIO.new('fake Word document')
-    FakeFS { File.open('random.pdf', 'wb') { |f| f << 'fake PDF document' } }
+    FakeFS { File.write('random.pdf', 'fake PDF document') }
     Armagh::Support::Shell.stubs(:call).at_most(3).returns(nil, 'success')
     SecureRandom.stubs(:uuid).at_most(3).returns('random')
   end
@@ -39,13 +39,6 @@ class TestWord < Test::Unit::TestCase
 
   def test_to_display_text
     assert_equal 'success', FakeFS { Armagh::Support::Word.to_display_text(@binary) }
-  end
-
-  def test_to_display_text_windows_bullets
-    bullets = "\uf0b7\uf0a7\uf076\uf0d8\uf0fc\uf0a8\uf0de\uf0e0"
-    Armagh::Support::Shell.unstub(:call)
-    Armagh::Support::Shell.stubs(:call).twice.returns(nil, bullets)
-    assert_equal "\u2022" * bullets.size, FakeFS { Armagh::Support::Word.to_search_text(@binary) }
   end
 
   def test_to_search_and_display_text

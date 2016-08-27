@@ -17,114 +17,54 @@
 
 require 'net/ftp'
 require 'tempfile'
-require_relative "../actions/validations.rb"
-require_relative "../actions/parameter_definitions.rb"
+require 'configh'
 
 module Armagh
   module Support
     module FTP
+      include Configh::Configurable
     
       class ConnectionError     < StandardError; end
       class PermissionsError    < StandardError; end
       class ReplyError          < StandardError; end
       class TimeoutError        < StandardError; end
       class UnhandledError      < StandardError; end
+        
+      define_parameter name: "host",             description: "FTP host or IP",                          type: 'populated_string', required: true,  prompt: "host.example.com or 10.0.0.1"                
+      define_parameter name: "port",             description: "FTP port",                                type: 'positive_integer', required: true,  default: 21                                
+      define_parameter name: "directory_path",   description: "FTP base directory path",                 type: 'populated_string', required: true,  default: './'
+      define_parameter name: "filename_pattern", description: "Linux file pattern",                      type: 'string',           required: false, prompt:  "*.pdf"
+      define_parameter name: "username",         description: "FTP user name",                           type: 'populated_string', required: true,  prompt:  "user"
+      define_parameter name: "password",         description: "FTP user password",                       type: 'encoded_string',   required: true,  prompt:  'password'
+      define_parameter name: "passive_mode",     description: "FTP passive mode",                        type: 'boolean',          required: true,  default: true
+      define_parameter name: "maximum_transfer", description: 'Maximum num to collect',                  type: 'positive_integer', required: true,  default: 50
+      define_parameter name: "open_timeout",     description: "Timeout (secs) opening a new connection", type: 'positive_integer', required: true,  default: 30
+      define_parameter name: "read_timeout",     description: "Timeout (secs) reading on a connection",  type: 'positive_integer', required: true,  default: 60
+      define_parameter name: "delete_on_put",    description: "Delete each file put to the remote",      type: 'boolean',          required: true,  default: false
+ 
+      define_group_validation_callback callback_class: Armagh::Support::FTP, callback_method: :test_connection
       
-      def self.extended( base )
-        
-        base.define_parameter name:        "ftp_host", 
-                              description: "FTP host or IP", 
-                              type:        String, 
-                              required:    true, 
-                              prompt:      "host.example.com or 10.0.0.1"
-                              
-        base.define_parameter name:        "ftp_port",
-                              description: "FTP port",
-                              type:        Integer,
-                              required:    true,
-                              default:     21
-                                            
-        base.define_parameter name:        "ftp_directory_path",
-                              description: "FTP base directory path",
-                              type:        String,
-                              required:    true,
-                              default:     './'
-    
-        base.define_parameter name:        "ftp_filename_pattern",
-                              description: "Linux file pattern",
-                              type:        String,
-                              required:    false,
-                              prompt:      "*.pdf"
-    
-        base.define_parameter name:        "ftp_username",
-                              description: "FTP user name",
-                              type:        String,
-                              required:    true,
-                              prompt:      "user"
-    
-        base.define_parameter name:        "ftp_password",
-                              description: "FTP user password",
-                              type:        EncodedString,
-                              required:    true,
-                              prompt:      "password"
-    
-        base.define_parameter name:        "ftp_passive_mode",
-                              description: "FTP passive mode (false for active mode)",
-                              type:        Boolean,
-                              default:     true,
-                              required:    true
-    
-        base.define_parameter name:        "ftp_maximum_number_to_transfer",
-                              description: "Max documents matching filter to collect or put in one run",
-                              type:        Integer,
-                              default:     50,
-                              required:    true
-    
-        base.define_parameter name:        "ftp_open_timeout",
-                              description: "Timeout (seconds) when opening a new connection",
-                              type:        Integer,
-                              default:     30,
-                              required:    true
-                     
-        base.define_parameter name:        "ftp_read_timeout",
-                              description: "Timeout (seconds) when reading a block on a connection",
-                              type:        Integer,
-                              default:     60,
-                              required:    true
-                            
-        base.define_parameter name:        "ftp_delete_on_put",
-                              description: "Deletes each file put to the remote server",
-                              type:        Boolean,
-                              default:     false,
-                              required:    true
-                              
-        base.include InstanceMethods
-      end
+      configured_by Configh::MongoBasedConfiguration
       
-      module InstanceMethods
-        def custom_validation
+      def FTP.test_connection( config )
         
-          superclass_custom_validations = super  # needing this could cause problems later.
-        
-          begin
-            Connection.test( @parameters )
-          rescue => e
-            test_error_string = "FTP Connection Test error: #{ e.message }"
-            return [ superclass_custom_validations, test_error_string ].compact.join(", ")
-          end
-        
-          superclass_custom_validations
-        
+        error_string = nil
+        begin
+          Connection.test( config )
+        rescue => e
+          error_string = "FTP Connection Test error: #{ e.message }"
         end
+        
+        error_string
       end
         
       class Connection 
     
-        def self.open( params )
+        def self.open( config )
        
           begin
-            ftp_connection = new( params )
-            ftp_connection.chdir params['ftp_directory_path' ]
+            ftp_connection = new( config )
+            ftp_connection.chdir config.ftp.directory_path
             yield ftp_connection
     
           ensure
@@ -132,9 +72,9 @@ module Armagh
           end
         end
         
-        def self.test( params )
+        def self.test( config )
     
-          open( params ) do |ftp_connection|
+          open( config ) do |ftp_connection|
     
             ftp_connection.write_and_delete_test_file
       
@@ -142,35 +82,31 @@ module Armagh
         end
     
     
-        def initialize( p )
-      
-          password = p['ftp_password'].plain_text
-      
-          @priv_ftp = Net::FTP.new
-          @priv_ftp.passive = p['ftp_passive_mode'] 
-          @priv_ftp.open_timeout = p['ftp_open_timeout']
-          @priv_ftp.read_timeout = p['ftp_read_timeout']
-          @priv_ftp.connect( p['ftp_host'], p['ftp_port'])
-          @priv_ftp.login( p['ftp_username'], password )
-      
-          @filename_pattern = p['ftp_filename_pattern']
-          @maximum_number_to_transfer = p['ftp_maximum_number_to_transfer']
-          @delete_on_put = p['ftp_delete_on_put']
+        def initialize( config )
 
+          @config = config
+          
+          @priv_ftp = Net::FTP.new
+          @priv_ftp.passive      = @config.ftp.passive_mode
+          @priv_ftp.open_timeout = @config.ftp.open_timeout
+          @priv_ftp.read_timeout = @config.ftp.read_timeout
+          @priv_ftp.connect( @config.ftp.host, @config.ftp.port )
+          @priv_ftp.login( @config.ftp.username, @config.ftp.password.plain_text )
+      
           rescue SocketError => e
-            raise ConnectionError, "Unable to resolve host #{p['ftp_host']}"
+            raise ConnectionError, "Unable to resolve host #{ @config.ftp.host }"
         
           rescue Net::OpenTimeout => e
-            raise TimeoutError, "Opening the connection to #{ p['ftp_host'] } timed out."
+            raise TimeoutError, "Opening the connection to #{ @config.ftp.host } timed out."
   
           rescue Errno::ECONNREFUSED => e
-            raise ConnectionError, "The server #{p['ftp_host']} refused the connection."
+            raise ConnectionError, "The server #{ @config.ftp.host } refused the connection."
                  
           rescue Net::FTPPermError => e
-            raise PermissionsError, "Permissions failure when logging in as #{ p['ftp_username'] }."
+            raise PermissionsError, "Permissions failure when logging in as #{ @config.ftp.username }."
   
           rescue Net::FTPReplyError => e
-            if password == ""
+            if @config.ftp.password == ""
               raise ReplyError, "FTP Reply error from server; probably not allowed to have a blank password."
             else
               raise ReplyError, "Ambiguous FTP Reply error from server."
@@ -199,8 +135,8 @@ module Armagh
   
         def get_files
     
-          remote_files = @priv_ftp.nlst( @filename_pattern )
-          files_to_transfer = remote_files.first( @maximum_number_to_transfer )
+          remote_files = @priv_ftp.nlst( @config.ftp.filename_pattern )
+          files_to_transfer = remote_files.first( @config.ftp.maximum_transfer )
           failed_files = 0
       
           files_to_transfer.each do |remote_filename|
@@ -233,8 +169,8 @@ module Armagh
 
         def put_files
     
-          local_files = Dir.glob( @filename_pattern || "*" )
-          files_to_transfer = local_files.first( @maximum_number_to_transfer )
+          local_files = Dir.glob( @config.ftp.filename_pattern || "*" )
+          files_to_transfer = local_files.first( @config.ftp.maximum_transfer )
           failed_files = 0
   
           files_to_transfer.each do |local_filename|
@@ -245,7 +181,7 @@ module Armagh
               attempts_this_file += 1
               @priv_ftp.putbinaryfile local_filename
               yield File.basename(local_filename), nil
-              File.delete( local_filename ) if ( @delete_on_put and File.exists?( local_filename ))
+              File.delete( local_filename ) if ( @config.ftp.delete_on_put and File.exists?( local_filename ))
               failed_files = 0
   
             rescue => e
