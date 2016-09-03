@@ -27,6 +27,12 @@ module Armagh
       include Configh::Configurable
       define_group_validation_callback callback_class: Consume, callback_method: :report_validation_errors
 
+      def self.define_default_input_type(default_type, description = 'Type of document this document acts on')
+        
+        define_parameter name: "docspec", type: 'docspec', required: true, description: description, 
+                         default: Documents::DocSpec.new( default_type, Documents::DocState::PUBLISHED ), group: 'input'
+      end
+
       # Doc is an PublishedDocument
       def consume(doc)
         raise Errors::ActionMethodNotImplemented, 'Consume actions must overwrite the consume method.'

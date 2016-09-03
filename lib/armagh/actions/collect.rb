@@ -23,11 +23,22 @@ require_relative 'action'
 
 module Armagh
   module Actions
+    
+    class ConfigurationError < StandardError; end
+    
     class Collect < Action
       include Configh::Configurable
       
+      def self.inherited( base )
+        base.define_default_input_type "__COLLECT__#{ base.name }"
+        
+        base.define_singleton_method( :define_default_input_type ){ |*args|
+          raise ConfigurationError, "You cannot define default input types for collectors"
+        }
+      end
+      
       define_group_validation_callback callback_class: Collect, callback_method: :report_validation_errors
-
+        
       # Doc is an ActionDocument
       def collect
         raise Errors::ActionMethodNotImplemented.new 'Collect actions must overwrite the collect method.'

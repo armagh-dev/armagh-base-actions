@@ -33,10 +33,10 @@ class TestSplit < Test::Unit::TestCase
     end
     Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
     SubSplit.include Configh::Configurable
+    SubSplit.define_default_input_type 'fred'
     SubSplit.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
     @config = SubSplit.use_static_config_values ( {
-      'action' => { 'name' => 'mysubcollect' },
-      'input'  => { 'doctype' => 'randomdoc' }
+      'action' => { 'name' => 'mysubcollect' }
       })
     @split_action = Armagh::Actions::Split.new( @caller, 'logger_name', @config)
   end
@@ -66,11 +66,11 @@ class TestSplit < Test::Unit::TestCase
     end
     Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
     SubSplit.include Configh::Configurable
+    SubSplit.define_default_input_type 'fred'
     SubSplit.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
     e = assert_raises( Configh::ConfigValidationError ) {
       config = SubSplit.use_static_config_values ({
-        'action' => { 'name' => 'mysubcollect' },
-        'input'  => { 'doctype' => 'randomdoc' }
+        'action' => { 'name' => 'mysubcollect' }
       })
     }
     assert_equal('Output docspec \'output_type\' state must be one of: ready, working.', e.message )

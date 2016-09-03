@@ -30,13 +30,26 @@ module Armagh
     # TODO base actions lib/armagh/actions/action.rb - Add a deduplication configuration for time to live per action instance
 
     class Action
-      attr_reader :name
+      attr_reader :name, :config
 
       include Loggable
       include Encodable
       include Configh::Configurable
       
-      define_parameter name: 'name', type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: 'ComtexCollectAction', group: 'action'
+      define_parameter name: 'name',    type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: 'ComtexCollectAction', group: 'action'
+      define_parameter name: 'active',  type: 'boolean',          required: true, description: 'Agents will run this configuration if active', default: false
+      define_group_validation_callback callback_class: Action, callback_method: :report_validation_errors
+      
+      def self.inherited( base )
+        base.define_parameter name: 'docspec', type: 'docspec', required: true, description: 'Input doctype for this action', group: 'input'
+      
+        base.define_singleton_method( :define_default_input_type ){ |args| 
+          default_type, description = args
+          description ||= 'The type of document this action accepts'
+          define_parameter name: "docspec", type: 'docspec', required: true, description: description, 
+                           default: Documents::DocSpec.new( default_type, Documents::DocState::READY ), group: 'input'          
+        }
+      end
       
       def initialize(caller_instance, logger_name, config)
         
@@ -44,10 +57,6 @@ module Armagh
         @config = config
         @caller = caller_instance
         @logger_name = logger_name
-      end
-
-      def self.define_default_input_type(default_type, description = 'Type of document this document acts on')
-        define_parameter name: "doctype", type: 'populated_string', required: true, description: description, default: default_type, group: 'input'
       end
 
       def self.define_output_docspec(name, description, default_type: nil, default_state: nil)
@@ -64,14 +73,24 @@ module Armagh
       end
       
       def self.defined_output_docspecs
-        defined_parameters.find_all{ |p| p.group == 'output' and p.type = 'docspec' }
+        defined_parameters.find_all{ |p| p.group == 'output' and p.type == 'docspec' }
       end
 
       def Action.validate_action_type( action_class )
-        valid_actions = %w(Armagh::Actions::Split Armagh::Actions::Consume Armagh::Actions::Publish Armagh::Actions::Collect)
+        valid_actions = %w(Armagh::Actions::Split Armagh::Actions::Consume Armagh::Actions::Publish Armagh::Actions::Collect Armagh::Actions::Divide)
         valid_type = (action_class.ancestors.collect { |a| a.name } & valid_actions).any?
         raise ActionError, "Unknown Action Type #{name.sub('Armagh::', '')}.  Expected to be a descendant of #{valid_actions.join(", ")}." unless valid_type
       end
+      
+      def Action.report_validation_errors( candidate_config )
+        configured_output_docspecs = candidate_config.find_all{ |p| p.group == 'output' and p.type == 'docspec' }.collect{ |p| p.value }
+        if configured_output_docspecs.include?( candidate_config.input.docspec )
+          return "Action can't have same doc specs as input and output"
+        else
+          return nil
+        end
+      end
+      
     end
   end
 end

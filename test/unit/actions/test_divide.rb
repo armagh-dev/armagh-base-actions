@@ -34,17 +34,29 @@ class TestDivide < Test::Unit::TestCase
     end
     Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
     SubCollect.include Configh::Configurable
-    SubCollect.define_output_docspec( 'output_type', 'action description', default_type: 'type', default_state: Armagh::Documents::DocState::WORKING )
-    config = SubCollect.use_static_config_values ( {
-      'action' => { 'name' => 'mysubcollect' },
-      'input'  => { 'doctype' => 'randomdoc' }
-      })
+    SubCollect.define_output_docspec( 'bigdocs', 'action description', default_type: 'dansbigdocs', default_state: Armagh::Documents::DocState::READY )
+    coll_config = SubCollect.use_static_config_values ( {
+      'action' => { 'name' => 'mysubcollect' }
+    })
     
-    @divider = Armagh::Actions::Divide.new( @caller, 'logger_name', config, config.output.output_type )
-  end
+    if Object.const_defined?( :SubDivide )
+      Object.send( :remove_const, :SubDivide )
+    end
+    Object.const_set :SubDivide, Class.new( Armagh::Actions::Divide )
+    SubDivide.include Configh::Configurable
+    SubDivide.define_default_input_type 'innie'
+    SubDivide.define_output_docspec( 'littledocs', 'action description ')
+    div_config = SubDivide.use_static_config_values( {
+      'action' => { 'name' => 'mysubdivide' },
+      'input'  => { 'doctype' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )},
+      'output' => { 'littledocs' => Armagh::Documents::DocSpec.new( 'danslittledocs', Armagh::Documents::DocState::READY )}
+    })
+    @divide_action = SubDivide.new( @caller, 'logger_name', div_config)
+    
+  end 
 
   def test_unimplemented_divide
-    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@divider.divide(nil)}
+    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@divide_action.divide(nil)}
   end
 
   def test_create
@@ -53,18 +65,18 @@ class TestDivide < Test::Unit::TestCase
 
     @caller.expects(:create_document)
 
-    @divider.source = {}
-    @divider.create(content, meta)
+    @divide_action.source = {}
+    @divide_action.create(content, meta)
   end
 
   def test_inheritence
     assert_true Armagh::Actions::Divide.respond_to? :define_parameter
     assert_true Armagh::Actions::Divide.respond_to? :defined_parameters
 
-    assert_true @divider.respond_to? :log_debug
-    assert_true @divider.respond_to? :log_info
-    assert_true @divider.respond_to? :notify_dev
-    assert_true @divider.respond_to? :notify_ops
+    assert_true @divide_action.respond_to? :log_debug
+    assert_true @divide_action.respond_to? :log_info
+    assert_true @divide_action.respond_to? :notify_dev
+    assert_true @divide_action.respond_to? :notify_ops
   end
 end
 

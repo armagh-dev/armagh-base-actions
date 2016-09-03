@@ -32,10 +32,10 @@ class TestConsume < Test::Unit::TestCase
     end
     Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
     SubConsume.include Configh::Configurable
+    SubConsume.define_default_input_type 'consumed'
     SubConsume.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
     @config = SubConsume.use_static_config_values ( {
-      'action' => { 'name' => 'mysubcollect' },
-      'input'  => { 'doctype' => 'randomdoc' }
+      'action' => { 'name' => 'mysubcollect' }
       })
     
     @consume_action = SubConsume.new( @caller, 'logger_name', @config )
@@ -67,11 +67,11 @@ class TestConsume < Test::Unit::TestCase
     end
     Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
     SubConsume.include Configh::Configurable
+    SubConsume.define_default_input_type 'consumed'
     SubConsume.define_output_docspec( 'consumed_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
     e = assert_raises( Configh::ConfigValidationError ) {
       config = SubConsume.use_static_config_values ({
-        'action' => { 'name' => 'mysubcollect' },
-        'input'  => { 'doctype' => 'randomdoc' }
+        'action' => { 'name' => 'mysubcollect' }
       })
     }
     assert_equal "Output docspec 'consumed_doc' state must be one of: ready, working.", e.message

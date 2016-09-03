@@ -27,10 +27,6 @@ module Armagh
       include Configh::Configurable
       define_group_validation_callback callback_class: Publish, callback_method: :report_validation_errors
 
-#      def self.define_output_docspec(name, description, default_type: nil, default_state: nil)
-#        raise Documents::Errors::DocSpecError.new 'Publish actions have no usable Output DocSpecs.'
-#      end
-
       # Gets the published action document
       def get_existing_published_document(doc)
         @caller.get_existing_published_document(doc)
@@ -53,8 +49,8 @@ module Armagh
         docspec_param = output_docspec_params.first
         output_doctype = docspec_param.value.type
         
-        unless output_doctype == candidate_config.input.doctype
-          return "Input doctype (#{candidate_config.input.doctype}) and output doctype (#{output_doctype}) must be the same"
+        unless output_doctype == candidate_config.input.docspec.type
+          return "Input doctype (#{candidate_config.input.docspec.type}) and output doctype (#{output_doctype}) must be the same"
         end
         
         return "Output document state for a Publish action must be published." unless valid_states.include?(docspec_param.value.state)

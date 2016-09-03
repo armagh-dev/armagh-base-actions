@@ -24,7 +24,7 @@ require_relative 'loggable'
 
 module Armagh
   module Actions
-    class Divide
+    class Divide < Action
       # Divides a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
       #  for dividing up work or handling files that are too large to store in Mongo.
 
@@ -34,11 +34,8 @@ module Armagh
       
       attr_accessor :source
 
-      def initialize(caller, logger_name, config, output_docspec)
-        @caller = caller
-        @logger_name = logger_name
-        @config = config
-        @output_docspec = output_docspec
+      def initialize( *args )
+        super
         @source = nil
       end
 
@@ -48,11 +45,13 @@ module Armagh
       end
 
       def create(content, metadata)
+        docspec_param = @config.find_all{ |p| p.group == 'output' && p.type == 'docspec' }.first
+        docspec = docspec_param&.value
         raise Errors::CreateError, "Divider metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
 
         content_hash = {'bson_binary' => BSON::Binary.new(content)}
         action_doc = Documents::ActionDocument.new(document_id: SecureRandom.uuid, content: content_hash, metadata: metadata,
-                                                   docspec: @output_docspec, source: @source, new: true)
+                                                   docspec: docspec, source: @source, new: true)
         @caller.create_document(action_doc)
       end
     end

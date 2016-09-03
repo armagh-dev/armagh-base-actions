@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require_relative '../../../lib/armagh/actions'
 
 require_relative '../../helpers/coverage_helper'
 
@@ -22,8 +23,6 @@ require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
 require 'configh'
-
-require_relative '../../../lib/armagh/actions'
 
 class TestCollect < Test::Unit::TestCase
 
@@ -36,8 +35,7 @@ class TestCollect < Test::Unit::TestCase
     SubCollect.include Configh::Configurable
     SubCollect.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
     config = SubCollect.use_static_config_values ( {
-      'action' => { 'name' => 'mysubcollect' },
-      'input'  => { 'doctype' => 'randomdoc' }
+      'action' => { 'name' => 'mysubcollect' }
       })
     
     @collect_action = SubCollect.new( @caller, 'logger_name', config )

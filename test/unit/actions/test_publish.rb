@@ -100,7 +100,7 @@ class TestPublish < Test::Unit::TestCase
      e = assert_raises( Configh::ConfigValidationError) {
       config = SubPublish.use_static_config_values( { 'action' => { 'name' => 'mySubPublish' } })
     }
-    assert_equal "Output document state for a Publish action must be published.", e.message
+    assert_equal "Action can't have same doc specs as input and output,Output document state for a Publish action must be published.", e.message
   end
 
   def test_get_existing_published_document
