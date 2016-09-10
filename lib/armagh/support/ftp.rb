@@ -44,8 +44,6 @@ module Armagh
  
       define_group_validation_callback callback_class: Armagh::Support::FTP, callback_method: :test_connection
       
-      configured_by Configh::MongoBasedConfiguration
-      
       def FTP.test_connection( config )
         
         error_string = nil

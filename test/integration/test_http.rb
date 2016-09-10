@@ -46,7 +46,8 @@ class TestIntegrationHTTP < Test::Unit::TestCase
         'password' => auth[ 'password' ]
       })
     end
-    config = Armagh::Support::HTTP.use_static_config_values( config_values )
+    @config_store = []
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'abc', config_values )
     @http = Armagh::Support::HTTP::Connection.new( config )
   end
   

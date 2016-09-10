@@ -27,6 +27,10 @@ module Armagh
       include Configh::Configurable
       define_group_validation_callback callback_class: Publish, callback_method: :report_validation_errors
 
+      def self.inherited(base)
+        base.register_action
+      end
+      
       # Gets the published action document
       def get_existing_published_document(doc)
         @caller.get_existing_published_document(doc)
@@ -41,7 +45,7 @@ module Armagh
 
         valid_states = [Documents::DocState::PUBLISHED ]
         
-        output_docspec_params = candidate_config.find_all{ |p| p.group == 'output' }
+        output_docspec_params = candidate_config.find_all_parameters{ |p| p.group == 'output' }
         docspec_param = output_docspec_params.first
         
         return "Publish actions must have exactly one output type" unless output_docspec_params.length == 1

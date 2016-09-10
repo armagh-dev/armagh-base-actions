@@ -35,7 +35,8 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @test_ftp_username       = 'myftpuser'
     @test_ftp_password       = Configh::DataTypes::EncodedString.from_plain_text( 'MyFtpPassword' )
     @test_ftp_directory_path = 'readable_test_dir'
-    @base_config_ftp = 
+    
+    @config_store = []
     
     config_defaults_ftp = {
       'port'              => 21,                                
@@ -88,15 +89,15 @@ class TestUnitFTPSupport < Test::Unit::TestCase
   end
     
     
-  def assert_use_static_config_values_returns_config_or_errors( changed_params, expected_errors )
+  def assert_create_configuration_returns_config_or_errors( changed_params, expected_errors )
     
     static_values = merge_config_values( @base_valid_config, changed_params )
     
     check_errors = nil
     config       = nil
     begin
-      config = Armagh::Support::FTP.use_static_config_values( static_values )
-    rescue Configh::ConfigValidationError => e
+      config = Armagh::Support::FTP.create_configuration( @config_store, 'fred', static_values )
+    rescue Configh::ConfigInitError => e
       check_errors = e.message
     end
     
@@ -124,7 +125,7 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.stubs(:delete)
     @mock_ftp.expects(:close)
 
-    Armagh::Support::FTP.use_static_config_values( merge_config_values( @base_valid_config, changes ))
+    Armagh::Support::FTP.create_configuration( @config_store, 'cg', merge_config_values( @base_valid_config, changes ))
   end
   
   def test_config_good
@@ -137,19 +138,19 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.stubs(:delete)
     @mock_ftp.expects(:close)
 
-    assert_use_static_config_values_returns_config_or_errors( {}, nil )
+    assert_create_configuration_returns_config_or_errors( {}, nil )
   end
   
   def test_config_missing_host
-    assert_use_static_config_values_returns_config_or_errors( { 'ftp' => { 'host' => nil }}, "ftp host: type validation failed: value cannot be nil" )
+    assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'host' => nil }}, "Unable to create configuration Armagh::Support::FTP fred: ftp host: type validation failed: value cannot be nil" )
   end
     
   def test_config_missing_username
-    assert_use_static_config_values_returns_config_or_errors( { 'ftp' => { 'username' => nil }}, "ftp username: type validation failed: value cannot be nil" )
+    assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'username' => nil }}, "Unable to create configuration Armagh::Support::FTP fred: ftp username: type validation failed: value cannot be nil" )
   end
     
   def test_config_missing_password
-    assert_use_static_config_values_returns_config_or_errors( { 'ftp' => { 'password' => nil }}, "ftp password: type validation failed: value cannot be nil" )
+    assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'password' => nil }}, "Unable to create configuration Armagh::Support::FTP fred: ftp password: type validation failed: value cannot be nil" )
   end
    
   def test_config_failed_group_validation
@@ -157,8 +158,8 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
-    e = assert_raises( Configh::ConfigValidationError ) { Armagh::Support::FTP.use_static_config_values( @base_valid_config )}
-    assert_equal "FTP Connection Test error: Permissions failure when logging in as myftpuser.", e.message
+    e = assert_raises( Configh::ConfigInitError ) { Armagh::Support::FTP.create_configuration( @config_store, 'cfgv', @base_valid_config )}
+    assert_equal "Unable to create configuration Armagh::Support::FTP cfgv: FTP Connection Test error: Permissions failure when logging in as myftpuser.", e.message
   end   
  
         
@@ -227,10 +228,10 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, '' ).raises(Net::FTPPermError)
      
-    e = assert_raise( Configh::ConfigValidationError ) do
-      config = Armagh::Support::FTP.use_static_config_values( use_config )
+    e = assert_raise( Configh::ConfigInitError ) do
+      config = Armagh::Support::FTP.create_configuration( @config_store, 'rebpssf', use_config )
     end
-    assert_equal "FTP Connection Test error: Permissions failure when logging in as myftpuser.", e.message
+    assert_equal "Unable to create configuration Armagh::Support::FTP rebpssf: FTP Connection Test error: Permissions failure when logging in as myftpuser.", e.message
   end
     
   def test_reply_error_blank_password_servers_sends_ftpreplyerror
@@ -241,10 +242,10 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, '').raises( Net::FTPReplyError )
      
-    e = assert_raise( Configh::ConfigValidationError ) do
-      config = Armagh::Support::FTP.use_static_config_values( use_config )
+    e = assert_raise( Configh::ConfigInitError ) do
+      config = Armagh::Support::FTP.create_configuration( @config_store, 'rebpssff', use_config )
     end
-    assert [ "FTP Connection Test error: Ambiguous FTP Reply error from server.", "FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." ].include? e.message
+    assert [ "Unable to create configuration Armagh::Support::FTP rebpssff: FTP Connection Test error: Ambiguous FTP Reply error from server.", "Unable to create configuration Armagh::Support::FTP rebpssff: FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." ].include? e.message
   end
  
   def test_reply_error_with_password

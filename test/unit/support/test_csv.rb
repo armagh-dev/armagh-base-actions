@@ -105,8 +105,9 @@ class TestCsv < Test::Unit::TestCase
                                {"Name"=>"Jim", "Email"=>"jim@example.com", "Phone"=>"555-1212"},
                                {"Name"=>"Kevin", "Email"=>"kevin@example.com", "Phone"=>"555-1212"}]
 
-    @config_size_default = Armagh::Support::CSV.use_static_config_values( {} )
-    @config_size_100 = Armagh::Support::CSV.use_static_config_values( 'csv' => { 'size_per_part'  => 100 })
+    @config_store = []
+    @config_size_default = Armagh::Support::CSV.create_configuration( @config_store, 'def', {} )
+    @config_size_100 = Armagh::Support::CSV.create_configuration( @config_store, 's100', { 'csv' => { 'size_per_part'  => 100 }})
   end
 
   test "divides source csv into array of multiple csv strings having max size of 'size_per_part' bytes" do

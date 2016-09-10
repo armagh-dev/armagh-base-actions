@@ -27,14 +27,18 @@ module Armagh
       # Can create/edit additional documents of any type or state
       include Configh::Configurable
       define_group_validation_callback callback_class: Split, callback_method: :report_validation_errors
-
+    
+      def self.inherited( base )
+        base.register_action
+      end
+      
       # Doc is an ActionDocument
       def split(doc)
         raise Errors::ActionMethodNotImplemented, 'Split actions must overwrite the split method.'
       end
 
       def edit(id, docspec_name)
-        docspec_param = @config.find_all{ |p| p.group == 'output' and p.name == docspec_name }.first
+        docspec_param = @config.find_all_parameters{ |p| p.group == 'output' and p.name == docspec_name }.first
         docspec = docspec_param&.value
         raise Documents::Errors::DocSpecError.new "Editing an unknown docspec #{docspec_name}." if docspec.nil?
 
@@ -47,7 +51,7 @@ module Armagh
 
         errors = []
         valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
-        candidate_config.find_all{ |p| p.group == 'output' }.each do |docspec_param|
+        candidate_config.find_all_parameters{ |p| p.group == 'output' }.each do |docspec_param|
           errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
         end
 

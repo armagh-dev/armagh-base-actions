@@ -49,7 +49,8 @@ class TestSFTP < Test::Unit::TestCase
       'password' => Configh::DataTypes::EncodedString.from_plain_text('password_123'),
       'username' => 'test_user',
     }
-    @config = Armagh::Support::SFTP.use_static_config_values( { 'sftp' => @config_values })
+    @config_store = []
+    @config = Armagh::Support::SFTP.create_configuration( @config_store, 'fred', { 'sftp' => @config_values })
   end
 
   def teardown
@@ -110,7 +111,7 @@ class TestSFTP < Test::Unit::TestCase
   def test_custom_validation
     Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection)
     Armagh::Support::SFTP::Connection.any_instance.expects(:close)
-    Armagh::Support::SFTP.use_static_config_values( { 'sftp' => @config_values })
+    Armagh::Support::SFTP.create_configuration( @config_store, 'w', { 'sftp' => @config_values })
   end
 
   def test_error_handler
@@ -370,7 +371,7 @@ class TestSFTP < Test::Unit::TestCase
 
     FakeFS do
       Dir.mkdir( '/tmp' )
-      c = Armagh::Support::SFTP.use_static_config_values( { 'sftp' => test_config_values } ) { |sftp|}
+      c = Armagh::Support::SFTP.create_configuration( @config_store, 'sftpkey', { 'sftp' => test_config_values } ) { |sftp|}
       assert_equal(c.sftp.key, File.read('.ssh_key'))
     end
   end

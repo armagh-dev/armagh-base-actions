@@ -32,9 +32,9 @@ class TestCollect < Test::Unit::TestCase
       Object.send( :remove_const, :SubCollect )
     end
     Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
-    SubCollect.include Configh::Configurable
     SubCollect.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
-    config = SubCollect.use_static_config_values ( {
+    @config_store = []
+    config = SubCollect.create_configuration( @config_store, 'a', {
       'action' => { 'name' => 'mysubcollect' }
       })
     
@@ -180,23 +180,22 @@ class TestCollect < Test::Unit::TestCase
       Object.send( :remove_const, :SubCollect )
     end
     Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
-    SubCollect.include Configh::Configurable
     SubCollect.define_output_docspec( 'collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
-    e = assert_raises( Configh::ConfigValidationError ) {
-      config = SubCollect.use_static_config_values ({
+    e = assert_raises( Configh::ConfigInitError ) {
+      config = SubCollect.create_configuration( [], 'inoutstate', {
         'action' => { 'name' => 'mysubcollect' },
         'input'  => { 'doctype' => 'randomdoc' }
       })
     }
-    assert_equal "Output docspec 'collected_doc' state must be one of: ready, working.", e.message
+    assert_equal "Unable to create configuration SubCollect inoutstate: Output docspec 'collected_doc' state must be one of: ready, working.", e.message
   end
 
   def test_inheritance
-    assert_true Armagh::Actions::Collect.respond_to? :define_parameter
-    assert_true Armagh::Actions::Collect.respond_to? :defined_parameters
+    assert_true SubCollect.respond_to? :define_parameter
+    assert_true SubCollect.respond_to? :defined_parameters
 
-    assert_true Armagh::Actions::Collect.respond_to? :define_default_input_type
-    assert_true Armagh::Actions::Collect.respond_to? :define_output_docspec
+    assert_true SubCollect.respond_to? :define_default_input_type
+    assert_true SubCollect.respond_to? :define_output_docspec
 
     assert_true @collect_action.respond_to? :log_debug
     assert_true @collect_action.respond_to? :log_info

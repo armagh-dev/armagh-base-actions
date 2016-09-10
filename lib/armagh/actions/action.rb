@@ -36,18 +36,39 @@ module Armagh
       include Encodable
       include Configh::Configurable
       
-      define_parameter name: 'name',    type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: 'ComtexCollectAction', group: 'action'
-      define_parameter name: 'active',  type: 'boolean',          required: true, description: 'Agents will run this configuration if active', default: false
       define_group_validation_callback callback_class: Action, callback_method: :report_validation_errors
       
-      def self.inherited( base )
-        base.define_parameter name: 'docspec', type: 'docspec', required: true, description: 'Input doctype for this action', group: 'input'
+      def self.register_action
+        
+        include Configh::Configurable
+        
+        define_parameter name: 'name',    type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: 'ComtexCollectAction', group: 'action'
+        define_parameter name: 'active',  type: 'boolean',          required: true, description: 'Agents will run this configuration if active', default: false, group: 'action'
+        define_parameter name: 'docspec', type: 'docspec', required: true, description: 'Input doctype for this action', group: 'input'
       
-        base.define_singleton_method( :define_default_input_type ){ |args| 
+        define_singleton_method( :define_default_input_type ){ |args| 
           default_type, description = args
           description ||= 'The type of document this action accepts'
           define_parameter name: "docspec", type: 'docspec', required: true, description: description, 
                            default: Documents::DocSpec.new( default_type, Documents::DocState::READY ), group: 'input'          
+  
+        }
+        
+        define_singleton_method( :define_output_docspec ){ |name, description, **options| 
+          
+          default_type = options[ :default_type ]
+          default_state = options[ :default_state ]
+          name ||= ''
+          parameter_specs = { name: name.downcase, type: 'docspec', description: description, required: true, group: 'output'}
+        
+          if default_type || default_state
+            docspec_errors = Documents::DocSpec.report_validation_errors( default_type, default_state ) 
+            raise Configh::ParameterDefinitionError, "#{name} output document spec: #{ docspec_errors }" if docspec_errors
+            parameter_specs[ :default ] = Documents::DocSpec.new( default_type, default_state )
+          end
+
+          define_parameter parameter_specs     
+               
         }
       end
       
@@ -58,20 +79,7 @@ module Armagh
         @caller = caller_instance
         @logger_name = logger_name
       end
-
-      def self.define_output_docspec(name, description, default_type: nil, default_state: nil)
-        
-        parameter_specs = { name: name, type: 'docspec', description: description, required: true, group: 'output'}
-        
-        if default_type || default_state
-          docspec_errors = Documents::DocSpec.report_validation_errors( default_type, default_state ) 
-          raise Configh::ParameterDefinitionError, "#{name} output document spec: #{ docspec_errors }" if docspec_errors
-          parameter_specs[ :default ] = Documents::DocSpec.new( default_type, default_state )
-        end
-
-        define_parameter parameter_specs
-      end
-      
+     
       def self.defined_output_docspecs
         defined_parameters.find_all{ |p| p.group == 'output' and p.type == 'docspec' }
       end
@@ -83,7 +91,7 @@ module Armagh
       end
       
       def Action.report_validation_errors( candidate_config )
-        configured_output_docspecs = candidate_config.find_all{ |p| p.group == 'output' and p.type == 'docspec' }.collect{ |p| p.value }
+        configured_output_docspecs = candidate_config.find_all_parameters{ |p| p.group == 'output' and p.type == 'docspec' }.collect{ |p| p.value }
         if configured_output_docspecs.include?( candidate_config.input.docspec )
           return "Action can't have same doc specs as input and output"
         else
@@ -91,6 +99,23 @@ module Armagh
         end
       end
       
+      def self.add_action_params( name, values )
+        new_values = Marshal.load( Marshal.dump( values ))
+        new_values[ 'action' ] ||= {}
+        new_values[ 'action' ][ 'name' ] = name
+        new_values[ 'action' ][ 'active' ] ||= true
+        new_values
+      end
+
+      def self.create_configuration( collection, name, values, **args )
+        new_values = add_action_params( name, values )
+        super( collection, name, new_values, **args )
+      end
+      
+      def self.find_or_create_configuration( collection, name, values_for_create: {}, **args )
+        new_values = add_action_params( name, values )
+        super( collect, name, **args, values_for_create: new_values )
+      end
     end
   end
 end

@@ -32,10 +32,10 @@ class TestSplit < Test::Unit::TestCase
       Object.send( :remove_const, :SubSplit )
     end
     Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
-    SubSplit.include Configh::Configurable
     SubSplit.define_default_input_type 'fred'
     SubSplit.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
-    @config = SubSplit.use_static_config_values ( {
+    @config_store = []
+    @config = SubSplit.create_configuration( @config_store, 'set', {
       'action' => { 'name' => 'mysubcollect' }
       })
     @split_action = Armagh::Actions::Split.new( @caller, 'logger_name', @config)
@@ -65,24 +65,23 @@ class TestSplit < Test::Unit::TestCase
       Object.send( :remove_const, :SubSplit )
     end
     Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
-    SubSplit.include Configh::Configurable
     SubSplit.define_default_input_type 'fred'
     SubSplit.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
-    e = assert_raises( Configh::ConfigValidationError ) {
-      config = SubSplit.use_static_config_values ({
+    e = assert_raises( Configh::ConfigInitError ) {
+      config = SubSplit.create_configuration( @config_store, 'vios', {
         'action' => { 'name' => 'mysubcollect' }
       })
     }
-    assert_equal('Output docspec \'output_type\' state must be one of: ready, working.', e.message )
+    assert_equal('Unable to create configuration SubSplit vios: Output docspec \'output_type\' state must be one of: ready, working.', e.message )
   end
 
   def test_inheritence
-    assert_true Armagh::Actions::Split.respond_to? :define_parameter
-    assert_true Armagh::Actions::Split.respond_to? :defined_parameters
+    assert_true SubSplit.respond_to? :define_parameter
+    assert_true SubSplit.respond_to? :defined_parameters
 
-    assert_true Armagh::Actions::Split.respond_to? :define_default_input_type
-    assert_true Armagh::Actions::Split.respond_to? :define_output_docspec
-    assert_true Armagh::Actions::Split.respond_to? :defined_output_docspecs
+    assert_true SubSplit.respond_to? :define_default_input_type
+    assert_true SubSplit.respond_to? :define_output_docspec
+    assert_true SubSplit.respond_to? :defined_output_docspecs
 
     assert_true @split_action.respond_to? :log_debug
     assert_true @split_action.respond_to? :log_info

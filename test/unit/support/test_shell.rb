@@ -58,7 +58,7 @@ class TestShell < Test::Unit::TestCase
     e = assert_raise Armagh::Support::Shell::TimeoutError do
       Armagh::Support::Shell.call('sleep 10', timeout: 0.01)
     end
-    assert_in_delta 0.01, Time.now - start, 0.02
+    assert_in_delta 0.01, Time.now - start, 0.05
     assert_equal 'Execution expired "sleep 10"', e.message
   end
 

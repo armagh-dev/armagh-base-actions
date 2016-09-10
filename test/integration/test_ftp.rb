@@ -44,6 +44,8 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
         'directory_path' => @test_ftp_directory_path
       }
     }
+    
+    @config_store = []
  
   end
   
@@ -85,7 +87,7 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
   def test_successful_test
     
     assert_nothing_raised do
-      Armagh::Support::FTP.use_static_config_values( @base_config )
+      Armagh::Support::FTP.create_configuration( @config_store, 'success', @base_config )
     end
   end
  
@@ -93,65 +95,52 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
     
     @base_config[ 'ftp'][ 'host' ] = "idontexist.kurmudgeon.edd"
     
-    e = assert_raises( Configh::ConfigValidationError ) do
-      Armagh::Support::FTP.use_static_config_values( @base_config )
+    e = assert_raises( Configh::ConfigInitError ) do
+      Armagh::Support::FTP.create_configuration( @config_store, 'baddom', @base_config )
     end
-    assert_equal "FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd", e.message
+    assert_equal "Unable to create configuration Armagh::Support::FTP baddom: FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd", e.message
   end
   
   def test_fail_test_bad_host
     
     @base_config[ 'ftp' ][ 'host' ] = "idontexist.kurmudgeon.edu"
     
-    e = assert_raises( Configh::ConfigValidationError ) do
-      Armagh::Support::FTP.use_static_config_values( @base_config )
+    e = assert_raises( Configh::ConfigInitError ) do
+      Armagh::Support::FTP.create_configuration( @config_store, 'badhost', @base_config )
     end
-    assert_equal "FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu", e.message
+    assert_equal "Unable to create configuration Armagh::Support::FTP badhost: FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu", e.message
   end
-
-#  def test_fail_test_unwilling_host
-    
-#    @base_config[ 'ftp_host' ] = "127.0.0.1"
-#    @base_config[ 'ftp_port' ] = 999
-#    @fake_collect_action = Armagh::Actions::FakeCollect.new('action', @caller, @logger, @base_config, @collect_docspec_config) 
-#    action_params = @fake_collect_action.parameters
-    
-#    e = assert_raises( Armagh::Support::FTP::ConnectionError ) do
-#      Armagh::Support::FTP::Connection.test( action_params ) { |ftp_connection| }
-#    end
-#    assert_equal "The server 127.0.0.1 refused the connection.", e.message
-#  end
 
   def test_fail_test_nonexistent_user
     
     @base_config[ 'ftp'][ 'username' ] = "idontexisteither"
     
-    e = assert_raises( Configh::ConfigValidationError ) do
-      Armagh::Support::FTP.use_static_config_values( @base_config )
+    e = assert_raises( Configh::ConfigInitError ) do
+      Armagh::Support::FTP.create_configuration( @config_store, 'nonexuser', @base_config )
     end
-    assert_equal "FTP Connection Test error: Permissions failure when logging in as idontexisteither.", e.message
+    assert_equal "Unable to create configuration Armagh::Support::FTP nonexuser: FTP Connection Test error: Permissions failure when logging in as idontexisteither.", e.message
   end
 
   def test_fail_test_wrong_password
     
     @base_config[ 'ftp' ][ 'password' ] = Configh::DataTypes::EncodedString.from_plain_text "NotMyPassword"
     
-    e = assert_raises( Configh::ConfigValidationError ) do
-      Armagh::Support::FTP.use_static_config_values( @base_config )
+    e = assert_raises( Configh::ConfigInitError ) do
+      Armagh::Support::FTP.create_configuration( @config_store, 'wrongpass', @base_config )
     end
-    assert_equal "FTP Connection Test error: Permissions failure when logging in as ftptest.", e.message
+    assert_equal "Unable to create configuration Armagh::Support::FTP wrongpass: FTP Connection Test error: Permissions failure when logging in as ftptest.", e.message
   end
 
   def test_fail_test_blank_password
     
     @base_config[ 'ftp' ][ 'password' ] = Configh::DataTypes::EncodedString.from_plain_text "NotMyPassword"
     
-    e = assert_raises( Configh::ConfigValidationError ) do
-      Armagh::Support::FTP.use_static_config_values( @base_config )
+    e = assert_raises( Configh::ConfigInitError ) do
+      Armagh::Support::FTP.create_configuration( @config_store, 'blankpass', @base_config )
     end
     
-    assert_true [ "FTP Connection Test error: Permissions failure when logging in as ftptest.",
-                  "FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." 
+    assert_true [ "Unable to create configuration Armagh::Support::FTP blankpass: FTP Connection Test error: Permissions failure when logging in as ftptest.",
+                  "Unable to create configuration Armagh::Support::FTP blankpass: FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." 
                 ].include? e.message
   end
   
@@ -159,20 +148,20 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
     
     @base_config[ 'ftp' ][ 'directory_path' ] = "no_such_dir"
 
-    e = assert_raises( Configh::ConfigValidationError ) do
-      Armagh::Support::FTP.use_static_config_values( @base_config )
+    e = assert_raises( Configh::ConfigInitError ) do
+      Armagh::Support::FTP.create_configuration( @config_store, 'nonexdir', @base_config )
     end
-    assert_equal "FTP Connection Test error: User does not have access to directory no_such_dir.", e.message
+    assert_equal "Unable to create configuration Armagh::Support::FTP nonexdir: FTP Connection Test error: User does not have access to directory no_such_dir.", e.message
   end    
     
   def test_fail_test_readonly_directory
     
     @base_config[ 'ftp' ][ 'directory_path' ] = "read_only_dir"
     
-    e = assert_raises( Configh::ConfigValidationError ) do
-      Armagh::Support::FTP.use_static_config_values( @base_config )
+    e = assert_raises( Configh::ConfigInitError ) do
+      Armagh::Support::FTP.create_configuration( @config_store, 'rodir', @base_config )
     end
-    assert_equal "FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server.", e.message
+    assert_equal "Unable to create configuration Armagh::Support::FTP rodir: FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server.", e.message
   end    
  
   def test_put_then_get_files
@@ -180,7 +169,7 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
     @base_config[ 'ftp' ][ 'maximum_transfer' ] = 5
     @base_config[ 'ftp' ][ 'filename_pattern' ] = '*.txt' 
     @base_config[ 'ftp' ][ 'delete_on_put' ] = true
-    config = Armagh::Support::FTP.use_static_config_values( @base_config )
+    config = Armagh::Support::FTP.create_configuration( @config_store, 'putthenget', @base_config )
     
     FakeFS do
       

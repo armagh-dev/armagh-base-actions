@@ -27,14 +27,15 @@ class TestConsume < Test::Unit::TestCase
 
   def setup
     @caller = mock
+    @config_store = []
+    
     if Object.const_defined?( :SubConsume )
       Object.send( :remove_const, :SubConsume )
     end
     Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
-    SubConsume.include Configh::Configurable
     SubConsume.define_default_input_type 'consumed'
     SubConsume.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
-    @config = SubConsume.use_static_config_values ( {
+    @config = SubConsume.create_configuration( @config_store, 'set', {
       'action' => { 'name' => 'mysubcollect' }
       })
     
@@ -66,23 +67,22 @@ class TestConsume < Test::Unit::TestCase
       Object.send( :remove_const, :SubConsume )
     end
     Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
-    SubConsume.include Configh::Configurable
     SubConsume.define_default_input_type 'consumed'
     SubConsume.define_output_docspec( 'consumed_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
-    e = assert_raises( Configh::ConfigValidationError ) {
-      config = SubConsume.use_static_config_values ({
+    e = assert_raises( Configh::ConfigInitError ) {
+      config = SubConsume.create_configuration( @config_store, 'inoutstate', {
         'action' => { 'name' => 'mysubcollect' }
       })
     }
-    assert_equal "Output docspec 'consumed_doc' state must be one of: ready, working.", e.message
+    assert_equal "Unable to create configuration SubConsume inoutstate: Output docspec 'consumed_doc' state must be one of: ready, working.", e.message
   end
 
   def test_inheritence
-    assert_true Armagh::Actions::Consume.respond_to? :define_parameter
-    assert_true Armagh::Actions::Consume.respond_to? :defined_parameters
+    assert_true SubConsume.respond_to? :define_parameter
+    assert_true SubConsume.respond_to? :defined_parameters
 
-    assert_true Armagh::Actions::Consume.respond_to? :define_default_input_type
-    assert_true Armagh::Actions::Consume.respond_to? :define_output_docspec
+    assert_true SubConsume.respond_to? :define_default_input_type
+    assert_true SubConsume.respond_to? :define_output_docspec
 
     assert_true @consume_action.respond_to? :log_debug
     assert_true @consume_action.respond_to? :log_info

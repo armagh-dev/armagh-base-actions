@@ -34,6 +34,10 @@ module Armagh
       
       attr_accessor :source
 
+      def self.inherited( base )
+        base.register_action
+      end
+      
       def initialize( *args )
         super
         @source = nil
@@ -45,7 +49,7 @@ module Armagh
       end
 
       def create(content, metadata)
-        docspec_param = @config.find_all{ |p| p.group == 'output' && p.type == 'docspec' }.first
+        docspec_param = @config.find_all_parameters{ |p| p.group == 'output' && p.type == 'docspec' }.first
         docspec = docspec_param&.value
         raise Errors::CreateError, "Divider metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
 

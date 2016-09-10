@@ -30,6 +30,7 @@ module Armagh
       include Configh::Configurable
       
       def self.inherited( base )
+        base.register_action
         base.define_default_input_type "__COLLECT__#{ base.name }"
         
         base.define_singleton_method( :define_default_input_type ){ |*args|
@@ -48,7 +49,7 @@ module Armagh
       # raises ActionDocuments::Errors::DocSpecError
       def create(collected, metadata, docspec_name, source)
         
-        docspec_param = @config.find_all{ |p| p.group == 'output' && p.name == docspec_name }.first
+        docspec_param = @config.find_all_parameters{ |p| p.group == 'output' && p.name == docspec_name }.first
         docspec = docspec_param&.value
         raise Documents::Errors::DocSpecError, "Creating an unknown docspec #{docspec_name}" unless docspec
         raise Errors::CreateError, "Collect action content must be a String, was a #{collected.class}." unless collected.is_a?(String)
@@ -93,7 +94,7 @@ module Armagh
 
         errors = []
         valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
-        candidate_config.find_all{ |p| p.group == 'output' }.each do |docspec_param|
+        candidate_config.find_all_parameters{ |p| p.group == 'output' }.each do |docspec_param|
           errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
         end
 

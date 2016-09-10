@@ -93,9 +93,11 @@ class TestXML < Test::Unit::TestCase
       "<?xml version=\"1.0\" standalone=\"yes\"?>\r\n<sdnList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://tempuri.org/sdnList.xsd\">\r\n  <publshInformation>\r\n    <Publish_Date>05/30/2014</Publish_Date>\r\n    <Record_Count>5931</Record_Count>\r\n  </publshInformation>\r\n  <sdnEntry>\r\n    <uid>36</uid>\r\n    <lastName>AEROCARIBBEAN AIRLINES</lastName>\r\n    <sdnType>Entity</sdnType>\r\n    <programList>\r\n      <program>CUBA</program>\r\n    </programList>\r\n    <akaList>\r\n      <aka>\r\n        <uid>12</uid>\r\n        <type>a.k.a.</type>\r\n        <category>strong</category>\r\n        <lastName>AERO-CARIBBEAN</lastName>\r\n      </aka>\r\n    </akaList>\r\n    <addressList>\r\n      <address>\r\n        <uid>25</uid>\r\n        <city>Havana</city>\r\n        <country>Cuba</country>\r\n      </address>\r\n    </addressList>\r\n  </sdnEntry>\r\n</sdnList>\r\n",
       "<?xml version=\"1.0\" standalone=\"yes\"?>\r\n<sdnList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://tempuri.org/sdnList.xsd\">\r\n  <publshInformation>\r\n    <Publish_Date>05/30/2014</Publish_Date>\r\n    <Record_Count>5931</Record_Count>\r\n  </publshInformation>\r\n  <sdnEntry>\r\n    <uid>39</uid>\r\n    <lastName>AEROTAXI EJECUTIVO, S.A.</lastName>\r\n    <sdnType>Entity</sdnType>\r\n    <programList>\r\n      <program>CUBA</program>\r\n    </programList>\r\n    <addressList>\r\n      <address>\r\n        <uid>27</uid>\r\n        <city>Managua</city>\r\n        <country>Nicaragua</country>\r\n      </address>\r\n    </addressList>\r\n  </sdnEntry>\r\n</sdnList>\r\n",
     ]
-    @config_size_default = Armagh::Support::XML.use_static_config_values( {} )
-    @config_size_800     = Armagh::Support::XML.use_static_config_values( 'xml' => { 'size_per_part'  => 800, 'xml_element' => 'sdnEntry' })
-    @config_size_1000    = Armagh::Support::XML.use_static_config_values( 'xml' => { 'size_per_part'  => 1000, 'xml_element' => 'sdnEntry' })
+    
+    @config_store = []
+    @config_size_default = Armagh::Support::XML.create_configuration( @config_store, 'def', {} )
+    @config_size_800     = Armagh::Support::XML.create_configuration( @config_store, 's800', {'xml' => { 'size_per_part'  => 800, 'xml_element' => 'sdnEntry' }})
+    @config_size_1000    = Armagh::Support::XML.create_configuration( @config_store, 's1000', { 'xml' => { 'size_per_part'  => 1000, 'xml_element' => 'sdnEntry' }})
   end
 
   def teardown

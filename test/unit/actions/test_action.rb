@@ -33,7 +33,19 @@ class TestAction < Test::Unit::TestCase
        Object.send( :remove_const, :SubSplit )
     end
     Object.const_set "SubSplit", Class.new( Armagh::Actions::Split )
-    SubSplit.include Configh::Configurable
+    @config_store = []
+  end
+  
+  def test_config_action_group
+    action_name = 'fred_the_action'
+    config = nil
+    assert_nothing_raised { 
+      SubSplit.define_default_input_type 'test_type1'
+      config = SubSplit.create_configuration( @config_store, action_name, {} )
+      SubSplit.new( @caller, 'logger_name', config )
+    }
+    assert_equal action_name, config.action.name
+    assert_true config.action.active
   end
 
   def test_default_input_type
@@ -41,7 +53,7 @@ class TestAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised { 
       SubSplit.define_default_input_type type
-      config = SubSplit.use_static_config_values( { 
+      config = SubSplit.create_configuration( @config_store, 'defintype', { 
         'action' => { 'name' => 'fred_the_action'} }) 
       SubSplit.new( @caller, 'logger_name', config )
     }
@@ -55,7 +67,7 @@ class TestAction < Test::Unit::TestCase
       SubSplit.define_default_input_type 'some_doctype'
       SubSplit.define_output_docspec('test_type1', 'do the hokey pokey')
       SubSplit.define_output_docspec('test_type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
-      config = SubSplit.use_static_config_values( { 
+      config = SubSplit.create_configuration( @config_store, 'defoutds', { 
         'action' => { 'name' => 'fred_the_action'}, 
         'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
       }) 
@@ -67,7 +79,7 @@ class TestAction < Test::Unit::TestCase
 
   def test_define_output_docspec_bad_name
     e = assert_raise(Configh::ParameterDefinitionError) {SubSplit.define_output_docspec(nil,nil)}
-    assert_equal 'name: value cannot be nil', e.message
+    assert_equal 'name: string is empty or nil', e.message
     assert_empty SubSplit.defined_parameters.find_all{ |p| p.group == 'output' and p.type == 'docspec' }
   end
 
@@ -88,10 +100,22 @@ class TestAction < Test::Unit::TestCase
        Object.send( :remove_const, :SubCollect )
     end
     Object.const_set "SubCollect", Class.new( Armagh::Actions::Collect )
-    SubCollect.include Configh::Configurable
     e = assert_raise( Armagh::Actions::ConfigurationError ) {
       SubCollect.define_default_input_type 'blech'
     }
     assert_equal "You cannot define default input types for collectors", e.message
   end
+  
+  def test_you_have_your_stuff_i_have_mine
+    
+    SubSplit.define_output_docspec 'subsplit_ds1', 'desc'
+    SubSplit.define_output_docspec 'subsplit_ds2', 'desc'
+    
+    Object.const_set "SubSplit2", Class.new( Armagh::Actions::Split )
+    SubSplit2.define_output_docspec 'subsplit2_ds1', 'desc'
+    
+    assert_equal [ 'subsplit_ds1', 'subsplit_ds2' ], SubSplit.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
+    assert_equal [ 'subsplit2_ds1' ], SubSplit2.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
+  end
+    
 end

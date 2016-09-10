@@ -33,9 +33,10 @@ class TestDivide < Test::Unit::TestCase
       Object.send( :remove_const, :SubCollect )
     end
     Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
-    SubCollect.include Configh::Configurable
     SubCollect.define_output_docspec( 'bigdocs', 'action description', default_type: 'dansbigdocs', default_state: Armagh::Documents::DocState::READY )
-    coll_config = SubCollect.use_static_config_values ( {
+ 
+    @config_store = []
+    coll_config = SubCollect.create_configuration( @config_store, 'set', {
       'action' => { 'name' => 'mysubcollect' }
     })
     
@@ -43,10 +44,11 @@ class TestDivide < Test::Unit::TestCase
       Object.send( :remove_const, :SubDivide )
     end
     Object.const_set :SubDivide, Class.new( Armagh::Actions::Divide )
-    SubDivide.include Configh::Configurable
     SubDivide.define_default_input_type 'innie'
     SubDivide.define_output_docspec( 'littledocs', 'action description ')
-    div_config = SubDivide.use_static_config_values( {
+    
+    @config_store = []
+    div_config = SubDivide.create_configuration( @config_store, 'set2', {
       'action' => { 'name' => 'mysubdivide' },
       'input'  => { 'doctype' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )},
       'output' => { 'littledocs' => Armagh::Documents::DocSpec.new( 'danslittledocs', Armagh::Documents::DocState::READY )}
@@ -70,8 +72,8 @@ class TestDivide < Test::Unit::TestCase
   end
 
   def test_inheritence
-    assert_true Armagh::Actions::Divide.respond_to? :define_parameter
-    assert_true Armagh::Actions::Divide.respond_to? :defined_parameters
+    assert_true SubDivide.respond_to? :define_parameter
+    assert_true SubDivide.respond_to? :defined_parameters
 
     assert_true @divide_action.respond_to? :log_debug
     assert_true @divide_action.respond_to? :log_info

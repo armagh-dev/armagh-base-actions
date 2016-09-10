@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require 'bson'
 require_relative 'doc_state'
 require_relative 'errors'
 
@@ -32,6 +33,9 @@ module Armagh
   module Documents
     class DocSpec
       attr_reader :type, :state
+      
+      BSON_TYPE = 130.chr.force_encoding('binary').freeze
+      BSON::Registry.register BSON_TYPE, self
       
       def self.report_validation_errors( type, state )
         errors = []
@@ -70,6 +74,16 @@ module Armagh
             "state" => @state
         }
       end
+      
+      def self.from_bson( buffer )
+        type, state = BSON::Array.from_bson( buffer )
+        new( type, state )
+      end
+      
+      def to_bson( buffer )
+        BSON::Array.new( [ type, state ] ).to_bson
+      end
+              
     end
   end
 end

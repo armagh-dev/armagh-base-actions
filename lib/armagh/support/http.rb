@@ -126,7 +126,7 @@ module Armagh
 
         def initialize( config )
           
-          raise ConfigurationError, "Connection must be initialized with a Configh configuration object" unless config.is_a?( Configh::BaseConfiguration )
+          raise ConfigurationError, "Connection must be initialized with a Configh configuration object" unless config.is_a?( Configh::Configuration )
           @cfg     = config.http
           @url     = @cfg.url.strip
           @method  = @cfg.method.downcase
