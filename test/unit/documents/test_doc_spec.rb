@@ -20,6 +20,7 @@ require_relative '../../helpers/coverage_helper'
 require 'test/unit'
 
 require_relative '../../../lib/armagh/documents/doc_spec'
+require 'configh'
 
 class TestDocSpec < Test::Unit::TestCase
 
@@ -79,5 +80,14 @@ class TestDocSpec < Test::Unit::TestCase
     assert_equal({'type' => 'another', 'state' => 'working'}, Armagh::Documents::DocSpec.new('another', Armagh::Documents::DocState::WORKING).to_hash)
     assert_equal({'type' => 'third', 'state' => 'ready'}, Armagh::Documents::DocSpec.new('third', Armagh::Documents::DocState::READY).to_hash)
   end
+  
+  def test_datatype_ensure
+    assert_equal Armagh::Documents::DocSpec.new( 'test', Armagh::Documents::DocState::READY ), Configh::DataTypes.ensure_value_is_datatype( 'test:ready', 'docspec' )
+    e = assert_raises( Configh::DataTypes::TypeError ) do
+      Configh::DataTypes.ensure_value_is_datatype( 'badstring', 'docspec' ).inspect
+    end
+    assert_equal 'value badstring cannot be cast as a docspec', e.message
+  end
+    
 
 end

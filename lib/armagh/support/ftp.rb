@@ -140,23 +140,25 @@ module Armagh
           files_to_transfer.each do |remote_filename|
         
             attempts_this_file = 0
+            attributes = {}
             
             begin
               attempts_this_file += 1
               @priv_ftp.getbinaryfile remote_filename
-              yield File.basename( remote_filename ), nil
+              attributes['mtime'] = @priv_ftp.mtime remote_filename
+              yield File.basename( remote_filename ), attributes, nil
               @priv_ftp.delete( remote_filename )
               failed_files = 0
       
             rescue Net::ReadTimeout
               retry unless attempts_this_file >= 3
-              yield nil, "Timed out trying to read file #{ remote_filename }."
+              yield nil, attributes, "Timed out trying to read file #{ remote_filename }."
               failed_files += 1
               raise ConnectionError, "Three files in a row failed.  Aborting." if failed_files == 3
             
             rescue => e
               retry unless attempts_this_file >= 3
-              yield nil, "Unhandled error in getting files: #{ e.message }.\nBacktrace: #{ e.backtrace.join("\n")}"
+              yield nil, attributes, "Unhandled error in getting files: #{ e.message }.\nBacktrace: #{ e.backtrace.join("\n")}"
               failed_files += 1
               raise ConnectionError, "Three file in a row failed. Aborting." if failed_files == 3
             end

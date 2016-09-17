@@ -98,6 +98,10 @@ module Armagh
             relative_path = entry.name
             parent = File.dirname(relative_path)
             remote_path = File.join(@directory_path, relative_path)
+            attributes = entry.attributes.attributes.collect{|k,v| [k.to_s, v]}.to_h
+
+            attributes['mtime'] = Time.at(attributes['mtime']).utc if attributes['mtime']
+            attributes['atime'] = Time.at(attributes['atime']).utc if attributes['atime']
 
             begin
               file_attempts += 1
@@ -105,7 +109,7 @@ module Armagh
               FileUtils.mkdir_p parent
 
               @sftp.download!(remote_path, relative_path)
-              yield relative_path, nil if block_given?
+              yield relative_path, attributes, nil if block_given?
               @sftp.remove!(remote_path)
 
               failed_files = 0
@@ -113,7 +117,7 @@ module Armagh
               retry unless file_attempts >= 3
               converted_error = convert_errors(e, host: @host, file: relative_path)
               failed_files += 1
-              yield relative_path, converted_error
+              yield relative_path, attributes, converted_error
               raise SFTPError, 'Three files failed in a row.  Aborting.' if failed_files == 3
             end
           end

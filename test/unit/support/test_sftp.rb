@@ -35,12 +35,12 @@ class TestSFTP < Test::Unit::TestCase
 
   def setup
     session = mock
-    session.stubs( 'close')
-    session.stubs( closed?: false )
-    @mocked_sftp_lib = stub( 'sftp' )
-    @mocked_sftp_lib.stubs( 'upload!')
-    @mocked_sftp_lib.stubs( 'remove!')
-    @mocked_sftp_lib.stubs( session: session )
+    session.stubs('close')
+    session.stubs(closed?: false)
+    @mocked_sftp_lib = stub('sftp')
+    @mocked_sftp_lib.stubs('upload!')
+    @mocked_sftp_lib.stubs('remove!')
+    @mocked_sftp_lib.stubs(session: session)
     Net::SFTP.stubs(start: @mocked_sftp_lib)
     @config_values = {
       'host' => 'localhost',
@@ -87,6 +87,10 @@ class TestSFTP < Test::Unit::TestCase
         entry.expects(:name).returns(name)
         expected_files << name
       end
+
+      attributes = stub('attributes')
+      attributes.stubs(attributes: {})
+      entry.stubs(attributes: attributes)
 
       entries << entry
     end
@@ -191,7 +195,7 @@ class TestSFTP < Test::Unit::TestCase
     seen_errors = []
 
     Armagh::Support::SFTP::Connection.open(@config) do |sftp|
-      sftp.get_files { |file, error|
+      sftp.get_files { |file, attributes, error|
         expected_files.delete(file)
         seen_errors << error if error
       }
@@ -218,7 +222,7 @@ class TestSFTP < Test::Unit::TestCase
 
     assert_raise(Armagh::Support::SFTP::SFTPError.new('Three files failed in a row.  Aborting.')) do
       Armagh::Support::SFTP::Connection.open(@config) do |sftp|
-        sftp.get_files { |file, error|}
+        sftp.get_files { |file, attributes, error|}
       end
     end
   end

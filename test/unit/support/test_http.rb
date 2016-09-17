@@ -361,4 +361,97 @@ class TestHTTP < Test::Unit::TestCase
     assert_equal("Unexpected error requesting 'http://fake.url' - Unexpected Error.", e.message)
   end
 
+  def test_acceptable_uri_host_whitelist
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'auhw', { 'http' => { 'url' => 'http://fake.url', 'host_whitelist' => %w(fake.url subdomain.fake2.url)}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_false @http.acceptable_uri?('https://www.google.com')
+    assert_true @http.acceptable_uri?('https://fake.url/something')
+    assert_false @http.acceptable_uri?('https://bad.fake.url/something')
+    assert_true @http.acceptable_uri?('https://subdomain.fake2.url/something')
+    assert_false @http.acceptable_uri?('https://fake2.url/something')
+  end
+
+  def test_acceptable_uri_host_blacklist
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'auhb', { 'http' => { 'url' => 'http://fake.url', 'host_blacklist' => %w(fake.url subdomain.fake2.url)}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_true @http.acceptable_uri?('https://www.google.com')
+    assert_false @http.acceptable_uri?('https://fake.url/something')
+    assert_true @http.acceptable_uri?('https://good.fake.url/something')
+    assert_false @http.acceptable_uri?('https://subdomain.fake2.url/something')
+    assert_true @http.acceptable_uri?('https://fake2.url/something')
+  end
+
+  def test_acceptable_uri_host_whiteblack
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'auhwb', { 'http' => { 'url' => 'http://fake.url', 'host_blacklist' => ['fake.url'], 'host_whitelist' => ['fake.url']}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_false @http.acceptable_uri?('https://www.google.com')
+    assert_false @http.acceptable_uri?('https://fake.url/something')
+  end
+
+  def test_acceptable_uri_filetype_whitelist
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'autw', { 'http' => { 'url' => 'http://fake.url', 'filetype_whitelist' => %w(php html)}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_true @http.acceptable_uri?('https://www.google.com/index.php')
+    assert_true @http.acceptable_uri?('https://www.google.com/index.html')
+    assert_false @http.acceptable_uri?('https://www.google.com/index.json')
+  end
+
+  def test_acceptable_uri_filetype_blacklist
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'autb', { 'http' => { 'url' => 'http://fake.url', 'filetype_blacklist' => %w(php html)}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_false @http.acceptable_uri?('https://www.google.com/index.php')
+    assert_false @http.acceptable_uri?('https://www.google.com/index.html')
+    assert_true @http.acceptable_uri?('https://www.google.com/index.json')
+  end
+
+  def test_acceptable_uri_filetype_whiteblack
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'autwb', { 'http' => { 'url' => 'http://fake.url', 'filetype_blacklist' => %w(php html), 'filetype_whitelist' => %w(php html)}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_false @http.acceptable_uri?('https://www.google.com/index.php')
+    assert_false @http.acceptable_uri?('https://www.google.com/index.html')
+    assert_false @http.acceptable_uri?('https://www.google.com/index.json')
+  end
+
+  def test_acceptable_mime_type_whitelist
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'autb', { 'http' => { 'url' => 'http://fake.url', 'mimetype_whitelist' => ['text/plain']}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_true @http.acceptable_mime_type?('text/plain')
+    assert_false @http.acceptable_mime_type?('text/html')
+  end
+
+  def test_acceptable_mime_type_blacklist
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'autb', { 'http' => { 'url' => 'http://fake.url', 'mimetype_blacklist' => %w(text/html)}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_true @http.acceptable_mime_type?('text/plain')
+    assert_false @http.acceptable_mime_type?('text/html')
+  end
+
+  def test_acceptable_mime_type_whiteblack
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'autb', { 'http' => { 'url' => 'http://fake.url', 'mimetype_whitelist' => %w(text/html), 'mimetype_blacklist' => %w(text/html)}} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    assert_false @http.acceptable_mime_type?('text/plain')
+    assert_false @http.acceptable_mime_type?('text/html')
+  end
+
+  def test_unacceptable_uri_blacklists
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpget', { 'http' => {'url' => 'http://fake.url', 'host_blacklist' => ['fake.url'], 'filetype_blacklist' => ['xml']}})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    assert_raise(Armagh::Support::HTTP::SafeError.new("Unable to request from 'http://fake.url' due to whitelist/blacklist rules.")) { @http.fetch }
+    assert_raise(Armagh::Support::HTTP::SafeError.new("Unable to request from 'http://something/bad.xml' due to whitelist/blacklist rules.")) { @http.fetch('http://something/bad.xml') }
+  end
+
+  def test_get_mimes
+    stub_request(:get, 'http://fake.url').to_return(headers: {'Content-Type' => 'text/plain; charset=ISO-8859-1'})
+    stub_request(:get, 'http://fake2.url').to_return(headers: {'Content-Type' => 'text/html; charset=ISO-8859-1'})
+
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpget1', { 'http' => {'url' => 'http://fake.url', 'mimetype_blacklist' => ['text/plain']}})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    assert_raise(Armagh::Support::HTTP::SafeError.new("Unable to request from 'http://fake.url' due to whitelist/blacklist rules for mime type.")) { @http.fetch }
+    assert_nothing_raised { @http.fetch('http://fake2.url') }
+
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpget2', { 'http' => {'url' => 'http://fake.url', 'mimetype_whitelist' => ['text/plain']}})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    assert_nothing_raised { @http.fetch }
+    assert_raise(Armagh::Support::HTTP::SafeError.new("Unable to request from 'http://fake2.url' due to whitelist/blacklist rules for mime type.")) { @http.fetch('http://fake2.url') }
+  end
 end

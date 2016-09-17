@@ -1,0 +1,223 @@
+Sample PowerPoint Document
+Title Slide
+By Some One
+On Some Day
+
+We the People of the United States, in Order to
+form a more perfect Union, establish Justice,
+insure domestic Tranquility, provide for the
+common defence, promote the general
+Welfare, and secure the Blessings of Liberty to
+ourselves and our Posterity, do ordain and
+establish this Constitution for the United States
+of America.
+
+If this was a real document it would have more here.
+Sample: Times New Roman
+Sample: Courier New
+Sample: Arial
+Sample: Times New Roman Bold
+Sample: Courier New Bold
+Sample: Arial Bold
+
+Bullet indentation sample:
+• 1st Indent
+o 2nd Indent
+• 3rd Indent
+• 4th Indent
+Bullet style sample:
+o Circle
+• Square
+• Quad
+• Vector
+• Checkmark
+  Diamond
+  Checkbox
+  4-Pointed Star Outline
+  4-Pointed Star
+  5-Pointed Star
+  8-Pointed Star
+  Mac Command
+  Big Circle
+  Radio Button
+  Bulls Eye
+
+Table 3x3 sample:
+Top-Left
+
+Top-Center
+
+Top-Right
+
+Mid-Left
+
+Mid-Center
+
+Mid-Right
+
+Bot-Left
+
+Bot-Center
+
+Bot-Right
+
+Table 10x8 sample:
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+27
+
+28
+
+29
+
+30
+
+31
+
+32
+
+33
+
+34
+
+35
+
+36
+
+37
+
+38
+
+39
+
+40
+
+41
+
+42
+
+43
+
+44
+
+45
+
+46
+
+47
+
+48
+
+49
+
+50
+
+51
+
+52
+
+53
+
+54
+
+55
+
+56
+
+57
+
+58
+
+59
+
+60
+
+61
+
+62
+
+63
+
+64
+
+65
+
+66
+
+67
+
+68
+
+69
+
+70
+
+71
+
+72
+
+73
+
+74
+
+75
+
+76
+
+77
+
+78
+
+79
+
+80

@@ -29,10 +29,6 @@ class TestIntegrationPDF < Test::Unit::TestCase
     set_fixture_dir('pdf')
   end
 
-  def teardown
-    Dir.glob('*.pdf*').each { |i| File.delete(i) }
-  end
-
   def test_to_search_text
     binary = fixture('sample.pdf')
     result = Armagh::Support::PDF.to_search_text(binary)
@@ -74,12 +70,22 @@ class TestIntegrationPDF < Test::Unit::TestCase
     assert_in_delta 1, Time.now - start, 0.5
   end
 
-  def test_to_search_text_invalid_pdf
+  def test_to_search_text_invalid_document
     binary = fixture('sample.pdf.search.txt')
     e = assert_raise Armagh::Support::PDF::PDFError do
       Armagh::Support::PDF.to_search_text(binary)
     end
     assert_match %r/May not be a PDF file/, e.message
+  end
+
+  def test_to_search_text_missing_program
+    program = Armagh::Support::PDF::PDF_TO_TEXT_SHELL[0]
+    Armagh::Support::PDF::PDF_TO_TEXT_SHELL[0] = 'missing_program'
+    e = assert_raise Armagh::Support::Shell::MissingProgramError do
+      Armagh::Support::PDF.to_search_text(StringIO.new('fake PDF document'))
+    end
+    assert_equal 'Please install required program "missing_program"', e.message
+    Armagh::Support::PDF::PDF_TO_TEXT_SHELL[0] = program
   end
 
 end

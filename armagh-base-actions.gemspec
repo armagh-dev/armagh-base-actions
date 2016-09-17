@@ -57,6 +57,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'net-sftp', '~> 2.1'
   spec.add_dependency 'geoutilities', '~> 1.0'
   spec.add_dependency 'configh', '~> 0.5'
+  spec.add_dependency 'simple-rss', '~> 1.3'
+  spec.add_dependency 'parse-cron', '~> 0.1'
 
   spec.add_development_dependency 'bundler', '~> 1.7'
   spec.add_development_dependency 'rake', '~> 10.0'

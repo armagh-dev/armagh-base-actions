@@ -194,7 +194,8 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
       assert_nothing_raised do
         Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
           
-          ftp_connection.get_files do |local_filename,error_string|
+          ftp_connection.get_files do |local_filename, attributes, error_string|
+            assert_kind_of(Time, attributes['mtime'])
             assert_nil error_string
           end
           

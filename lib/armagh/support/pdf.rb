@@ -16,7 +16,6 @@
 #
 
 require 'securerandom'
-require 'configh'
 
 require_relative 'shell'
 
@@ -24,16 +23,16 @@ module Armagh
   module Support
     module PDF
 
-      module_function
-
       class PDFError     < StandardError; end
       class TimeoutError < PDFError; end
       class NoTextError  < PDFError; end
 
+      module_function
+
       DEFAULT_TIMEOUT     = 600
-      PDF_TO_TEXT_SHELL   = %w(pdftotext <pdf_file> -)
+      PDF_TO_TEXT_SHELL   = %w(pdftotext <input_pdf_file> -)
       PDF_TO_IMAGE_SHELL  = %w(gs -dSAFER -sDEVICE=png16m -dINTERPOLATE -dNumRenderingThreads=8 -dFirstPage= -dLastPage= -r300 -o <output_image_file> -c 30000000 setvmthreshold -f <input_pdf_file>)
-      IMAGE_TO_TEXT_SHELL = %w(tesseract <input_image_file> <output_pdf_file> -psm 1)
+      IMAGE_TO_TEXT_SHELL = %w(tesseract <input_image_file> <output_text_file> -psm 1)
 
       def to_search_text(binary, timeout: nil)
         process_pdf(binary, :search, timeout: timeout)
@@ -50,7 +49,8 @@ module Armagh
       private_class_method def process_pdf(binary, *modes, timeout:)
         result   = {}
         pdf_file = SecureRandom.uuid + '.pdf'
-        File.open(pdf_file, 'wb') { |file| file << binary }
+
+        File.write(pdf_file, binary, mode: 'wb')
 
         Timeout.timeout(timeout || DEFAULT_TIMEOUT) do
           modes.each do |mode|
@@ -67,6 +67,8 @@ module Armagh
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
+      rescue Shell::MissingProgramError => e
+        raise e
       rescue Timeout::Error, TimeoutError
         raise TimeoutError, 'Execution expired while processing PDF'
       rescue NoTextError => e
@@ -74,37 +76,35 @@ module Armagh
       rescue => e
         raise PDFError, e
       ensure
-        Dir.glob(pdf_file + '*').each { |entry| FileUtils.rm_rf(entry) }
+        Dir.glob(pdf_file + '*').each { |file| File.delete(file) }
       end
 
       private_class_method def optical_character_recognition(pdf_file)
-        result = ''
+        result     = ''
+        image_file = pdf_file + '.png'
 
         1.upto(Float::INFINITY) do |page|
-          image_file = pdf_file + '.png'
-          begin
-            command     = PDF_TO_IMAGE_SHELL.dup
-            command[5] += page.to_s
-            command[6] += page.to_s
-            command[9]  = image_file
-            command[14] = pdf_file
+          command     = PDF_TO_IMAGE_SHELL.dup
+          command[5] += page.to_s
+          command[6] += page.to_s
+          command[9]  = image_file
+          command[14] = pdf_file
 
-            text = Shell.call(command)
+          text = Shell.call(command)
 
-            if text.include?("Processing pages #{page} through #{page}.")
-              command    = IMAGE_TO_TEXT_SHELL.dup
-              command[1] = image_file
-              command[2] = pdf_file
+          if text.include?("Processing pages #{page} through #{page}.")
+            command    = IMAGE_TO_TEXT_SHELL.dup
+            command[1] = image_file
+            command[2] = pdf_file
 
-              Shell.call(command, ignore_error: 'Tesseract Open Source OCR Engine')
+            Shell.call(command, ignore_error: 'Tesseract Open Source OCR Engine')
 
-              text = File.read(pdf_file + '.txt').strip
-            else
-              break
-            end
-
-            result << text + "\n" unless text.strip.empty?
+            text = File.read(pdf_file + '.txt').strip
+          else
+            break
           end
+
+          result << text + "\n" unless text.empty?
         end
 
         result.strip

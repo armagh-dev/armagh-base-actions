@@ -20,11 +20,12 @@ require 'timeout'
 module Armagh
   module Support
     module Shell
-      module_function
 
       class ShellError          < StandardError; end
       class MissingProgramError < ShellError; end
       class TimeoutError        < ShellError; end
+
+      module_function
 
       DEFAULT_TIMEOUT = 60
 
@@ -42,11 +43,10 @@ module Armagh
           raise %Q(Unable to execute "#{command}": Missing standard input)
         end
 
-        command   = parse_args(args)
+        command = parse_args(args)
 
-        timeout ||= DEFAULT_TIMEOUT
-        pid       = nil
-        stdout    = stderr = status = ''
+        pid     = nil
+        stdout  = stderr = status = ''
 
         in_read,  in_write  = IO.pipe; in_write.sync = true
         out_read, out_write = IO.pipe
@@ -54,7 +54,7 @@ module Armagh
 
         opts = {in: in_read, out: out_write, err: err_write, pgroup: true}
 
-        Timeout.timeout(timeout) do
+        Timeout.timeout(timeout || DEFAULT_TIMEOUT) do
           pid = spawn(command, opts)
           wait = Process.detach(pid)
 
@@ -99,7 +99,7 @@ module Armagh
         args.join(' ')
       end
 
-      private_class_method def handle_error(error, command, ignore_error = nil, catch_error = nil)
+      private_class_method def handle_error(error, command, ignore_error, catch_error)
         if error.is_a?(Exception)
           if error.class == Timeout::Error
             raise TimeoutError, %Q(Execution expired "#{command}")

@@ -17,6 +17,7 @@
 
 require 'httpclient'
 require 'configh'
+require_relative 'encoding'
 
 module Armagh
   module Support
@@ -29,6 +30,7 @@ module Armagh
       class ConfigurationError < HTTPError; end
       class ConnectionError    < HTTPError; end
       class MethodError        < HTTPError; end
+      class SafeError          < HTTPError; end
 
       POST = 'post'.freeze
       GET = 'get'.freeze
@@ -37,8 +39,8 @@ module Armagh
 
       define_parameter name: 'url',                 description: 'URL to collect from',                             type: 'populated_string', required: true,  prompt: 'http://www.example.com/page'
       define_parameter name: 'method',              description: 'HTTP Method to use for collection (get or post)', type: 'populated_string', required: true,  prompt: 'get or post', default: 'get'
-      define_parameter name: 'fields',              description: 'Fields to send as part of the request',           type: 'hash',               required: false, prompt: 'Hash of fields to send as part of the request', default: {}
-      define_parameter name: 'headers',             description: 'HTTP Headers to send as part of the request',     type: 'hash',               required: false, prompt: 'Hash of headers to send as part of the request', default: {}
+      define_parameter name: 'fields',              description: 'Fields to send as part of the request',           type: 'hash',             required: false, prompt: 'Hash of fields to send as part of the request', default: {}
+      define_parameter name: 'headers',             description: 'HTTP Headers to send as part of the request',     type: 'hash',             required: false, prompt: 'Hash of headers to send as part of the request', default: {}
       define_parameter name: 'username',            description: 'Username for basic http authentication',          type: 'string',           required: false
       define_parameter name: 'password',            description: 'Password for basic http authentication',          type: 'encoded_string',   required: false
       define_parameter name: 'certificate',         description: 'Certificate for key based http authentication',   type: 'string',           required: false
@@ -47,8 +49,15 @@ module Armagh
       define_parameter name: 'proxy_url',           description: 'URL of the proxy server',                         type: 'string',           required: false, prompt: 'http://myproxy:8080'
       define_parameter name: 'proxy_username',      description: 'Username for proxy authentication',               type: 'string',           required: false
       define_parameter name: 'proxy_password',      description: 'Password for proxy authentication',               type: 'encoded_string',   required: false
-      define_parameter name: 'follow_redirects',    description: 'Follow HTTP Redirects?',                         type: 'boolean',          required: true,  default: true
-      define_parameter name: 'allow_https_to_http', description: 'Allow redirection from https to http.  Enabling this may be a security concern.', type: 'boolean', required: true, default: false
+      define_parameter name: 'follow_redirects',    description: 'Follow HTTP Redirects?',                          type: 'boolean',          required: true,  default: true
+      define_parameter name: 'allow_https_to_http', description: 'Allow redirection from https to http.  Enabling this may be a security concern.', type: 'boolean',      required: true, default: false
+      define_parameter name: 'host_whitelist',      description: 'List of hostnames that collection is allowed from',                               type: 'string_array', required: false, prompt: 'subdomain.domain.com'
+      define_parameter name: 'host_blacklist',      description: 'List of hostnames that collection is not allowed from',                           type: 'string_array', required: false, prompt: 'subdomain.domain.com'
+      define_parameter name: 'filetype_whitelist',  description: 'List of file types that collection is allowed to collect',                        type: 'string_array', required: false, prompt: '[txt, pdf]'
+      define_parameter name: 'filetype_blacklist',  description: 'List of file types that collection is not allowed to collect',                    type: 'string_array', required: false, prompt: '[txt, pdf]'
+      define_parameter name: 'mimetype_whitelist',  description: 'List of mime types that collection is allowed to collect',                        type: 'string_array', required: false, prompt: '[text/html, text/plain]'
+      define_parameter name: 'mimetype_blacklist',  description: 'List of mime types that collection is not allowed to collect',                    type: 'string_array', required: false, prompt: '[text/plain, text/plain]'
+
 
       define_group_validation_callback callback_class: Armagh::Support::HTTP, callback_method: :validate
       
@@ -127,15 +136,20 @@ module Armagh
         def initialize( config )
           
           raise ConfigurationError, "Connection must be initialized with a Configh configuration object" unless config.is_a?( Configh::Configuration )
-          @cfg     = config.http
-          @url     = @cfg.url.strip
-          @method  = @cfg.method.downcase
-          @headers = DEFAULT_HEADERS.merge @cfg.headers
+          @config     = config.http
+          @url     = @config.url.strip
+          @method  = @config.method.downcase
+          @headers = DEFAULT_HEADERS.merge @config.headers
           
           @client = HTTPClient.new # Don't add agent to the new call as library details are appended to the end
-          @client.follow_redirect_count = 0 unless @cfg.follow_redirects
+          @client.follow_redirect_count = 0 unless @config.follow_redirects
           @client.set_cookie_store COOKIE_STORE
-          @client.redirect_uri_callback = method(:alternative_uri_callback) if @cfg.allow_https_to_http
+
+          if @config.allow_https_to_http
+            @client.redirect_uri_callback = method(:unsafe_uri_callback)
+          else
+            @client.redirect_uri_callback = method(:safe_uri_callback)
+          end
           
           set_proxy
           set_auth
@@ -145,8 +159,8 @@ module Armagh
         def fetch( override_url = nil, override_method = nil, override_fields = nil)
       
           url = override_url || @url
-          method = override_method || @cfg.method
-          fields = override_fields || @cfg.fields
+          method = override_method || @config.method
+          fields = override_fields || @config.fields
           
           override_error_messages = []
           override_error_messages << HTTP.validate_url( url )
@@ -169,30 +183,64 @@ module Armagh
           raise HTTP::URLError, "'#{@url}' is not a valid HTTP or HTTPS URL."
         end
 
+        def acceptable_uri?(uri)
+          uri = HTTPClient::Util.urify(uri)
+          hostname = uri.hostname
+          extname = File.extname(uri.to_s).sub('.', '')
+
+          return false if @config.host_whitelist && !@config.host_whitelist.include?(hostname)
+          return false if @config.host_blacklist && @config.host_blacklist.include?(hostname)
+          return false if @config.filetype_whitelist && !@config.filetype_whitelist.include?(extname)
+          return false if @config.filetype_blacklist && @config.filetype_blacklist.include?(extname)
+          true
+        end
+
+        def acceptable_mime_type?(type)
+          return false if @config.mimetype_whitelist && !@config.mimetype_whitelist.include?(type)
+          return false if @config.mimetype_blacklist && @config.mimetype_blacklist.include?(type)
+          true
+        end
+
+        def extract_type(header)
+          type_str = header['Content-Type'].first
+          info = {}
+          return info if type_str.nil? || type_str.empty?
+          type_details = type_str.split(';')
+          info['type'] = type_details.first
+
+          type_details[1..-1].each do |detail|
+            detail.strip!
+            if detail.start_with?('charset=')
+              info['encoding'] = detail.sub('charset=', '')
+            end
+          end
+          info
+        end
+
         private def set_proxy
-          @client.proxy = @cfg.proxy_url if @cfg.proxy_url
-          if @cfg.proxy_username && @cfg.proxy_password && @cfg.proxy_url
-            @client.set_proxy_auth( @cfg.proxy_username, @cfg.proxy_password.plain_text )
+          @client.proxy = @config.proxy_url if @config.proxy_url
+          if @config.proxy_username && @config.proxy_password && @config.proxy_url
+            @client.set_proxy_auth(@config.proxy_username, @config.proxy_password.plain_text )
           end
         end
   
         private def set_auth
-          if @cfg.certificate && @cfg.key 
+          if @config.certificate && @config.key
             begin
-              @client.ssl_config.client_cert = OpenSSL::X509::Certificate.new( @cfg.certificate )
+              @client.ssl_config.client_cert = OpenSSL::X509::Certificate.new(@config.certificate )
             rescue => e
               raise HTTP::ConfigurationError, "Certificate Error: #{e.message}."
             end
 
             begin
-              @client.ssl_config.client_key = OpenSSL::PKey::RSA.new( @cfg.key, @cfg.key_password.plain_text )
+              @client.ssl_config.client_key = OpenSSL::PKey::RSA.new(@config.key, @config.key_password.plain_text )
             rescue => e
               raise HTTP::ConfigurationError, "Key Error: #{e.message}."
             end
           end
 
-          if @cfg.username && @cfg.password 
-            @client.set_auth(@url, @cfg.username, @cfg.password.plain_text)
+          if @config.username && @config.password
+            @client.set_auth(@url, @config.username, @config.password.plain_text)
             @client.force_basic_auth = true
           end
         rescue => e
@@ -200,16 +248,20 @@ module Armagh
         end
 
         private def request( url, method, fields )
-          
+          raise SafeError, "Unable to request from '#{url}' due to whitelist/blacklist rules." unless acceptable_uri? url
+
           case method
             when GET
-              response = @client.get(url, query: fields, header: @headers, follow_redirect: @cfg.follow_redirects)
+              response = @client.get(url, query: fields, header: @headers, follow_redirect: @config.follow_redirects)
             when POST
-              response = @client.post(url, body: fields, header: @headers, follow_redirect: @cfg.follow_redirects)
+              response = @client.post(url, body: fields, header: @headers, follow_redirect: @config.follow_redirects)
           end
 
+          raise SafeError, "Unable to request from '#{url}' due to whitelist/blacklist rules for mime type." unless acceptable_mime_type?(extract_type(response.header)['type'])
+
           if response.ok?
-            {'head' => header_to_hash(response.header), 'body' => response.content}
+            response_text = Support::Encoding.fix_encoding(response.content)
+            {'head' => header_to_hash(response.header), 'body' => response_text}
           else
             if response.status == 302
               raise HTTP::RedirectError, "Attempted to redirect from '#{@url}' but redirection is not allowed."
@@ -248,12 +300,19 @@ module Armagh
           hash
         end
 
+        private def safe_uri_callback(uri, res)
+          newuri = @client.default_redirect_uri_callback(uri, res)
+          raise SafeError, "Unable to redirect to '#{newuri}' due to whitelist/blacklist rules." unless acceptable_uri? newuri
+          newuri
+        end
+
         # The default HTTP Client redirect callback does not handle http -> https.  This is very close to the default without that check.
-        private def alternative_uri_callback(uri, res)
+        private def unsafe_uri_callback(uri, res)
           newuri = HTTPClient::Util.urify(res.header['location'][0])
           if !@client.http?(newuri) && !@client.https?(newuri)
             newuri = uri + newuri
           end
+          raise SafeError, "Unable to redirect to '#{newuri}' due to whitelist/blacklist rules." unless acceptable_uri? newuri
           newuri
         end
       end

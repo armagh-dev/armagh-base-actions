@@ -22,12 +22,12 @@ require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
 
-require_relative '../../../lib/armagh/support/word'
+require_relative '../../../lib/armagh/support/powerpoint'
 
-class TestWord < Test::Unit::TestCase
+class TestPowerPoint < Test::Unit::TestCase
 
   def setup
-    @binary = StringIO.new('fake Word document')
+    @binary = StringIO.new('fake PowerPoint document')
     FakeFS { File.write('random.pdf', 'fake PDF document') }
     SecureRandom.stubs(:uuid).at_most(1).returns('random')
     Armagh::Support::Shell.stubs(:call).at_most(2).returns('pdf')
@@ -36,23 +36,23 @@ class TestWord < Test::Unit::TestCase
   end
 
   def test_to_search_text
-    assert_equal 'search', FakeFS { Armagh::Support::Word.to_search_text(@binary) }
+    assert_equal 'search', FakeFS { Armagh::Support::PowerPoint.to_search_text(@binary) }
   end
 
   def test_to_display_text
-    assert_equal 'display', FakeFS { Armagh::Support::Word.to_display_text(@binary) }
+    assert_equal 'display', FakeFS { Armagh::Support::PowerPoint.to_display_text(@binary) }
   end
 
   def test_to_search_and_display_text
     assert_equal ['search',
-                  'display'], FakeFS { Armagh::Support::Word.to_search_and_display_text(@binary) }
+                  'display'], FakeFS { Armagh::Support::PowerPoint.to_search_and_display_text(@binary) }
   end
 
-  def test_private_class_method_process_word
+  def test_private_class_method_process_powerpoint
     e = assert_raise NoMethodError do
-      Armagh::Support::Word.process_word(@binary, :search)
+      Armagh::Support::PowerPoint.process_powerpoint(@binary, :search)
     end
-    assert_equal "private method `process_word' called for Armagh::Support::Word:Module", e.message
+    assert_equal "private method `process_powerpoint' called for Armagh::Support::PowerPoint:Module", e.message
   end
 
 end

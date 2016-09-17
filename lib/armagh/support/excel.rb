@@ -28,7 +28,7 @@ module Armagh
 
       module_function
 
-      EXCEL_TO_TEXT_SHELL = %w(ssconvert -T Gnumeric_html:html40frag <input_xls_file> <output_html_file>)
+      EXCEL_TO_TEXT_SHELL = %w(ssconvert -T Gnumeric_html:html40frag <input_excel_file> <output_html_file>)
 
       def to_search_text(binary)
         process_excel(binary, :search)
@@ -48,7 +48,7 @@ module Armagh
         xls_file = uuid + '.xls'
         out_file = uuid + '.html'
 
-        File.write(xls_file, binary)
+        File.write(xls_file, binary, mode: 'wb')
 
         command    = EXCEL_TO_TEXT_SHELL.dup
         command[3] = xls_file

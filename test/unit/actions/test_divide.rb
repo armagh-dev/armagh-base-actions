@@ -34,10 +34,11 @@ class TestDivide < Test::Unit::TestCase
     end
     Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
     SubCollect.define_output_docspec( 'bigdocs', 'action description', default_type: 'dansbigdocs', default_state: Armagh::Documents::DocState::READY )
- 
+
     @config_store = []
     coll_config = SubCollect.create_configuration( @config_store, 'set', {
-      'action' => { 'name' => 'mysubcollect' }
+      'action' => { 'name' => 'mysubcollect' },
+      'collect' => {'schedule' => '*/5 * * * *'}
     })
     
     if Object.const_defined?( :SubDivide )
@@ -46,7 +47,7 @@ class TestDivide < Test::Unit::TestCase
     Object.const_set :SubDivide, Class.new( Armagh::Actions::Divide )
     SubDivide.define_default_input_type 'innie'
     SubDivide.define_output_docspec( 'littledocs', 'action description ')
-    
+
     @config_store = []
     div_config = SubDivide.create_configuration( @config_store, 'set2', {
       'action' => { 'name' => 'mysubdivide' },

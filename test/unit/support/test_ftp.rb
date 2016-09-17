@@ -291,12 +291,15 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
     @mock_ftp.expects(:nlst).with( test_ftp_filename_pattern ).returns( (1..9).collect{ |i| "file#{i}.txt" } )
     @mock_ftp.expects(:getbinaryfile).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)
+    @mock_ftp.expects(:mtime).times(5).returns(Time.now)
     @mock_ftp.expects(:delete).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)
     @mock_ftp.expects(:close)
     
     assert_nothing_raised do
       Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
-        ftp_connection.get_files do |local_filename, error_string|
+        ftp_connection.get_files do |local_filename, attributes, error_string|
+          assert_not_empty local_filename
+          assert_kind_of(Time, attributes['mtime'])
           assert_nil error_string
         end
       end

@@ -27,8 +27,8 @@ require_relative '../../../lib/armagh/support/pdf'
 class TestPDF < Test::Unit::TestCase
 
   def setup
-    @binary = StringIO.new('fake pdf')
-    FakeFS { File.open('file.pdf.txt', 'w') { |f| f << 'ocr text' } }
+    @binary = StringIO.new('fake PDF')
+    FakeFS { File.write('file.pdf.txt', 'ocr text') }
     SecureRandom.stubs(:uuid).returns('file')
   end
 
@@ -68,18 +68,31 @@ class TestPDF < Test::Unit::TestCase
     end
   end
 
+  def test_sanitize_bullets_points
+    bullets = "\uf0b7\uf0a7\uf076\uf0d8\uf0fc\uf0a8\uf0de\uf0e0"
+    Armagh::Support::Shell.stubs(:call).once.returns(bullets)
+    assert_equal "\u2022" * bullets.size, FakeFS { Armagh::Support::PDF.to_search_text(@binary) }
+  end
+
   def test_private_class_method_process_pdf
     e = assert_raise NoMethodError do
-      FakeFS { Armagh::Support::PDF.process_pdf(@binary, :search) }
+      Armagh::Support::PDF.process_pdf(@binary, :search)
     end
     assert_equal "private method `process_pdf' called for Armagh::Support::PDF:Module", e.message
   end
 
   def test_private_class_method_optical_character_recognition
     e = assert_raise NoMethodError do
-      FakeFS { Armagh::Support::PDF.optical_character_recognition(@binary) }
+      Armagh::Support::PDF.optical_character_recognition(@binary)
     end
     assert_equal "private method `optical_character_recognition' called for Armagh::Support::PDF:Module", e.message
+  end
+
+  def test_private_class_method_sanitize_bullet_points
+    e = assert_raise NoMethodError do
+      Armagh::Support::PDF.sanitize_bullet_points('anything')
+    end
+    assert_equal "private method `sanitize_bullet_points' called for Armagh::Support::PDF:Module", e.message
   end
 
 end

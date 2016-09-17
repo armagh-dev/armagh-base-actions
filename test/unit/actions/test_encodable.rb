@@ -52,19 +52,22 @@ class TestEncodable < Test::Unit::TestCase
 
   def test_fix_encoding_string
     object = 'test message'
-    @caller.expects(:fix_encoding).with(@logger_name, object, nil)
+    @caller.expects(:get_logger).with(@logger_name).returns(@logger)
+    Armagh::Support::Encoding.expects(:fix_encoding).with(object, nil, @logger)
     @encodable.fix_encoding(object)
   end
 
   def test_fix_encoding_array
     object = ['test message']
-    @caller.expects(:fix_encoding).with(@logger_name, object, nil)
+    @caller.expects(:get_logger).with(@logger_name).returns(@logger)
+    Armagh::Support::Encoding.expects(:fix_encoding).with(object, nil, @logger)
     @encodable.fix_encoding(object)
   end
 
   def test_fix_encoding_hash
     object = {'test' => true}
-    @caller.expects(:fix_encoding).with(@logger_name, object, nil)
+    @caller.expects(:get_logger).with(@logger_name).returns(@logger)
+    Armagh::Support::Encoding.expects(:fix_encoding).with(object, nil, @logger)
     @encodable.fix_encoding(object)
   end
 

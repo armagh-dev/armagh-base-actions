@@ -177,8 +177,10 @@ class TestIntegrationSFTP < Test::Unit::TestCase
     files_on_fs = []
     FakeFS do
       Armagh::Support::SFTP::Connection.open(config) do |sftp|
-        sftp.get_files do |filename, error|
+        sftp.get_files do |filename, attributes, error|
           got_files << File.join('', filename) # FakeFS puts a leading /
+          assert_not_empty attributes
+          assert_kind_of Time, attributes['mtime']
           assert_nil error
         end
       end
@@ -192,7 +194,7 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
     no_more_files = true
     Armagh::Support::SFTP::Connection.open(config) do |sftp|
-      sftp.get_files do |filename, error|
+      sftp.get_files do |filename, attributes, error|
         no_more_files = false
       end
     end

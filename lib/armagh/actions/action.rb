@@ -102,13 +102,14 @@ module Armagh
       def self.add_action_params( name, values )
         new_values = Marshal.load( Marshal.dump( values ))
         new_values[ 'action' ] ||= {}
-        new_values[ 'action' ][ 'name' ] = name
+        new_values[ 'action' ][ 'name' ] ||= name
         new_values[ 'action' ][ 'active' ] ||= true
+        
         new_values
       end
 
       def self.create_configuration( collection, name, values, **args )
-        new_values = add_action_params( name, values )
+        new_values = add_action_params( name, values ) if name.is_a?( String ) and values.is_a?( Hash )
         super( collection, name, new_values, **args )
       end
       

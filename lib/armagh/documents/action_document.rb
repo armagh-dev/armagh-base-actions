@@ -79,14 +79,14 @@ module Armagh
 
       def to_json
         {
-            "document_id" => @document_id,
-            "title" => @title,
-            "copyright" => @copyright,
-            "metadata" => @metadata,
-            "content" => @content,
-            "source" => @source,
-            "document_timestamp" => @document_timestamp,
-            "docspec" => @docspec.to_hash
+          'document_id' => @document_id,
+          'title' => @title,
+          'copyright' => @copyright,
+          'metadata' => @metadata,
+          'content' => @content,
+          'source' => @source.to_hash,
+          'document_timestamp' => @document_timestamp,
+          'docspec' => @docspec.to_hash
         }.to_json
       end
     end

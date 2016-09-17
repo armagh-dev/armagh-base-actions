@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+require_relative '../support/encoding'
+
 module Armagh
   module Actions
     module Encodable
@@ -23,7 +25,7 @@ module Armagh
       # @return [Object] A correctly encoded version of the object
       def fix_encoding(object, proposed_encoding = nil)
         raise ArgumentError, 'Fix encoding can only be called on a String, Hash, or Array.' unless object.is_a?(String) || object.is_a?(Hash) || object.is_a?(Array)
-        @caller.fix_encoding(@logger_name, object, proposed_encoding)
+        Support::Encoding.fix_encoding(object, proposed_encoding, @caller.get_logger(@logger_name))
       end
     end
   end

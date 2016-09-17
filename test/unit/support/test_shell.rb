@@ -78,7 +78,7 @@ class TestShell < Test::Unit::TestCase
     e = assert_raise Armagh::Support::Shell::ShellError do
       Armagh::Support::Shell.call('cat', '-unknown', ignore_error: 'cat', catch_error: 'option')
     end
-    assert_match %r(^Command "cat -unknown" exited with error "cat: \w+ option), e.message
+    assert_match %r/^Command "cat -unknown" exited with error "cat: \w+ option/, e.message
   end
 
   def test_call_catch_errors
@@ -86,13 +86,34 @@ class TestShell < Test::Unit::TestCase
       Armagh::Support::Shell.call('cat', '-unknown', ignore_error: ['not used', 'cat'],
                                                       catch_error: ['not used', 'option'])
     end
-    assert_match %r(^Command "cat -unknown" exited with error "cat: \w+ option), e.message
+    assert_match %r/^Command "cat -unknown" exited with error "cat: \w+ option/, e.message
   end
 
   def test_call_ignore_error_not_string
     assert_nothing_raised do
       Armagh::Support::Shell.call('cat', '-unknown', ignore_error: :option)
     end
+  end
+
+  def test_private_class_method_call_shell
+    e = assert_raise NoMethodError do
+      Armagh::Support::Shell.call_shell('command')
+    end
+    assert_match %r/^private method `call_shell' called for Armagh::Support::Shell:Module/, e.message
+  end
+
+  def test_private_class_method_parse_args
+    e = assert_raise NoMethodError do
+      Armagh::Support::Shell.parse_args('command')
+    end
+    assert_equal "private method `parse_args' called for Armagh::Support::Shell:Module", e.message
+  end
+
+  def test_private_class_method_handle_error
+    e = assert_raise NoMethodError do
+      Armagh::Support::Shell.handle_error('command')
+    end
+    assert_equal "private method `handle_error' called for Armagh::Support::Shell:Module", e.message
   end
 
 end

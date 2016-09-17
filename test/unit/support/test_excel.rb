@@ -34,8 +34,8 @@ class TestExcel < Test::Unit::TestCase
     @html     = %q(<p><b>Sheet1</b></p><table><tr><td colspan="2"  valign="bottom"  align="left">Worksheet 1 content</td><td></td></tr><tr><td colspan="33"  valign="bottom"  align="left">We the People...</td></tr></table></p><p><b>Sheet2</b></p><table><tr><td  valign="bottom"  align="left">Worksheet 2 content</td><td></td></tr><tr><td  valign="bottom"  align="left">Column1</td><td  valign="bottom"  align="left">Column2</td><td  valign="bottom"  align="left">Column3</td><td></td><td></td><td></td></tr></table></p>)
 
     FakeFS { File.write(out_file, html) }
-    Armagh::Support::Shell.stubs(:call).once
-    SecureRandom.stubs(:uuid).once.returns('random')
+    Armagh::Support::Shell.stubs(:call).at_most(1)
+    SecureRandom.stubs(:uuid).at_most(1).returns('random')
   end
 
   def test_search_text
@@ -58,6 +58,20 @@ class TestExcel < Test::Unit::TestCase
       Armagh::Support::Excel.to_search_text(nil)
     end
     assert_equal error, e.message
+  end
+
+  def test_private_class_method_process_excel
+    e = assert_raise NoMethodError do
+      Armagh::Support::Excel.process_excel(@binary, :search)
+    end
+    assert_equal "private method `process_excel' called for Armagh::Support::Excel:Module", e.message
+  end
+
+  def test_private_class_method_extract_text
+    e = assert_raise NoMethodError do
+      Armagh::Support::Excel.extract_text('anything', [:search])
+    end
+    assert_equal "private method `extract_text' called for Armagh::Support::Excel:Module", e.message
   end
 
 end

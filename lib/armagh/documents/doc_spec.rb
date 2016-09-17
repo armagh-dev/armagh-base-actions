@@ -23,7 +23,14 @@ module Configh
   module DataTypes
     
     def DataTypes.ensure_is_docspec( value )
-      raise TypeError, "value #{value} is not a docspec" unless value.is_a?( Armagh::Documents::DocSpec )
+      if value.is_a?( String ) 
+        begin
+          type, state = value.split(':')
+          
+          value = Armagh::Documents::DocSpec.new( type, eval("Armagh::Documents::DocState::#{state.upcase}")) if state
+        rescue; end
+      end
+      raise TypeError, "value #{value} cannot be cast as a docspec" unless value.is_a?( Armagh::Documents::DocSpec )
       value
     end
   end
@@ -33,10 +40,7 @@ module Armagh
   module Documents
     class DocSpec
       attr_reader :type, :state
-      
-      BSON_TYPE = 130.chr.force_encoding('binary').freeze
-      BSON::Registry.register BSON_TYPE, self
-      
+            
       def self.report_validation_errors( type, state )
         errors = []
         errors << "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }.join(", ")}" unless DocState.valid_state?(state)
@@ -65,7 +69,7 @@ module Armagh
       end
 
       def to_s
-        "#{type}:#{state}"
+        "#{@type}:#{@state}"
       end
 
       def to_hash
@@ -74,16 +78,7 @@ module Armagh
             "state" => @state
         }
       end
-      
-      def self.from_bson( buffer )
-        type, state = BSON::Array.from_bson( buffer )
-        new( type, state )
-      end
-      
-      def to_bson( buffer )
-        BSON::Array.new( [ type, state ] ).to_bson
-      end
-              
+                   
     end
   end
 end

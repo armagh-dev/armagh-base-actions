@@ -23,44 +23,45 @@ require_relative 'pdf'
 
 module Armagh
   module Support
-    module Word
+    module PowerPoint
 
-      class WordError   < StandardError; end
-      class NoTextError < WordError; end
+      class PowerPointError < StandardError; end
+      class NoTextError     < PowerPointError; end
 
       module_function
 
-      WORD_TO_TEXT_SHELL = %w(soffice -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_word_file>)
+      POWERPOINT_TO_PDF_SHELL = %w(soffice -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_powerpoint_file>)
 
       def to_search_text(binary)
-        process_word(binary, :search)
+        process_powerpoint(binary, :search)
       end
 
       def to_display_text(binary)
-        process_word(binary, :display)
+        process_powerpoint(binary, :display)
       end
 
       def to_search_and_display_text(binary)
-        process_word(binary, :search, :display)
+        process_powerpoint(binary, :search, :display)
       end
 
-      private_class_method def process_word(binary, *modes)
+      private_class_method def process_powerpoint(binary, *modes)
         result   = {}
         uuid     = SecureRandom.uuid
         work_dir = File.join(Dir.pwd, uuid)
-        doc_file = uuid + '.doc'
+        ppt_file = uuid + '.ppt'
         pdf_file = uuid + '.pdf'
 
         FileUtils.mkdir(work_dir)
-        File.write(doc_file, binary, mode: 'wb')
+        File.write(ppt_file, binary, mode: 'wb')
 
-        command     = WORD_TO_TEXT_SHELL.dup
+        command     = POWERPOINT_TO_PDF_SHELL.dup
         command[1] += work_dir
-        command[10] = doc_file
+        command[10] = ppt_file
 
         Shell.call(command)
 
         pdf_binary = File.read(pdf_file, mode: 'rb')
+
         modes.each do |mode|
           result[mode] =
             case mode
@@ -69,15 +70,15 @@ module Armagh
             when :display
               PDF.to_display_text(pdf_binary)
             end
-
-          raise NoTextError, 'Unable to extract text from Word document' if result[mode].empty?
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
       rescue Shell::MissingProgramError => e
         raise e
+      rescue PDF::NoTextError
+        raise NoTextError, 'Unable to extract text from PowerPoint document'
       rescue => e
-        raise WordError, e
+        raise PowerPointError, e
       ensure
         Dir.glob(work_dir + '*').each { |entry| FileUtils.rm_rf(entry) }
       end
