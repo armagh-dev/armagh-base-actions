@@ -189,12 +189,4 @@ class TestIntegrationHTTP < Test::Unit::TestCase
     expected = Armagh::Support::HTTP::RedirectError.new("Too many redirects from 'https://testserver.noragh.com/suites/infinite_redirection'.")
     assert_raise(expected){fetch_page}
   end
-
-  def test_whitelist
-
-  end
-
-  def test_blacklist
-
-  end
 end

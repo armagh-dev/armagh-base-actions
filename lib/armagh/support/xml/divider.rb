@@ -77,10 +77,6 @@ module Armagh
           (@processed_bytes + @footer.size) >= @total_bytes
         end
 
-        def no_sub_string?
-          @sub_string.nil?
-        end
-
         def current_sub_string
           if @offset == 0
             @sub_string + @footer

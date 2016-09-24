@@ -43,13 +43,13 @@ module Armagh
       # Reports a given error as an operations error (fixed via things like configuration, service launching, etc)
       # @param [Object] error The error to report.  If the error is an exception, the exception will be reported, otherwise to_s is called.
       def notify_ops(error)
-        @caller.notify_ops(@name, error)
+        @caller.notify_ops(@logger_name, @name, error)
       end
 
       # Reports a given error as a development error (Syntax error, not correctable w/out a code change, unexpected data format, etc)
       # @param [Object] error The error to report.  If the error is an exception, the exception will be reported, otherwise to_s is called.
       def notify_dev(error)
-        @caller.notify_dev(@name, error)
+        @caller.notify_dev(@logger_name, @name, error)
       end
             
     end

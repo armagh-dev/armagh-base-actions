@@ -84,13 +84,13 @@ class TestLoggable < Test::Unit::TestCase
 
   def test_notify_dev
     message = 'error message'
-    @caller.expects(:notify_dev).with(@name, message)
+    @caller.expects(:notify_dev).with(@logger_name, @name, message)
     @loggable.notify_dev message
   end
 
   def test_notify_ops
     message = 'error message'
-    @caller.expects(:notify_ops).with(@name, message)
+    @caller.expects(:notify_ops).with(@logger_name, @name, message)
     @loggable.notify_ops message
   end
 end

@@ -23,52 +23,59 @@ module Armagh
   module Support
     module HTTP
       include Configh::Configurable
-      
-      class HTTPError          < StandardError; end
-      class URLError           < HTTPError; end
-      class RedirectError      < HTTPError; end
-      class ConfigurationError < HTTPError; end
-      class ConnectionError    < HTTPError; end
-      class MethodError        < HTTPError; end
-      class SafeError          < HTTPError; end
+
+      class HTTPError < StandardError;
+      end
+      class URLError < HTTPError;
+      end
+      class RedirectError < HTTPError;
+      end
+      class ConfigurationError < HTTPError;
+      end
+      class ConnectionError < HTTPError;
+      end
+      class MethodError < HTTPError;
+      end
+      class SafeError < HTTPError;
+      end
 
       POST = 'post'.freeze
       GET = 'get'.freeze
 
       METHODS = [POST, GET]
 
-      define_parameter name: 'url',                 description: 'URL to collect from',                             type: 'populated_string', required: true,  prompt: 'http://www.example.com/page'
-      define_parameter name: 'method',              description: 'HTTP Method to use for collection (get or post)', type: 'populated_string', required: true,  prompt: 'get or post', default: 'get'
-      define_parameter name: 'fields',              description: 'Fields to send as part of the request',           type: 'hash',             required: false, prompt: 'Hash of fields to send as part of the request', default: {}
-      define_parameter name: 'headers',             description: 'HTTP Headers to send as part of the request',     type: 'hash',             required: false, prompt: 'Hash of headers to send as part of the request', default: {}
-      define_parameter name: 'username',            description: 'Username for basic http authentication',          type: 'string',           required: false
-      define_parameter name: 'password',            description: 'Password for basic http authentication',          type: 'encoded_string',   required: false
-      define_parameter name: 'certificate',         description: 'Certificate for key based http authentication',   type: 'string',           required: false
-      define_parameter name: 'key',                 description: 'Key for key based http authentication',           type: 'string',           required: false
-      define_parameter name: 'key_password',        description: 'Key Password for key based http authentication',  type: 'encoded_string',   required: false
-      define_parameter name: 'proxy_url',           description: 'URL of the proxy server',                         type: 'string',           required: false, prompt: 'http://myproxy:8080'
-      define_parameter name: 'proxy_username',      description: 'Username for proxy authentication',               type: 'string',           required: false
-      define_parameter name: 'proxy_password',      description: 'Password for proxy authentication',               type: 'encoded_string',   required: false
-      define_parameter name: 'follow_redirects',    description: 'Follow HTTP Redirects?',                          type: 'boolean',          required: true,  default: true
-      define_parameter name: 'allow_https_to_http', description: 'Allow redirection from https to http.  Enabling this may be a security concern.', type: 'boolean',      required: true, default: false
-      define_parameter name: 'host_whitelist',      description: 'List of hostnames that collection is allowed from',                               type: 'string_array', required: false, prompt: 'subdomain.domain.com'
-      define_parameter name: 'host_blacklist',      description: 'List of hostnames that collection is not allowed from',                           type: 'string_array', required: false, prompt: 'subdomain.domain.com'
-      define_parameter name: 'filetype_whitelist',  description: 'List of file types that collection is allowed to collect',                        type: 'string_array', required: false, prompt: '[txt, pdf]'
-      define_parameter name: 'filetype_blacklist',  description: 'List of file types that collection is not allowed to collect',                    type: 'string_array', required: false, prompt: '[txt, pdf]'
-      define_parameter name: 'mimetype_whitelist',  description: 'List of mime types that collection is allowed to collect',                        type: 'string_array', required: false, prompt: '[text/html, text/plain]'
-      define_parameter name: 'mimetype_blacklist',  description: 'List of mime types that collection is not allowed to collect',                    type: 'string_array', required: false, prompt: '[text/plain, text/plain]'
+      define_parameter name: 'url', description: 'URL to collect from', type: 'populated_string', required: true, prompt: 'http://www.example.com/page'
+      define_parameter name: 'method', description: 'HTTP Method to use for collection (get or post)', type: 'populated_string', required: true, prompt: 'get or post', default: 'get'
+      define_parameter name: 'fields', description: 'Fields to send as part of the request', type: 'hash', required: false, prompt: 'Hash of fields to send as part of the request', default: {}
+      define_parameter name: 'headers', description: 'HTTP Headers to send as part of the request', type: 'hash', required: false, prompt: 'Hash of headers to send as part of the request', default: {}
+      define_parameter name: 'username', description: 'Username for basic http authentication', type: 'string', required: false
+      define_parameter name: 'password', description: 'Password for basic http authentication', type: 'encoded_string', required: false
+      define_parameter name: 'certificate', description: 'Certificate for key based http authentication', type: 'string', required: false
+      define_parameter name: 'key', description: 'Key for key based http authentication', type: 'string', required: false
+      define_parameter name: 'key_password', description: 'Key Password for key based http authentication', type: 'encoded_string', required: false
+      define_parameter name: 'proxy_url', description: 'URL of the proxy server', type: 'string', required: false, prompt: 'http://myproxy:8080'
+      define_parameter name: 'proxy_username', description: 'Username for proxy authentication', type: 'string', required: false
+      define_parameter name: 'proxy_password', description: 'Password for proxy authentication', type: 'encoded_string', required: false
+      define_parameter name: 'follow_redirects', description: 'Follow HTTP Redirects?', type: 'boolean', required: true, default: true
+      define_parameter name: 'allow_https_to_http', description: 'Allow redirection from https to http.  Enabling this may be a security concern.', type: 'boolean', required: true, default: false
+      define_parameter name: 'host_whitelist', description: 'List of hostnames that collection is allowed from', type: 'string_array', required: false, prompt: 'subdomain.domain.com'
+      define_parameter name: 'host_blacklist', description: 'List of hostnames that collection is not allowed from', type: 'string_array', required: false, prompt: 'subdomain.domain.com'
+      define_parameter name: 'filetype_whitelist', description: 'List of file types that collection is allowed to collect', type: 'string_array', required: false, prompt: '[txt, pdf]'
+      define_parameter name: 'filetype_blacklist', description: 'List of file types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[txt, pdf]'
+      define_parameter name: 'mimetype_whitelist', description: 'List of mime types that collection is allowed to collect', type: 'string_array', required: false, prompt: '[text/html, text/plain]'
+      define_parameter name: 'mimetype_blacklist', description: 'List of mime types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[text/plain, text/plain]'
 
 
       define_group_validation_callback callback_class: Armagh::Support::HTTP, callback_method: :validate
-      
-      def HTTP.validate( candidate_config )
 
-        hc = candidate_config.http        
+      def HTTP.validate(candidate_config)
+
+        hc = candidate_config.http
         messages = []
-        
-        messages << validate_url( hc.url )
-        messages << validate_method( hc.method )
-          if ( hc.proxy_username || hc.proxy_password ) && !(hc.proxy_username && hc.proxy_password )
+
+        messages << validate_url(hc.url)
+        messages << validate_method(hc.method)
+        if (hc.proxy_username || hc.proxy_password) && !(hc.proxy_username && hc.proxy_password)
           messages << 'In order to use proxy authentication, both proxy_username and proxy_password must be defined.'
         end
         if (hc.certificate || hc.key) && !(hc.certificate && hc.key)
@@ -76,20 +83,20 @@ module Armagh
         end
         if hc.certificate && hc.key
           begin
-            OpenSSL::X509::Certificate.new( hc.certificate )
+            OpenSSL::X509::Certificate.new(hc.certificate)
           rescue => e
             messages << "Certificate Error: #{e.message}."
           end
         end
         if hc.certificate && hc.key && hc.key_password
           begin
-            OpenSSL::PKey::RSA.new( hc.key, hc.key_password.plain_text )
+            OpenSSL::PKey::RSA.new(hc.key, hc.key_password.plain_text)
           rescue => e
             messages << "Key Error: #{e.message}."
           end
         end
         if (hc.username|| hc.password) && !(hc.username && hc.password)
-          messages <<  'In order to use authentication, both username and password must be defined.'
+          messages << 'In order to use authentication, both username and password must be defined.'
         end
         if hc.proxy_url
           begin
@@ -100,47 +107,64 @@ module Armagh
         end
         messages.compact!
         if messages.empty?
-         return  nil
+          return nil
         else
           return messages.join(', ')
         end
       end
-      
-      def HTTP.validate_url( candidate_url )
+
+      def HTTP.validate_url(candidate_url)
         message = nil
         begin
-          raise unless URI.parse(candidate_url).is_a? URI::HTTP   # weird structure because error may be raised or thru is_a fail
+          raise unless URI.parse(candidate_url).is_a? URI::HTTP # weird structure because error may be raised or thru is_a fail
         rescue
           message = "'#{candidate_url}' is not a valid HTTP or HTTPS URL."
         end
         message
       end
-      
-      def HTTP.validate_method( candidate_method )
+
+      def HTTP.validate_method(candidate_method)
         "Allowed HTTP Methods are #{METHODS.join(", ")}.  Was set to '#{candidate_method}'." unless METHODS.include?(candidate_method.downcase)
       end
-      
-      def HTTP.validate_fields( candidate_fields )
-        "Fields must be a hash" unless candidate_fields.is_a?( Hash )
+
+      def HTTP.validate_fields(candidate_fields)
+        "Fields must be a hash" unless candidate_fields.is_a?(Hash)
       end
-      
+
+      def HTTP.extract_type(header)
+        info = {}
+        type_str = header['Content-Type']
+        return info if type_str.nil? || type_str.empty?
+
+        type_details = type_str.split(';')
+        info['type'] = type_details.first
+
+        type_details[1..-1].each do |detail|
+          detail.strip!
+          if detail.start_with?('charset=')
+            info['encoding'] = detail.sub('charset=', '')
+          end
+        end
+        info
+      end
+
 
       class Connection
         DEFAULT_HEADERS = {
-            # User agent string to use, if not defined in a header.  Taken from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/ on Jun 2, 2016
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'.freeze
+          # User agent string to use, if not defined in a header.  Taken from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/ on Jun 2, 2016
+          'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'.freeze
         }.freeze
 
         COOKIE_STORE = File.join('', 'tmp', 'armagh_cookie.dat').freeze
 
-        def initialize( config )
-          
-          raise ConfigurationError, "Connection must be initialized with a Configh configuration object" unless config.is_a?( Configh::Configuration )
-          @config     = config.http
-          @url     = @config.url.strip
-          @method  = @config.method.downcase
+        def initialize(config)
+
+          raise ConfigurationError, "Connection must be initialized with a Configh configuration object" unless config.is_a?(Configh::Configuration)
+          @config = config.http
+          @url = @config.url.strip
+          @method = @config.method.downcase
           @headers = DEFAULT_HEADERS.merge @config.headers
-          
+
           @client = HTTPClient.new # Don't add agent to the new call as library details are appended to the end
           @client.follow_redirect_count = 0 unless @config.follow_redirects
           @client.set_cookie_store COOKIE_STORE
@@ -150,31 +174,31 @@ module Armagh
           else
             @client.redirect_uri_callback = method(:safe_uri_callback)
           end
-          
+
           set_proxy
           set_auth
         end
 
         # Fetches the content of a given URL.
-        def fetch( override_url = nil, override_method = nil, override_fields = nil)
-      
+        def fetch(override_url = nil, override_method = nil, override_fields = nil)
+
           url = override_url || @url
           method = override_method || @config.method
           fields = override_fields || @config.fields
-          
+
           override_error_messages = []
-          override_error_messages << HTTP.validate_url( url )
-          override_error_messages << HTTP.validate_method( method )
-          override_error_messages << HTTP.validate_fields( fields )
+          override_error_messages << HTTP.validate_url(url)
+          override_error_messages << HTTP.validate_method(method)
+          override_error_messages << HTTP.validate_fields(fields)
           override_error_messages.compact!
-          
+
           unless override_error_messages.empty?
             raise ConfigurationError, "code overrode parameters for fetch with bad values: #{ override_error_messages.join(', ')}"
           end
 
           # verbose toggle because httpclient internally uses Kernel#warn
-          old_verbose = $VERBOSE = nil          
-          response = request( url, method, fields )
+          old_verbose = $VERBOSE = nil
+          response = request(url, method, fields)
 
           @client.save_cookie_store
           $VERBOSE = old_verbose
@@ -201,39 +225,23 @@ module Armagh
           true
         end
 
-        def extract_type(header)
-          type_str = header['Content-Type'].first
-          info = {}
-          return info if type_str.nil? || type_str.empty?
-          type_details = type_str.split(';')
-          info['type'] = type_details.first
-
-          type_details[1..-1].each do |detail|
-            detail.strip!
-            if detail.start_with?('charset=')
-              info['encoding'] = detail.sub('charset=', '')
-            end
-          end
-          info
-        end
-
         private def set_proxy
           @client.proxy = @config.proxy_url if @config.proxy_url
           if @config.proxy_username && @config.proxy_password && @config.proxy_url
-            @client.set_proxy_auth(@config.proxy_username, @config.proxy_password.plain_text )
+            @client.set_proxy_auth(@config.proxy_username, @config.proxy_password.plain_text)
           end
         end
-  
+
         private def set_auth
           if @config.certificate && @config.key
             begin
-              @client.ssl_config.client_cert = OpenSSL::X509::Certificate.new(@config.certificate )
+              @client.ssl_config.client_cert = OpenSSL::X509::Certificate.new(@config.certificate)
             rescue => e
               raise HTTP::ConfigurationError, "Certificate Error: #{e.message}."
             end
 
             begin
-              @client.ssl_config.client_key = OpenSSL::PKey::RSA.new(@config.key, @config.key_password.plain_text )
+              @client.ssl_config.client_key = OpenSSL::PKey::RSA.new(@config.key, @config.key_password.plain_text)
             rescue => e
               raise HTTP::ConfigurationError, "Key Error: #{e.message}."
             end
@@ -247,7 +255,7 @@ module Armagh
           raise HTTP::ConfigurationError, "Unable to set authentication.  #{e.message}"
         end
 
-        private def request( url, method, fields )
+        private def request(url, method, fields)
           raise SafeError, "Unable to request from '#{url}' due to whitelist/blacklist rules." unless acceptable_uri? url
 
           case method
@@ -257,11 +265,13 @@ module Armagh
               response = @client.post(url, body: fields, header: @headers, follow_redirect: @config.follow_redirects)
           end
 
-          raise SafeError, "Unable to request from '#{url}' due to whitelist/blacklist rules for mime type." unless acceptable_mime_type?(extract_type(response.header)['type'])
+          header_hash = header_to_hash(response.header)
+
+          raise SafeError, "Unable to request from '#{url}' due to whitelist/blacklist rules for mime type." unless acceptable_mime_type?(HTTP.extract_type(header_hash)['type'])
 
           if response.ok?
             response_text = Support::Encoding.fix_encoding(response.content)
-            {'head' => header_to_hash(response.header), 'body' => response_text}
+            {'head' => header_hash, 'body' => response_text}
           else
             if response.status == 302
               raise HTTP::RedirectError, "Attempted to redirect from '#{@url}' but redirection is not allowed."

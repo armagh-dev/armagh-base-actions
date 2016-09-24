@@ -16,3 +16,29 @@
 #
 
 Dir[File.join(__dir__, 'actions', '*.rb')].each { |file| require file }
+
+module Armagh
+  module Actions
+    
+    def self.defined_actions
+      
+      actions = []
+      
+      modules = [ "StandardActions", "CustomActions" ].collect{ |mod|
+        begin
+          Armagh.const_get mod 
+        rescue
+        end
+      }.compact
+      
+      modules.each do |mod|
+        actions.concat mod.constants.collect{ |c| 
+          maybe_class = mod.const_get(c) 
+          maybe_class if maybe_class.is_a?( Class )
+        }.compact
+      end
+      
+      actions
+    end
+  end
+end
