@@ -19,6 +19,7 @@ require 'configh'
 
 require_relative 'encodable'
 require_relative 'loggable'
+require_relative 'stateful'
 require_relative 'errors'
 require_relative '../documents'
 
@@ -34,6 +35,7 @@ module Armagh
 
       include Loggable
       include Encodable
+      include Stateful
       include Configh::Configurable
       
       define_group_validation_callback callback_class: Action, callback_method: :report_validation_errors
@@ -72,12 +74,13 @@ module Armagh
         }
       end
       
-      def initialize(caller_instance, logger_name, config)
+      def initialize(caller_instance, logger_name, config, state_collection)
         
         Action.validate_action_type( self.class )
         @config = config
         @caller = caller_instance
         @logger_name = logger_name
+        @state_collection = state_collection
       end
      
       def self.defined_output_docspecs
@@ -117,6 +120,11 @@ module Armagh
         new_values = add_action_params( name, values )
         super( collect, name, **args, values_for_create: new_values )
       end
+      
+      def with_locked_action_state( timeout = 10 )
+        super( @state_collection, timeout )
+      end
+      
     end
   end
 end

@@ -28,6 +28,7 @@ class TestPublish < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
+    @collection = mock
     if Object.const_defined?( :SubPublish )
       Object.send( :remove_const, :SubPublish )
     end
@@ -39,7 +40,7 @@ class TestPublish < Test::Unit::TestCase
       'action' => { 'name' => 'mySubPublish' }
       })
     
-    @publish_action = SubPublish.new( @caller, 'logger_name', config )
+    @publish_action = SubPublish.new( @caller, 'logger_name', config, @collection )
   end
 
   def test_unimplemented_publish

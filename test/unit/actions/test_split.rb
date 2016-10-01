@@ -28,6 +28,7 @@ class TestSplit < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
+    @collection = mock
     if Object.const_defined?( :SubSplit )
       Object.send( :remove_const, :SubSplit )
     end
@@ -38,7 +39,7 @@ class TestSplit < Test::Unit::TestCase
     @config = SubSplit.create_configuration( @config_store, 'set', {
       'action' => { 'name' => 'mysubcollect' }
       })
-    @split_action = Armagh::Actions::Split.new( @caller, 'logger_name', @config)
+    @split_action = Armagh::Actions::Split.new( @caller, 'logger_name', @config, @collection)
   end
 
   def test_unimplemented_split

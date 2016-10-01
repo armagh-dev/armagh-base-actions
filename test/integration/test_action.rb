@@ -94,7 +94,7 @@ class TestIntegrationAction < Test::Unit::TestCase
     assert_nothing_raised { 
       SubSplit.define_default_input_type 'test_type1'
       config = SubSplit.create_configuration( @config_store, action_name, {} )
-      SubSplit.new( @caller, 'logger_name', config )
+      SubSplit.new( @caller, 'logger_name', config, @@collection )
     }
     assert_equal action_name, config.action.name
     assert_true config.action.active
@@ -107,7 +107,7 @@ class TestIntegrationAction < Test::Unit::TestCase
       SubSplit.define_default_input_type type
       config = SubSplit.create_configuration( @config_store, 'defintype', { 
         'action' => { 'name' => 'fred_the_action'} }) 
-      SubSplit.new( @caller, 'logger_name', config )
+      SubSplit.new( @caller, 'logger_name', config, @@collection )
     }
     assert_equal type, config.input.docspec.type
   end
@@ -123,7 +123,7 @@ class TestIntegrationAction < Test::Unit::TestCase
         'action' => { 'name' => 'fred_the_action'}, 
         'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
       }) 
-      SubSplit.new( @caller, 'logger_name', config )
+      SubSplit.new( @caller, 'logger_name', config, @@collection )
     }
     docspec = config.output.test_type2
     assert docspec.is_a?( Armagh::Documents::DocSpec )
@@ -142,7 +142,7 @@ class TestIntegrationAction < Test::Unit::TestCase
 
   def test_valid_bad_type    
     Object.const_set "BadClass", Class.new( Armagh::Actions::Action )
-    e = assert_raises( Armagh::Actions::ActionError) { BadClass.new( @caller, 'logger_name', Object.new )}
+    e = assert_raises( Armagh::Actions::ActionError) { BadClass.new( @caller, 'logger_name', Object.new, @@collection )}
     assert_equal "Unknown Action Type Actions::Action.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect, Armagh::Actions::Divide.", e.message
     
   end
@@ -182,7 +182,7 @@ class TestIntegrationAction < Test::Unit::TestCase
         'action' => { 'name' => 'fred_the_action'}, 
         'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
       }) 
-      SubSplit.new( @caller, 'logger_name', config )
+      SubSplit.new( @caller, 'logger_name', config, @@collection )
     }
     docspec = config.output.test_type2
     assert docspec.is_a?( Armagh::Documents::DocSpec )

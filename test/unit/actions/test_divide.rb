@@ -29,6 +29,7 @@ class TestDivide < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
+    @collection = mock
     if Object.const_defined?( :SubCollect )
       Object.send( :remove_const, :SubCollect )
     end
@@ -54,7 +55,7 @@ class TestDivide < Test::Unit::TestCase
       'input'  => { 'doctype' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )},
       'output' => { 'littledocs' => Armagh::Documents::DocSpec.new( 'danslittledocs', Armagh::Documents::DocState::READY )}
     })
-    @divide_action = SubDivide.new( @caller, 'logger_name', div_config)
+    @divide_action = SubDivide.new( @caller, 'logger_name', div_config, @collection)
     
   end 
 

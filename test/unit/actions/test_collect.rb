@@ -29,6 +29,7 @@ class TestCollect < Test::Unit::TestCase
 
   def setup
     @caller = mock
+    @collection = mock
     if Object.const_defined?( :SubCollect )
       Object.send( :remove_const, :SubCollect )
     end
@@ -40,7 +41,7 @@ class TestCollect < Test::Unit::TestCase
       'collect' => {'schedule' => '*/5 * * * *'}
       })
     
-    @collect_action = SubCollect.new( @caller, 'logger_name', config )
+    @collect_action = SubCollect.new( @caller, 'logger_name', config, @collection )
     @content = 'collected content'
     @source = Armagh::Documents::Source.new(type: 'url', url: 'some url')
   end

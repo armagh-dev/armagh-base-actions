@@ -28,6 +28,7 @@ class TestConsume < Test::Unit::TestCase
   def setup
     @caller = mock
     @config_store = []
+    @collection = mock
     
     if Object.const_defined?( :SubConsume )
       Object.send( :remove_const, :SubConsume )
@@ -39,7 +40,7 @@ class TestConsume < Test::Unit::TestCase
       'action' => { 'name' => 'mysubcollect' }
       })
     
-    @consume_action = SubConsume.new( @caller, 'logger_name', @config )
+    @consume_action = SubConsume.new( @caller, 'logger_name', @config, @collection )
   end
 
   def test_unimplemented_consume
