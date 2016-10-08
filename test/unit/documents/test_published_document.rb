@@ -27,16 +27,25 @@ class TestPublishedDocument < Test::Unit::TestCase
 
 	def setup
     @document_id = '123'
-    @content = {'content' => true}
+    @bson_binary = 'something'
+    @text_content = 'text content'
+    @content = {'content' => true, 'bson_binary' => BSON::Binary.new(@bson_binary), 'text_content' => @text_content}
     @metadata = {'meta' => true}
     @document_timestamp = Time.now
     @docspec = Armagh::Documents::DocSpec.new('doctype', Armagh::Documents::DocState::PUBLISHED)
     @source = {'source' => 'something'}
     @title = 'title'
     @copyright = 'copyright'
-		@doc = Armagh::Documents::PublishedDocument.new(document_id: @document_id, content: @content,
-                                                 metadata: @metadata, docspec: @docspec, source: @source,
-                                                 document_timestamp: @document_timestamp, title: @title, copyright: @copyright)
+    @display = 'display'
+		@doc = Armagh::Documents::PublishedDocument.new(document_id: @document_id,
+                                                    content: @content,
+                                                    metadata: @metadata,
+                                                    docspec: @docspec,
+                                                    source: @source,
+                                                    document_timestamp: @document_timestamp,
+                                                    title: @title,
+                                                    copyright: @copyright,
+                                                    display: @display)
   end
 
   def test_type
@@ -53,6 +62,7 @@ class TestPublishedDocument < Test::Unit::TestCase
     assert_equal(@content, @doc.content)
     assert_not_same(@content, @doc.content)
     assert_raise(Armagh::Documents::Errors::DocumentError){@doc.content = @content}
+    assert_raise{@doc.content['something'] = 'new'}
   end
 
   def test_document_id
@@ -81,5 +91,32 @@ class TestPublishedDocument < Test::Unit::TestCase
   def test_document_timestamp
     assert_equal(@document_timestamp, @doc.document_timestamp)
     assert_raise(Armagh::Documents::Errors::DocumentError){@doc.document_timestamp = @document_timestamp}
+  end
+
+  def test_display
+    assert_equal(@display, @doc.display)
+    assert_not_same(@display, @doc.display)
+    assert_raise(Armagh::Documents::Errors::DocumentError){@doc.display = @display}
+  end
+
+  def test_raw
+    assert_equal(@bson_binary, @doc.raw)
+    assert_not_same(@bson_binary, @doc.raw)
+    assert_raise(Armagh::Documents::Errors::DocumentError){@doc.raw = 'something'}
+  end
+
+  def test_text
+    assert_equal(@text_content, @doc.text)
+    assert_not_same(@text_content, @doc.text)
+    assert_raise{@doc.text << 'howdy'}
+    assert_raise(Armagh::Documents::Errors::DocumentError){@doc.text = 'something'}
+  end
+
+  def test_hash
+    assert_equal(@doc.content, @doc.hash)
+    assert_not_same(@doc.content, @doc.hash)
+
+    assert_raise(Armagh::Documents::Errors::DocumentError){@doc.hash = {}}
+    assert_raise{@doc.hash['something'] = 'wrong'}
   end
 end

@@ -16,7 +16,7 @@
 #
 
 
-require 'armagh/actions'
+# require 'armagh/actions'
 Dir[File.join(__dir__, File.basename(__FILE__, ".*"), "*.rb")].each { |file| require file }
 
 require 'configh'

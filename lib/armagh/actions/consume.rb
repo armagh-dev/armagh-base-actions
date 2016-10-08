@@ -45,7 +45,7 @@ module Armagh
       end
 
       # raises InvalidDoctypeError
-      def edit(id, docspec_name)
+      def edit(id = SecureRandom.uuid, docspec_name)
         docspec_param = @config.find_all_parameters{ |p| p.group == 'output' && p.name == docspec_name }.first
         docspec = docspec_param&.value
         raise Documents::Errors::DocSpecError.new "Editing an unknown docspec #{docspec_name}. " if docspec.nil?

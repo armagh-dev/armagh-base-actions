@@ -19,13 +19,14 @@ require_relative 'errors'
 require_relative 'doc_spec'
 
 require 'json'
+require 'bson'
 
 module Armagh
   module Documents
     class ActionDocument
-      attr_reader :document_id, :source, :content, :metadata, :title, :copyright, :docspec, :document_timestamp
+      attr_reader :document_id, :source, :content, :metadata, :title, :copyright, :docspec, :document_timestamp, :display, :archive_file
 
-      def initialize(document_id:, title: nil, copyright: nil, content:, metadata:, docspec:, source:, document_timestamp: nil, new: false)
+      def initialize(document_id:, title: nil, copyright: nil, content:, metadata:, docspec:, source:, document_timestamp: nil, display: nil, archive_file: nil, new: false)
         # Not checking the types here for 2 reasons - PublishDocument extends this while overwriting setters and custom actions dont create their own action documents.
         @document_id = document_id
         @title = title
@@ -35,6 +36,8 @@ module Armagh
         @docspec = docspec
         @source = source
         @document_timestamp = document_timestamp
+        @display = display
+        @archive_file = archive_file
         @new = new ? true : false
       end
 
@@ -77,6 +80,29 @@ module Armagh
         @document_timestamp = document_timestamp
       end
 
+      def display=(display)
+        raise TypeError, 'Display expected to be a String.' unless display.nil? || display.is_a?(String)
+        @display = display
+      end
+
+      def text
+        content['text_content']
+      end
+
+      def text=(text)
+        content.clear
+        content['text_content'] = text
+      end
+
+      def raw
+        content['bson_binary']&.data
+      end
+
+      def raw=(raw_data)
+        content.clear
+        content['bson_binary'] = BSON::Binary.new(raw_data)
+      end
+
       def to_json
         {
           'document_id' => @document_id,
@@ -86,9 +112,14 @@ module Armagh
           'content' => @content,
           'source' => @source.to_hash,
           'document_timestamp' => @document_timestamp,
-          'docspec' => @docspec.to_hash
+          'docspec' => @docspec.to_hash,
+          'display' => @display,
+          'archive_file' => @archive_file
         }.to_json
       end
+
+      alias_method :hash, :content
+      alias_method :hash=, :content=
     end
   end
 end

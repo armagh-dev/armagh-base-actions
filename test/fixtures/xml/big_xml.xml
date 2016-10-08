@@ -95,4 +95,22 @@
       </address>
     </addressList>
   </sdnEntry>
+  <sdnEntry></sdnEntry>
+  <sdnEntry id="123" />
+  <sdnEntry id="124">
+    <uid>42</uid>
+    <lastName>MR. COOL</lastName>
+    <sdnType>Entity</sdnType>
+    <programList>
+      <program>ABC</program>
+    </programList>
+    <addressList>
+      <address>
+        <uid>1</uid>
+        <city>Mumbai</city>
+        <country>India</country>
+      </address>
+    </addressList>
+  </sdnEntry>
+  <sdnEntry id="125" firstName="John" lastName="McLane"></sdnEntry>
 </sdnList>

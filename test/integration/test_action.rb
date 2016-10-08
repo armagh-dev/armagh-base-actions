@@ -19,6 +19,7 @@ require 'configh'
 require 'mongo'
 
 require_relative '../helpers/coverage_helper'
+require_relative '../helpers/mongo_support'
 require_relative '../../lib/armagh/actions'
 
 require 'test/unit'
@@ -26,55 +27,15 @@ require 'mocha/test_unit'
 
   
 class TestIntegrationAction < Test::Unit::TestCase
-  
-  class << self
-    
-    def startup
-      begin
-        try_start_mongo
-        try_connect
-        @@collection = @@connection[ 'config' ]
-        @@collection.drop
-      rescue
-        puts "unable to start mongo"
-        exit
-      end
-    end
-    
-    def try_start_mongo
-      @@pid = nil
-      psline = `ps -ef | grep mongod | grep -v grep`
-      if psline.empty?
-        puts "trying to start mongod..."
-        @@pid = spawn 'mongod 1>/dev/null 2>&1'
-        sleep 5
-      else 
-        puts "mongod was running at entry.  will be left running"
-        return      
-      end
-      Process.detach @@pid
-      raise if `ps -ef | grep mongod | grep -v grep`.empty?
-      puts "mongod successfully started."
-      
-    end
-  
-    def try_connect
-      Mongo::Logger.logger.level = ::Logger::FATAL
-      @@connection = Mongo::Client.new( 
-        [ '127.0.0.1:27017' ], 
-        :database=>'test_integ_mongo_based_config', 
-        :server_selection_timeout => 5,
-        :connect_timeout => 5
-      )
-      @@connection.collections
-    end
-    
-    def shutdown
-      if @@pid
-        puts "\nshutting down mongod"
-        `kill \`pgrep mongod\``
-      end
-    end
+
+  def self.startup
+    puts 'Starting Mongo'
+    MongoSupport.instance.start_mongo
+  end
+
+  def self.shutdown
+    puts 'Stopping Mongo'
+    MongoSupport.instance.stop_mongo
   end
   
   def setup
@@ -84,8 +45,9 @@ class TestIntegrationAction < Test::Unit::TestCase
        Object.send( :remove_const, :SubSplit )
     end
     Object.const_set "SubSplit", Class.new( Armagh::Actions::Split )
-    @@collection.drop
-    @config_store = @@collection
+    MongoSupport.instance.clean_database
+    @config_store = MongoSupport.instance.client[ 'test_config_store' ]
+    @action_state_store = @config_store
   end
   
   def test_config_action_group
@@ -94,7 +56,7 @@ class TestIntegrationAction < Test::Unit::TestCase
     assert_nothing_raised { 
       SubSplit.define_default_input_type 'test_type1'
       config = SubSplit.create_configuration( @config_store, action_name, {} )
-      SubSplit.new( @caller, 'logger_name', config, @@collection )
+      SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
     assert_equal action_name, config.action.name
     assert_true config.action.active
@@ -107,7 +69,7 @@ class TestIntegrationAction < Test::Unit::TestCase
       SubSplit.define_default_input_type type
       config = SubSplit.create_configuration( @config_store, 'defintype', { 
         'action' => { 'name' => 'fred_the_action'} }) 
-      SubSplit.new( @caller, 'logger_name', config, @@collection )
+      SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
     assert_equal type, config.input.docspec.type
   end
@@ -123,7 +85,7 @@ class TestIntegrationAction < Test::Unit::TestCase
         'action' => { 'name' => 'fred_the_action'}, 
         'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
       }) 
-      SubSplit.new( @caller, 'logger_name', config, @@collection )
+      SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
     docspec = config.output.test_type2
     assert docspec.is_a?( Armagh::Documents::DocSpec )
@@ -142,7 +104,7 @@ class TestIntegrationAction < Test::Unit::TestCase
 
   def test_valid_bad_type    
     Object.const_set "BadClass", Class.new( Armagh::Actions::Action )
-    e = assert_raises( Armagh::Actions::ActionError) { BadClass.new( @caller, 'logger_name', Object.new, @@collection )}
+    e = assert_raises( Armagh::Actions::ActionError) { BadClass.new( @caller, 'logger_name', Object.new, @action_state_store )}
     assert_equal "Unknown Action Type Actions::Action.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect, Armagh::Actions::Divide.", e.message
     
   end
@@ -182,7 +144,7 @@ class TestIntegrationAction < Test::Unit::TestCase
         'action' => { 'name' => 'fred_the_action'}, 
         'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
       }) 
-      SubSplit.new( @caller, 'logger_name', config, @@collection )
+      SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
     docspec = config.output.test_type2
     assert docspec.is_a?( Armagh::Documents::DocSpec )

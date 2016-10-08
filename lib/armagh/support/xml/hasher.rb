@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+require 'configh'
+
+require 'ox'
 
 module Armagh
   module Support

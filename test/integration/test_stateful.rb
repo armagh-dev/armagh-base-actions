@@ -16,6 +16,7 @@
 #
 
 require_relative '../helpers/coverage_helper'
+require_relative '../helpers/mongo_support'
 
 require_relative '../../lib/armagh/actions'
 require_relative '../../lib/armagh/actions/stateful'
@@ -34,66 +35,26 @@ end
 
 class TestIntegrationActionStateful < Test::Unit::TestCase
 
-  class << self
-    
-    def startup
-      begin
-        try_start_mongo
-        try_connect
-        @@collection = @@connection[ 'config' ]
-        @@collection.drop
-      rescue
-        puts "unable to start mongo"
-        exit
-      end
-    end
-    
-    def try_start_mongo
-      @@pid = nil
-      psline = `ps -ef | grep mongod | grep -v grep`
-      if psline.empty?
-        puts "trying to start mongod..."
-        @@pid = spawn 'mongod 1>/dev/null 2>&1'
-        sleep 5
-      else 
-        puts "mongod was running at entry.  will be left running"
-        return      
-      end
-      Process.detach @@pid
-      raise if `ps -ef | grep mongod | grep -v grep`.empty?
-      puts "mongod successfully started."
-      
-    end
-  
-    def try_connect
-      Mongo::Logger.logger.level = ::Logger::FATAL
-      @@connection = Mongo::Client.new( 
-        [ '127.0.0.1:27017' ], 
-        :database=>'test_integ_mongo_based_config', 
-        :server_selection_timeout => 5,
-        :connect_timeout => 5
-      )
-      @@connection.collections
-    end
-    
-    def shutdown
-      if @@pid
-        puts "\nshutting down mongod"
-        `kill \`pgrep mongod\``
-      end
-    end
+  def self.startup
+    puts 'Starting Mongo'
+    MongoSupport.instance.start_mongo
   end
 
-
+  def self.shutdown
+    puts 'Stopping Mongo'
+    MongoSupport.instance.stop_mongo
+  end
+  
   def setup
-    @@collection.drop    
+    MongoSupport.instance.clean_database
+    @action_state_store = MongoSupport.instance.client[ 'test_action_state_store' ]
     config_hash = { 
       'action' => { 'name' => 'fred' },
-      'collect' => { 'schedule' => '0 * * * *'}
+      'collect' => { 'schedule' => '0 * * * *', 'archive' => false }
     }
     @logger = mock
     action_config = Armagh::StandardActions::TIASCollect.create_configuration( [], 'fred', config_hash )
-    @action = Armagh::StandardActions::TIASCollect.new( self, @logger, action_config, @@collection )
+    @action = Armagh::StandardActions::TIASCollect.new( self, @logger, action_config, @action_state_store )
   end
   
   def test_new_state_doc
@@ -102,7 +63,7 @@ class TestIntegrationActionStateful < Test::Unit::TestCase
       state.content = { 'Yohoho' => 'rum' }
     end
     
-    d = @@collection.find( { '_id' => 'fred_state' }).first
+    d = @action_state_store.find( { '_id' => 'fred_state' }).first
     assert_equal( {"_id"=>"fred_state", "content"=>{"Yohoho"=>"rum"}, "locked_by"=>nil, "locked_at"=>nil, "type"=>"Armagh::Actions::ActionStateDocument"}, d )
   end
   
@@ -114,7 +75,7 @@ class TestIntegrationActionStateful < Test::Unit::TestCase
       end
     end
     
-    d = @@collection.find( { '_id' => 'fred_state' }).first
+    d = @action_state_store.find( { '_id' => 'fred_state' }).first
     assert_equal( {"_id"=>"fred_state", "content"=>{"Yohoho"=>"rum"}, "locked_by"=>nil, "locked_at"=>nil, "type"=>"Armagh::Actions::ActionStateDocument"}, d )
     
     assert_nothing_raised do
@@ -174,7 +135,7 @@ class TestIntegrationActionStateful < Test::Unit::TestCase
         assert_nothing_raised do
           state.save
         end
-        d = @@collection.find( { '_id' => 'fred_state' }).first
+        d = @action_state_store.find( { '_id' => 'fred_state' }).first
         assert_equal 'fred_state', d['_id']
         assert_equal( {"Yohoho"=>"rum"}, d['content'] )
         assert_not_nil d['locked_by']
@@ -183,7 +144,7 @@ class TestIntegrationActionStateful < Test::Unit::TestCase
         assert_nothing_raised do
           state.save
         end
-        d = @@collection.find( { '_id' => 'fred_state' }).first
+        d = @action_state_store.find( { '_id' => 'fred_state' }).first
         assert_equal 'fred_state', d['_id']
         assert_equal( {"Yohoho"=>"rum","cheer"=>"beer"}, d['content'] )
         assert_not_nil d['locked_by']
@@ -191,7 +152,7 @@ class TestIntegrationActionStateful < Test::Unit::TestCase
       end
     end
     
-    d = @@collection.find( { '_id' => 'fred_state' }).first
+    d = @action_state_store.find( { '_id' => 'fred_state' }).first
     assert_equal( {"_id"=>"fred_state", "content"=>{"Yohoho"=>"rum","cheer"=>"beer"}, "locked_by"=>nil, "locked_at"=>nil, "type"=>"Armagh::Actions::ActionStateDocument"}, d )
   end
 end

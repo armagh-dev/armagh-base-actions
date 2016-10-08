@@ -15,45 +15,48 @@
 # limitations under the License.
 #
 #
+
+require 'configh'
+
 module Armagh
   module Support
     module CSV
       module Divider
-        def self.extended(base)
-          base.include Configh::Configurable
+        include Configh::Configurable
 
-          base.class_eval do
-            define_parameter name: 'size_per_part',
-                                   description: 'The size of parts that the source file is divided into (in bytes)',
-                                   type: 'positive_integer',
-                                   default: 1_000_000,
-                                   required: false
+        define_parameter name:        'size_per_part',
+                         description: 'The size of parts that the source file is divided into (in bytes)',
+                         type:        'positive_integer',
+                         default:     1_000_000,
+                         required:    false,
+                         group:       'csv_divider'
 
-            define_parameter name: 'col_sep',
-                                   description: 'thee column separator for the source file',
-                                   type: 'string',
-                                   default: ',',
-                                   required: false
+        define_parameter name:        'col_sep',
+                         description: 'the column separator for the source file',
+                         type:        'string',
+                         default:     ',',
+                         required:    false,
+                         group:       'csv_divider'
 
-            define_parameter name: 'row_sep',
-                                   description: 'The row separator for the source file',
-                                   type: 'symbol',
-                                   default: :auto,
-                                   required: false
+        define_parameter name:        'row_sep',
+                         description: 'The row separator for the source file',
+                         type:        'symbol',
+                         default:     :auto,
+                         required:    false,
+                         group:       'csv_divider'
 
-            define_parameter name: 'quote_char',
-                                   description: 'The quote character for the source file',
-                                   type: 'string',
-                                   default: '"',
-                                   required: false
-          end
-        end
+        define_parameter name:        'quote_char',
+                         description: 'The quote character for the source file',
+                         type:        'string',
+                         default:     '"',
+                         required:    false,
+                         group:       'csv_divider'
 
-        def divided_parts(source, options)
+        def divided_parts(source, config)
           eof            = false
           @offset        = 0
-          @size_per_part = options.csv.size_per_part
-          @col_sep       = options.csv.col_sep
+          @size_per_part = config.csv_divider.size_per_part
+          @col_sep       = config.csv_divider.col_sep
 
           while eof == false
             @sub_string = IO.read(source, @size_per_part, @offset)
@@ -66,7 +69,7 @@ module Armagh
 
             find_previous_complete_record if last_line_has_partial_record?
 
-            yield current_sub_string if block_given?
+            yield current_sub_string
 
             @offset += @sub_string.size
             eof    = true if reached_last_part_from_file?

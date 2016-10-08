@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require 'configh'
 require_relative 'hasher'
 
 module Armagh

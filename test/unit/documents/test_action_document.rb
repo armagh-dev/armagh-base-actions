@@ -35,9 +35,18 @@ class TestActionDocument < Test::Unit::TestCase
     @source = {'source' => 'something'}
     @title = 'title'
     @copyright = 'copyright'
-		@doc = Armagh::Documents::ActionDocument.new(document_id: @document_id, content: @content,
-                                                 metadata: @metadata, docspec: @docspec, source: @source,
-                                                 document_timestamp: @document_timestamp, title: @title, copyright: @copyright)
+    @display = 'display'
+    @archive_file = 'archive file'
+		@doc = Armagh::Documents::ActionDocument.new(document_id: @document_id,
+                                                 content: @content,
+                                                 metadata: @metadata,
+                                                 docspec: @docspec,
+                                                 source: @source,
+                                                 document_timestamp: @document_timestamp,
+                                                 title: @title,
+                                                 copyright: @copyright,
+                                                 display: @display,
+                                                 archive_file: @archive_file,)
   end
 
   def test_document_id
@@ -99,6 +108,18 @@ class TestActionDocument < Test::Unit::TestCase
     assert_raise(TypeError){@doc.document_timestamp = {}}
   end
 
+  def test_display
+    assert_equal(@display, @doc.display)
+    new_display = 'something new'
+    @doc.display = new_display
+    assert_equal(new_display, @doc.display)
+    assert_raise(TypeError){@doc.document_timestamp = 123}
+  end
+
+  def test_archive_file
+    assert_equal(@archive_file, @doc.archive_file)
+  end
+
   def test_source
     assert_equal(@source, @doc.source)
     assert_raise(NoMethodError){@doc.source={}}
@@ -111,6 +132,40 @@ class TestActionDocument < Test::Unit::TestCase
     assert_true @doc.new_document?
   end
 
+  def test_text
+    text = 'some text'
+    assert_nil @doc.text
+    assert_not_empty @doc.content
+    @doc.text = text
+    assert_equal({'text_content' => 'some text'}, @doc.content)
+    assert_equal(text, @doc.text)
+  end
+
+  def test_raw
+    raw = 'some raw data'
+    assert_nil @doc.raw
+    assert_not_empty @doc.content
+    @doc.raw = raw
+    assert_equal({'bson_binary' => BSON::Binary.new(raw)}, @doc.content)
+    assert_equal(raw, @doc.raw)
+  end
+
+  def test_hash
+    assert_equal(@doc.content, @doc.hash)
+
+    assert_nil @doc.hash['hash_key']
+    @doc.content['hash_key'] = 'hash'
+    assert_equal('hash', @doc.content['hash_key'])
+
+    assert_nil @doc.content['content_key']
+    @doc.content['content_key'] = 'content'
+    assert_equal('content', @doc.hash['content_key'])
+
+    hash = {'something' => 'else'}
+    @doc.hash = hash
+    assert_equal(hash, @doc.hash)
+  end
+
   def test_to_json
     expected = {
         'document_id' => @doc.document_id,
@@ -120,9 +175,10 @@ class TestActionDocument < Test::Unit::TestCase
         'content' => @doc.content,
         'source' => @doc.source,
         'document_timestamp' => @doc.document_timestamp,
-        'docspec' => @doc.docspec.to_hash
+        'docspec' => @doc.docspec.to_hash,
+        'display' => @doc.display,
+        'archive_file' => @doc.archive_file
     }.to_json
     assert_equal(expected, @doc.to_json)
   end
-
 end

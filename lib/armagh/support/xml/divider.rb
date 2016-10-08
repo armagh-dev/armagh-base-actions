@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 #
+require 'configh'
+
 module Armagh
   module Support
     module XML
@@ -92,23 +94,15 @@ module Armagh
         end
 
         def last_line_has_partial_record?
-          if !last_line_has_closing_xml_element?
-            true
-          else
-            false
-          end
+          !last_line_has_closing_xml_element?
         end
 
         def last_line_has_complete_record?
-          if last_line_has_closing_xml_element? || @sub_string.lines.count == 1
-            return true
-          else
-            return false
-          end
+          last_line_has_closing_xml_element? || @sub_string.lines.count == 1
         end
 
         def last_line_has_closing_xml_element?
-          last_line[/\s*\/#{@xml_element}/]
+          last_line[/\s*\/#{@xml_element}/] ? true : false
         end
 
         def within_max_size?

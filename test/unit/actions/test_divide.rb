@@ -39,7 +39,7 @@ class TestDivide < Test::Unit::TestCase
     @config_store = []
     coll_config = SubCollect.create_configuration( @config_store, 'set', {
       'action' => { 'name' => 'mysubcollect' },
-      'collect' => {'schedule' => '*/5 * * * *'}
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false}
     })
     
     if Object.const_defined?( :SubDivide )

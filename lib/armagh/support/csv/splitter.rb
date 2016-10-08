@@ -16,24 +16,18 @@
 #
 
 require 'csv'
+require_relative 'parser'
 
 module Armagh
   module Support
     module CSV
       module Splitter
+        include Armagh::Support::CSV::Parser
 
-        class CSVError < StandardError; end
-        class RowMissingValueError < CSVError; end
-        class RowWithExtraValuesError < CSVError; end
+        def split_parts(doc, config)
 
-        def split_parts(source, options)
-          csv_string = source.content
-
-          ::CSV.parse(csv_string, headers: true) do |row|
-              errors = []
-              errors << RowMissingValueError    if row.fields.include?(nil)
-              errors << RowWithExtraValuesError if row.headers.include?(nil)
-              yield row.to_hash, errors if block_given?
+          each_line(doc, config) do |row, errors|
+            yield row, errors
           end
         end
 

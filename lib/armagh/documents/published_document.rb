@@ -23,7 +23,7 @@ module Armagh
     class PublishedDocument < ActionDocument
       # Metadata is fine
       def source
-        protect @source
+        protect super
       end
 
       def source=(_v)
@@ -31,7 +31,7 @@ module Armagh
       end
 
       def content
-        protect @content
+        protect super
       end
 
       def content=(_v)
@@ -39,7 +39,7 @@ module Armagh
       end
 
       def document_id
-        protect @document_id
+        protect super
       end
 
       def document_id=(document_id)
@@ -47,7 +47,7 @@ module Armagh
       end
 
       def title
-        protect @title
+        protect super
       end
 
       def title=(_v)
@@ -55,7 +55,7 @@ module Armagh
       end
 
       def copyright
-        protect @copyright
+        protect super
       end
 
       def copyright=(_v)
@@ -70,9 +70,36 @@ module Armagh
         raise Errors::DocumentError, 'Document_timestamp can not be set on an already published document.'
       end
 
+      def display
+        protect super
+      end
+
+      def display=(_v)
+        raise Errors::DocumentError, 'Display can not be set on an already published document.'
+      end
+
+      def raw
+        protect super
+      end
+
+      def raw=(_v)
+        raise Errors::DocumentError, 'Raw can not be set on an already published document.'
+      end
+
+      def text
+        protect super
+      end
+
+      def text=(_v)
+        raise Errors::DocumentError, 'Text can not be set on an already published document.'
+      end
+
       private def protect(item)
         item.dup.freeze
       end
+
+      alias_method :hash, :content
+      alias_method :hash=, :content=
     end
   end
 end

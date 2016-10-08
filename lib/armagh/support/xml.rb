@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-require 'ox'
 require 'armagh/actions'
 Dir[File.join(__dir__, File.basename(__FILE__, ".*"), "*.rb")].each { |file| require file }
 
@@ -24,6 +23,7 @@ require 'configh'
 module Armagh
   module Support
     module XML
+      extend XML::Splitter
       extend XML::Divider
       extend XML::Parser
 

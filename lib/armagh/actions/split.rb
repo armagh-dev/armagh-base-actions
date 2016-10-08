@@ -37,7 +37,7 @@ module Armagh
         raise Errors::ActionMethodNotImplemented, 'Split actions must overwrite the split method.'
       end
 
-      def edit(id, docspec_name)
+      def edit(id = SecureRandom.uuid, docspec_name)
         docspec_param = @config.find_all_parameters{ |p| p.group == 'output' and p.name == docspec_name }.first
         docspec = docspec_param&.value
         raise Documents::Errors::DocSpecError.new "Editing an unknown docspec #{docspec_name}." if docspec.nil?

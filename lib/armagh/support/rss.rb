@@ -17,6 +17,7 @@
 
 require 'configh'
 require 'simple-rss'
+require 'facets/hash/stringify_keys'
 require_relative 'http'
 
 module Armagh
@@ -29,13 +30,11 @@ module Armagh
       class RSSParseError < RSSError; end
 
       define_parameter name: 'max_items', description: 'Maximum number of items to collect', type: 'positive_integer', required: true, default: 100, prompt: '100'
-      define_parameter name: 'content_field', description: 'Field containing content', type: 'symbol', required: false, prompt: 'field_name'
-      define_parameter name: 'link_field', description: 'Field containing link to the content.', type: 'symbol', required: false, prompt: 'field_name', default: 'link'
-      define_parameter name: 'additional_fields', description: 'Additional fields to collect from the RSS feed (in addition to the defaults', type: 'symbol_array', required: true, prompt: '[field1, field2]', default: []
+      define_parameter name: 'link_field', description: 'Field containing link to the content.', type: 'string', prompt: 'field_name', default: 'link'
+      define_parameter name: 'content_field', description: 'Field containing content.  If set, overrides link_field.', type: 'string', required: false, prompt: 'field_name'
+      define_parameter name: 'additional_fields', description: 'Additional fields to collect from the RSS feed (in addition to the defaults', type: 'string_array', required: true, prompt: '[field1, field2]', default: []
       define_parameter name: 'full_collect', description: 'Do a collection of the full available RSS history.', type: 'boolean', required: true, default: false
       define_parameter name: 'description_no_content', description: 'Add the description as content in case there is no content.', type: 'boolean', required: true, default: false
-
-      # TODO Validation (link or content field)
 
       # Additional media tags
       SimpleRSS.item_tags.concat [:'media:rating', :'media:rating#scheme', :'media:description', :'media:keywords',
@@ -45,46 +44,67 @@ module Armagh
 
       module_function
 
-      def collect_rss(config)
-        raise ArgumentError, 'Block must be provided to collect_rss, which yields |item, content_str, timestamp, exception|' unless block_given?
+      def collect_rss(config, state)
+        raise ArgumentError, 'Block must be provided to collect_rss, which yields |item, content_str, type, timestamp, exception|' unless block_given?
         setup_fields(config)
 
         http = HTTP::Connection.new(config)
-        rss = fetch_rss(config, http)
+        http_response = http.fetch
+        rss = parse_response(config, http_response)
 
-        last_collect = config.rss.full_collect ? nil : Time.now # TODO Get the last timestamp instead of time.now.  Needs action state
+        parent_type = HTTP.extract_type(http_response['head'])
+
+        last_collect = config.rss.full_collect ? nil : state.content['last_collect']
         rss_items = get_filtered_rss(rss, last_collect, config.rss.max_items)
 
-
         content_field = config.rss.content_field
-        link_field = config.rss.link_field
+        content_field = content_field.to_sym if content_field
+        link_field = config.rss.link_field.to_sym
+
+        channel = {}
+        SimpleRSS.feed_tags.each{|t| channel[t.to_s] = rss.send(t) if rss.respond_to?(t)}
 
         rss_items.each do |item|
           error = nil
           begin
-            content = content_field ? item[config.rss.content_field] : http.fetch(item[link_field])
-            content = item[:description] if (content.nil? || content.empty?) && config.rss.description_no_content
-          rescue RSSError => e
-            error = e
+            if content_field
+              type = parent_type
+              content = item[content_field]
+            elsif item[link_field]
+              response = http.fetch(item[link_field])
+              content = response['body']
+
+              if item[:media_content_type]
+                type = {'type' => item[:media_content_type], 'encoding' => 'binary'}
+              else
+                type = HTTP.extract_type(response['head']) || parent_type
+              end
+            else
+              type = parent_type
+            end
           rescue => e
             error = RSSError.new("Unknown RSS error occurred from #{config.http.url}: #{e}.")
           end
 
-          yield item, content, item[:armagh_timestamp], error
+          content = item[:description] if (content.nil? || content.empty?) && config.rss.description_no_content
+          timestamp = item[:armagh_timestamp]
+          item.stringify_keys!
+
+          yield channel, item, content, type, timestamp, error
+
+          state.content['last_collect'] = timestamp if state.content['last_collect'].nil? || timestamp > state.content['last_collect']
         end
 
       end
 
       private_class_method def setup_fields(config)
         config.rss.additional_fields.each {|f| SimpleRSS.item_tags << f}
-        SimpleRSS.item_tags << config.rss.content_field if config.rss.content_field
-        SimpleRSS.item_tags << config.rss.content_field if config.rss.link_field
+        SimpleRSS.item_tags << config.rss.content_field.to_sym if config.rss.content_field
+        SimpleRSS.item_tags << config.rss.link_field.to_sym
         SimpleRSS.item_tags.uniq!
       end
 
-      private_class_method def fetch_rss(config, http)
-        http_response = http.fetch
-
+      private_class_method def parse_response(config, http_response)
         rss = nil
         begin
           rss = SimpleRSS.parse(http_response['body'])

@@ -21,38 +21,40 @@ require 'configh'
 
 require_relative 'action'
 require_relative '../support/cron'
+require_relative '../support/sftp'
 
 module Armagh
   module Actions
-    
+
     class ConfigurationError < StandardError; end
-    
+
     class Collect < Action
       include Configh::Configurable
 
       define_parameter name: 'schedule', type: 'string', required: true, description: 'Schedule to run the collector.  Cron syntax', prompt: '*/15 * * * *', group: 'collect'
-      
+      define_parameter name: 'archive', type: 'boolean', required: true, description: 'Archive collected documents', group: 'collect', default: true
+
       define_group_validation_callback callback_class: Collect, callback_method: :report_validation_errors
-      
-      COLLECT_DOCTYPE_PREFIX = "__COLLECT__"
-      
+
+      COLLECT_DOCTYPE_PREFIX = '__COLLECT__'
+
       def self.inherited( base )
         base.register_action
         base.define_default_input_type COLLECT_DOCTYPE_PREFIX
-        
+
         base.define_singleton_method( :define_default_input_type ){ |*args|
-          raise ConfigurationError, "You cannot define default input types for collectors"
+          raise ConfigurationError, 'You cannot define default input types for collectors'
         }
       end
-      
+
       def self.add_action_params( name, values )
         new_values = super
         new_values[ 'input' ] ||= {}
         new_values[ 'input' ][ 'docspec' ] = "#{ COLLECT_DOCTYPE_PREFIX }#{new_values['action']['name']}:ready"
-        
+
         new_values
       end
-      
+
       # Doc is an ActionDocument
       def collect
         raise Errors::ActionMethodNotImplemented.new 'Collect actions must overwrite the collect method.'
@@ -80,11 +82,12 @@ module Armagh
         end
 
         divider = @caller.instantiate_divider(docspec)
+        archive_file = nil
 
         if divider
           docspec_param = divider.config.find_all_parameters{ |p| p.group == 'output' && p.name == docspec_name }.first
           docspec = docspec_param&.value
-          
+
           if File.file? collected
             collected_file = collected
           else
@@ -92,15 +95,20 @@ module Armagh
             File.write(collected_file, collected)
           end
 
+          archive_file = @caller.archive(@logger_name, @name, collected_file, metadata, source) if @config.collect.archive
+
           collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
           divider.source = source
+          divider.archive_file = archive_file
           divider.divide(collected_doc)
           divider.source = nil
+          divider.archive_file = nil
         else
           content = File.file?(collected) ? File.read(collected) : collected
+          archive_file = @caller.archive(@logger_name, @name, collected_file, metadata, source) if @config.collect.archive
           content_hash = {'bson_binary' => BSON::Binary.new(content)}
           action_doc = Documents::ActionDocument.new(document_id: SecureRandom.uuid, content: content_hash, metadata: metadata,
-                                                     docspec: docspec, source: source, new: true)
+                                                     docspec: docspec, source: source, archive_file: archive_file, new: true)
           @caller.create_document(action_doc)
         end
       end
@@ -116,7 +124,12 @@ module Armagh
         schedule = candidate_config.collect.schedule
         errors << "Schedule '#{schedule}' is not valid cron syntax." unless Support::Cron.valid_cron?(schedule)
 
-        errors.empty? ? nil : errors.join(", ")
+        if candidate_config.collect.archive
+          sftp_error = Support::SFTP.validate(Support::SFTP.archive_config)
+          errors << "Archive Configuration Error: #{sftp_error}" if sftp_error
+        end
+
+        errors.empty? ? nil : errors.join(', ')
       end
     end
   end

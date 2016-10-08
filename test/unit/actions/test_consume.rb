@@ -62,6 +62,18 @@ class TestConsume < Test::Unit::TestCase
     end
   end
 
+  def test_edit_no_id
+    yielded_doc = mock
+    @caller.expects(:edit_document).with do |id, type|
+      assert_not_nil(id[/\w+-\w+-\w+-\w+-\w+/], 'ID was not a uuid')
+      assert_equal(@config.output.output_type, type)
+      true
+    end.yields(yielded_doc)
+
+    @consume_action.edit('output_type') do |doc|
+      assert_equal yielded_doc, doc
+    end
+  end
 
   def test_valid_invalid_out_state
     if Object.const_defined?( :SubConsume )

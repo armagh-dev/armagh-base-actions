@@ -33,15 +33,15 @@ class TestCollect < Test::Unit::TestCase
     if Object.const_defined?( :SubCollect )
       Object.send( :remove_const, :SubCollect )
     end
-    Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
-    SubCollect.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
+    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
+    SubCollect.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
     @config_store = []
-    config = SubCollect.create_configuration( @config_store, 'a', {
-      'action' => { 'name' => 'mysubcollect'},
-      'collect' => {'schedule' => '*/5 * * * *'}
-      })
-    
-    @collect_action = SubCollect.new( @caller, 'logger_name', config, @collection )
+    config = SubCollect.create_configuration(@config_store, 'a', {
+      'action' => {'name' => 'mysubcollect'},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false}
+    })
+
+    @collect_action = SubCollect.new(@caller, 'logger_name', config, @collection)
     @content = 'collected content'
     @source = Armagh::Documents::Source.new(type: 'url', url: 'some url')
   end
@@ -51,7 +51,7 @@ class TestCollect < Test::Unit::TestCase
   end
 
   def test_unimplemented_collect
-    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@collect_action.collect}
+    assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) { @collect_action.collect }
   end
 
   def test_input_doctype_override
@@ -61,20 +61,21 @@ class TestCollect < Test::Unit::TestCase
   def test_create_no_divider
     @caller.expects(:instantiate_divider).returns(nil)
     @caller.expects(:create_document)
-    @collect_action.create(@content, {'meta'=>true}, 'output_type', @source)
+    @collect_action.create(@content, {'meta' => true}, 'output_type', @source)
   end
 
   def test_create_with_divider_content
     FakeFS do
       divider = mock
       @caller.expects(:instantiate_divider).returns(divider)
-      
+
       docspec_param = mock
-      docspec_param.expects( :value ).returns( Armagh::Documents::DocSpec.new( 'a', 'ready' ))
+      docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
       defined_params = mock
-      defined_params.expects( :find_all_parameters ).returns( [ docspec_param ])
-      divider.expects( :config ).returns( defined_params )
+      defined_params.expects(:find_all_parameters).returns([docspec_param])
+      divider.expects(:config).returns(defined_params)
       divider.expects(:source=).twice
+      divider.expects(:archive_file=).twice
 
       divider.expects(:divide).with() do |collected_doc|
         assert_true collected_doc.is_a?(Armagh::Documents::CollectedDocument)
@@ -83,7 +84,7 @@ class TestCollect < Test::Unit::TestCase
         true
       end
 
-      @collect_action.create(@content, {'meta'=>true}, 'output_type', @source)
+      @collect_action.create(@content, {'meta' => true}, 'output_type', @source)
     end
   end
 
@@ -92,11 +93,12 @@ class TestCollect < Test::Unit::TestCase
       divider = mock
       @caller.expects(:instantiate_divider).returns(divider)
       docspec_param = mock
-      docspec_param.expects( :value ).returns( Armagh::Documents::DocSpec.new( 'a', 'ready' ))
+      docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
       defined_params = mock
-      defined_params.expects( :find_all_parameters ).returns( [ docspec_param ])
-      divider.expects( :config ).returns( defined_params )
+      defined_params.expects(:find_all_parameters).returns([docspec_param])
+      divider.expects(:config).returns(defined_params)
       divider.expects(:source=).twice
+      divider.expects(:archive_file=).twice
       collected_file = 'filename'
       File.write(collected_file, @content)
 
@@ -108,7 +110,7 @@ class TestCollect < Test::Unit::TestCase
         valid
       end
 
-      @collect_action.create(collected_file, {'meta'=>true}, 'output_type', @source)
+      @collect_action.create(collected_file, {'meta' => true}, 'output_type', @source)
     end
   end
 
@@ -130,67 +132,107 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:instantiate_divider).returns(nil)
     @caller.expects(:create_document).returns(nil)
 
-    @collect_action.create(@content, {'meta'=>true}, 'output_type', source)
+    @collect_action.create(@content, {'meta' => true}, 'output_type', source)
   end
 
   def test_file_source_bad_filename
     source = Armagh::Documents::Source.new(type: 'file', host: 'host', path: 'path')
     e = Armagh::Actions::Errors::CreateError.new('Source filename must be set.')
-    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
   end
 
   def test_file_source_bad_path
     source = Armagh::Documents::Source.new(type: 'file', filename: 'filename', host: 'host')
     e = Armagh::Actions::Errors::CreateError.new('Source path must be set.')
-    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
   end
 
   def test_file_source_bad_host
     source = Armagh::Documents::Source.new(type: 'file', filename: 'filename', path: 'path')
     e = Armagh::Actions::Errors::CreateError.new('Source host must be set.')
-    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
   end
 
   def test_url_source_bad_url
     source = Armagh::Documents::Source.new(type: 'url')
     e = Armagh::Actions::Errors::CreateError.new('Source url must be set.')
-    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
   end
 
   def test_source_bad_type
     source = Armagh::Documents::Source.new(type: 'invalid')
     e = Armagh::Actions::Errors::CreateError.new('Source type must be url or file.')
-    assert_raise(e){@collect_action.create(@content, {'meta'=>true}, 'output_type', source)}
+    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
   end
 
   def test_valid_invalid_out_state
-    if Object.const_defined?( :SubCollect )
-      Object.send( :remove_const, :SubCollect )
+    if Object.const_defined?(:SubCollect)
+      Object.send(:remove_const, :SubCollect)
     end
-    Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
-    SubCollect.define_output_docspec( 'collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
-    e = assert_raises( Configh::ConfigInitError ) {
-      config = SubCollect.create_configuration( [], 'inoutstate', {
-        'action' => { 'name' => 'mysubcollect'},
-        'collect' => {'schedule' => '*/5 * * * *'},
-        'input'  => { 'doctype' => 'randomdoc' }
+    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
+    SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED)
+    e = assert_raises(Configh::ConfigInitError) {
+      config = SubCollect.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
+        'input' => {'doctype' => 'randomdoc'}
       })
     }
     assert_equal "Unable to create configuration SubCollect inoutstate: Output docspec 'collected_doc' state must be one of: ready, working.", e.message
   end
 
   def test_valid_invalid_cron
-    if Object.const_defined?( :SubCollect )
-      Object.send( :remove_const, :SubCollect )
+    if Object.const_defined?(:SubCollect)
+      Object.send(:remove_const, :SubCollect)
     end
-    Object.const_set :SubCollect, Class.new( Armagh::Actions::Collect )
+    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
     SubCollect.include Configh::Configurable
-    SubCollect.define_output_docspec( 'collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
-    assert_raises( Configh::ConfigInitError.new("Unable to create configuration SubCollect inoutstate: Schedule 'invalid' is not valid cron syntax.") ) {
-      SubCollect.create_configuration( [], 'inoutstate', {
-        'action' => { 'name' => 'mysubcollect'},
-        'collect' => {'schedule' => 'invalid'},
-        'input'  => { 'doctype' => 'randomdoc' }
+    SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
+    assert_raises(Configh::ConfigInitError.new("Unable to create configuration SubCollect inoutstate: Schedule 'invalid' is not valid cron syntax.")) {
+      SubCollect.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'schedule' => 'invalid', 'archive' => false},
+        'input' => {'doctype' => 'randomdoc'}
+      })
+    }
+  end
+
+  def test_valid_archive
+    if Object.const_defined?(:SubCollect)
+      Object.send(:remove_const, :SubCollect)
+    end
+    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
+    SubCollect.include Configh::Configurable
+    SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
+
+    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
+    Armagh::Support::SFTP.expects(:validate).returns(nil)
+
+    assert_nothing_raised {
+      SubCollect.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
+        'input' => {'doctype' => 'randomdoc'}
+      })
+    }
+  end
+
+  def test_valid_invalid_archive
+    if Object.const_defined?(:SubCollect)
+      Object.send(:remove_const, :SubCollect)
+    end
+    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
+    SubCollect.include Configh::Configurable
+    SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
+
+    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
+    Armagh::Support::SFTP.expects(:validate).returns('INVALID')
+
+    assert_raises(Configh::ConfigInitError.new('Unable to create configuration SubCollect inoutstate: Archive Configuration Error: INVALID')) {
+      SubCollect.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
+        'input' => {'doctype' => 'randomdoc'}
       })
     }
   end

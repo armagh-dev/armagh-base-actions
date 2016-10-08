@@ -27,27 +27,46 @@ module Armagh
     module SFTP
       include Configh::Configurable
 
-      class SFTPError < StandardError;   end
-      class ConnectionError < SFTPError; end
-      class PermissionError < SFTPError; end
-      class FileError < SFTPError;       end
-      class TimeoutError < SFTPError;    end
+      class SFTPError < StandardError;
+      end
+      class ConnectionError < SFTPError;
+      end
+      class PermissionError < SFTPError;
+      end
+      class FileError < SFTPError;
+      end
+      class TimeoutError < SFTPError;
+      end
 
-      define_parameter name: 'host',             description: 'SFTP host or IP',             type: 'populated_string',  required: true,  prompt: 'host.example.com or 10.0.0.1'
-      define_parameter name: 'port',             description: 'SFTP port',                   type: 'positive_integer',  required: true,  default: 22
-      define_parameter name: 'directory_path',   description: 'SFTP base directory path',    type: 'populated_string',  required: true,  default: './'
-      define_parameter name: 'filename_pattern', description: 'Glob file pattern',           type: 'string',            required: false, prompt: '*.pdf'
-      define_parameter name: 'username',         description: 'SFTP user name',              type: 'populated_string',  required: true,  prompt: 'user'
-      define_parameter name: 'password',         description: 'SFTP user password',          type: 'encoded_string',    required: false, prompt: 'password'
-      define_parameter name: 'key',              description: 'SSH Key for SFTP connection', type: 'string',            required: false, prompt: 'password'
+      define_parameter name: 'host', description: 'SFTP host or IP', type: 'populated_string', required: true, prompt: 'host.example.com or 10.0.0.1'
+      define_parameter name: 'port', description: 'SFTP port', type: 'positive_integer', required: true, default: 22
+      define_parameter name: 'directory_path', description: 'SFTP base directory path', type: 'populated_string', required: true, default: './'
+      define_parameter name: 'filename_pattern', description: 'Glob file pattern', type: 'string', required: false, prompt: '*.pdf'
+      define_parameter name: 'username', description: 'SFTP user name', type: 'populated_string', required: true, prompt: 'user'
+      define_parameter name: 'password', description: 'SFTP user password', type: 'encoded_string', required: false, prompt: 'password'
+      define_parameter name: 'key', description: 'SSH Key for SFTP connection', type: 'string', required: false, prompt: 'password'
       define_parameter name: 'maximum_transfer', description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
 
       define_group_validation_callback callback_class: self, callback_method: :validate
-      
-      def SFTP.validate( candidate_config )
+
+      def SFTP.archive_config
+        return @archive_config if @archive_config
+
+        sftp_config = {
+          'host' => ENV['ARMAGH_ARCHIVE_HOST'],
+          'directory_path' => ENV['ARMAGH_ARCHIVE_PATH'],
+          'username' => ENV['ARMAGH_ARCHIVE_USER'],
+        }
+        sftp_config['port'] = ENV['ARMAGH_ARCHIVE_PORT'].to_i if ENV['ARMAGH_ARCHIVE_PORT']
+
+        @archive_config = Armagh::Support::SFTP.create_configuration([], 'archive', {
+          'sftp' => sftp_config})
+      end
+
+      def SFTP.validate(candidate_config)
         error = nil
         begin
-          Connection.open( candidate_config ) do |sftp|
+          Connection.open(candidate_config) do |sftp|
             error = sftp.test_connection
           end
         rescue => e
@@ -70,7 +89,7 @@ module Armagh
 
         def initialize(config)
           sc = config.sftp
-          
+
           @host = sc.host
           @directory_path = sc.directory_path
           @filename_pattern = sc.filename_pattern || '*'
@@ -91,14 +110,14 @@ module Armagh
           failed_files = 0
 
           entries_to_transfer = @sftp.dir.glob(@directory_path, @filename_pattern)
-          entries_to_transfer = entries_to_transfer.select{|e| e.file?}.first(@maximum_number_to_transfer)
+          entries_to_transfer = entries_to_transfer.select { |e| e.file? }.first(@maximum_number_to_transfer)
           entries_to_transfer.each do |entry|
             file_attempts = 0
 
             relative_path = entry.name
             parent = File.dirname(relative_path)
             remote_path = File.join(@directory_path, relative_path)
-            attributes = entry.attributes.attributes.collect{|k,v| [k.to_s, v]}.to_h
+            attributes = entry.attributes.attributes.collect { |k, v| [k.to_s, v] }.to_h
 
             attributes['mtime'] = Time.at(attributes['mtime']).utc if attributes['mtime']
             attributes['atime'] = Time.at(attributes['atime']).utc if attributes['atime']
@@ -125,7 +144,7 @@ module Armagh
 
         def put_files
           local_files = Dir.glob(@filename_pattern)
-          files_to_transfer = local_files.select{|f| File.file? f}.first(@maximum_number_to_transfer)
+          files_to_transfer = local_files.select { |f| File.file? f }.first(@maximum_number_to_transfer)
           failed_files = 0
 
           files_to_transfer.each do |local_path|
@@ -140,7 +159,7 @@ module Armagh
               File.delete local_path if File.exists? local_path
               failed_files = 0
             rescue => e
-              retry unless attempts_this_file >= 3
+              retry if attempts_this_file < 3
               converted_error = convert_errors(e, host: @host, file: local_path)
               failed_files += 1
               yield local_path, converted_error
@@ -149,8 +168,26 @@ module Armagh
           end
         end
 
+        def put_file(src, dest_dir)
+          raise FileError, "Local file '#{src}' is not a file." unless File.file? src
+          attempts = 0
+          begin
+            attempts += 1
+            mkdir_p dest_dir
+            @sftp.upload!(src, File.join(@directory_path, dest_dir, src))
+          rescue => e
+            retry if attempts < 3
+            raise convert_errors(e, host: @host, file: src)
+          end
+        end
+
+        def remove(path)
+          @sftp.session.exec!("rm -rf #{File.join(@directory_path, path)}")
+        rescue => e
+          raise convert_errors(e, host: @host, file: path)
+        end
+
         def test_connection
-          
           error = nil
           test_filename = 'sftp_test'
           test_file = Tempfile.new test_filename
@@ -165,7 +202,7 @@ module Armagh
         rescue => e
           error = convert_errors(e)
           error = error&.message
-          
+
         ensure
           test_file.unlink if test_file
           return error
@@ -179,7 +216,7 @@ module Armagh
               raise FileError, "Could not create #{dir}.  #{path} is a file." unless @sftp.stat!(path).directory?
             rescue Net::SFTP::StatusException => e
               if e.code == 2
-                # File does not exist
+                # Dir does not exist
                 @sftp.mkdir!(path)
               else
                 raise convert_errors(e, host: @host, file: dir)
@@ -197,8 +234,15 @@ module Armagh
           raise convert_errors(e, host: @host, file: dir)
         end
 
+        def ls(dir)
+          full_dir = File.join(@directory_path, dir)
+          @sftp.dir.entries(full_dir).lazy.collect { |i| i.name }.select { |i| i != '..' && i != '.' }.sort
+        rescue => e
+          raise convert_errors(e, host: @host, file: dir)
+        end
+
         private def convert_sftp_status_exception(e, host: nil, file: nil)
-          # Codes built from https://winscp.net/eng/docs/sftp_codes
+                  # Codes built from https://winscp.net/eng/docs/sftp_codes
           return e unless e.is_a? Net::SFTP::StatusException
           prefix = ''
           prefix << "Error on host #{host}: " if host
@@ -309,7 +353,7 @@ module Armagh
           end
         end
 
-        private def connection_options_from_params( config )
+        private def connection_options_from_params(config)
           sc = config.sftp
           connection_options = {}
 

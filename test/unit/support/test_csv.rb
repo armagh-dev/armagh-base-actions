@@ -36,6 +36,15 @@ module CSVTestHelpers
     rows.shift
     rows.join("\n") + "\n"
   end
+
+  def doc_from_fixture(fixture)
+    source = File.read(fixture)
+    content = {'bson_binary' => BSON::Binary.new(source) }
+    doc = mock('document')
+    doc.stubs(:raw).returns(source)
+    doc.stubs(:content).returns(content)
+    doc
+  end
 end
 
 class TestCsv < Test::Unit::TestCase
@@ -49,6 +58,8 @@ class TestCsv < Test::Unit::TestCase
     @csv_row_with_extra_values_path      = File.join fixtures_path, 'row_with_extra_values.csv'
     @csv_with_extra_values_last_row_path = File.join fixtures_path, 'extra_values_on_last_row.csv'
     @csv_with_newline_in_field           = File.join fixtures_path, 'newline_in_field.csv'
+    @csv_with_non_standard_padding_rows  = File.join fixtures_path, 'non_standard_padding_rows.csv'
+    @csv_malformed                       = File.join fixtures_path, 'malformed_test.csv'
 
     @expected_divided_content = ["Name,Email,Phone\nBrian,brian@example.com,555-1212\nChuck,chuck@example.com,555-1212\n",
                                  "Name,Email,Phone\nDale,dale@example.com,555-1212\nEric,eric@example.com,555-1212\nFrank,frank@example.com,555-1212\n",
@@ -105,9 +116,31 @@ class TestCsv < Test::Unit::TestCase
                                {"Name"=>"Jim", "Email"=>"jim@example.com", "Phone"=>"555-1212"},
                                {"Name"=>"Kevin", "Email"=>"kevin@example.com", "Phone"=>"555-1212"}]
 
+    @expected_parsed_content =[{"Email"=>"brian@example.com", "Name"=>"Brian", "Phone"=>"555-1212"},
+                               {"Email"=>"chuck@example.com", "Name"=>"Chuck", "Phone"=>"555-1212"},
+                               {"Email"=>"dale@example.com", "Name"=>"Dale", "Phone"=>"555-1212"},
+                               {"Email"=>"eric@example.com", "Name"=>"Eric", "Phone"=>"555-1212"},
+                               {"Email"=>"frank@example.com", "Name"=>"Frank", "Phone"=>"555-1212"},
+                               {"Email"=>"george@example.com", "Name"=>"George", "Phone"=>"555-1212"},
+                               {"Email"=>"henry@example.com", "Name"=>"Henry", "Phone"=>"555-1212"},
+                               {"Email"=>"ivan@example.com", "Name"=>"Ivan", "Phone"=>"555-1212"},
+                               {"Email"=>"jack@example.com", "Name"=>"Jack", "Phone"=>"555-1212"},
+                               {"Email"=>"ken@example.com", "Name"=>"Ken", "Phone"=>"555-1212"},
+                               {"Email"=>"larry@example.com", "Name"=>"Larry", "Phone"=>"555-1212"},
+                               {"Email"=>"mike@example.com", "Name"=>"Mike", "Phone"=>"555-1212"},
+                               {"Email"=>"bob@example.com", "Name"=>"Bob", "Phone"=>"555-1212"},
+                               {"Email"=>"joe@example.com", "Name"=>"Joe", "Phone"=>"555-1212"},
+                               {"Email"=>"jane@example.com", "Name"=>"Jane", "Phone"=>"555-1212"},
+                               {"Email"=>"paul@example.com", "Name"=>"Paul", "Phone"=>"555-1212"},
+                               {"Email"=>"same@example.com", "Name"=>"Same", "Phone"=>"555-1212"},
+                               {"Email"=>"bill@example.com", "Name"=>"Bill", "Phone"=>"555-1212"},
+                               {"Email"=>"jim@example.com", "Name"=>"Jim", "Phone"=>"555-1212"},
+                               {"Email"=>"kevin@example.com", "Name"=>"Kevin", "Phone"=>"555-1212"}]
+
     @config_store = []
-    @config_size_default = Armagh::Support::CSV.create_configuration( @config_store, 'def', {} )
-    @config_size_100 = Armagh::Support::CSV.create_configuration( @config_store, 's100', { 'csv' => { 'size_per_part'  => 100 }})
+    @config_default = Armagh::Support::CSV::Parser.create_configuration( @config_store, 'def', {} )
+    @config_size_100 = Armagh::Support::CSV::Divider.create_configuration( @config_store, 's100', { 'csv_divider' => { 'size_per_part'  => 100 }})
+    @config_nonstandard = Armagh::Support::CSV::Parser.create_configuration( @config_store, 'non_standard_rows', { 'csv_parser' => { 'non_standard_rows' => ["^##!!"]}} )
   end
 
   test "divides source csv into array of multiple csv strings having max size of 'size_per_part' bytes" do
@@ -198,11 +231,19 @@ class TestCsv < Test::Unit::TestCase
     assert_equal expected_combined_content, combine_parts(divided_content)
   end
 
+  test "dividing returns an error when block isn't passed in" do
+
+    assert_raise(LocalJumpError) {
+      Armagh::Support::CSV.divided_parts(@csv, @config_size_100)
+    }
+  end
+
   test "splits source file into individual rows" do
-    doc = mock('document', content: File.read(@csv))
+    doc = doc_from_fixture(@csv)
+
     actual_split_content = []
 
-    Armagh::Support::CSV.split_parts(doc, @config_size_default ) do |row|
+    Armagh::Support::CSV.split_parts(doc, @config_default ) do |row|
       actual_split_content << row
     end
 
@@ -210,33 +251,110 @@ class TestCsv < Test::Unit::TestCase
   end
 
   test "returns an error when csv row is missing a value" do
-    doc = mock('document', content: File.read(@csv_row_with_missing_value_path))
+    doc = doc_from_fixture(@csv_row_with_missing_value_path)
+
     actual_split_content = []
-    actual_errors = nil
+    actual_errors = []
     expected_split_content = @expected_split_content.dup
     expected_split_content.delete_at(1)
 
-    Armagh::Support::CSV.split_parts(doc, @config_size_default) do |row, errors|
+    Armagh::Support::CSV.split_parts(doc, @config_default) do |row, errors|
       actual_split_content << row if errors.empty?
-      actual_errors = errors if !errors.empty?
+      actual_errors << errors unless errors.empty?
+      actual_errors.flatten!
     end
 
-    assert_equal expected_split_content, actual_split_content
-    assert_equal Armagh::Support::CSV::Splitter::RowMissingValueError, actual_errors.first
+    assert_instance_of Armagh::Support::CSV::Parser::RowMissingValueError, actual_errors.first
   end
 
   test "returns an error when csv row has extra values" do
-    doc = mock('document', content: File.read(@csv_row_with_extra_values_path))
+    doc = doc_from_fixture(@csv_row_with_extra_values_path)
+
     actual_split_content = []
     actual_errors = nil
 
-    Armagh::Support::CSV.split_parts(doc, @config_size_default) do |row, errors|
+    Armagh::Support::CSV.split_parts(doc, @config_default) do |row, errors|
       actual_split_content << row if errors.empty?
       actual_errors = errors if !errors.empty?
     end
 
-    assert_equal @expected_split_content, actual_split_content
-    assert_equal Armagh::Support::CSV::Splitter::RowWithExtraValuesError, actual_errors.first
+    assert_instance_of Armagh::Support::CSV::Parser::RowWithExtraValuesError, actual_errors.first
+  end
+
+  test "splitting returns an error when block isn't passed in" do
+    doc = doc_from_fixture(@csv)
+
+    assert_raise(LocalJumpError) {
+      Armagh::Support::CSV.split_parts(doc, @config_default)
+    }
+  end
+
+  test "iterates over each line in the CSV, passing each line to a block if block is given" do
+    doc = doc_from_fixture(@csv)
+
+    actual_content = []
+    actual_errors = nil
+
+    Armagh::Support::CSV.each_line(doc, @config_default) do |row_hash, errors|
+      actual_content << row_hash
+      actual_errors = errors
+    end
+
+    assert_equal @expected_parsed_content, actual_content
+    assert_equal [], actual_errors
+  end
+
+  test "iterates over each line in CSV, ignoring non-standard lines before actual CSV header, based on configuration" do
+    doc = doc_from_fixture(@csv_with_non_standard_padding_rows)
+
+    actual_content = []
+    actual_errors = nil
+
+    Armagh::Support::CSV.each_line(doc, @config_nonstandard) do |row_hash, errors|
+      actual_content << row_hash
+      actual_errors = errors
+    end
+
+    assert_equal @expected_parsed_content, actual_content
+    assert_equal [], actual_errors
+  end
+
+  test "returns an error when parsing csv with row that's missing a value" do
+    doc = doc_from_fixture(@csv_row_with_missing_value_path)
+
+    actual_content = []
+    actual_errors = []
+
+    Armagh::Support::CSV.each_line(doc, @config_default) do |row_hash, errors|
+      actual_content << row_hash
+      actual_errors << errors unless errors.empty?
+      actual_errors.flatten!
+    end
+
+    assert_instance_of Armagh::Support::CSV::Parser::RowMissingValueError, actual_errors.first
+  end
+
+  test "returns an error when parsing csv with row that has an extra value" do
+    doc = doc_from_fixture(@csv_row_with_extra_values_path)
+
+    actual_content = []
+    actual_errors = []
+
+    Armagh::Support::CSV.each_line(doc, @config_default) do |row_hash, errors|
+      actual_content << row_hash
+      actual_errors << errors unless errors.empty?
+      actual_errors.flatten!
+    end
+
+    assert_instance_of Armagh::Support::CSV::Parser::RowWithExtraValuesError, actual_errors.first
+  end
+
+  test "parsing returns an error when block isn't passed in" do
+    doc = doc_from_fixture(@csv)
+
+    assert_raise(LocalJumpError) {
+      Armagh::Support::CSV.each_line(doc, @config_default)
+    }
   end
 end
 
