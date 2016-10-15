@@ -1,0 +1,55 @@
+Something mysterious rattled one of the world’s most stable financial markets for 12 harrowing minutes on Oct. 15, 2014.
+
+During that brief window, the yield on the 10-year Treasury note—a benchmark security critical to funding the federal government—dropped dramatically and then surged, and no one could tell why. It was, said JPMorgan Chase CEO Jamie Dimon, “an event that is supposed to happen only once in every 3 billion years. ”
+
+Like other market surprises, including a May 2010 “flash crash” in stocks and futures, it triggered an investigation. Government agencies spent months dissecting millions of data points from the Treasury market to find out just what had happened that day. Their conclusion was unsettling: They still had no idea what had caused it.
+
+What they were able to document, however, was the rise of a new major player in Treasury notes: a group of investors using ultra-fast trading systems to make money by quickly flipping government debt. The agencies found that the firms, privately trading their own capital rather than the money of outside investors, accounted for the majority of trading in this crucial market.
+
+High-speed algorithmic trading had long been a big concern in stock markets, where sophisticated but obscure firms with lightning-fast connections to exchanges were forcing regulators to grapple with potential problems, including market volatility. What the T-note investigation found is that such traders had also made deep inroads into the globe’s premier government funding market, a safe haven for investors and a vital tool for implementing U.S. monetary policy.
+
+The findings underscored just how hard it could be to keep markets stable and fair as faster, more opaque players show up. The most aggressive algorithmic trading firms have been viewed with suspicion for years because of concerns that their business is essentially predatory, exploiting tiny technical gaps in the market to the disadvantage of other investors. Michael Lewis, the author of “Moneyball” and “The Big Short,” tackled this shadowy world in his 2014 book “Flash Boys," which demonized these high-frequency traders as predators who made money at the expense of more traditional firms, paying to access the markets faster than other investors.
+
+Though HFT might sound like an inside-baseball issue in the finance world, the debate has bubbled to the point that it has surfaced in the presidential race. Perhaps the most significant financial reform in Hillary Clinton's platform is a new tax aimed at excessive levels of certain types of stock market orders, a measure her campaign argues will help combat “harmful” high-frequency trading. The 2016 Democratic platform gives a nod to others in the party who want a broader Wall Street transaction tax, to “curb excessive speculation and high-frequency trading, which has threatened financial markets.”
+
+Clinton has also articulated a much more wide-ranging stock market overhaul to ensure “equal access to markets and information,” which insiders also see as a reference to the advantages high-frequency traders attempt to cultivate. (Donald Trump's plans are far less specific.)
+
+But as criticism focuses on the hard-to-monitor world of automated trading, questions remain—what is harmful trading and who is doing it? The traders themselves defend their work as not only legal, but helpful in keeping markets liquid. And even if we were to decide the trading is harmful, is there any way to get the horse back in the barn?
+
+PART OF THE challenge is that automated trading is everywhere now: The technology behind this new breed of trader is part of the fundamental fabric of the markets, used by a wide variety of firms and investors. The traders of most concern to regulators are the ones trying to game the complexity of the market itself for competitive advantage. Their success has been rooted in gaining the fastest conceivable connections to various markets and doing the best job of parsing vast amounts of trade data.
+
+The arms race has yielded numerous firms with different strategies, but observers now put them into a couple of separate categories.
+
+One type of firm buys and sells various products on a continuous basis, providing liquidity and quickly closing out its positions to limit ist own risk. Defenders of these "electronic market-makers" argue that they can help provide liquidity in the markets where they operate. One of these, Virtu Financial, last year became the first high-frequency trading firm to go public. This year, JPMorgan Chase agreed to a partnership in which Virtu will help the nation’s largest bank trade Treasurys.
+
+Such big players are becoming more mainstream and more accepted, even by some of the staunchest critics of high-frequency trading. “Years ago we thought high-frequency trading was one bucket, and we just put it into one bucket. We didn't really know too much about it, ” said high-frequency trading critic Joseph Saluzzi, co-founder of brokerage firm Themis Trading. “It was very vague and no one would speak about it. ”
+
+Then there are the traders you hear about when the Securities and Exchange Commission files a lawsuit against them. Take Athena Capital Research. The privately funded “global quantitative investment manager" was the target of the SEC's first high-frequency trading market manipulation case, resulting in a $1 million settlement in 2014. The agency alleged the firm used an algorithm code-named “Gravy" to artificially push market prices in its favor by making massive amounts of trades near the close of a day's trading. The SEC said the relatively small firm “dominated the market” in the last few seconds of a trading day for tens of thousands of stocks using “high-powered computers, complex algorithms, and rapid-fire trades. ”
+
+“Those are the guys that need to be reined in, ” Saluzzi said. “Those are the ones people don't know much about. They're predatory in nature. ”
+
+Athena neither admitted nor denied wrongdoing the case.
+
+HOW DO YOU rein them in? So far, Washington has handled the issue cautiously. SEC Chair Mary Jo White has spoken of “the need to avoid undue interference with practices that benefit investors and market efficiency.” She has also outlined ways that investors “are doing better in today’s algorithmic marketplace than they did in the old manual markets” thanks in part to lower trade execution costs. Andrei Kirilenko, a former chief economist at the Commodity Futures Trading Commission, said in an interview that regulators need to get a better understanding of “who is out there, why are they out there, do we know what they do, if they do something wrong can we get their records? ”
+
+Former CFTC general counsel Dan Berkovitz said regulators have moved away from the question of whether the technology is inherently good or bad. Now the focus is more about ensuring a fair market structure.
+
+“The race for speed—who’s it really benefiting, and if it benefits somebody, does that mean somebody’s hurt by it?” said Berkovitz, now a partner at WilmerHale. “If people are faster and better and they’re making money off it, where does that money come from? Is somebody getting hurt by it? … I don’t think the regulators have the ability to really understand the guts of these things. And so they’re worried it’s going to get out of control.”
+
+Rather than trying to roll back the clock of technology, agencies overseeing U.S. markets have moved to require algorithmic traders, and the people who design their trading systems, to register with regulators.
+
+“Some of the biggest traders in our markets are not currently subject to our oversight, and we need a way to make sure they are following reasonable risk controls,” CFTC Chairman Timothy Massad said in a Sept. 27 speech. “And, in fact, some of those traders have supported a registration requirement.”
+
+The CFTC, which oversees the futures market, has drafted a controversial proposal that would go further, extending its record-keeping requirements to the source code underlying automated trading systems. The rule, which has yet to be finalized, would require algorithmic traders to maintain repositories that would track changes to their code, which could then be made available to investigators in the event something went wrong in the markets.
+
+Industry critics are fighting this aspect of the rule, arguing that giving the government access to their sensitive intellectual property—the secret sauce of their algorithms—is too big a risk. In an interview, CFTC Commissioner J. Christopher Giancarlo, the lone Republican on the panel that approves rules at the agency, said it was a “retrograde action” that would have a “stifling impact on trading technology innovation in the United States.” Massad, for his part, promises final language that “respects and protects confidentiality” while still giving the agency a look at the code when it’s investigating problems. “Our desire has never been to require that source code be turned over to us routinely,” he says.
+
+In another approach, the SEC is drafting an “anti-disruptive trading" rule as a preventive measure against potentially dangerous forms of high-volume, high-frequency trading. The SEC has not announced what trading strategies it will try to outlaw—as of now, the rule is being signaled but hasn’t been formally proposed—but the head of the agency has pointed to the Treasury market report as being “instructive” in identifying aggressive activities that could work against investors.
+
+Although those solutions all come from the regulatory side, it’s possible that high-frequency traders will ultimately find themselves corralled by the private sector.
+
+The hero, if there was one, of Lewis's “Flash Boys” was a new firm called IEX: a startup stock-trading venue whose founders wanted to provide investors with a protected place to trade without being “scalped" by predatory traders who had faster access to data from exchanges. Their innovation was a “speed bump”—a coil of fiber optic cable designed to slow down market access by 350 microseconds.
+
+In September 2015, IEX asked the SEC to allow it to become a full-fledged stock exchange, like the NYSE and NASDAQ; after months of intense lobbying on both sides of the proposal, the SEC signed off on its application in June—marking a major milestone in the agency's response to high-frequency trading. It's evidence that regulators are willing to let the private sector sort out some of the big concerns cropping up with trading technology.
+
+“They’re standing on the sidelines watching the private sector experiment with market design,” Kirilenko said of regulators, predicting that not much more than that would happen soon. “They will stand on the sidelines until the next flash crash.”

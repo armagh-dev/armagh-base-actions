@@ -17,7 +17,7 @@
 
 
 require_relative '../helpers/coverage_helper'
-require_relative '../helpers/fixture'
+require_relative '../helpers/fixture_helper'
 
 require 'test/unit'
 
@@ -30,18 +30,6 @@ class TestIntegrationExcel < Test::Unit::TestCase
     set_fixture_dir('excel')
   end
 
-  def test_to_search_text_xls
-    binary = fixture('sample.xls')
-    result = Armagh::Support::Excel.to_search_text(binary)
-    assert_equal fixture('sample.xls.search.txt', result), result
-  end
-
-  def test_to_display_text_xls
-    binary = fixture('sample.xls')
-    result = Armagh::Support::Excel.to_display_text(binary)
-    assert_equal fixture('sample.xls.display.txt', result), result
-  end
-
   def test_to_search_and_display_text_xls
     binary = fixture('sample.xls')
     result = Armagh::Support::Excel.to_search_and_display_text(binary)
@@ -49,35 +37,11 @@ class TestIntegrationExcel < Test::Unit::TestCase
                   fixture('sample.xls.display.txt', result.last)], result
   end
 
-  def test_to_search_text_xlsx
-    binary = fixture('sample.xlsx')
-    result = Armagh::Support::Excel.to_search_text(binary)
-    assert_equal fixture('sample.xlsx.search.txt', result), result
-  end
-
-  def test_to_display_text_xlsx
-    binary = fixture('sample.xlsx')
-    result = Armagh::Support::Excel.to_display_text(binary)
-    assert_equal fixture('sample.xlsx.display.txt', result), result
-  end
-
   def test_to_search_and_display_text_xlsx
     binary = fixture('sample.xlsx')
     result = Armagh::Support::Excel.to_search_and_display_text(binary)
     assert_equal [fixture('sample.xlsx.search.txt', result.first),
                   fixture('sample.xlsx.display.txt', result.last)], result
-  end
-
-  def test_to_search_text_xlsm
-    binary = fixture('sample.xlsm')
-    result = Armagh::Support::Excel.to_search_text(binary)
-    assert_equal fixture('sample.xlsm.search.txt', result), result
-  end
-
-  def test_to_display_text_xlsm
-    binary = fixture('sample.xlsm')
-    result = Armagh::Support::Excel.to_display_text(binary)
-    assert_equal fixture('sample.xlsm.display.txt', result), result
   end
 
   def test_to_search_and_display_text_xlsm

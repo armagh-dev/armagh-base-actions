@@ -17,7 +17,7 @@
 
 
 require_relative '../helpers/coverage_helper'
-require_relative '../helpers/fixture'
+require_relative '../helpers/fixture_helper'
 
 require 'test/unit'
 
@@ -30,18 +30,6 @@ class TestIntegrationWord < Test::Unit::TestCase
     set_fixture_dir('word')
   end
 
-  def test_to_search_text_doc
-    binary = fixture('sample.doc')
-    result = Armagh::Support::Word.to_search_text(binary)
-    assert_equal fixture('sample.doc.search.txt', result), result
-  end
-
-  def test_to_display_text_doc
-    binary = fixture('sample.doc')
-    result = Armagh::Support::Word.to_display_text(binary)
-    assert_equal fixture('sample.doc.display.txt', result), result
-  end
-
   def test_to_search_and_display_text_doc
     binary = fixture('sample.doc')
     result = Armagh::Support::Word.to_search_and_display_text(binary)
@@ -49,35 +37,11 @@ class TestIntegrationWord < Test::Unit::TestCase
                   fixture('sample.doc.display.txt', result.last)], result
   end
 
-  def test_to_search_text_docx
-    binary = fixture('sample.docx')
-    result = Armagh::Support::Word.to_search_text(binary)
-    assert_equal fixture('sample.docx.search.txt', result), result
-  end
-
-  def test_to_display_text_docx
-    binary = fixture('sample.docx')
-    result = Armagh::Support::Word.to_display_text(binary)
-    assert_equal fixture('sample.docx.display.txt', result), result
-  end
-
   def test_to_search_and_display_text_docx
     binary = fixture('sample.docx')
     result = Armagh::Support::Word.to_search_and_display_text(binary)
     assert_equal [fixture('sample.docx.search.txt', result.first),
                   fixture('sample.docx.display.txt', result.last)], result
-  end
-
-  def test_to_search_text_docm
-    binary = fixture('sample.docm')
-    result = Armagh::Support::Word.to_search_text(binary)
-    assert_equal fixture('sample.docm.search.txt', result), result
-  end
-
-  def test_to_display_text_docm
-    binary = fixture('sample.docm')
-    result = Armagh::Support::Word.to_display_text(binary)
-    assert_equal fixture('sample.docm.display.txt', result), result
   end
 
   def test_to_search_and_display_text_docm

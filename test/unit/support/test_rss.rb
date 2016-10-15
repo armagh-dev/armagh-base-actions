@@ -22,7 +22,7 @@ require 'mocha/test_unit'
 require 'webmock/test_unit'
 
 require_relative '../../../lib/armagh/support/rss'
-require_relative '../../helpers/fixture'
+require_relative '../../helpers/fixture_helper'
 require_relative '../../../lib/armagh/actions/stateful'
 
 class TestRSS < Test::Unit::TestCase

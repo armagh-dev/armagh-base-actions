@@ -26,9 +26,9 @@ module Armagh
       class ExcelError  < StandardError; end
       class NoTextError < ExcelError; end
 
-      module_function
+      EXCEL_TO_TEXT_SHELL = %W(#{`which ssconvert`.strip} -T Gnumeric_html:html40frag <input_excel_file> <output_html_file>)
 
-      EXCEL_TO_TEXT_SHELL = %w(ssconvert -T Gnumeric_html:html40frag <input_excel_file> <output_html_file>)
+      module_function
 
       def to_search_text(binary)
         process_excel(binary, :search)
@@ -64,8 +64,8 @@ module Armagh
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
-      rescue Shell::MissingProgramError => e
-        raise e
+      rescue Shell::MissingProgramError, ExcelError
+        raise
       rescue => e
         raise ExcelError, e
       ensure

@@ -28,9 +28,9 @@ module Armagh
       class WordError   < StandardError; end
       class NoTextError < WordError; end
 
-      module_function
+      WORD_TO_TEXT_SHELL = %W(#{`which soffice`.strip} -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_word_file>)
 
-      WORD_TO_TEXT_SHELL = %w(soffice -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_word_file>)
+      module_function
 
       def to_search_text(binary)
         process_word(binary, :search)
@@ -74,8 +74,8 @@ module Armagh
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
-      rescue Shell::MissingProgramError => e
-        raise e
+      rescue Shell::MissingProgramError, WordError
+        raise
       rescue => e
         raise WordError, e
       ensure

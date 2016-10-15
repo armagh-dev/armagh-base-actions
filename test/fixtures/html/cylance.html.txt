@@ -1,0 +1,114 @@
+It seems as though the world has become completely smitten, or rather blindsided, by Pokémon Go over the last couple of months. With over 100 million downloads of the app since its release in July 2016, Pokémon Go is reportedly now earning $10M in daily revenues and has opened up a whole Pandora’s Box of potential future earnings, as augmented reality goes mainstream for the first time.
+
+Along with that rush comes the usual crop of cybercriminals anxious to cash in on the craze. Reports have already started surfacing about malware apps which mimic the legitimate Pokémon Go app. Those detected so far include Pokémon Go Ultimate, a lockscreen app which freezes the user’s smartphone, forcing a reboot, then runs silently in the background, clicking on porn adverts; Install Pokémon Go, which delivers scareware warnings that the user’s device is infected with a virus, tricking users into buying unnecessary and often fake services; and Guide and Cheats For Pokémon Go, which sends automatic subscription SMS texts to expensive online services.
+
+In August 2016, the first-ever piece of Pokémon Go ransomware, PokemonGo.exe, was discovered by malware-hunter Michael Gillespie at Bleeping Computer. The ransomware is based on Hidden Tear, an open source piece of malware released in 2015. The ransomware pretends to be a Windows 10 version of Pokémon Go. It hides inside a Windows executable file named PokemonGo.exe, which features a cute Pikachu as its icon. 
+
+
+Figure 1: PokemonGo.exe Icon – Don’t Catch This Pikachu!
+
+PokemonGo.exe: Holding Pikachu Fans to Ransom
+
+Although PokemonGo.exe is primarily ransomware, it spreads like a worm and at present has many dormant or undeveloped features, which may become active when the ransomware is in a more mature form. The malware’s source code appears to be unfinished as of the day of our investigation on August 31, 2016, yet still contains enough functionality to encrypt the user’s files if installed.
+
+The PokemonGo.exe ransomware may arrive on the endpoint in a variety of ways, such as via a fake app in a third-party app store, or bundled with other unofficial or cracked software sourced from file-sharing portals such as Torrent. When installed by the curious user, PokemonGo.exe first utilizes the AddUser command to create a Windows admin account on the victim’s PC, labeled as Hack3r within the system. The admin password is also Hack3r.
+
+PokemonGo.exe is then able to use this bogus admin account as a backdoor, presumably so that the malware authors can gain access to the user’s system at a later date, for their own nefarious purposes. This hidden backdoor also makes the user vulnerable to remote code execution. The registry is altered to hide this new admin account, so that it does not show up on the Windows welcome/login screen and tip off the user that something is amiss.
+
+PokemonGo.exe then scans the victim’s hard drive for common file formats such as Word, Excel and Powerpoint formats, which it encrypts. Files are encrypted with static AES-256 encryption, using the embedded AES key 123vivalalgerie. "123 Viva l’Algerie" may either hint at the developer’s origins, or may be an attempt to throw security investigators off track. An image used in the screensaver’s executable, titled Sans Titre, French for “Untitled,” also hints at the malware author’s country of origin.
+
+This encryption process may be changed at a later date to use the more standard ransomware procedure of randomly generating an AES key to encrypt the user’s personal files, then using a public RSA key to further encrypt the first key before ‘phoning home’ the key to its command and control (C&C) server - a move which is usually seen in more mature ransomware. The malware does not appear to use a protection layer (FUD/cryptor) to evade analysis. When the encryption is complete, the extension .locked is added to the end of each encrypted file’s name.
+
+Commonly encrypted files include:
+
+.txt, .rtf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .sql, .mdb, .sln, .php, .asp, .aspx, .html, .xml, .psd, .htm, .gif,.mht, .odt, .jpg, .png, .csv
+
+Next, PokemonGo.exe attempts to connect to a command and control server located at the IP address 10.25.0.169. Security researchers note that this is a private IP address, which is yet another indication that this ransomware is currently a work in progress. It is not possible to connect to that address over the public Internet, so this could be a ‘placeholder’ IP address for future code. Ransomware typically contacts C&C servers to send the malware author specific information about each new infection, which usually includes things like computer information, victim ID and encryption key info.
+
+Stages of Infection
+
+It has been noted by security researchers that the PokemonGo.exe ransomware has the ability to propagate itself. To do this, it creates a network share on the user’s machine, and copies itself into the root directories of any connected hard drives, including flash drives and other removable media. It seeds them with an .autorun.inf file, which will automatically run the ransomware when they are plugged into another system. This could potentially infect new machines, or even whole new networks. (Think of a USB stick used to transfer files from a home PC to a work PC.) This behavior has the potential to cripple any backup drives that are connected to the user’s PC at the time of infection.
+
+PokemonGo.exe also copies itself into the Start folder of all fixed drives, enabling it to run the next time the user logs into Windows. Shared folders and mapped network drives are included in this copying frenzy.
+
+The early version of PokemonGo.exe that we studied appears to target Arabic users, leaving a Pikachu screensaver in .JPG format that includes a ransom note written in Arabic text. The ransom note is labeled as هام جدا.txt. This loosely translates to “very important text.” The Pikachu screensaver is set automatically, and is triggered when the victim next reboots and logs into Windows. The ransom note informs the user that to regain access to their files, they must send an email to an address listed as me.blackhat20152015(at)mt2015.com for payment info.
+
+
+Figure 2: PokemonGo.exe Ransom Note –
+Non-Arabic Users May Have to Use an Online Translation Engine to Read This (With Variable results!)
+
+How to Protect Yourself From Malicious Apps Like PokemonGo.exe
+
+If you are affected by this early version of the PokemonGo.exe ransomware, a free decryptor is currently available by contacting Bleeping Computer via their online contact page.
+
+It is not known whether this free decryptor will continue to work if this ransomware is further developed after August 2016, so our best advice is to ensure you regularly back up your files, avoid downloading ‘free’ unofficial or third-party software, and install a strong endpoint security solution to block ransomware such as PokemonGo.exe from executing.
+
+If you are a Pokémon Go fan and are worried about this ransomware, follow these tips to avoid future infection:
+
+1. Ensure You ONLY Download Apps From the Official App Store
+The official versions of Pokémon Go are currently available on the Apple App Store and the Google Play Store, for Android and iOS ONLY. A Windows version of Pokémon Go is NOT currently available from any official sources. Always type in the URL for the App Store or Google Play by hand and go there directly (rather than clicking on online links to the store), and ensure you have the genuine store app installed on mobile. Third-party app stores, file sharing sites such as Torrent, and online game brokerages should always be treated with extreme suspicion.
+
+2. Use Common Sense When Installing New Apps
+Although there are ways to play Pokémon Go on your PC, none of these methods are official. As the primary requirement of the game is for users to walk around in the real world, capturing Pokémon on their smartphones, common sense dictates that playing the game on a desktop PC would defeat the whole point of the game. Therefore, if you see any apps claiming to be a Windows or Mac version of Pokémon Go, these are almost certainly malware or ransomware.
+
+3. Look for Legitimate User Reviews
+Fake apps on legitimate or fake app stores may give themselves away by lacking user reviews, or may have an unusually low number of often-fake reviews. If in doubt, look to see if any reputable or ‘brand name’ reviewers have reviewed the app, such as well-known developers or software sites.
+
+4. Use a Good Quality Endpoint Security Solution
+While no endpoint security solution is 100% foolproof, it is still better than leaving your PC and mobile device – and all the personal info they contain – wide open to attack by cybercriminals, such as those who created the PokemonGo.exe ransomware.
+
+Pokémon Go: What You Don’t Know Can Hurt You 
+
+The phenomenon that is Pokémon Go is interesting from many perspectives, but specifically, it has manifested a perfect storm of caveats around both physical security and the security of the personal data on the mobile device on which the game is installed. Beyond the possibility of ransomware and malware infection from fake Pokémon Go software, the official app still has the potential for a multitude of security and personal safety risks. Every user should take the time to educate themselves on the risks associated with downloading and playing this popular mobile game.
+
+There are already numerous written exposés on the permissions issues surrounding the official app itself. To the app creator Niantic’s credit, they have been quick to issue updates and to correct a number of concerning issues surrounding the user’s privacy. That being said, there are still plenty of data-centric privacy concerns, in addition to the physical security issues, which quickly emerged once this game coaxed human players to explore the wild and vast outdoors.
+
+Bringing Augmented Reality (AR) to the Masses
+
+Pokémon Go is not the first AR-based game, nor is it unique. Many AR titles have been released over the last few years, but none have been nearly as successful. That being said, much of what exists ‘under-the-hood’ of Pokémon Go is based on another popular Niantic game, Ingress.
+
+Niantic released Ingress for Android in December 2013, and for iOS in July 2014. While many other AR-based games, such as Geo AR Games: Magical Park, came before Ingress, it was the first to be successful enough to raise physical security concerns for users. Throughout 2015 and 2016, there were numerous cases of law enforcement officers mistaking Ingress players for ‘suspicious’ individuals. Players were getting a little too close to national monuments and other secure locations for comfort, and appearing to secretly photograph monuments and protected structures, when they were in fact just playing Ingress on their smartphones.
+
+All of the pitfalls and physical security concerns that existed in Ingress have carried over into Pokémon Go. The marriage of Pokémon Go and Ingress has proven to be a brilliant strategy in terms of attracting Pokémon's established fan base to AR and active GPS-based gaming. Take a walk through any public park or space today, and you’re almost guaranteed to see players glued to their mobile devices, which guide them to locate new Pokémon, find new Pokéstops, and generally congregate outdoors in an unprecedented volume – often to the point where they start to become a public nuisance.
+
+Physical Security Concerns of Pokémon Go
+
+Being that the newly attracted users of Pokémon Go are often young, physical security concerns have become far more amplified in the media and in the realm of law enforcement. Since the launch of Pokémon Go, there have been almost daily reports of Pokémon Go users - often teens or younger - being robbed or attacked by criminals who directly exploit the locations the players congregate in, known as Pokéstops. There have also been reports of direct targeting by criminals, who use the game to lure victims to them.
+
+The physical security issues surrounding this game have received so much attention, so quickly, that even governments are acting at this point, to reduce potential harm and curtail potential criminal activity. Recently, Iranian authorities completely banned Pokémon Go, citing physical security concerns.[1]  Law enforcement branches across the United States have issued numerous alerts, as in this example.
+
+The security issues concerning the official app itself, and the devices on which it is installed and played, are also highly concerning to the everyday user. Upon its release, the security industry was quick to tear down and analyze the permissions issues that arise upon the install of Pokémon Go on both Android and iOS.
+
+Initially, as the app was tied to users’ Google accounts, users soon discovered to their horror that the app had full control over their Google accounts. This meant that there was a lengthy period of time during which Niantic had full control and visibility[2] into players’ Google-based email accounts, Google drive data, Google docs data, GPS and Google maps history, including Google photos - although it claimed not to use or access this data beyond that which was required to operate the game itself.
+
+Pokémon Ongoing Privacy Issues
+
+Niantic has since issued updates to correct many of these privacy concerns. That much being said, the game itself is heavily reliant on the player’s camera and GPS data, all of which the app must access, track, store and transmit. This fact alone should be enough to cause the casual user concern, as well as raising hackles at corporate enterprises, which have a lot to lose should the interior and exteriors of their premises (including the locations of security systems and other sensitive areas) be photographed and archived by a third party.  
+
+On the family front, most parents would prefer to limit any sort of tracking and GPS location tracking that occurs in relation to their children and families. That immediately becomes an issue with games like Pokémon Go, as location tracking is a central part of the game. GPS data, coupled with data from the device’s camera makes their concern even greater. Players are transmitting camera data of their location outward, and that data is being collected and stored. It is therefore potentially available to parties other than Niantic/Google/Nintendo – and all of this notwithstanding the possibility of a breach or hack of that data-dump goldmine.
+
+Corporate entities have had to clamp down on this even further. Many companies are now banning the use of Pokémon Go within the walls of their offices or issuing full campus bans. Many of these policies came about after incidents where players were ‘hunting’ Pokémon characters in areas where sensitive data was directly visible, such as conference rooms with whiteboards. In those situations, players may have already – whether they were conscious of the fact or not – put their own companies at risk, due to the transmission of confidential or sensitive data via the app.
+
+To conclude, Pokémon Go has been out for a relatively short amount of time, but we are already observing an unprecedented sweep in policy around both physical and data security concerns that have arisen as a direct result, . This phenomenon affects users of all types, from the smallest of children, to the highest level employees of large corporations. It is a quick wake up call, and most certainly will not be the only or the last time we see these security issues arise at such a rate.
+
+Pokémon Go Ransomware vs. CylancePROTECT®
+
+We tested a recent sample of the Pokémon Go ransomware (PokemonGo.exe) against our endpoint security product, CylancePROTECT. As you can see from the screenshots below, the ransomware was immediately detected and quarantined by CylancePROTECT, which uses math-based detection and artificial intelligence to stop ransomware dead, pre-execution.
+
+
+Figure 3: CylancePROTECT Threats Tab, Showing the Instant Detection and Quarantine of PokemonGo.exe Ransomware
+
+ 
+
+Figure 4: CylancePROTECT Threats and Activities Summary, Showing Stats on the Quarantined Ransomware
+
+Indicators of Compromise (IOCs)
+
+sha256 = df36e2aaae85f07851810a829e38a82827252fda15d4c4410da085d59ce3873 
+
+Believe the math!!  
+
+Convinced that the next generation of endpoint security is right for your organization? Contact a Cylance expert to get started!
+
+[1] http://www.bbc.com/news/world-middle-east-36989526
+[2] http://adamreeve.tumblr.com/post/147120922009/pokemon-go-is-a-huge-security-risk

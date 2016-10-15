@@ -1,0 +1,14 @@
+South Korea said that their Cyber Military Command System were hacked last month. Official of South Korea Command System found malicious code in there one of the server.
+
+South Korea said investigation is going on for the incidence, and till then they can't point out for this hack.
+
+Cyber crooks have breached a  "Vaccine Routing Server" which was specially installed to give a extra protection to the military system's that were connected to a network, used by Military Command System.
+
+Country’s national defense committee member Kim Jin-pyo said-
+
+    “A malicious code has been identified and it seems to have taken advantage of the vulnerability of the routing server,” he said. “In a cautious measure, the server has been separated from the network.”
+
+Kim also suggested that the chances of stealing or leaking sensitive data are low as the military intranet was not connected to the targeted server.
+
+North Korea may be there behind the attack, past relationships with the North Korea is not so well with the South.
+Last year, the Sub way system and Nuclear plant of North Korea got hacked and they point South for the incidence.

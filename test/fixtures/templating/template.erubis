@@ -1,0 +1,34 @@
+{{-doc.with 'data' do}}
+{{-doc.with 'customer' do}}
+{{=header 'Customer'}}
+
+{{=block_begin-}}
+  {{=field 'Customer ID', doc.get('attr_id')}}
+  {{=field 'Name', doc.concat('@name.first @name.middle @name.last', allow_missing: true)}}
+  {{-doc.with 'address' do}}{{=field 'Address', doc.concat('@street, @unit, @city, @state  @zip')}}{{-end}}
+{{=block_next-}}
+  {{=field 'Last Order Date', doc.get('last_order_date', default: 'N/A')}}
+  {{=field 'Notes', doc.get('notes', allow_missing: true, default: 'None')}}
+{{=block_end-}}
+
+{{-if mode == :text}}
+  This content is for text mode only
+{{-elsif mode == :html}}
+  This content is for html mode only
+{{-end}}
+{{-end # customer}}
+
+{{-doc.with 'orders' do}}
+{{=header 'Orders (' + doc.get('attr_total') + ' total)'}}
+
+{{-doc.loop 'order', show_empty: true do |i|}}
+{{=block_from_int i-}}
+  {{=field 'Order #', i}}
+  {{=field 'Item', doc.get('item')}}
+  {{=field 'Total Price', doc.get('total_price')}}
+  {{=field 'Shipping Method', doc.enum('shipping_method', '1'=>'Ground', '2'=>'Two-Day Air', '3'=>'One-Day Air', nil=>'Other', format: '%s - %s')}}
+
+{{-end # loop}}
+{{=block_end-}}
+{{-end # orders}}
+{{-end # root}}

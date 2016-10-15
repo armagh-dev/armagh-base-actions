@@ -28,9 +28,9 @@ module Armagh
       class PowerPointError < StandardError; end
       class NoTextError     < PowerPointError; end
 
-      module_function
+      POWERPOINT_TO_PDF_SHELL = %W(#{`which soffice`.strip} -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_powerpoint_file>)
 
-      POWERPOINT_TO_PDF_SHELL = %w(soffice -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_powerpoint_file>)
+      module_function
 
       def to_search_text(binary)
         process_powerpoint(binary, :search)
@@ -73,8 +73,8 @@ module Armagh
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
-      rescue Shell::MissingProgramError => e
-        raise e
+      rescue Shell::MissingProgramError, PowerPointError
+        raise
       rescue PDF::NoTextError
         raise NoTextError, 'Unable to extract text from PowerPoint document'
       rescue => e

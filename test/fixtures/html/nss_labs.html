@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script src="/default/includes/themes/MuraBootstrap3/assets/js/1.11.2.min.js" type="text/javascript"></script>
+	<script src="/default/includes/themes/MuraBootstrap3/assets/js/endlessRiver.js"></script>
+
+	
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	
+
+	
+        <script>
+        var hibachiConfig = {
+        action:'slatAction',
+		baseURL: '/Slatwall/',
+		basePartialsPath:'/', //Where the base core partials live
+        customPartialsPath:'/default/includes/themes/MuraBootstrap3/templates/partials/' //where the project specific templates live.
+        };
+        </script>
+
+
+		<script type="text/javascript" src="/Slatwall/org/Hibachi/HibachiAssets/js/hibachi-scope.js"></script><script type="text/javascript">(function( $ ){$.slatwall = new Hibachi({"dateFormat":"mmm dd, yyyy","debugFlag":false,"applicationKey":"Slatwall","action":"slatAction","instantiationKey":"ABFDDCDA-5056-9046-934DB108B3568150","baseURL":"/Slatwall","timeFormat":"hh:mm tt","rbLocale":"en_US"});})( jQuery );</script> 
+		<script src="/default/includes/themes/MuraBootstrap3/templates/partials/slatwall_frontend.js"></script>
+	    <script src="/custom/client/src/frontend/controllers/frontend.js"></script>
+	
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="google-site-verification" content="mg4R7KqKi6eKS4q6H0q3H8XxIAobwUmGFxyG6zietc8" />
+	
+		<meta name="description" content="Leading information security research and advisory company. We deliver test-based research and expert analysis needed to make good security decisions." />
+		<meta name="keywords" content="information security research
+it security advisory
+test-based security research
+threat capabilities report
+enterprise endpoint protection report
+cyber advanced warning system
+testing methodologies" />
+
+		
+			<title>What About the Security of the Security Products Themselves? - NSS Labs, Inc</title>
+		
+
+	<link href="/default/includes/themes/MuraBootstrap3/assets/css/library/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/css/bootstrap-select.min.css">
+	<link href="/default/includes/themes/MuraBootstrap3/assets/css/style.css?9-3-2016" rel="stylesheet">
+	<link href="/default/includes/themes/MuraBootstrap3/assets/css/responsive.min.css?9-3-2016" rel="stylesheet">
+	<link href="/default/includes/themes/MuraBootstrap3/assets/css/font-awesome-animation.min.css" rel="stylesheet">
+	<link href="/default/includes/themes/MuraBootstrap3/assets/images/favicon.ico" rel="icon" type="image/x-icon">
+	<!--[if lt IE 9]>
+	<script src="/default/includes/themes/MuraBootstrap3/assets/js/html5shiv.js"></script>
+	<script src="/default/includes/themes/MuraBootstrap3/assets/js/respond.min.js"></script>
+	<![endif]-->
+
+	
+	<script type="text/javascript" src="//plugin.reactful.com/Input/loader.ijs?sid=70652c72a60b6dcac01aa8bf6a00414c" async="" defer=""></script>
+	<script type="text/javascript" src="//plugin.reactful.com/Input/loader.ijs?sid=c6a1f48b100a157987d9fd431e027ea5" async="" defer=""></script>
+
+	
+	<script type="text/javascript" language="javascript">
+      var sf14gv = 29041;
+      (function() {
+      var sf14g = document.createElement('script'); sf14g.type = 'text/javascript'; sf14g.async = true;
+      sf14g.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 't.sf14g.com/sf14g.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sf14g, s);
+      })();
+	</script>
+
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-2120691-1', 'auto');
+	ga('send', 'pageview');
+	</script>
+
+<script type="text/javascript" src="/default/js/global.min.js"></script>
+<script type="text/javascript">
+initMura({
+	loginURL:"?display=login",
+	siteid:"default",
+	contentid:"0642EF60-5056-9046-93DBB95C8AEA93FD",
+	contenthistid:"06FEC9A2-5056-9046-932586CC25F6BA2F",
+	parentid:"CE9D3CB9-C40C-DF77-BE893FFFA5E51AC7",
+	siteID:"default",
+	context:"",
+	nocache:0,
+	assetpath:"/default",
+	siteConfig:"/requirements",
+	themepath:"/default/includes/themes/MuraBootstrap3",
+	rb:"en",
+	reCAPTCHALanguage:"en",
+	preloaderMarkup: "\x3Ci\x20class\x3D\x22fa\x20fa\x2Drefresh\x20fa\x2Dspin\x22\x3E\x3C\x2Fi\x3E",
+	mobileformat: "false",
+	windowdocumentdomain: "",
+	layoutmanager:"false",
+	type:"Page",
+	subtype:"Default",
+	dtExample:"11/10/2018",
+	dtCh:"/",
+	dtFormat:[0,1,2],
+	dtLocale:"en-US"
+});
+</script>
+<script>
+$(function(){
+	mura.loader()
+	.loadcss("/requirements/prettify/themes/tomorrow-night.min.css")
+	.loadjs("/requirements/prettify/prettify.min.js",
+	function(){
+		!function($){$(function(){window.prettyPrint && prettyPrint()});}(window.jQuery)
+	});
+});
+</script></head>
+
+
+<body id="blog" class="sysWhatAboutTheSecurityOfTheSecurityProductsThemselves">
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5CJTLQ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5CJTLQ');</script>
+
+
+<script type="text/javascript">
+piAId = '47762';
+piCId = '1796';
+
+(function() {
+	function async_load(){
+		var s = document.createElement('script'); s.type = 'text/javascript';
+		s.src = ('https:' == document.location.protocol ? 'https://pi' : 'http://cdn') + '.pardot.com/pd.js';
+		var c = document.getElementsByTagName('script')[0]; c.parentNode.insertBefore(s, c);
+	}
+	if(window.attachEvent) { window.attachEvent('onload', async_load); }
+	else { window.addEventListener('load', async_load, false); }
+})();
+</script>
+
+	<!--wrapper -->
+	<div id="wrapper">
+		
+<header>
+	<div class="loginBar">
+		<div class="container">
+			
+			<div class="row">
+				
+				
+				<div class="col-sm-6 headerLinks pull-right">
+					<ul class="list-inline pull-right">
+						<li><i class="fa fa-user" aria-hidden="true"></i><a href="/my-account">My Account</a></li>
+						<li>
+							<a href="/checkout"><i class="fa fa-shopping-cart"></i>My Cart
+								
+									<span class="cartItems">0</span>
+								
+							</a>
+						</li>
+						
+					</ul>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<a class="logo" href="/">
+			<img src="/default/includes/themes/MuraBootstrap3/assets/images/home/nss_labs_logo.png">
+		</a>
+		<nav class="navbar navbar-default">
+			<button aria-controls="navbar" aria-expanded="false" class="navbar-toggle collapsed" data-target="#navbar" data-toggle="collapse" type="button">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<div class="navbar-collapse collapse" id="navbar">
+				
+					
+				<ul id="navPrimary" class="nav navbar-nav">
+			
+			<li class="dropdown first" id="navResearchAdvisory"><a href="/research-advisory/" class="dropdown-toggle">Research &amp; Advisory</a>
+				<ul class="dropdown-menu">
+			
+			<li class="first" id="navSecurityTesting"><a href="/research-advisory/security-testing/">Security Testing</a></li>
+			
+			<li class="last" id="navLibrary"><a href="/research-advisory/library/">Library</a></li>
+			</ul> </li>
+			
+			<li class="dropdown" id="navCaws"><a href="/caws/" class="dropdown-toggle">CAWS</a>
+				<ul class="dropdown-menu">
+			
+			<li class="first" id="navCawsSignin"><a href="/caws/caws-sign-in/">CAWS Sign-in</a></li>
+			
+			<li class="last" id="navResources"><a href="/caws/resources1/">Resources</a></li>
+			</ul> </li>
+			
+			<li class="dropdown" id="navCompany"><a href="/company/" class="dropdown-toggle">Company</a>
+				<ul class="dropdown-menu">
+			
+			<li class="first" id="navAboutNss"><a href="/company/about-nss/">About NSS</a></li>
+			
+			<li id="navAnalysts"><a href="/company/analysts/">Analysts</a></li>
+			
+			<li id="navBoardOfDirectors"><a href="/company/board-of-directors/">Board of Directors</a></li>
+			
+			<li id="navExecutiveTeam"><a href="/company/executive-team/">Executive Team</a></li>
+			
+			<li class="last" id="navNews"><a href="/company/news/">News</a></li>
+			</ul> </li>
+			
+			<li id="navSubscribeNow"><a href="/subscribe-now1/">Subscribe Now</a></li>
+			
+			<li class="last active" id="navNssBlog"><a href="/blog/" class="active" >NSS Blog</a></li>
+			</ul> 
+				
+			</div>
+		</nav>
+	</div>
+</header>
+
+
+		<!-- content part-->
+		<section id="content-part">
+			<div class="container content">
+				<div class="row">
+				  	<div class="col-sm-12">
+						
+				  	  	<h1 class="text-center">
+							What About the Security of the Security Products Themselves? 
+						</h1>
+
+						
+						
+							<ul class="blogMeta list-inline text-center">
+							<li>
+								<time datetime="September 21, 2016">
+									September 21, 2016
+								</time>
+							</li>
+						
+									<li><a href="/blog/category/authors/jason-pappalexis">Jason Pappalexis</a></li>
+								
+									<li><a href="/blog/category/authors/jayendra-pathak">Jayendra Pathak</a></li>
+								
+							</ul>
+						<p><img alt="Advanced Endpoint Security Products" class="image-right" height="206" src="/default/assets/Image/Blog%20Images/Advanced%20Endpoint%20Security.jpg" width="300" />The fact that there are large numbers of vulnerabilities and exploits in major operating systems and large applications is no longer something known only by those in the security industry&mdash;as seen with the recent <a href="https://www.nsslabs.com/blog/appliance-assault-why-shadow-brokers-is-a-cautionary-tale-of-security-products-security/">Shadow Brokers</a> leak.&nbsp;Additionally, with market for applications and operating systems in the US$ billions, it should come as no surprise that threat actors are investing significant resources to take advantage of their vulnerabilities.</p>
+
+<p><em>Thank goodness we have security products to protect us.</em></p>
+
+<p>Yeah, right. We all know that it&rsquo;s <a href="https://www.nsslabs.com/blog/cyber-resilience-it-s-not-the-98-you-catch-that-matters-it-s-the-2-you-miss/">not the 98% you catch, but the 2% you miss</a> that truly matters; and now&mdash;thanks to work by independent labs and researchers, we&rsquo;ve learned that many of the security products installed to protect these operating systems and applications are prone to the same issues as the systems they&rsquo;re supposed to protect. Take a look at Tavis Ormandy&rsquo;s work through Project Zero on endpoint security products from <a href="http://googleprojectzero.blogspot.com/2015/09/kaspersky-mo-unpackers-mo-problems.html">Kaspersky</a>, <a href="http://googleprojectzero.blogspot.com/2015/06/analysis-and-exploitation-of-eset.html">ESET</a>, <a href="http://googleprojectzero.blogspot.com/2015/12/fireeye-exploitation-project-zeros.html">FireEye</a>, and <a href="https://code.google.com/p/google-security-research/issues/detail?id=693">Trend Micro</a>, for example. Ironic as this may be, his demonstration of security flaws within these products is not that surprising when you consider that the common denominator for all software development is people.</p>
+
+<p>Why trust security software to be written any more securely than document editor software or spreadsheet editor software? Yes, the purpose of the software is different (intrusion detection rather than editing words, for example), but use case doesn&rsquo;t always drive design, and deadlines and work pressures are universal for all software developers. Greater protection requires a reduction in the attack surface, and utilizing sound best practices when developing software can make all the difference.</p>
+
+<p>The recent creation of CyberUL, a cyber version of Underwriters&rsquo; Laboratory with L0pht member and former Google employee Peiter Zatko (better known as Mudge) at the helm, could also significantly help in establishing universal standards for security requirements for security products (and the products they protect). While this is indeed progress, it is not without challenges and shouldn&rsquo;t be seen as a panacea.</p>
+
+<p>Overall, awareness of security best practices, the need for additional standards, and the difference between malware and exploits has been good for the security industry.&nbsp;But security can be a bit like Russian nesting dolls (i.e., Matryoshka dolls). The deeper we go, the more we realize that there is still much that we don&rsquo;t know. The Project Zero work cited above is a good example. Enterprise endpoint protection products have been around for more than 20 years, and we still have much to learn regarding their security.</p>
+
+<p>And things are about to get a lot more complicated. NSS Labs is evaluating more than fifty advanced endpoint protection (AEP) products for our 2016 <a href="https://www.nsslabs.com/research-advisory/library/endpoint-protection/endpoint-protection-enterprise/">AEP group test</a> later this year. &nbsp;A lot of system evaluation (and self-evaluation) is occurring in 2016, and both new industry darlings and security icons could be knocked down from their pedestals.</p>
+
+<p>Follow us on Twitter (<a href="http://www.twitter.com/jsnppp">@JsnPpp</a> and <a href="http://www.twitter.com/jayendra363">@jayendra363</a>) to keep informed as new research is released.</p> 
+					</div>
+				</div>
+
+				
+				
+					<div class="row text-center">
+						<div class="col-sm-12">
+							<span class="tags">Tags: </span>
+							
+									<a href="/blog/category/blog-categories/advanced-endpoint">Advanced Endpoint</a>, 
+									<a href="/blog/category/blog-categories/advanced-endpoint-protection">Advanced Endpoint Protection</a>, 
+									<a href="/blog/category/blog-categories/aep">AEP</a>, 
+									<a href="/blog/category/blog-categories/cyberul">CyberUL</a>, 
+									<a href="/blog/category/blog-categories/mudge">Mudge</a>, 
+									<a href="/blog/category/blog-categories/peter-zatko">Peter Zatko</a>, 
+									<a href="/blog/category/blog-categories/project-zero">Project Zero</a>, 
+									<a href="/blog/category/blog-categories/tavis-ormandy">Tavis Ormandy</a> 
+						</div>
+					</div>
+				
+					<div id="disqus_thread"></div>
+					<script>
+					var disqus_config = function () {
+					this.page.url = "https://www.nsslabs.com/blog/what-about-the-security-of-the-security-products-themselves/";
+					this.page.identifier = "0642EF60-5056-9046-93DBB95C8AEA93FD";
+					};
+					(function() { // DON'T EDIT BELOW THIS LINE
+					var d = document, s = d.createElement('script');
+
+					s.src = '//nsslabs.disqus.com/embed.js';
+
+					s.setAttribute('data-timestamp', +new Date());
+					(d.head || d.body).appendChild(s);
+					})();
+					</script>
+					<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+				
+			</div>
+		</section>
+		
+<footer>
+	<div class="container">
+		<div class="row footer">
+			<div class="col-sm-10">
+				<div class="row">
+					<div class="col-sm-3">
+						
+					</div>
+					<div class="col-sm-3">
+						<h6><a href="/research-advisory/">RESEARCH &amp; ADVISORY</a></h6>
+
+<ul>
+  <li><a href="/research-advisory/security-testing/">Security Testing</a></li>
+	<li><a href="https://www.nsslabs.com/research-advisory/library/">Library</a></li>
+</ul>
+					</div>
+					<div class="col-sm-3">
+						<h6><a href="/caws/">CAWS</a></h6>
+
+<ul>
+  <li><a href="https://caws.nsslabs.com/">CAWS Sign-in</a></li>
+	<li><a href="/caws#resources">Resources</a></li>
+</ul>
+					</div>
+					<div class="col-sm-3">
+						<h6>COMPANY</h6>
+
+<ul>
+	<li><a href="/company/about-nss/">About NSS</a></li>
+	<li><a href="/company/analysts/">Analysts</a></li>
+	<li><a href="/company/board-of-directors/">Board of Directors</a></li>
+	<li><a href="/company/executive-team/">Executive Team</a></li>
+	<li><a href="/company/customers/">Customers</a></li>
+	<li><a href="/company/news/">News</a></li>
+	<li><a href="/company/webinars/">Webinars</a></li>
+	<li><a href="/company/careers/">Careers</a></li>
+</ul>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-2">
+				<h6>CONNECT</h6>
+
+<ul>
+	<li><a href="/company/contact-us/">Contact Us</a></li>
+	<li><a href="/blog/">Read Our Blog</a></li>
+	<li><a href="/research-advisory/research-advisory-offerings/">Become a Client</a></li>
+	<li><a href="/vendor-briefing/">Vendor Briefing</a></li>
+	<!--<li><a href="/sign-our-free-newsletter/">Subscribe to Our Newsletter</a></li>-->
+</ul>
+				<div class="social">
+					<a class="fa fa-facebook" href="https://www.facebook.com/nsslabs" target="_blank" title="Friend us on Facebook"></a>
+					<a class="fa fa-twitter" href="http://twitter.com/nsslabs" target="_blank" title="Follow us on Twitter"></a>
+					<a class="fa fa-linkedin" href="https://www.linkedin.com/company/nss-labs" target="_blank" title="Connect to us on Linkedin"></a>
+					<a class="fa fa-youtube-play" href="https://www.youtube.com/channel/UC6H52g9hS6qeZDp8zA83O_g" target="_blank" title="Checkout our YouTube Channel"></a>
+					<a class="fa fa-google-plus" href="https://plus.google.com/114166584799873607220/posts" target="_blank" title="Google Plus"></a>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="container-fluid bottom">
+				<p>&copy; NSS Labs, Inc 2016</p>
+				<ul>
+	<li><a href="/privacy-policy">Privacy Policy</a></li>
+	<li><a href="/terms-use">Terms of Use</a></li>
+</ul>
+			</div>
+		</div>
+	</div>
+</footer>
+
+	</div>
+	
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+	<script src="https://d3js.org/topojson.v0.min.js"></script>
+	<script src="/default/includes/themes/MuraBootstrap3/assets/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="/default/includes/themes/MuraBootstrap3/assets/js/custom.js" type="text/javascript"></script>
+	<script src="/default/includes/themes/MuraBootstrap3/assets/js/jquery.flexslider.js" type="text/javascript"></script>
+	<script src="/default/includes/themes/MuraBootstrap3/assets/js/bootstrap-select.min.js"></script>
+	<script>
+	$(window).load(function(){
+	 $('.librayslider').flexslider({
+	   animation: "slide",
+		controlNav: false,
+	   start: function(slider){
+		 $('body').removeClass('loading');
+	   }
+	 });
+	 $('.accodian-tabs').click(function(e) {
+	   e.preventDefault();
+	   if($(window).width()<767){
+		   if(!($(this).next('.tab-pane').is(':visible'))){
+			   $('.tab-content > .tab-pane').slideUp();
+			   $('.accodian-tabs').removeClass('active');
+			   $(this.hash).slideToggle();
+			   $(this).addClass('active');
+		   }else {
+			   $(this.hash).slideUp();
+			   $(this).removeClass('active');
+		   }
+	   }
+	   });
+	});
+	</script>
+	 
+	<script type="text/javascript">
+
+	$(function(){
+		$("#ticker1").endlessRiver({
+			speed: 80,
+			buttons:false
+		});
+	});
+
+    $(function () {
+		$('[data-toggle=tooltip]').hover(function(){
+	        // on mouseenter
+	        $(this).tooltip('show');
+	    }, function(){
+	        // on mouseleave
+	        $(this).tooltip('hide');
+	    });
+        //$('[data-toggle="tooltip"]').tooltip()
+    })
+    </script>
+	
+	</body>
+</html>

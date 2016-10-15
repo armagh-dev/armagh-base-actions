@@ -22,8 +22,8 @@ module FixtureHelper
     @fixture_dir = dir
   end
 
-  def fixture(filename, content = nil)
-    path = File.expand_path(
+  def fixture_path(filename)
+    File.expand_path(
       File.join(
         File.dirname(__FILE__),
         '..',
@@ -32,13 +32,16 @@ module FixtureHelper
         filename
       )
     )
+  end
 
-    dir = File.dirname(path)
+  def fixture(filename, content = nil)
+    path = fixture_path(filename)
+    dir  = File.dirname(path)
     Dir.mkdir(dir) unless File.directory?(dir)
 
     if content && !File.exist?(path)
       File.open(path, 'w') { |f| f << content }
-      puts "WARNING: New fixture written: #{path[/\/(fixtures\/.+)$/, 1]}"
+      puts "WARNING: New fixture written: #{path[/\/(test\/fixtures\/.+)$/, 1]}"
     end
 
     if ['.txt', '.text', '.csv', '.xml', '.htm', '.html'].include?(File.extname(filename.downcase))

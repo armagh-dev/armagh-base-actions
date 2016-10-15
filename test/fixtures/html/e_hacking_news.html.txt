@@ -1,0 +1,18 @@
+After breaking into the computers of several business entities and stealing the personal identification information of over 200 million Americans, a Vietnamese hacker has finally been sentenced for 13 years in prison.
+
+The Department of Justice on Tuesday, released a report announcing that Hieu Minh Ngo, 25, bagged $2 mn from hacking and stealing the personal identification and selling it to other cyber criminals.
+
+A District Court in New Hampshire finally sentenced Ngo on Tuesday for various fradulent charges, as reported by the Financial Times. Ngo was arrested in february 2013, soon as he entered America.
+
+Back in his home in Vietnam, Ngo was active from 2007 till 2013, for breaking into computer systems and stealing identifiable information like Social security numbers, credit card details, bank account, phone numbers, and advertising about the data on his websites, from where the fellow hackers used to buy the information.
+
+A press release by the Justice Department specified that 'Ngo admitted that he offered access to PII (personally identifiable information) for 200 million U.S. citizens, and that more than 1,300 customers from around the world conducted more than three million "queries" through the third-party databases maintained on his websites'.
+
+The Internal Revenue Service stated that the information sold on Ngo's website to other hackers was used to file income tax returns for more than 13000 people, who saw $65 million returned on their behalf.
+
+'Criminals buy and sell stolen identity information because they see it as a low-risk, high-reward proposition,' Assistant Attorney General Leslie Caldwell said a statement.
+'Identifying and prosecuting cyber criminals like Ngo is one of the ways we're working to change that cost-benefit analysis.'
+
+The US Office of Personnel Management revealed that the hackers have stolen more than 21.5 mn social security numbers till now, and out of them 1.1 mn include fingerprints.
+
+Sentencing Ngo has finally taken an initiative for stopping cyber crimes that are breaching the personal identity of civilians.

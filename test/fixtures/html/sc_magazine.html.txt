@@ -1,0 +1,20 @@
+The threat landscape and nature of data breaches are constantly changing, requiring lightning fast response and throwing organizations into an nearly perpetual state of transformation.
+The threat landscape and nature of data breaches are constantly changing, requiring lightning fast response and throwing organizations into an nearly perpetual state of transformation.
+
+The threat landscape and nature of data breaches are constantly changing, requiring  lightning fast response and throwing organizations into an nearly perpetual state of transformation, a government cybercrime official and the legal counsel for a large insurance provider told attendees at the LegalTech Show in New York on Tuesday.
+
+“No matter what state you're in before or after a breach, the transforming stage” should be ongoing, said Erez Liebermann, chief counsel of cybersecurity and privacy and vice president and senior counsel of regulatory law at Prudential Financial. In the not-so-distant past, organizations would respond to breaches, institute a new solution or new tech then “pave over” the incident. Not any longer.
+
+Liebermann said responding to breaches and guarding against future incidents requires a “shift in thinking” in which organizations' security teams should be “continually thinking about how to sustain the ‘transforming' process.”
+
+Ovie Carroll, director of the Department of Justice Cybercrime Center, stressed the importance of an organization evaluating how it handled a breach. “We can't overstate the value of the post mortem,” he said, noting it often gets short shrift by authorities as well who typically finish up one investigation and then are off to the next thing.  “Law enforcement can do a better job of it,” Carroll said.
+
+But the panelist agreed that companies needed to do their upfront work to have a response plan in place long before a breach occurs.
+
+“Do the work now, not just after a breach,” said Liebermann, noting preparation helps organizations react more quickly, important since notification demands by lawmakers can be overwhelming otherwise.
+
+“Attorneys General in all states expect you to have notifications out within 48 hours of a breach going public,” said Liebermann.
+
+He also warned companies not to “treat a breach like the only impact is on your own company” because vendors, customers and other third parties “can see that.” Instead, he said, build trust by looking a breach holistically and addressing the affects on all parties involved. And, he warned, be careful not to say too much before solid information comes in, since the situation post-breach is fluid. Acknowledge the breach, “explain you understand, say you're sorry and then say nothing else,” Liebermann said, referencing an attorney involved in the Home Depot breach who famously said that nothing should be considered fact until it remained so for 24 hours.
+
+Carroll charged the audience to proceed carefully in the aftermath of a breach, saying to “remember, sometimes, [bad] actors are watching your response.”

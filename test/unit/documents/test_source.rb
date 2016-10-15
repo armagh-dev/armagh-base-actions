@@ -75,6 +75,9 @@ class TestSource < Test::Unit::TestCase
     hash = @source.to_hash
     @new_source = Armagh::Documents::Source.from_hash(hash)
     assert_equal(@source, @new_source)
+
+    @source.url = nil
+    assert_false @source.to_hash.has_key?('url')
   end
 
 end

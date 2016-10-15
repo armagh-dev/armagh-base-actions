@@ -16,7 +16,7 @@
 #
 
 require_relative '../helpers/coverage_helper'
-require_relative '../helpers/fixture'
+require_relative '../helpers/fixture_helper'
 
 require 'test/unit'
 

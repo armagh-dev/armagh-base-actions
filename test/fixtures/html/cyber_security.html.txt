@@ -1,0 +1,14 @@
+Russia has been implicated in many breaches of U.S. networks in recent months, most notably the Democratic National Committee and the Democratic Congressional Campaign Committee hacks, whose data were subsequently dumped to the whistleblowing site WikiLeaks. On 28 September, FBI Director James Comey told a congressional hearing that Russian hackers have been testing cyberdefenses of voter registration databases in more than a dozen states.
+
+Last year, hackers working on behalf of the Russian government stole sensitive information from the IRS, the Pentagon, the State Department, and the White House.
+
+Hacking groups using names like Cozy Bear and Fancy Bear, and pseudonymous individuals like Guccifer 2.0, are not just targeting the United States, but are also going after any entity that obstructs the interests of Russia’s government.
+
+These hackers are tied to, for example, the recent breach of the World Anti-Doping Agency, making public the health records of many Olympians. That attack was an apparent response to the doping scandal that saw many Russian athletes banned from Olympic competition in Rio de Janeiro – possibly to suggest that it wasn’t just Russians who broke the rules. (They have also hacked the email accounts of the whistleblowers who revealed Russia’s violations.)
+
+What is Russia trying to do with its hacking efforts? Who are the people doing this? How do we know they’re working for Russia, and how closely tied are they to the government? As scholars of Russian cyber-conflict and information warfare, we have learned that this is just Russia’s most recent digital effort to benefit its national interests.
+
+Taking on Hillary Clinton
+One clear goal for the Russian hackers involved in these recent attacks is to make the presidential campaign harder for Democratic nominee Hillary Clinton and easier for her Republican opponent, Donald Trump. The hack of e-mails belonging to former Secretary of State Colin Powell was an obvious effort to deepen the private email saga that has damaged Clinton’s campaign.
+
+Given the DNC and DCCC hacks, it seems that Russian hackers are targeting only Clinton and the Democrats. There is evidence that the Republican National Committee was hacked as well, but no documents obtained have yet been made public. Furthermore, the U.S. affiliates of Russian state-owned media outlets such as RT (formerly Russia Today) and Sputnik daily report negative stories about Clinton and upbeat stories about Trump.

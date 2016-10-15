@@ -1,0 +1,1919 @@
+<!doctype html><!-- start coded_template: id:1356250069 path:custom/blog/basic/cylance_blog_july2014.html --><!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]--><!--[if IE 7]><html class="no-js lt-ie9 lt-ie8" lang="en">        <![endif]--><!--[if IE 8]><html class="no-js lt-ie9" lang="en">               <![endif]--><!--[if gt IE 8]><!--><html class="no-js" lang="en"><!--<![endif]--><head>
+    <meta charset="utf-8">  
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="author" content="Cylance, Inc.">
+    <meta name="description" content="Reports have already started surfacing about malware apps which mimic the legitimate Pokémon Go app. One such case is PokemonGo.exe, a piece of ransomware that pretends to be a Windows 10 version of Pokemon Go. Cylance investigates how this ransomware spreads, and looks into options for remediation of infected systems.">
+    <meta name="generator" content="HubSpot">
+    <title>The Cautionary Case of Pokémon Go</title>
+    <link rel="shortcut icon" href="https://cdn2.hubspot.net/hubfs/270968/2015_cylance_website/favicon.ico?t=1475168153396">
+
+
+    
+    <script src="https://static.hsstatic.net/jquery-libs/static-1.1/jquery/jquery-1.7.1.js"></script>
+    <script type="text/javascript">hsjQuery = window['jQuery']</script>
+    <link href="https://static.hsstatic.net/content_shared_assets/static-1.4020/css/public_common.css" rel="stylesheet">
+    <meta property="og:description" content="Reports have already started surfacing about malware apps which mimic the legitimate Pokémon Go app. One such case is PokemonGo.exe, a piece of ransomware that pretends to be a Windows 10 version of Pokemon Go. Cylance investigates how this ransomware spreads, and looks into options for remediation of infected systems.">
+    <meta property="og:title" content="The Cautionary Case of Pokémon Go">
+    <meta name="twitter:description" content="Reports have already started surfacing about malware apps which mimic the legitimate Pokémon Go app. One such case is PokemonGo.exe, a piece of ransomware that pretends to be a Windows 10 version of Pokemon Go. Cylance investigates how this ransomware spreads, and looks into options for remediation of infected systems.">
+    <meta name="twitter:title" content="The Cautionary Case of Pokémon Go">
+
+
+    
+    
+
+    
+<!--  Added by GoogleAnalytics integration -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-33464378-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+<!-- /Added by GoogleAnalytics integration -->
+
+    
+
+
+    <!--[if lt IE 9]>
+    <script src="https://static.hsstatic.net/content_shared_assets/static-1.4020/js/css3-mediaqueries.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script type="text/javascript">
+(function() {
+  var didInit = false;
+  function initMunchkin() {
+    if(didInit === false) {
+      didInit = true;
+      Munchkin.init('524-DOM-989');
+    }
+  }
+  var s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.async = true;
+  s.src = '//munchkin.marketo.net/munchkin.js';
+  s.onreadystatechange = function() {
+    if (this.readyState == 'complete' || this.readyState == 'loaded') {
+      initMunchkin();
+    }
+  };
+  s.onload = initMunchkin;
+  document.getElementsByTagName('head')[0].appendChild(s);
+})();
+</script>
+<script src="//assets.adobedtm.com/89485d8d1f8f0b52e4a1521906d3ee75ee659697/satelliteLib-23ba5d1e186e4b4e63df6e5c7a14fedeadeef149.js"></script>
+<meta property="og:image" content="https://www.cylance.com/hubfs/2015_cylance_website/Blog/Thumbnails/Blog_Hdr_CautionaryCaseofPokemonGo_Thumb.png#keepProtocol">
+<meta name="twitter:image" content="https://www.cylance.com/hubfs/2015_cylance_website/Blog/Thumbnails/Blog_Hdr_CautionaryCaseofPokemonGo_Thumb.png#keepProtocol">
+
+<meta property="og:url" content="https://blog.cylance.com/the-cautionary-case-of-pokemon-go">
+
+<link rel="canonical" href="https://blog.cylance.com/the-cautionary-case-of-pokemon-go">
+<style>
+#bold{font-weight:600;}
+
+</style> 
+
+<meta property="og:type" content="article">
+<link rel="alternate" type="application/rss+xml" href="https://blog.cylance.com/rss.xml">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:domain" content="blog.cylance.com">
+<meta name="twitter:site" content="@cylanceinc">
+<script src="//platform.linkedin.com/in.js" type="text/javascript">
+    lang: en_US
+</script>
+
+<link href="//cdn2.hubspot.net/hub/270968/hub_generated/style_manager/1443659452688/custom/styles/default/hs_default_custom_style.min.css" rel="stylesheet">
+<link rel="stylesheet" href="//cdn2.hubspot.net/hub/270968/hub_generated/style_manager/1407203453941/custom/system/Basic/cylance_july2014.min.css">
+
+
+ 
+        
+            
+    <link rel="stylesheet" href="https://cdn2.hubspot.net/hubfs/270968/2015_cylance_website/styles/blog.css?t=1475168153396">
+    <link rel="stylesheet" href="https://cdn2.hubspot.net/hubfs/270968/2015_cylance_website/styles/master_global.css?t=1475168153396">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">  
+
+         
+<!--
+=====================================================================================================================================================================
+NEW -
+=====================================================================================================================================================================
+-->
+
+            <style>
+                body {
+                    background:white; 
+                }
+                #intro_cylance {
+                    height: auto;
+                }
+                #intro_cylance #cy-title {
+                    height: 55vh;
+                }
+                .row-fluid  {
+                    max-width:1280px;
+                }
+                #cy-title .cy-center .content {
+                    background-position: center;
+                    background-size: cover;
+                }
+                #blog_container {
+                    width:70%;
+                    max-width:1280px;
+                    margin:60px auto;
+                    display:block;
+                    background-color:#e1e1e1;
+                    position:relative;
+                }
+                .blog-listing-wrapper {
+                    position:relative;
+                }
+                .featured-image {
+                    width:100%;
+                }
+                .featured-image img{
+                    width:100%;
+                    position: absolute;
+                    height: 100%!important;
+                }
+                .blog-preview {
+                    background-color:#FFF;
+                    border-bottom: 0;
+                    width: 25%;
+                    float: left;
+                    min-height: 380px;
+                    position:relative;
+                    border:5px solid white;
+                    overflow:hidden;
+                }
+                .blog_description {
+                    width: 100%;
+                    height: 40%;
+                    background: #f4f4f4;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    -webkit-transform-style: preserve-3d;
+                    -moz-transform-style: preserve-3d;
+                    transform-style: preserve-3d;
+                    padding:20px 0;
+                }
+                .blog_description h3 {
+                  position: relative;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  -webkit-transform:translateY(-50%);
+                  -moz-transform: translateY(-50%);
+                  left:20px;
+                  max-width:80%;
+                }
+                .blog_description h3 a {
+                    font-size:21px;
+                    color:#3C3C3C;
+
+                }
+                .blog_featured_image {
+                    position: absolute;
+                    top: 0px;
+                    left: 0px;
+                    height: 60%;
+                    width:100%;
+                    background-size: cover;
+                    background-position:center;
+                }
+                .blog-preview:nth-of-type(1) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(2) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(3) {
+                    width:50%;
+                }
+                .blog-preview:nth-of-type(4) {
+                    width:50%;
+                }
+                .blog-preview:nth-of-type(5) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(6) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(7) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(8) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(9) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(10) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(11) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(12) {
+                    width:25%;
+                }
+                .blog-preview:nth-of-type(13) {
+                    width:50%;
+                }
+
+                @media (min-width:651px) and (max-width:1000px) {
+
+                    .blog-preview {
+                        width:50%!important;
+                        min-height: 270px;
+                    }
+                    .blog-preview:nth-of-type(13) {
+                       display:none;
+                    }
+
+                }
+
+                @media (max-width:650px) {
+
+                    .blog-preview {
+                        width:100%!important;
+                        min-height: 240px;
+                    }
+                    .blog-preview:nth-of-type(13) {
+                       display:none;
+                    }
+                }
+
+
+
+
+
+
+                .blog-pagination {
+                    background-color:white;
+                    background:white;
+                }
+                .blog-pagination a {
+                    color: black;
+                    position: relative;
+                    top: 50px;
+                }
+
+
+
+
+
+
+
+
+
+
+                /* POST ARTICLE */
+                .post-body {
+                    margin-top:120px;
+                }
+                #hs_cos_wrapper_post_body h1 img {
+                    display:none;
+                }
+                #hs_cos_wrapper_post_body p{
+                    color:#3E3E3E;
+                    line-height:26px;
+                    font-weight: 300;
+                    margin-bottom: 30px;
+                    display: block;
+                    margin: 20px 0;
+                }
+                .hs-blog-post .widget-type-blog_content {
+                    background: white;
+                }
+                .post-header h3 {
+                    font-size: 70px!important;
+                    color: #535353!important;
+                    margin-bottom: 40px;
+                }
+
+                .shareContainer {
+                    position:absolute;
+                    top:10%;
+                    right:0;
+                }
+
+
+                .blog-post-left .back-to-blog {
+                    color:#CECECE!important;
+                    position: relative;
+                    top: 30px;
+                }
+                .blog-post-left .back-to-blog a{
+                    color:#CECECE!important;
+
+                }
+                .hs-author-label {
+                    color:#9E9E9E;
+                }
+                .author-link {
+                    color: #2D7093;
+                }
+                .post-date {
+                    font-size:13px;
+                    color:#9E9E9E;
+                    margin-left: 40px;
+                }
+                .post-date:before {
+                    content:"|";
+                    width:10px;
+                    position:relative;
+                    right:20px;
+                }
+                #hubspot-author_data {
+                    padding-bottom: 35px;
+                    margin-bottom: 30px;
+                    float:left;
+                }
+                .hs-author-social-section { 
+                }
+
+
+
+                #blog_divider {
+                    width: 90%;
+                    height: 2px;
+                    background: #E1E1E1 none repeat scroll 0% 0%;
+                    margin: 40px 0px;
+                    position: relative;
+                    top: 70px;
+                    left: 40px;
+                }
+
+
+                /* SOCIAL */
+                .hs-blog-post .shareContainer {
+                    background: #EFEFEF none repeat scroll 0% 0%;
+                    border-radius: 0px;
+                    position: absolute;
+                    top: -60px;
+                    right: -22%;
+                    padding:0 7px 0 0!important;
+                }
+                .hs-blog-post .shareContainer {
+                    padding:0;
+
+                }
+
+                .st_googleplus,.st_linkedin, .st_facebook, .st_twitter {
+                    display:block;
+                    margin: 15px 15px 26px 15px;
+                }
+
+
+                /* NAVVVVV */
+                header {
+                    background:transparent;
+                }
+                #getDemo {
+                    display: inline-block;
+                    padding: inherit;
+                    overflow: hidden;
+                    text-transform: uppercase;
+                    font-size: 12.5px;
+                    font-family: ProximaNovaBold,"Open Sans","Gill Sans MT","Gill Sans",Corbel,Arial,sans-serif;
+                    color: #FFF;
+                    text-align: left;
+                    line-height: initial;
+                    vertical-align: middle;
+                    border: none;
+                    border-radius: none;
+                    border-radius: 0;
+                    width: 60%!important;
+                }
+                #blogContainer {
+                    margin:0 auto;
+                    display:block;
+                    width:85%;
+                    max-width:1280px;
+                    padding-bottom: 70px;
+                }
+                #trigger-overlay {
+                    cursor:pointer;
+                }
+                @media (max-width: 1200px) {
+                    #nav ul.menu li ul.sub-menu li > a.cta.is_mobile {
+                        width: 210px;
+                    }
+                }                
+                
+                
+                
+                
+                .row-fluid {
+                    max-width: 1280px;
+                    margin: 0 auto!important;
+                }
+                                
+          
+                @media (max-width:550px){
+                    body { 
+                        margin-top:40px;
+                    }
+                    header#nav_items.navbar.headroom.active.headroom-bg-animation {
+                        background:#272727!important;
+                    }
+                }
+                
+                
+             
+                
+                
+                @media screen and (max-width:600px) {
+                    .post-date::before{display:none;}
+                    .post-date {display:block;clear:both;margin-left: 0px;}
+                    #hubspot-author_data {padding-bottom: 0;margin-bottom: 0px;}
+                }
+                
+                
+                
+                #blog_divider { 
+                    margin: 40px 0px; 
+                    top: 50px; 
+                }
+                
+                .post-body {
+                    margin-top: 60px!important;
+                }
+                .ui-dialog { 
+                    max-height: 640px;
+                }
+                #getDemo {
+                    position: absolute;
+                    right: 120px;
+                    bottom: 1px;
+                    color: #62C84C!important;
+                    text-decoration: none;
+                    font-weight: 100;
+                    font-size: 17px!important; 
+                    top: 16px;
+                }
+                .trigger_amin i.txtBlock { 
+                    top: 24px;
+                }
+                
+                
+                 
+                
+                #intro_cylance .title h2 {
+                    background:none!important;
+                } 
+                #intro_cylance .title h2 a{
+                    color:white;
+                }
+                #intro_cylance .title h2 a:hover{
+                    color:#69BD45;
+                }
+                
+                
+                header#nav_items.navbar.headroom.active {
+                    background: transparent ;
+                }
+                
+
+                
+            /* Portrait and Landscape */
+            /* Landscape */
+            @media only screen 
+              and (min-device-width: 320px) 
+              and (max-device-width: 568px)
+              and (-webkit-min-device-pixel-ratio: 2)
+              and (orientation: landscape) {
+            #intro_cylance {display:none;}
+            }
+            /* Landscape */
+            @media only screen 
+              and (min-device-width: 375px) 
+              and (max-device-width: 667px) 
+              and (-webkit-min-device-pixel-ratio: 2)
+              and (orientation: landscape) { 
+            #intro_cylance {display:none;}
+            
+            }
+            /* Landscape */
+            @media only screen 
+              and (min-device-width: 414px) 
+              and (max-device-width: 736px) 
+              and (-webkit-min-device-pixel-ratio: 3)
+              and (orientation: landscape) { 
+            #intro_cylance {display:none;}
+            
+            }
+            
+            
+            @media (max-width:550px) {
+                
+                header #nav_items{
+                    background: #272727 none repeat scroll 0% 0% !important;
+                }
+                header#nav_items.navbar.headroom.active {
+                    background: #272727 none repeat scroll 0% 0% !important;
+                }
+                
+            }
+             @media (min-width:550px) {
+                   
+                .blog-pagination a{
+                    border: 2px solid #6CBB4C!important;
+                    color: #6CBB4C;
+                    text-decoration: none;
+                    font-size: 20px;
+                    padding: 5px 41px;
+                    font-weight: 400;
+                    letter-spacing: 0.5px;
+                    transition: background 1s ease 0s;
+                }
+                .blog-pagination a:first-of-type{ 
+                    right:2px;
+                }
+                .blog-pagination a:last-of-type{ 
+                    right:-3px;
+                }   
+                #blogContainer { 
+                    padding-bottom: 73px;
+                }
+             }
+            
+            header#nav_items.navbar.headroom.active {
+                background: #272727;
+            }
+            #hs_cos_wrapper_post_body p {
+             color: #000000;
+             font-weight:500!important;   
+             font-size:16px!important;
+            }
+            
+            .widget-type-blog_content {
+                position:relative;
+            }
+            
+          .hs-blog-post .shareContainer {  
+              top: 0px;
+              right: -13px;
+              background: white;
+              position:relative!important;
+              float:right;
+          }
+          
+          @media (max-width:840px) {
+              
+           .hs-blog-post .shareContainer {
+                top: 0px;
+                right: 0;
+                background: white;
+                position: relative !important;
+                float: left;
+                display: block;
+                clear: both;
+                height: 60px;
+                width: 100%;
+            }   
+                          
+          }
+          
+         @media (max-width:600px) {
+          .hs-blog-post .shareContainer {
+                top: 40px;
+                right: 0;
+                background: white;
+                position: relative !important;
+                float: left;
+                display: block;
+                clear: both;
+                height: 60px;
+                width: 100%;
+                margin-bottom: 50px;
+            }
+                                      
+          }
+        @media (max-width:767px) {
+          .blog-post-left .back-to-blog {
+            color: #CECECE !important;
+            position: relative;
+            top: 30px;
+            left: 40px;
+          }
+          .post-header h3 {
+                font-size: 50px !important;
+                color: #535353 !important;
+                margin-bottom: 40px;
+                margin-top: 20px;
+            }
+        }
+        .fb-like span:first-of-type {
+        top: -2px;
+        }
+            </style>
+
+
+</head>
+ 
+<body class="   hs-content-id-4326047453 hs-blog-post hs-content-path-the-cautionary-case-of-pokemon-go hs-content-name-the-cautionary-case-of-pokémon-go hs-blog-name-cylance-blog hs-blog-id-341593683" style="">
+
+
+        <span id="hs_cos_wrapper_master_nav_bar" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_custom_widget" style="" data-hs-cos-general-type="widget" data-hs-cos-type="custom_widget"><!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-T6NGXM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T6NGXM');</script>
+<!-- End Google Tag Manager -->
+
+<script src="/hubfs/2015_cylance_website/scripts/gtm_scripts.js"></script>
+
+<style>
+#popup1 select {
+    color: rgb(191, 191, 191);
+    font-size: 17px;
+}
+#hs_cos_wrapper_master_nav_bar sub {
+    top:0em;
+}
+
+.success_demo {
+        text-align: center;
+    padding: 40px;
+}
+.popup.ui-dialog .mktoForm {
+    width: 94% !important;
+    padding: 0 2%;
+}
+
+.popup.ui-dialog .mktoForm .mktoLabel {
+    display:none;
+}
+.popup.ui-dialog .mktoForm .mktoFormCol {
+    width: 50%;
+}
+#mktoForm_1002 .mktoFormRow:nth-child(7) .mktoFieldDescriptor {
+    width: 100%;
+}
+.popup.ui-dialog .mktoForm .mktoFieldWrap {
+    width:95%;
+}
+.popup.ui-dialog input[type="text"], .popup.ui-dialog form input[type="email"], .popup.ui-dialog form input[type="tel"], .popup.ui-dialog form select  {
+    width:100% !important;
+    color: #8D8D8D;
+    font-size: 17px;
+    height: 40px;
+    box-sizing: border-box;
+    background: transparent none repeat scroll 0% 0%;
+    margin-bottom: 19px;
+    position: relative;
+    z-index: 4;
+    border:none;
+    border-bottom:#8D8D8D solid 1px;
+    box-shadow:none;
+} 
+
+
+.popup.ui-dialog .mktoGutter.mktoHasWidth {
+    display:none;
+}
+
+.popup.ui-dialog input[type="text"], .popup.ui-dialog form input[type="tel"], .ui-dialog select {
+    color: #8D8D8D;
+    font-size: 17px;
+    height: 40px;
+    box-sizing: border-box;
+    background: transparent none repeat scroll 0% 0%;
+    margin-bottom: 19px;
+    position: relative;
+    z-index: 4;
+}
+
+.ui-dialog select {
+    left:0px;
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.popup.ui-dialog .mktoForm textarea.mktoField {
+    width: 100%!important;
+
+}
+
+
+.popup.ui-dialog .mktoForm .mktoButtonWrap .mktoButton  {
+    font-weight: 400!important;
+    background: none !important;
+    appearance: none !important;
+    -webkit-appearance: none  !important;
+    -moz-appearance: none !important;
+    text-shadow: none !important;
+    border: 2px solid #6CBB4C !important;
+    color: #6CBB4C !important;
+    text-decoration: none !important;
+    font-size: 15px !important;
+    padding: 10px 41px !important;
+    font-weight: 400 !important;
+    letter-spacing: .5px !important;
+    line-height: 15px !important;
+    font-size: 20px !important;
+    text-transform: capitalize !important;
+    -webkit-transition: background 1s !important;
+    -moz-transition: background 1s !important;
+    -o-transition: background 1s !important;
+    transition: background 1s !important;
+}
+
+.popup.ui-dialog .mktoForm .mktoButtonWrap .mktoButton:hover {
+    color: #1D323C !important;
+    background: #6CBB4C !important;
+    -o-transition: color 1s linear;
+    -moz-transition: color 1s linear;
+    -khtml-transition: color1s linear;
+    -webkit-transition: color 1s linear;
+    -ms-transition: color 1s linear;
+    transition: color 1s linear;
+}
+.popup.ui-dialog .mktoForm .mktoFormRow:nth-child(7)  {
+    margin-bottom:20px;
+}
+
+.mktoButtonWrap.mktoInset  {
+    margin-left:10px!important;
+}
+
+.popup.ui-dialog .mktoForm .mktoFormRow:nth-child(5) .mktoFormCol:nth-child(1) .mktoFieldWrap:before, .popup.ui-dialog .mktoForm .mktoFormRow:nth-child(5) .mktoFormCol:nth-child(2) .mktoFieldWrap:before, .popup.ui-dialog .mktoForm .mktoFormRow:nth-child(6) .mktoFormCol:nth-child(1) .mktoFieldWrap:before {
+    content: '';
+    position: absolute;
+    right: 5%;
+    top: 17px;
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid #8D8D8D;
+    clear: both;
+    pointer-events: none;
+}
+@media screen and (max-width: 670px) {
+    .popup.ui-dialog .mktoForm .mktoFormCol {
+        width: 100%;
+    }
+}
+
+
+</style>
+<div class="overlay overlay-hugeinc">
+ <span class="bg_logo_overlay"></span>
+ <div id="nav-container">
+ <button class="overlay-close" style="display:none;">Close Menu</button>
+
+  <div class="clearfix"></div>
+  <div id="nav" class="mobile-nav">
+
+  <!--<span id="back-home-btn" class="x-close">Close Menu</span>-->
+    <ul class="menu">
+      <li><a href="https://www.cylance.com/" title=""><span>Home</span></a></li>
+      <li class="list-link">
+        <a id="tab1" href="javascript:void(0);" class="list_a_trigger"><span>Products</span></a>
+        <ul class="sub-menu prod-menu first_sub_menu has_a_header">
+          <li class="menu_col_top"><span class="nav-section_header">Our Products</span> <hr class="mid-line"></li>
+          <li>
+            <a href="https://www.cylance.com/products-protect" title="" class="margin_bottom_10">PROTECT®</a>
+            <a href="https://www.cylance.com/products-protect-threat-zero" title="" class="is_mobile">PROTECT® + ThreatZERO<sub>™</sub></a>
+            <a href="#popup1" class="cta is_mobile">Get A Demo</a>
+            <ul class="sub-menu level-3 prod-menu">
+              <li class="menu_col_top"><span class="nav-section_header">Products by Industry</span> <hr class="mid-line"></li>
+              <li>
+                <a href="https://www.cylance.com/products-protect-critical-infrastructure" title="">Critical Infrastructure</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/products-protect-education" title="">Education</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/products-protect-energy" title="">Energy</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/products-protect-finance" title="">Finance</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/products-protect-government" title="">Government</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/products-protect-healthcare" title="">Healthcare</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/products-protect-retail" title="">Retail</a>
+              </li>
+            </ul>
+          </li>
+          <li><a href="https://www.cylance.com/products-protect-threat-zero" title="" class="is_desktop">PROTECT® + ThreatZERO<sub>™</sub></a></li>
+          <li><a href="#popup1" class="cta is_desktop">Get A Demo</a></li>
+          <li class="mobile-divide"><hr class="mid-line"></li>
+        </ul>
+    </li>
+
+
+    <li class="list-link">
+        <a id="tab2" href="javascript:void(0);" class="list_a_trigger"><span>Consulting</span></a>
+        <ul class="sub-menu prod-menu first_sub_menu has_a_header">
+          <li class="menu_col_top"><span class="nav-section_header">Overview</span> <hr class="mid-line"></li>
+          <li><a id="tab2" href="https://www.cylance.com/consulting" title="">Consulting</a></li>
+          <li><a id="tab2" href="https://www.cylance.com/incident-response" title="">Immediate Incident Containment</a>&nbsp;</li>
+          
+          <li class="menu_col_top"><span class="nav-section_header">Consulting by Practice Areas</span> <hr class="mid-line"></li>
+          
+          <li><a id="tab2" href="https://www.cylance.com/consulting-ics">Industrial Control Systems</a></li>
+          <li><a id="tab2" href="https://www.cylance.com/consulting-iot-embedded">IoT / Embedded Systems</a></li>
+          <li><a id="tab2" href="https://www.cylance.com/consulting-red-team">Red Team Services</a></li>
+          <li><a id="tab2" href="https://www.cylance.com/consulting-ir-ca">Incident Response <br>&amp; Compromise Assessment</a></li>
+          <li><a id="tab2" href="https://www.cylance.com/consulting-threat-zero" title="">ThreatZERO</a></li>
+          <li><a id="tab2" href="https://www.cylance.com/consulting-training" title="">Training</a></li>
+          
+          <li>
+            
+            <ul class="sub-menu level-3 prod-menu">
+              <li class="menu_col_top"><span class="nav-section_header">Consulting by Industry</span> <hr class="mid-line"></li>
+              <li>
+                <a href="https://www.cylance.com/consulting-retail" title="">Retail</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/consulting-energy" title="">Energy</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/consulting-education" title="">Education</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/consulting-government" title="">Government</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/consulting-critical-infrastructure" title="">Critical Infrastructure</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/consulting-healthcare" title="">Healthcare</a>
+              </li>
+              <li>
+                <a href="https://www.cylance.com/consulting-finance" title="">Finance</a>
+              </li>
+            </ul>
+        </li></ul>
+    </li>
+
+    <li class="list-link">
+        <a id="tab1" href="javascript:void(0);" class="list_a_trigger"><span>Partners</span></a>
+        <ul class="sub-menu company-menu first_sub_menu has_a_header">
+          <li class="menu_col_top"><span class="nav-section_header">Partnership Levels</span> <hr class="mid-line"></li>
+          <li>
+            <a href="https://www.cylance.com/technology-partner" title="">Technology Partners</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/partners-reseller" title="">Resellers</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/mssp" title="">MSSP</a>
+          </li>
+          <li><span class="nav-section_header menu_col_mid">Quick Links</span> <hr class="mid-line"></li>
+          <li>
+            <a href="https://cylance.portal.relayware.com/" title="" target="_blank">Partner Portal Login</a>
+          </li>
+          <li>
+            <a href="https://cylance.portal.relayware.com/?eid=register" title="" target="_blank">Become a Partner</a>
+          </li>
+          
+        </ul>
+      </li>
+      <li class="list-link">
+        <a id="tab1" href="javascript:void(0);" class="list_a_trigger" title=""><span>Company</span></a>
+        <ul class="sub-menu company-menu first_sub_menu">
+          <li>
+            <a href="https://www.cylance.com/company" title="">Who We Are</a>
+          </li>
+          <li>
+            <a href="//www.cylance.com/company#investors" id="investors_link" title="">Our Investors</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/company-news-press-releases" title="">News + Press</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/company-awards" title="">Awards &amp; Recognitions</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/cylance-careers" title="">Careers</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/contact-us" title="">Contact Us</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="https://support.cylance.com/hc/en-us" title=""><span>Support</span></a>
+      </li>
+      <li class="list-link">
+        <a id="tab1" href="javascript:void(0);" class="list_a_trigger" title=""><span>Events</span></a>
+        <ul class="sub-menu events-menu first_sub_menu">
+          <li>
+            <a href="https://www.cylance.com/events-on-tour" title="">Unbelievable Tour</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/events-corporate-events" title="">Events &amp; Trade Shows</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/resources-webinar" title="">Webinars</a>
+          </li>
+        </ul>
+      </li>
+      <li class="list-link">
+        <a id="tab1" href="javascript:void(0);" class="list_a_trigger" title=""><span>Resources</span></a>
+        <ul class="sub-menu resources-menu first_sub_menu">
+          <!--<li>
+            <a href="javascript:void(0);" title="">Blog</a>
+          </li>-->
+          <li>
+            <a href="https://www.cylance.com/resources_whitepapers" title="">White Papers &amp; Datasheets</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/gartner" title="">2016 Gartner MQ for Endpoint Protection</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/operation-dust-storm" title="">Operation Dust Storm</a>
+          </li>
+          <li>
+            <a href="https://www.cylance.com/operation-cleaver-cylance" title="">Operation Cleaver</a>
+          </li>
+          
+          <li>
+            <a href="https://www.cylance.com/resources-videos">Videos</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="https://blog.cylance.com" title=""><span>Blog</span></a>
+      </li>
+      <li>
+        <a href="https://www.cylance.com/contact-us" title=""><span>Contact Us</span></a>
+      </li>
+        <li class="tel_num">
+            
+            <div class="tel_num_block">
+            <a href="tel:+18442952623"><span>Call us: 1-844-295-2623</span></a>
+            <a href="tel:+18666999689"><span>Get Support: 1-866-699-9689</span></a>
+            </div>
+            
+        </li>
+    </ul>
+  </div>
+  <!-- <div class="clearfix"></div> -->
+
+  <div class="btm-overlay-footer">
+    <ul class="top-overlay-nav">
+      <!--<li class="mobile_none"><a href="javascript:void(0);" >GET A DEMO</a></li>-->
+      <li class="mobile_none"><a href="tel:+18442952623">Call Us: 1-844-295-2623</a></li>
+      <li class="mobile_none"><a href="tel:+18666999689">Get Support: 1-866-699-9689</a></li>
+    </ul>
+
+    <div class="btm-overlay-nav">
+      <ul class="sub-links">
+        <li>©2016 Cylance Inc. All Rights Reserved</li>
+        <li><a href="https://www.cylance.com/privacy-policy">Privacy Policy</a></li>
+        <li><a href="https://www.cylance.com/terms">Terms of Services</a></li>
+        <li><a href="https://www.cylance.com/site-map">Sitemap</a></li>
+      </ul>
+      <ul class="social-links">
+        <li><a href="https://www.facebook.com/CylanceInc" target="_blank"><i class="fa fa-facebook"></i></a></li>
+        <li><a href="https://www.youtube.com/user/CylanceInc" target="_blank"><i class="fa fa-youtube"></i></a></li>
+        <li><a href="https://twitter.com/cylanceinc" target="_blank"><i class="fa fa-twitter"></i></a></li>
+        <li><a href="https://www.linkedin.com/company/cylanceinc" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<header id="nav_items" class="navbar headroom" role="banner">
+    <div style="position:relative;">
+    <a href="https://www.cylance.com/"><img src="https://blog.cylance.com/hubfs/2015_cylance_website/images/brand/Cylance_Logo2x.png?t=1475168153396" id="cylance_logo"></a>
+    <div id="nav_items_right">
+        <a class="button" href="#popup1" id="getDemo">GET A DEMO</a>
+    </div>
+    <button id="trigger-overlay" type="button" class="trigger_amin">
+        <i class="txtBlock">Menu</i>
+        <div id="nav-hamburger">
+            <span class="bar_one"></span>
+            <span class="bar_two"></span>
+            <span class="bar_three"></span>
+        </div>
+    </button>
+    </div>
+</header>
+
+<div id="popup1" class="overlay_demo">
+    <div class="popup ui-dialog">
+        <h2>Try CYLANCEPROTECT®</h2>
+        <p>Convinced that the next generation of endpoint security is right for your organization? Contact a Cylance expert to get started!</p>
+        <a class="close" href="#">×</a>
+        
+        <span class="success_demo"></span>
+        <script src="//app-sj16.marketo.com/js/forms2/js/forms2.min.js"></script>
+        <form id="mktoForm_1002"></form>
+        <script>// <![CDATA[
+        // ]]>    
+            
+            MktoForms2.loadForm("//app-sj16.marketo.com", "524-DOM-989", 1002, function(form) {
+            // Add an onSuccess handler
+            form.onSuccess(function(values, followUpUrl) {
+                FLOOD1('demor0');          
+                //GA Tracking Event 
+                ga('send', 'event', {
+                    eventCategory: 'Lead-Submission',
+                    eventAction: 'Demo-Submit',
+                    eventLabel: 'Demo-Submit'
+                });
+                // Get the form's jQuery element and hide it
+                form.getFormElem().hide();
+                // Return false to prevent the submission handler from taking the lead to the follow up url
+                $('.success_demo').append('<h1>Thank you for registering. Please keep an eye out for a confirmation email.</h1>');
+                return false;
+            });
+        });
+        // ]]>            
+        </script> 
+        <div style="position:relative;top:-20px;width:100%;text-align:right;font-size:12px;right:25px">
+            <a href="/privacy-policy" target="_new" style="color:#69D03C">Privacy Policy</a></div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">//<![CDATA[
+
+    $( '#trigger-overlay' ).click(function(){
+        
+    
+    $(this).toggleClass('open').promise().done(function(){
+        if(  $('#trigger-overlay').hasClass( 'open' ) ) {
+            var delay = 0;
+            $('#nav_items').addClass('open');
+            $('.menu > li').each(function() {
+                var $li = $(this);
+                setTimeout(function() {
+                  $li.addClass('start_in');
+                }, delay+=100); // delay 100 ms
+            });
+        }
+        else{
+            $('.menu > li').removeClass('start_in');
+            $(".list-link").removeClass('active');
+            $('#nav_items').removeClass('open');
+        } 
+    });
+        $('div.overlay').toggleClass('open');
+    });
+    
+    $(document).keyup(function(e) {
+        if (e.keyCode == 27) { 
+            $('.menu > li').removeClass('start_in');
+            $(".list-link").removeClass('active');
+            $('#nav_items').removeClass('open');
+            $('div.overlay').removeClass('open');
+            $( '#trigger-overlay' ).removeClass('open');
+        }
+    });
+
+    $( document ).ready(function() {
+        window.scrollTo(0,0);
+        $('#nav_items').addClass('active'); 
+        
+        $(".list-link").click(function(event){
+            $( ".list-link" ).not( this ).removeClass('active');
+            $(this).toggleClass("active");
+            
+            $(".overlay-hugeinc").scrollTo(this);        
+        }); 
+    });
+    
+    $(window).resize(function() {
+        //$(".list-link").removeClass('active');
+    });
+    
+    $(function() {
+        $('#scroll_down').click(function() {
+           if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+    
+           var target = $(this.hash);
+           target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+           if (target.length) {
+           $('html,body').animate({
+           scrollTop: target.offset().top
+           }, 1000);
+           return false;
+           }
+           }
+        });
+    });
+    
+    jQuery.fn.scrollTo = function(elem) { 
+        $(this).scrollTop($(this).scrollTop() - $(this).offset().top + $(elem).offset().top); 
+        return this; 
+    };
+    
+    
+</script>
+<noscript>
+    <iframe src="https://5781890.fls.doubleclick.net/activityi;src=5781890;type=cylan0;cat=demor0;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord=nsDemo?" width="1" height="1" frameborder="0" style="display:none"></iframe>
+</noscript>
+<script>(function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"5438866"};o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;s&&s!=="loaded"&&s!=="complete"||(f(),n.onload=n.onreadystatechange=null)},i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,"script","//bat.bing.com/bat.js","uetq");</script><noscript><img src="//bat.bing.com/action/0?ti=5438866&amp;Ver=2" height="0" width="0" style="display:none; visibility: hidden;"></noscript>
+</span> 
+
+<!--
+=====================================================================================================================================================================
+HUBL
+=====================================================================================================================================================================
+-->
+ 
+        
+         
+        <span id="hs_cos_wrapper_blog_article" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_custom_widget" style="" data-hs-cos-general-type="widget" data-hs-cos-type="custom_widget"> 
+        <!-- INTRO SECTION -->
+        <section id="intro_cylance" class="cd-section">
+ 
+            
+     
+         <div id="cy-title">
+            <div class="cy-center">
+              <div class="content"> 
+                <div class="title">
+                
+                
+                <div>
+              </div>
+            </div>
+         </div>
+             
+        </div></div></section>
+        <style>
+        
+ 
+            
+            
+            #scroll_down {
+                position:absolute;
+                bottom:1%;
+                left:0;
+                width:100%;
+                text-align:center;
+            }
+            #nav_items,#intro_title {
+                position:relative;
+                z-index:3;
+                
+            }
+            
+            
+            
+            
+            #nav_items {
+                height:0;
+                
+            } 
+            #hero_overlay {
+                position:absolute;
+                z-index:1;
+                width:100%;
+                height:100%; 
+                background-color: rgba(23, 38, 48, 0.8);
+            }
+         
+             
+             
+             
+             
+             
+             
+                         
+                         
+                         
+            #cy-title {
+              margin:0; padding:0;
+              width:100vw;
+              height:75vh;
+              background:#16222a;
+            }
+            
+            #cy-title .cy-center {
+              position:relative;
+              top:0; right:0;
+              float:left;
+              clear:both;
+              width:100%;
+              height:100%;
+              padding:0;
+              margin:0;
+              background-color:#16222a;
+              display:block;
+            }
+            
+            #cy-title .cy-center .content {
+              position:absolute;
+              top:0;
+              left:0;
+              float:left;
+              width:100%;
+              height:100%;
+              text-align:left;
+              padding:0;
+              background-image:url("//www.cylance.com/hubfs/2015_cylance_website/Blog/Headers/Blog_Hdr_CautionaryCaseofPokemonGo_Large.png?t=1475168153396");
+              background-size:cover;
+              -webkit-transform-style: preserve-3d;
+              -moz-transform-style: preserve-3d;
+              transform-style: preserve-3d;
+            }
+            
+            #cy-title .cy-center .title { 
+              clear:both; 
+              width:70%;
+              max-width: 1280px;
+              text-align:left;
+              font-size:48pt;
+              font-weight:100;
+              color:#fff; 
+              border:none;
+              position: relative;
+              top: 60%;
+              -webkit-transform: translateY(-50%);
+              -moz-transform:translateY(-50%);
+              transform: translateY(-50%);
+              margin:0 auto;
+              display:block;
+            }
+            
+            #cy-title .cy-center .title h4{ 
+                color: #69BD45;
+                font-size: 15px;
+                font-weight: 500;
+                margin-bottom: 8px;
+                position:relative;
+                left:10px;
+            }
+            #cy-title .cy-center .title h2{ 
+                line-height: 99px;
+                color: #FFF;
+                background-color: #313131;
+                font-size: 58px;
+                padding: 1px;
+                box-sizing: border-box;
+                display: inline; 
+            }
+            #cy-title .cy-center .title p{ 
+                font-size: 15px;
+                color: #9C9C9C;
+                font-weight: 500;
+                margin-top: 4px;
+                position:relative;
+                left:10px;
+            }
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+            
+            #cy-title .cy-center .description {
+              color:#eee;
+              float:left;
+              clear:both;
+              text-align:left;
+              width:40%;
+              margin:4% 0% 0 55%;
+              font-size:18pt;
+              color:#eee;
+              overflow:hidden;
+              font-weight:200;
+            }
+            
+            #cy-title .cy-center .header {
+              float:left;
+              clear:both;
+              text-align:left;
+              width:45%;
+              margin:1% 0 0 55%;
+              min-width:240px;
+              font-size:5.5vmax;
+              line-height:6vmax;
+              color:#eee;
+              font-weight:200;
+            }
+            
+            #cy-title .cy-content {
+              padding:0; margin:0;
+              position:absolute;
+              top:0; left:0;
+              float:right;
+              clear:none;
+              width:40vw;
+              padding:0 10vw;
+              max-width:1024px;
+              height:100%;
+              border-right:1px solid magenta;
+              font-size:2vmax;
+              display:block;
+              opacity:0;
+            }
+            
+            
+            @media (max-width:540px) {
+                #cy-title .cy-center .title { 
+                    width: 90%; 
+                    font-size: 38pt; 
+                    left: 5%;
+                }
+            }
+
+        </style>
+         
+        
+        </span>
+         
+        
+ 
+        
+        <div class="body-container-wrapper">
+            <div class="body-container container-fluid">
+
+        
+                <div class="row-fluid-wrapper row-depth-1 row-number-1 ">
+                <div class="row-fluid ">
+                <div class="span12 widget-span widget-type-blog_content " style="" data-widget-type="blog_content" data-x="0" data-w="8">
+        
+        
+        <div class="blog-section">
+            <div class="span2 blog-post-left">
+                <div class="back-to-blog">
+                   <a href="//blog.cylance.com" class="backButton">« Back to Blog</a>
+                </div>
+            </div>
+            
+
+
+
+            <div class="span10 blog-post-wrapper cell-wrapper">
+                        <div class="section post-header">
+                    <h3><span id="hs_cos_wrapper_name" class="hs_cos_wrapper hs_cos_wrapper_meta_field hs_cos_wrapper_type_text" style="" data-hs-cos-general-type="meta_field" data-hs-cos-type="text">The Cautionary Case of Pokémon Go</span></h3>
+                    <p id="hubspot-author_data" class="hubspot-editable" data-hubspot-form-id="author_data" data-hubspot-name="Blog Author">
+
+                        <span class="hs-author-label">By</span>
+                        
+                            <a class="author-link" href="https://blog.cylance.com/author/the-cylance-team">The Cylance Team</a>
+                            
+                            
+                        
+
+                        <span class="post-date">August 31, 2016</span>
+            
+<!-- SOCIAL -->
+</p><div class="shareContainer">
+<div class="shareButtons">
+<div class="social-share-data">
+<a class="twitter-share-button" data-lang="en" data-related="Cylance" data-url="https://blog.cylance.com/the-cautionary-case-of-pokemon-go" data-via="cylanceinc" href="https://twitter.com/share">Tweet</a> <script>
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+</script>
+<div class="linked-in-share" style="display:inline-block;">
+<script src="//platform.linkedin.com/in.js" type="text/javascript"></script> <script data-counter="right" data-url="https://blog.cylance.com/the-cautionary-case-of-pokemon-go" type="IN/Share"></script>
+</div>
+<div class="fb-like" data-font="lucida grande" data-href="https://blog.cylance.com/the-cautionary-case-of-pokemon-go" data-layout="button_count" data-show-faces="true" data-width="450"></div>
+<div class="g-plusone" data-size="medium" data-width="300" style="display:inline-block;"></div>
+<div id="fb-root"></div><script>
+(function(d, s, id) {
+var js, fjs = d.getElementsByTagName(s)[0];
+if (d.getElementById(id)) return;
+js = d.createElement(s); js.id = id;
+js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=158578010837062";
+fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+</script> <script type="text/javascript">
+(function() {
+var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+po.src = 'https://apis.google.com/js/plusone.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+})();
+
+</script>
+</div>
+
+</div>
+</div> 
+<!-- SOCIAL -->
+                    <p></p>
+                </div>
+
+                <div id="blog_divider"></div>
+
+
+                <div class="section post-body">
+                    <span id="hs_cos_wrapper_post_body" class="hs_cos_wrapper hs_cos_wrapper_meta_field hs_cos_wrapper_type_rich_text" style="" data-hs-cos-general-type="meta_field" data-hs-cos-type="rich_text"><p>It seems as though the world has become completely smitten, or rather blindsided, by Pokémon Go over the last couple of months. With over 100 million downloads of the app since its release in July 2016, <span style="color: #0960ad;"><a href="https://www.appannie.com/insights/mobile-strategy/pokemon-go-an-opportunity-not-a-threat/" style="color: #0960ad;" rel="nofollow" target="_blank">Pokémon Go is reportedly now earning $10M in daily revenues</a> </span>and has opened up a whole Pandora’s Box of potential future earnings, as augmented reality goes mainstream for the first time.</p>
+<p>Along with that rush comes the usual crop of cybercriminals anxious to cash in on the craze. Reports have already started surfacing about<span style="color: #0960ad;"><a href="https://techcrunch.com/2016/07/18/beware-the-fake-pokemon-go-apps/" style="color: #0960ad;" rel="nofollow" target="_blank"> malware apps</a> </span>which mimic the legitimate Pokémon Go app. Those detected so far include <strong style="font-weight: 600;"> Pokémon Go Ultimate,</strong> a lockscreen app which freezes the user’s smartphone, forcing a reboot, then runs silently in the background, clicking on porn adverts; <strong style="font-weight: 600;"> Install Pokémon Go, </strong>which delivers scareware warnings that the user’s device is infected with a virus, tricking users into buying unnecessary and often fake services; and <strong style="font-weight: 600;"> Guide and Cheats For Pokémon Go</strong>, which sends automatic subscription SMS texts to expensive online services.</p>
+<p>In August 2016, the first-ever piece of Pokémon Go ransomware, <strong style="font-weight: 600;"> PokemonGo.exe,</strong> was discovered by malware-hunter <span style="color: #0960ad;"><a href="https://twitter.com/demonslay335" style="color: #0960ad;" rel="nofollow" target="_blank">Michael Gillespie</a></span> at Bleeping Computer. The ransomware is based on <span style="color: #0960ad;">Hidden Tear</span>, an open source piece of malware released in 2015. The ransomware pretends to be a Windows 10 version of Pokémon Go. It hides inside a Windows executable file named <strong>PokemonGo.exe,</strong> which features a cute Pikachu as its icon.&nbsp;</p>
+<p style="text-align: center;"><span style="color: #808080; font-size: 14px; font-style: italic;"><img src="//blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemon_Go_Icon.jpg?t=1475168153396&amp;width=181&amp;name=Pokemon_Go_Icon.jpg" alt="Pokemon_Go_Icon.jpg" width="181" style="width: 181px;" srcset="//blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemon_Go_Icon.jpg?t=1475168153396&amp;width=91&amp;name=Pokemon_Go_Icon.jpg 91w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemon_Go_Icon.jpg?t=1475168153396&amp;width=181&amp;name=Pokemon_Go_Icon.jpg 181w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemon_Go_Icon.jpg?t=1475168153396&amp;width=272&amp;name=Pokemon_Go_Icon.jpg 272w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemon_Go_Icon.jpg?t=1475168153396&amp;width=362&amp;name=Pokemon_Go_Icon.jpg 362w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemon_Go_Icon.jpg?t=1475168153396&amp;width=453&amp;name=Pokemon_Go_Icon.jpg 453w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemon_Go_Icon.jpg?t=1475168153396&amp;width=543&amp;name=Pokemon_Go_Icon.jpg 543w" sizes="(max-width: 181px) 100vw, 181px"><br>Figure 1: PokemonGo.exe Icon – Don’t Catch This Pikachu!</span></p>
+<p style="text-align: left;"><span style="color: #00a94f; font-size: 20px;">PokemonGo.exe: Holding Pikachu Fans to Ransom</span></p>
+<p>Although PokemonGo.exe is primarily ransomware, it spreads like a worm and at present has many dormant or undeveloped features, which may become active when the ransomware is in a more mature form. The malware’s source code appears to be unfinished as of the day of our investigation on August 31, 2016, yet still contains enough functionality to encrypt the user’s files if installed.</p>
+<p>The PokemonGo.exe ransomware may arrive on the endpoint in a variety of ways, such as via a fake app in a third-party app store, or bundled with other unofficial or cracked software sourced from file-sharing portals such as Torrent. When installed by the curious user, PokemonGo.exe first utilizes the <span style="color: #00a94f;">AddUser</span> command to create a Windows admin account on the victim’s PC, labeled as <span style="color: #00a94f;"><strong>Hack3r </strong></span>within the system. The admin password is also <span style="color: #00a94f;">Hack3r.</span></p>
+<p>PokemonGo.exe is then able to use this bogus admin account as a backdoor, presumably so that the malware authors can gain access to the user’s system at a later date, for their own nefarious purposes. This hidden backdoor also makes the user vulnerable to remote code execution. The registry is altered to hide this new admin account, so that it does not show up on the Windows welcome/login screen and tip off the user that something is amiss.</p>
+<p>PokemonGo.exe then scans the victim’s hard drive for common file formats such as Word, Excel and Powerpoint formats, which it encrypts. Files are encrypted with static AES-256 encryption, using the embedded AES key <span style="color: #00a94f;"><strong>123vivalalgerie</strong></span>. "123 Viva l’Algerie" may either hint at the developer’s origins, or may be an attempt to throw security investigators off track. An image used in the screensaver’s executable, titled <span style="color: #00a94f;">Sans Titre</span>, French for “Untitled,” also hints at the malware author’s country of origin.</p>
+<p>This encryption process may be changed at a later date to use the more standard ransomware procedure of randomly generating an AES key to encrypt the user’s personal files, then using a public RSA key to further encrypt the first key before ‘phoning home’ the key to its command and control (C&amp;C) server - a move which is usually seen in more mature ransomware. The malware does not appear to use a protection layer (FUD/cryptor) to evade analysis. When the encryption is complete, the extension <strong><span style="color: #00a94f;">.locked</span> </strong>is added to the end of each encrypted file’s name.</p>
+<p style="text-align: left;">Commonly encrypted files include:</p>
+<p style="text-align: center;"><span style="font-size: 16px; background-color: #dddddd;"><strong style="font-weight: 600;"> .txt, .rtf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pdf, .sql, .mdb, .sln, .php, .asp, .aspx, .html, .xml, .psd, .htm, .gif,.mht, .odt, .jpg, .png, .csv</strong></span></p>
+<p>Next, PokemonGo.exe attempts to connect to a command and control server located at the IP address <span style="color: #00a94f;"><strong>10.25.0.169.</strong></span> Security researchers note that this is a private IP address, which is yet another indication that this ransomware is currently a work in progress. It is not possible to connect to that address over the public Internet, so this could be a ‘placeholder’ IP address for future code. Ransomware typically contacts C&amp;C servers to send the malware author specific information about each new infection, which usually includes things like computer information, victim ID and encryption key info.</p>
+<p><span style="color: #00a94f; font-size: 20px;">Stages of Infection</span></p>
+<p>It has been noted by security researchers that the PokemonGo.exe ransomware has the ability to propagate itself. To do this, it creates a network share on the user’s machine, and copies itself into the root directories of any connected hard drives, including flash drives and other removable media. It seeds them with an .autorun.inf file, which will automatically run the ransomware when they are plugged into another system. This could potentially infect new machines, or even whole new networks. (Think of a USB stick used to transfer files from a home PC to a work PC.) This behavior has the potential to cripple any backup drives that are connected to the user’s PC at the time of infection.</p>
+<p>PokemonGo.exe also copies itself into the Start folder of all fixed drives, enabling it to run the next time the user logs into Windows. Shared folders and mapped network drives are included in this copying frenzy.</p>
+<p>The early version of PokemonGo.exe that we studied appears to target Arabic users, leaving a Pikachu screensaver in .JPG format that includes a ransom note written in Arabic text. The ransom note is labeled as <span style="color: #00a94f;"><strong>هام</strong> <strong>جدا</strong><strong>.txt.</strong></span>&nbsp;This loosely translates to “very important text.” The Pikachu screensaver is set automatically, and is triggered when the victim next reboots and logs into Windows. The ransom note informs the user that to regain access to their files, they must send an email to an address listed as <span style="color: #00a94f;"><strong>me.blackhat20152015(at)mt2015.com</strong></span> for payment info.</p>
+<p style="text-align: center;"><span style="color: #808080; font-size: 14px; font-style: italic;"><img src="//blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemongo-ransom_note.jpg?t=1475168153396&amp;width=819&amp;height=289&amp;name=Pokemongo-ransom_note.jpg" alt="Pokemongo-ransom_note.jpg" width="819" height="289" srcset="//blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemongo-ransom_note.jpg?t=1475168153396&amp;width=410&amp;height=145&amp;name=Pokemongo-ransom_note.jpg 410w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemongo-ransom_note.jpg?t=1475168153396&amp;width=819&amp;height=289&amp;name=Pokemongo-ransom_note.jpg 819w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemongo-ransom_note.jpg?t=1475168153396&amp;width=1229&amp;height=434&amp;name=Pokemongo-ransom_note.jpg 1229w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemongo-ransom_note.jpg?t=1475168153396&amp;width=1638&amp;height=578&amp;name=Pokemongo-ransom_note.jpg 1638w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemongo-ransom_note.jpg?t=1475168153396&amp;width=2048&amp;height=723&amp;name=Pokemongo-ransom_note.jpg 2048w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/Pokemongo-ransom_note.jpg?t=1475168153396&amp;width=2457&amp;height=867&amp;name=Pokemongo-ransom_note.jpg 2457w" sizes="(max-width: 819px) 100vw, 819px"><br>Figure 2: PokemonGo.exe Ransom Note – <br>Non-Arabic Users May Have to Use an Online Translation Engine to Read This (With Variable results!)</span></p>
+<p><span style="color: #00a94f; font-size: 20px;">How to Protect Yourself From Malicious Apps Like PokemonGo.exe</span></p>
+<p>If you are affected by this early version of the PokemonGo.exe ransomware, a free decryptor is currently available by contacting Bleeping Computer via <span style="color: #0960ad;">their online contact page.</span></p>
+<p>It is not known whether this free decryptor will continue to work if this ransomware is further developed after August 2016, so our best advice is to ensure you regularly back up your files, avoid downloading ‘free’ unofficial or third-party software, and install a strong endpoint security solution to block ransomware such as PokemonGo.exe from executing.</p>
+<p>If you are a Pokémon Go fan and are worried about this ransomware, follow these tips to avoid future infection:<br><strong style="font-weight: 600;"><br>1. Ensure You ONLY Download Apps From the Official App Store<br></strong>The official versions of Pokémon Go are currently available on the Apple App Store and the Google Play Store, for Android and iOS ONLY. A Windows version of Pok<span>é</span>mon Go is NOT currently available from any official sources. Always type in the URL for the App Store or Google Play by hand and go there directly (rather than clicking on online links to the store), and ensure you have the genuine store app installed on mobile. Third-party app stores, file sharing sites such as Torrent, and online game brokerages should always be treated with extreme suspicion.<br><strong style="font-weight: 600;"><br>2. Use Common Sense When Installing New Apps <br></strong>Although there are ways to play Pokémon Go on your PC, none of these methods are official. As the primary requirement of the game is for users to walk around in the real world, capturing Pokémon on their smartphones, common sense dictates that playing the game on a desktop PC would defeat the whole point of the game. Therefore, if you see any apps claiming to be a Windows or Mac version of Pokémon Go, these are almost certainly malware or ransomware. <br><strong style="font-weight: 600;"><br>3. Look for Legitimate User Reviews<br></strong>Fake apps on legitimate or fake app stores may give themselves away by lacking user reviews, or may have an unusually low number of often-fake reviews. If in doubt, look to see if any reputable or ‘brand name’ reviewers have reviewed the app, such as well-known developers or software sites. <br><strong style="font-weight: 600;"><br>4. Use a Good Quality Endpoint Security Solution<br></strong>While no endpoint security solution is 100% foolproof, it is still better than leaving your PC and mobile device – and all the personal info they contain – wide open to attack by cybercriminals, such as those who created the PokemonGo.exe ransomware. <br><br><span style="color: #00a94f; font-size: 20px;">Pokémon Go: What You Don’t Know Can Hurt You&nbsp;</span></p>
+<p>The phenomenon that is Pokémon Go is interesting from many perspectives, but specifically, it has manifested a perfect storm of caveats around both physical security and the security of the personal data on the mobile device on which the game is installed. Beyond the possibility of ransomware and malware infection from fake Pokémon Go software, the official app still has the potential for a multitude of security and personal safety risks. Every user should take the time to educate themselves on the risks associated with downloading and playing this popular mobile game.</p>
+<p>There are already numerous written exposés on the permissions issues surrounding the official app itself. To the app creator <a href="https://en.wikipedia.org/wiki/Niantic,_Inc." rel="nofollow" target="_blank"><span style="color: #0960ad;"><span style="color: #0960ad;">Niantic’s</span></span></a> credit, they have been quick to issue updates and to correct a number of concerning issues surrounding the user’s privacy. That being said, there are still plenty of data-centric privacy concerns, in addition to the physical security issues, which quickly emerged once this game coaxed human players to explore the wild and vast outdoors.</p>
+<p><span style="color: #00a94f; font-size: 20px;">Bringing Augmented Reality (AR) to the Masses</span></p>
+<p>Pokémon Go is not the first AR-based game, nor is it unique. Many AR titles have been released over the last few years, but none have been nearly as successful. That being said, much of what exists ‘under-the-hood’ of Pokémon Go is based on another popular Niantic game, <span style="color: #0960ad;"><a href="https://www.ingress.com/" style="color: #0960ad;" rel="nofollow" target="_blank">Ingress.</a></span></p>
+<p>Niantic released Ingress for Android in December 2013, and for iOS in July 2014. While many other AR-based games, such as Geo AR Games: Magical Park, came before Ingress, it was the first to be successful enough to raise physical security concerns for users. Throughout 2015 and 2016, there were numerous cases of law enforcement officers mistaking Ingress players for ‘suspicious’ individuals. Players were getting a little too close to national monuments and other secure locations for comfort, and appearing to secretly photograph monuments and protected structures, when they were in fact just playing Ingress on their smartphones.</p>
+<p>All of the pitfalls and physical security concerns that existed in Ingress have carried over into Pokémon Go. The marriage of Pokémon Go and Ingress has proven to be a brilliant strategy in terms of attracting Pokémon's established fan base to AR and active GPS-based gaming. Take a walk through any public park or space today, and you’re almost guaranteed to see players glued to their mobile devices, which guide them to locate new Pokémon, find new Pokéstops, and generally congregate outdoors in an unprecedented volume – often to the point where they start to become a public nuisance.</p>
+<p><span style="color: #00a94f; font-size: 20px;">Physical Security Concerns of Pokémon Go</span></p>
+<p>Being that the newly attracted users of Pokémon Go are often young, physical security concerns have become far more amplified in the media and in the realm of law enforcement. Since the launch of Pokémon Go, there have been almost daily reports of Pokémon Go users - often teens or younger - being robbed or attacked by criminals who directly exploit the locations the players congregate in, known as Pokéstops. There have also been reports of direct targeting by criminals, who use the game to lure victims to them.</p>
+<p>The physical security issues surrounding this game have received so much attention, so quickly, that even governments are acting at this point, to reduce potential harm and curtail potential criminal activity. Recently, Iranian authorities completely banned Pokémon Go, citing physical security concerns.<span style="font-size: 12px;"><a href="#_ftn1" name="_ftnref1">[1]</a></span>&nbsp; Law enforcement branches across the United States have issued numerous alerts, as in <span style="color: #0960ad;"><a href="https://chester.crimewatchpa.com/tredyffrinpd/7372/post/pokemon-go-advisory" rel="nofollow" target="_blank" style="color: #0960ad;">this example.</a></span></p>
+<p>The security issues concerning the official app itself, and the devices on which it is installed and played, are also highly concerning to the everyday user. Upon its release, the security industry was quick to tear down and analyze the permissions issues that arise upon the install of Pokémon Go on both Android and iOS.</p>
+<p>Initially, as the app was tied to users’ Google accounts, users soon discovered to their horror that the app had full control over their Google accounts. This meant that there was a lengthy period of time during which <span style="color: #0960ad;"><a href="http://adamreeve.tumblr.com/post/147120922009/pokemon-go-is-a-huge-security-risk" style="color: #0960ad;" rel="nofollow" target="_blank">Niantic had full control and visibility</a><span style="color: #00a94f; font-size: 12px;"><a href="#_ftn2" name="_ftnref2" style="color: #00a94f;">[2]</a></span></span> into players’ Google-based email accounts, Google drive data, Google docs data, GPS and Google maps history, including Google photos - although it claimed not to use or access this data beyond that which was required to operate the game itself.</p>
+<p><span style="color: #00a94f; font-size: 20px;">Pokémon Ongoing Privacy Issues</span></p>
+<p>Niantic has since issued updates to correct many of these privacy concerns. That much being said, the game itself is heavily reliant on the player’s camera and GPS data, all of which the app must access, track, store and transmit. This fact alone should be enough to cause the casual user concern, as well as raising hackles at corporate enterprises, which have a lot to lose should the interior and exteriors of their premises (including the locations of security systems and other sensitive areas) be photographed and archived by a third party.&nbsp;&nbsp;</p>
+<p>On the family front, most parents would prefer to limit any sort of tracking and GPS location tracking that occurs in relation to their children and families. That immediately becomes an issue with games like Pokémon Go, as location tracking is a central part of the game. GPS data, coupled with data from the device’s camera makes their concern even greater. Players are transmitting camera data of their location outward, and that data is being collected and stored. It is therefore&nbsp;potentially available to parties other than Niantic/Google/Nintendo – and all of this notwithstanding the possibility of a breach or hack of that data-dump goldmine.</p>
+<p>Corporate entities have had to clamp down on this even further. Many companies are now banning the use of Pokémon Go within the walls of their offices or issuing full campus bans. Many of these policies came about after incidents where players were ‘hunting’ Pokémon characters in areas where sensitive data was directly visible, such as conference rooms with whiteboards. In those situations, players may have already – whether they were conscious of the fact or not – put their own companies at risk, due to the transmission of confidential or sensitive data via the app.</p>
+<p>To conclude, Pokémon Go has been out for a relatively short amount of time, but we are already observing an unprecedented sweep in policy around both physical and data security concerns that have arisen as a direct result, . This phenomenon affects users of all types, from the smallest of children, to the highest level employees of large corporations. It is a quick wake up call, and most certainly will not be the only or the last time we see these security issues arise at such a rate.</p>
+<p><span style="color: #00a94f; font-size: 20px;">Pokémon Go Ransomware vs. CylancePROTECT<strong>®</strong></span></p>
+<p>We tested a recent sample of the Pokémon Go ransomware (PokemonGo.exe) against our endpoint security product, CylancePROTECT.&nbsp;As you can see from the screenshots below, the ransomware was immediately detected and quarantined by CylancePROTECT, which uses math-based detection and artificial intelligence to stop ransomware dead, pre-execution.</p>
+<p style="text-align: center;"><span style="color: #808080; font-size: 14px; font-style: italic;"><img src="//blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_client_console_detect_1.jpg?t=1475168153396&amp;width=882&amp;height=319&amp;name=pgo_rsw_client_console_detect_1.jpg" alt="pgo_rsw_client_console_detect_1.jpg" width="882" height="319" srcset="//blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_client_console_detect_1.jpg?t=1475168153396&amp;width=441&amp;height=160&amp;name=pgo_rsw_client_console_detect_1.jpg 441w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_client_console_detect_1.jpg?t=1475168153396&amp;width=882&amp;height=319&amp;name=pgo_rsw_client_console_detect_1.jpg 882w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_client_console_detect_1.jpg?t=1475168153396&amp;width=1323&amp;height=479&amp;name=pgo_rsw_client_console_detect_1.jpg 1323w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_client_console_detect_1.jpg?t=1475168153396&amp;width=1764&amp;height=638&amp;name=pgo_rsw_client_console_detect_1.jpg 1764w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_client_console_detect_1.jpg?t=1475168153396&amp;width=2205&amp;height=798&amp;name=pgo_rsw_client_console_detect_1.jpg 2205w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_client_console_detect_1.jpg?t=1475168153396&amp;width=2646&amp;height=957&amp;name=pgo_rsw_client_console_detect_1.jpg 2646w" sizes="(max-width: 882px) 100vw, 882px"><br>Figure 3: CylancePROTECT Threats Tab, Showing the Instant Detection and Quarantine of PokemonGo.exe Ransomware</span></p>
+<p style="text-align: center;">&nbsp;<img src="//blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_protect_portal1_2.jpg?t=1475168153396&amp;width=981&amp;height=301&amp;name=pgo_rsw_protect_portal1_2.jpg" alt="pgo_rsw_protect_portal1_2.jpg" width="981" height="301" srcset="//blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_protect_portal1_2.jpg?t=1475168153396&amp;width=491&amp;height=151&amp;name=pgo_rsw_protect_portal1_2.jpg 491w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_protect_portal1_2.jpg?t=1475168153396&amp;width=981&amp;height=301&amp;name=pgo_rsw_protect_portal1_2.jpg 981w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_protect_portal1_2.jpg?t=1475168153396&amp;width=1472&amp;height=452&amp;name=pgo_rsw_protect_portal1_2.jpg 1472w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_protect_portal1_2.jpg?t=1475168153396&amp;width=1962&amp;height=602&amp;name=pgo_rsw_protect_portal1_2.jpg 1962w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_protect_portal1_2.jpg?t=1475168153396&amp;width=2453&amp;height=753&amp;name=pgo_rsw_protect_portal1_2.jpg 2453w, //blog.cylance.com/hs-fs/hubfs/2015_cylance_website/Blog/Images/pgo_rsw_protect_portal1_2.jpg?t=1475168153396&amp;width=2943&amp;height=903&amp;name=pgo_rsw_protect_portal1_2.jpg 2943w" sizes="(max-width: 981px) 100vw, 981px"></p>
+<p style="text-align: center;"><span style="color: #808080; font-size: 14px; font-style: italic;"> Figure 4: CylancePROTECT Threats and Activities Summary, Showing Stats on the Quarantined Ransomware</span></p>
+<p><span style="color: #00a94f; font-size: 20px;">Indicators of Compromise (IOCs)</span></p>
+<p>sha256 = <strong style="font-weight: 600;"> df36e2aaae85f07851810a829e38a82827252fda15d4c4410da085d59ce3873</strong>&nbsp;</p>
+<p style="text-align: left; font-style: italic;"><em>Believe the math!! </em>&nbsp;</p>
+<!--more-->
+<p><span style="font-style: italic;">Convinced that the next generation of endpoint security is right for your organization?&nbsp;<span style="color: #0960ad;"><a href="https://www.cylance.com/#popup1" style="color: #0960ad;" rel="nofollow" target="_blank"><em>Contact a Cylance expert</em></a></span><em>&nbsp;</em><em>to get started!</em></span><img src="//cdn2.hubspot.net/hubfs/270968/2015_cylance_website/Blog/Thumbnails/ Blog_Hdr_CautionaryCaseofPokemonGo_Thumb?t=1475168153396" alt=" Blog_Hdr_CautionaryCaseofPokemonGo_Thumb" title=" Blog_Hdr_CautionaryCaseofPokemonGo_Thumb" width="0" height="0" data-constrained="true" style="width: 0px; height: 0px;" srcset="//cdn2.hubspot.net/hubfs/270968/2015_cylance_website/Blog/Thumbnails/ Blog_Hdr_CautionaryCaseofPokemonGo_Thumb?t=1475168153396 0w, //cdn2.hubspot.net/hubfs/270968/2015_cylance_website/Blog/Thumbnails/ Blog_Hdr_CautionaryCaseofPokemonGo_Thumb?t=1475168153396 0w, //cdn2.hubspot.net/hubfs/270968/2015_cylance_website/Blog/Thumbnails/ Blog_Hdr_CautionaryCaseofPokemonGo_Thumb?t=1475168153396 0w, //cdn2.hubspot.net/hubfs/270968/2015_cylance_website/Blog/Thumbnails/ Blog_Hdr_CautionaryCaseofPokemonGo_Thumb?t=1475168153396 0w, //cdn2.hubspot.net/hubfs/270968/2015_cylance_website/Blog/Thumbnails/ Blog_Hdr_CautionaryCaseofPokemonGo_Thumb?t=1475168153396 0w, //cdn2.hubspot.net/hubfs/270968/2015_cylance_website/Blog/Thumbnails/ Blog_Hdr_CautionaryCaseofPokemonGo_Thumb?t=1475168153396 0w" sizes="(max-width: 0px) 100vw, 0px"></p>
+<p><span style="font-size: 11px; color: #00a94f;"><a href="#_ftnref1" name="_ftn1" style="color: #00a94f;">[1]</a> http://www.bbc.com/news/world-middle-east-36989526<br></span><span style="font-size: 11px; color: #00a94f;"><a href="#_ftnref2" name="_ftn2" style="color: #00a94f;">[2]</a> http://adamreeve.tumblr.com/post/147120922009/pokemon-go-is-a-huge-security-risk</span></p></span>
+                </div>
+
+                
+                     <p id="hubspot-topic_data"> Tags:
+                        
+                            <a class="topic-link" href="https://blog.cylance.com/topic/malware">Malware</a>,
+                        
+                            <a class="topic-link" href="https://blog.cylance.com/topic/ransomware">ransomware</a>,
+                        
+                            <a class="topic-link" href="https://blog.cylance.com/topic/pokemon-go">pokemon go</a>
+                        
+                     </p>
+                
+
+                <div class="back-to-blog">
+                    <a href="https://blog.cylance.com">« Back to Blog</a>
+                </div>
+
+                <!-- Disqus -->
+                <div id="disqus_thread"></div>
+                <!--<script type="text/javascript" src="https://cylance.com/js/disqusEmbed.js"></script>
+                <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>-->
+
+            </div>
+        </div>
+
+        <!-- Disqus comment count -->
+        <!--<script type="text/javascript" src="//cylance.com/js/disqusCount.js"></script>-->
+        <!--<script type="text/javascript" src="//w.sharethis.com/button/buttons.js"></script>-->
+        <script type="text/javascript" src="//cylance.com/js/shareThis.js"></script></div>
+
+ 
+        
+
+</div>
+
+
+
+ <!--
+=====================================================================================================================================================================
+HUBL
+=====================================================================================================================================================================
+-->
+
+
+
+
+<script type="text/javascript" src="//static.hsstatic.net/content_shared_assets/static-1.3962/js/public_common.js"></script>
+
+<script type="text/javascript">
+var hsVars = {
+    ticks: 1443153033949,
+    page_id: 0,
+    content_group_id: 341593683,
+    portal_id: 270968,
+    app_hs_base_url: "https://app.hubspot.com"
+}
+</script>
+ 
+
+
+
+
+        <span id="hs_cos_wrapper_Footer_Grid" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_custom_widget" style="" data-hs-cos-general-type="widget" data-hs-cos-type="custom_widget">
+        <section id="learn_more_cylance" class="large_section">
+            <div id="grid">
+                
+                <div id="grid_left" class="left grid_row">
+                    
+                    <a href="https://cylance.com/cylance-careers">
+                    <div id="learn_more" class="grid_top grid_item sally_overlay_wrp">
+                        <span class="sally_bg_img"></span>
+                        <div id="grid_bottom_container">
+                            <div class="sally_overlay">
+                                <h2 class="sally_overlay-text_large">Careers <span class="green-txt">@</span> <br>Cylance®</h2>
+                                <span class="sally_overlay-text_small">View Open Positions</span>
+                            </div>
+                        </div>
+                    </div>
+                    </a>
+                    
+                    <div id="social" class="grid_bottom grid_item">
+                        
+                        <ul id="grid_social">
+                            <li><a href="https://www.youtube.com/user/CylanceInc" target="_blank"> <i class="fa fa-youtube"></i> </a></li>
+                            <li><a href="https://www.linkedin.com/company/cylanceinc" target="_blank"> <i class="fa fa-linkedin"></i> </a></li>
+                            <li><a href="https://www.facebook.com/CylanceInc" target="_blank"> <i class="fa fa-facebook"></i> </a></li>
+                            <li><a href="https://twitter.com/cylanceinc" target="_blank"> <i class="fa fa-twitter"></i> </a></li>
+                        </ul>
+                        
+                    </div>
+                    
+                </div>
+                 
+                <div id="grid_center" class="left grid_row">
+                    <a href="https://cylance.com/company">
+                    <div class="grid_top grid_item sally_overlay_wrp">
+                        <span class="sally_bg_img"></span>
+                        <div class="sally_overlay">
+                            
+                            <span class="sally_overlay-text_block">
+                                <span class="sally_overlay-text_large">Company <br>Profile</span>
+                                <span class="sally_overlay-text_small">Learn More <br>About Cylance</span>
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                    </a>
+                    
+                    <div class="grid_bottom grid_item footer_grid-blog_wrp">
+                        <span class="blog_overLay"></span>
+                        <div id="grid_center_bottom_container" class="learn_more_cylance-blog" style="top:48%;">
+                            <span class="learn_more_cylance-top_title">Blog</span>
+                            <div class="headerBorder"></div>
+                            
+                            <span id="hs_cos_wrapper_Footer_Grid_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_rss_listing" style="" data-hs-cos-general-type="widget" data-hs-cos-type="rss_listing">
+
+<h3></h3>
+
+
+    <!--rss-email-entries-->
+    <div class="hs-rss-module feedreader_box">
+    
+        <div class="hs-rss-item ">
+           <div class="hs-rss-item-text">
+               <a class="hs-rss-title" href="https://blog.cylance.com/cylanceprotect-vs-cerber-ransomware"><span>CylancePROTECT®&nbsp;vs. Cerber Ransomware</span></a>
+               <div class="hs-rss-byline">by <span class="hs-rss-author">Cylance Threat Guidance Team</span> 
+                  
+               </div>
+               
+            </div>
+           
+        </div>
+    
+    </div>
+
+</span>
+                            
+                            <!--
+                            
+                            
+                                <h4 id="blogTitle" style="font-size:34px;">CylancePROTECT® vs. Cerber Ransomware</h4>
+                            
+                            -->
+                            
+                            <!--
+                            <h4 id="blogTitle">Locky Continues to Hold the World’s Critical Systems to Ransom</h4>
+                            <p id="blogAuthor">By: The Cylance Team</p>
+                            <div id="blogDivider"></div>
+                            -->
+                            
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="grid_right" class="left grid_row">
+                    <a href="https://cylance.com/products-protect">
+                    <div class="grid_top grid_item julia_overlay_wrp">
+                        <span class="juila_bg_img"><img src="https://blog.cylance.com/hubfs/2015_cylance_website/images/footer_grid/Footer_CTA_Protect2x.jpg?t=1475168153396"></span>
+                        <div class="julia_overlay">
+                            <div class="juila_overlay-textblock">
+                            <span class="juila_overlay-text_large">CylancePROTECT®</span>
+                            <span class="juila_overlay-block_textone">Next-Generation</span><br>
+                            <span class="juila_overlay-block_texttwo">Endpoint Protection</span><br>
+                            <span class="juila_overlay-block_link">Learn More</span>
+                            </div>
+                        </div>
+                    </div>
+                    </a>
+                    
+                    <a href="https://cylance.com/events-on-tour">
+                    <div class="grid_bottom grid_item sally_overlay_wrp">
+                        
+                        <div id="grid_right_bottom_container">
+                            <h2 class="sally_overlay-text_large">The Unbelievable Tour</h2>
+                            <span class="sally_overlay-text_small">Numbers Don’t Lie  <i>RSVP Now</i></span>
+                            
+                        </div>
+                            
+                    </div>
+                    </a>
+                </div>
+                
+            </div>
+        </section>
+        <style>
+            #grid_right .julia_overlay_wrp .juila_overlay-text_large {
+             font-size: 50px!important;
+            }
+            .hs-rss-title {    
+                font-weight: 200;
+                color: #000;
+            }
+            .hs-rss-byline {
+                font-size:18px;
+                font-weight:200;
+            }
+            
+            @media only screen and (max-width: 1300px){
+                .hs-rss-title {
+                    font-size: 1.54rem;
+                }
+            }
+            
+        </style>
+        
+        </span>
+
+        <span id="hs_cos_wrapper_dev_footer" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_custom_widget" style="" data-hs-cos-general-type="widget" data-hs-cos-type="custom_widget"> <div id="cy-footer">
+    
+    <div class="cy-center">
+      <div class="content">
+      
+        <div id="footer_border_top"></div>
+      
+        <div class="company-info">
+          <a class="company-logo" href="https://cylance.com"></a>
+          <div class="icons">
+             <a href="https://www.youtube.com/user/CylanceInc" target="_blank"> <i class="fa fa-youtube"></i> </a> 
+             <a href="https://www.linkedin.com/company/cylanceinc" target="_blank"> <i class="fa fa-linkedin"></i> </a> 
+             <a href="https://www.facebook.com/CylanceInc" target="_blank"> <i class="fa fa-facebook"></i> </a> 
+             <a href="https://twitter.com/cylanceinc" target="_blank"> <i class="fa fa-twitter"></i> </a> 
+          </div>
+          <div class="copyright">
+                <a href="https://www.google.com/maps/place/18201+Von+Karman+Ave+%23700,+Irvine,+CA+92612/@33.677903,-117.85576,17z/data=!3m1!4b1!4m2!3m1!1s0x80dcde8cdb4656cf:0x527c4bcd5dc86f15" target="_blank">18201 Von Karman, Suite 700<br> Irvine, CA 92612 <br>USA</a>  
+                <br><br>
+                <a href="tel:+18442952623">Call Us: 1-844-CYLANCE</a> <br>
+                <a href="tel:+18442952623">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1-844-295-2623</a> <br><br>
+                <a href="tel:+18666999686">Get Support: 1-866-699-9689 </a><br>
+              <a href="tel:+18779733336">Incident Response: 1-877-973-3336 </a>
+          </div>
+          <div class="copyright">
+            © Cylance Inc. All Rights Reserved<br>
+               <a href="https://cylance.com/privacy-policy" class="privacy">Privacy Policy</a>
+              <a href="https://cylance.com/terms" class="terms">Terms Of Service</a>
+              <a href="https://cylance.com/site-map" class="sitemap">Sitemap</a>
+          </div>
+        </div>
+        <div class="hide_mobile">
+            <div class="column one">
+              <a href="https://cylance.com/" class="home fn-main">Home</a>
+    
+              <a href="javascript:void(0)" class="products fn-main">Products</a>
+                  <ul class="products">
+                    <li><a href="https://cylance.com/products-protect" class="protect">PROTECT</a></li>
+                    <li><a href="https://cylance.com/products-protect-threat-zero" class="protect-threat-zero">PROTECT + Threat Zero</a></li>
+                    <li><a href="https://cylance.com/products-protect-critical-infrastructure" class="for-critical-infrastructure">PROTECT for Critical Infrastructure</a></li>
+                    <li><a href="https://cylance.com/products-protect-education" class="for-education">PROTECT for Education</a></li>
+                    <li><a href="https://cylance.com/products-protect-energy" class="for-education">PROTECT for Energy</a></li>
+                    <li><a href="https://cylance.com/products-protect-finance" class="for-finance">PROTECT for Finance</a></li>
+                    <li><a href="https://cylance.com/products-protect-healthcare" class="for-healthcare">PROTECT for Healthcare</a></li>
+                    <li><a href="https://cylance.com/products-protect-retail" class="for-retail">PROTECT for Retail</a></li>
+                  </ul>
+    
+              <a href="javascript:void(0)" class="Services fn-main">Consulting</a>
+    
+                     <ul class="services">
+                  <li><a href="https://www.cylance.com/consulting" class="our-services">Consulting Overview</a></li>
+                  <li><a href="https://www.cylance.com/consulting-critical-infrastructure" class="our-services">Consulting for Critical Infrastructure</a></li>
+                  <li><a href="https://www.cylance.com/consulting-education" class="our-services">Consulting for Education</a></li>
+                  <li><a href="https://www.cylance.com/consulting-energy" class="our-services">Consulting for Energy</a></li>
+                  <li><a href="https://www.cylance.com/consulting-finance" class="our-services">Consulting for Finance</a></li>
+                  <li><a href="https://www.cylance.com/consulting-healthcare" class="our-services">Consulting for Healthcare</a></li>
+                  <li><a href="https://www.cylance.com/consulting-retail" class="our-services">Consulting for Retail</a></li>
+                  <li><a href="https://www.cylance.com/consulting-government" class="our-services">Consulting for Government</a></li>
+                </ul>
+    
+    
+            </div>
+            <div class="column two">
+              <a href="javascript:void(0)" class="partners fn-main">Partners</a>
+                <ul class="partners">
+                  <li><a href="https://cylance.com/technology-partner" class="technology-partners">Technology Partners</a></li>
+                  <li><a href="https://cylance.com/partners-reseller" class="resellers">Resellers</a></li>
+                  <li><a href="https://cylance.portal.relayware.com/">Partner Portal Login</a></li>
+                  <li><a href="https://cylance.portal.relayware.com/?eid=register">Become a Partner</a></li>
+                </ul>
+    
+              <a href="javascript:void(0)" class="company fn-main">Company</a>
+                  <ul class="company">
+                    <li><a href="https://cylance.com/company" class="who-we-are">Who We Are</a></li>
+                    <li><a href="https://cylance.com/company-news-press-releases" class="news-press">News + Press</a></li>
+                    <li><a href="https://cylance.com/company-awards" class="awards">Awards</a></li>
+                    <li><a href="https://cylance.com/cylance-careers" class="careers">Careers</a></li>
+                    <li><a href="https://cylance.com/contact-us" class="contact-us">Contact Us</a></li>
+                    <li><a href="https://www.cylance.com/security-questions" title="Security Questions">Security Questions</a></li>
+                  </ul>
+    
+              <a href="https://support.cylance.com/hc/en-us" class="support fn-main">Support</a>
+            </div>
+            <div class="column three">
+              <a href="javascript:void(0)" class="events fn-main">Events</a>
+                  <ul class="events">
+                    <li><a href="https://cylance.com/events-on-tour" class="unbelievable-tour">Unbelievable Tour</a></li>
+                    <li><a href="https://cylance.com/events-corporate-events" class="events-tradeshows">Events &amp; Tradeshows</a></li>
+                    <li><a href="https://cylance.com/resources-webinar" class="webinars">Webinars</a></li>
+                  </ul>
+    
+              <a href="javascript:void(0)" class="resources fn-main">Resources</a>
+                  <ul class="resources">
+                    <li><a href="https://cylance.com/resources_whitepapers" class="whitepapers-datasheets">Whitepapers + Datasheets</a></li>
+                    <li><a href="https://www.cylance.com/resources-videos">Videos</a></li>
+                  <li><a href="https://www.cylance.com/branding">Branding</a></li>
+                      
+                  </ul>
+    
+    
+              <a href="https://blog.cylance.com" class="blog fn-main">Blog</a>
+              <a href="https://cylance.com/contact-us" class="contact-us fn-main">Contact Us</a>
+              <a href="https://cylance.com/privacy-policy" class="privacy-policy fn-main">Privacy Policy</a>
+              <a href="https://www.cylance.com/hr-privacy-statement" class="privacy-policy fn-main">HR Data Privacy Statement</a>
+              <a href="https://cylance.com/terms" class="terms fn-main">Terms Of Service</a>
+              <a href="https://cylance.com/site-map" class="sitemap fn-main">Sitemap</a>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-T6NGXM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T6NGXM');</script>
+<!-- End Google Tag Manager --></span>
+
+        <!-- vertigo scroller -->
+        <script src="//cdn2.hubspot.net/hubfs/270968/2015_cylance_website/custom_modules/vertigo/main.js?t=1475168153396"></script>
+        <script src="//cdn2.hubspot.net/hubfs/270968/2015_cylance_website/scripts/master_global.js?t=1475168153396"></script>
+        
+        
+        <!--[if lte IE 8] -->
+        <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2-legacy.js"></script>
+        <!--[endif]-->
+        <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2.js"></script>
+        <script>   
+            hbspt.forms.create({
+                portalId: '270968',
+                formId: '850b4b2c-1293-4975-b8c7-1ea7a3b52a6f',
+                target: '#popup1 .popup .content'
+            });
+        </script>
+        <!-- open/close -->
+        
+                
+        <script type="text/javascript" src="//static.hsstatic.net/content_shared_assets/static-1.3962/js/public_common.js"></script>
+        
+        <script type="text/javascript">
+        var hsVars = {
+            ticks: 1443153033949,
+            page_id: 0,
+            content_group_id: 341593683,
+            portal_id: 270968,
+            app_hs_base_url: "https://app.hubspot.com"
+        }
+        </script>
+        
+
+        
+
+<script type="text/javascript" src="https://static.hsstatic.net/content_shared_assets/static-1.4020/js/public_common.js"></script>
+
+
+<!-- Start of HubSpot Analytics Code -->
+<script type="text/javascript">
+var _hsq = _hsq || [];
+_hsq.push(["setContentType", "blog-post"]);
+_hsq.push(["setCanonicalUrl", "https:\/\/blog.cylance.com\/the-cautionary-case-of-pokemon-go"]);
+_hsq.push(["setPageId", "4326047453"]);
+_hsq.push(["setContentMetadata", {
+    "contentPageId": 4326047453,
+    "legacyPageId": "4326047453",
+    "contentGroupId": 341593683,
+    "abTestId": null,
+    "languageVariantId": 4326047453,
+    "languageCode": null
+}]);
+_hsq.push(["setTargetedContentMetadata", []]);
+
+
+    (function(d,s,i,r) {
+        if (d.getElementById(i)){return;}
+        var n=d.createElement(s),e=d.getElementsByTagName(s)[0];
+        n.id=i;n.src='//js.hs-analytics.net/analytics/'+(Math.ceil(new Date()/r)*r)+'/270968.js';
+        e.parentNode.insertBefore(n, e);
+    })(document,"script","hs-analytics",300000);
+
+
+</script>
+
+
+
+<!-- End of HubSpot Analytics Code -->
+
+
+<script type="text/javascript">
+var hsVars = {
+    ticks: 1475523586264,
+    page_id: 4326047453,
+    content_group_id: 341593683,
+    portal_id: 270968,
+    app_hs_base_url: "https://app.hubspot.com"
+}
+</script>
+
+
+
+<script type="text/javascript">_satellite.pageBottom();</script>
+
+<div id="fb-root"></div>
+ <script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&status=0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<script type="text/javascript">
+  window.___gcfg = {
+    lang: 'en-US',
+    parsetags: 'onload'
+  };
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+ <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+ 
+
+
+
+
+<!-- end coded_template: id:1356250069 path:custom/blog/basic/cylance_blog_july2014.html -->
+</div></div></div></body></html>

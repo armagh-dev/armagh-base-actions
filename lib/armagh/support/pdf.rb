@@ -27,12 +27,12 @@ module Armagh
       class TimeoutError < PDFError; end
       class NoTextError  < PDFError; end
 
-      module_function
-
       DEFAULT_TIMEOUT     = 600
-      PDF_TO_TEXT_SHELL   = %w(pdftotext <input_pdf_file> -)
-      PDF_TO_IMAGE_SHELL  = %w(gs -dSAFER -sDEVICE=png16m -dINTERPOLATE -dNumRenderingThreads=8 -dFirstPage= -dLastPage= -r300 -o <output_image_file> -c 30000000 setvmthreshold -f <input_pdf_file>)
-      IMAGE_TO_TEXT_SHELL = %w(tesseract <input_image_file> <output_text_file> -psm 1)
+      PDF_TO_TEXT_SHELL   = %W(#{`which pdftotext`.strip} <input_pdf_file> -)
+      PDF_TO_IMAGE_SHELL  = %W(#{`which gs`.strip} -dSAFER -sDEVICE=png16m -dINTERPOLATE -dNumRenderingThreads=8 -dFirstPage= -dLastPage= -r300 -o <output_image_file> -c 30000000 setvmthreshold -f <input_pdf_file>)
+      IMAGE_TO_TEXT_SHELL = %W(#{`which tesseract`.strip} <input_image_file> <output_text_file> -psm 1)
+
+      module_function
 
       def to_search_text(binary, timeout: nil)
         process_pdf(binary, :search, timeout: timeout)
@@ -67,12 +67,10 @@ module Armagh
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
-      rescue Shell::MissingProgramError => e
-        raise e
+      rescue Shell::MissingProgramError, PDFError
+        raise
       rescue Timeout::Error, TimeoutError
         raise TimeoutError, 'Execution expired while processing PDF'
-      rescue NoTextError => e
-        raise NoTextError, e
       rescue => e
         raise PDFError, e
       ensure

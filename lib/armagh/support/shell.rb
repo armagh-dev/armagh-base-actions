@@ -82,7 +82,6 @@ module Armagh
           handle_error(e, command, ignore_error, catch_error)
         end
       rescue Timeout::Error => e
-        Process.kill('TERM', -pid)
         handle_error(e, command, ignore_error, catch_error)
       rescue => e
         handle_error(e, command, ignore_error, catch_error)
@@ -91,6 +90,11 @@ module Armagh
       ensure
         out_read.close if out_read && !out_read.closed?
         err_read.close if err_read && !err_read.closed?
+        begin
+          Process.kill('TERM', -pid) if pid
+        rescue
+          # process already ended
+        end
       end
 
       private_class_method def parse_args(args)

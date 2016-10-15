@@ -18,7 +18,7 @@
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../../helpers/fixture'
+require_relative '../../../helpers/fixture_helper'
 require_relative '../../../helpers/coverage_helper'
 require_relative '../../../../lib/armagh/support/xml/splitter'
 

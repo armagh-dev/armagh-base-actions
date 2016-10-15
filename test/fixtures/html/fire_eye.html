@@ -1,0 +1,1044 @@
+<!-- Blog Page (Page) -->
+<!DOCTYPE html>
+<html>
+<!-- Blog Head --><head>
+
+<!-- Headlibs (Blog Page): data-component-version="2.0" -->
+<title>RIPPER ATM Malware and the 12 Million Baht Jackpot &laquo; Threat Research Blog | FireEye Inc</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="alternate" type="application/atom+xml" title="Atom Feed for &#39;Threat Research Blog&#39;" href="/content/fireeye-www/en_US/blog/threat-research/_jcr_content.feed">
+
+<link rel="canonical" href="https://www.fireeye.com/blog/threat-research/2016/08/ripper_atm_malwarea.html">
+<meta name="language" content="en">
+<meta name="locale" content="en_US">
+<meta http-equiv="cleartype" content="on">
+
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="description" content="FireEye Labs dissects a new ATM malware, RIPPER, which may have been used this week to steal 12 million baht from ATMs at banks in Thailand.">
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="RIPPER ATM Malware and the 12 Million Baht Jackpot &laquo; Threat Research Blog">
+<meta itemprop="description" content="FireEye Labs dissects a new ATM malware, RIPPER, which may have been used this week to steal 12 million baht from ATMs at banks in Thailand.">
+<meta itemprop="image" content="https://www.fireeye.com/content/dam/fireeye-www/fw/images/fireeye-2-color.png">
+
+<!-- Twitter Card data -->
+<meta name="twitter:site" content="@FireEye">
+<meta name="twitter:title" content="RIPPER ATM Malware and the 12 Million Baht Jackpot &laquo; Threat Research Blog">
+<meta name="twitter:description" content="FireEye Labs dissects a new ATM malware, RIPPER, which may have been used this week to steal 12 million baht from ATMs at banks in Thailand.">
+<meta name="twitter:creator" content="@FireEye">
+<meta name="twitter:image:src" content="https://www.fireeye.com/content/dam/fireeye-www/fw/images/fireeye-2-color.png">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="RIPPER ATM Malware and the 12 Million Baht Jackpot &laquo; Threat Research Blog">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.fireeye.com/blog/threat-research/2016/08/ripper_atm_malwarea.html">
+<meta property="og:image" content="https://www.fireeye.com/content/dam/fireeye-www/fw/images/fireeye-2-color.png">
+<meta property="og:description" content="FireEye Labs dissects a new ATM malware, RIPPER, which may have been used this week to steal 12 million baht from ATMs at banks in Thailand.">
+<meta property="og:site_name" content="FireEye">
+<meta property="fb:admins" content="45127269202">
+
+<script type="text/javascript" src="/etc/clientlibs/granite/jquery.js"></script>
+<script type="text/javascript" src="/etc/designs/fireeye-www/clientlibs_cookie.js"></script>
+<script type="text/javascript">
+var cookiesOK = $.cookie("ec-privacy");
+
+var onAccept = function () {
+	$.cookie("ec-privacy", "accept", { path: "/", expires: 365 });
+	jQuery("#cookie-privacy-banner").hide();
+};
+
+var onDecline = function () {
+	$.cookie("ec-privacy", "decline", { path: "/", expires: 365 });
+	jQuery("#cookie-privacy-banner").hide();
+};
+
+var ipLocation = (function () {
+	var banner ="#cookie-privacy-banner";
+
+	/* Show the privacy notification banner. */
+	var showBanner = function (banner) {
+		jQuery(banner).show();
+	};
+
+	/* Suppress the privacy notification banner. */
+	var hideBanner = function (banner) {
+		jQuery(banner).hide();
+	};
+
+	/* These are the country codes for the countries subject to EC privacy laws.
+	 * We will check to see if a visitor is coming from one of these countries.
+	 * If they are, we display a privacy notification banner. If not, we
+	 * do nothing. */
+	var countries = {
+		"AT": true,"BE": true,"BG": true,"HR": true,"CY": true,"CZ": true,"DK": true,
+		"EE": true,"FI": true,"FR": true,"DE": true,"GR": true,"HU": true,"IE": true,
+		"IT": true,"LV": true,"LT": true,"LU": true,"MT": true,"NL": true,"PL": true,
+		"PT": true,"RO": true,"SK": true,"SI": true,"ES": true,"SE": true,"GB": true
+	};
+	var defaultSite = "US";
+
+	var onSuccess = function (geoipResponse) {
+		/* There's no guarantee that a successful response object
+		 * has any particular property, so we need to code defensively. */
+		if (!geoipResponse.country.iso_code) {
+			hideBanner(banner);
+			return;
+		}
+
+		/* ISO country codes are in upper case. */
+		var code = geoipResponse.country.iso_code;
+
+		if ((countries[code]) && (cookiesOK == undefined)) {
+			showBanner(banner);
+		}
+		else {
+			hideBanner(banner);
+		}
+	};
+
+	/* We don't really care what the error is. */
+	var onError = function (error) {
+		hideBanner(banner);
+	};
+
+	return function () {
+		geoip2.country( onSuccess, onError );
+	};
+}());
+
+ipLocation();
+</script>
+
+<!-- Sling Include /content/fireeye-www/site-content/en_US/headlibs/jcr:content/grid-100-mid/htmlpassthru_836d -->
+	<div class="htmlpassthru_836d htmlpassthru"><!-- HTML Passthru: data-component-version="1.4" -->
+
+<!-- Demandbase API, after the head tag, before Adobe Analytics -->
+<script type="text/javascript" src="https://scripts.demandbase.com/adobeanalytics/WjFW6p7V.min.js"></script>
+<script type="text/javascript" src="https://api.demandbase.com/api/v2/ip.json?key=8aba30aa4ba99bc531d2a2cc0fd469e3&callback=Dmdbase_CDC.callback"></script>
+
+<!--Adobe Analytics (Production), after the head tag -->
+<script type="text/javascript" src="https://assets.adobedtm.com/1790e736b614e0afecbbbf9be7069b90b875fdd6/satelliteLib-018e5c8fee015d61f6e2636ab102f2624be19551.js"></script>
+
+<script type="text/javascript">
+if (cookiesOK != "decline") {
+	// Google Analytics
+	var _gaq=_gaq || [];
+	_gaq.push(["_setAccount","UA-363943-1"]);
+	_gaq.push(['_setDomainName', 'fireeye.com']);
+	_gaq.push(['_trackPageview']);
+	(function() {
+		var ga = document.createElement('script');
+		ga.type = 'text/javascript';
+		ga.async = true;
+		ga.src = 'https://stats.g.doubleclick.net/dc.js';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(ga, s);
+	})();
+}
+</script>
+
+<!-- Google+ Direct Connect -->
+<link href="https://plus.google.com/101224725548086766919" rel="publisher">
+</div>
+<!-- Init (Base Page): data-component-version="1.1" --><link rel="stylesheet" href="/etc/designs/fireeye-www/clientlibs_framework.css" type="text/css">
+<link rel="stylesheet" href="/etc/designs/fireeye-www/clientlibs_search.css" type="text/css">
+<link rel="stylesheet" href="/etc/clientlibs/fireeye-blog/clientlibs_desktop.css" type="text/css">
+<!--[if lt IE 9]>
+<script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+
+<link rel="icon" type="image/vnd.microsoft.icon" href="/content/dam/fireeye-www/brand/logos/fireeye.ico">
+<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/content/dam/fireeye-www/brand/logos/fireeye.ico">
+</head>
+<!-- Blog Body -->
+<!-- Production -->
+		<body itemscope itemtype="http://schema.org/WebPage">
+<div class="parbase clientcontext"><script type="text/javascript" src="/etc/clientlibs/granite/utils.js"></script>
+<script type="text/javascript" src="/etc/clientlibs/granite/jquery/granite.js"></script>
+<script type="text/javascript" src="/etc/clientlibs/foundation/jquery.js"></script>
+<script type="text/javascript" src="/etc/clientlibs/foundation/shared.js"></script>
+<script type="text/javascript" src="/etc/clientlibs/granite/lodash/modern.js"></script>
+<script type="text/javascript" src="/etc/clientlibs/foundation/personalization/kernel.js"></script>
+<script type="text/javascript">
+    $CQ(function() {
+        CQ_Analytics.SegmentMgr.loadSegments("\/etc\/segmentation");
+        CQ_Analytics.ClientContextUtils.init("\/etc\/clientcontext\/default", "\/content\/fireeye\-www\/en_US\/blog\/threat\-research\/2016\/08\/ripper_atm_malwarea");
+
+        
+    });
+</script>
+</div>
+<!-- Header (Base Page): data-component-version="1.7" -->
+<!-- Sling Include /content/fireeye-www/site-content/en_US/masthead/jcr:content/grid-100-mid/masthead_c5d5 -->
+	<div class="masthead_c5d5 masthead"><!-- Masthead: data-component-version="1.6" -->
+<div class="l_header_placeholder">
+	<header class="l_header is-fixed" role="banner" itemscope itemtype="http://schema.org/WPHeader">
+		<div class="l_header-bd">
+			<div class="g01 g01v0" id="g01-masthead">
+				<div class="g01_phone"><h5><a href="/customers.html">Customer Stories</a></h5> <h5><a href="/blog.html">Blogs</a></h5></div>
+				<div class="g01_brand" itemscope itemtype="https://schema.org/Brand">
+					<a href="https://www.fireeye.com"><img src="/content/dam/fireeye-www/fw/images/fireeye-2-color.png" class="l_header-logo" alt="FireEye" itemprop="logo"/></a>
+				</div>
+				<div class="g01_other">
+					<ul class="g01_options">
+					<li class="g01_options_item">
+						<a class="g01_options-option option-worldwide" href="#header-worldwide" data-behavior="showHeaderMenu"><span class="g01_options-label">Language</span></a>
+						<div class="option-menu" id="header-worldwide">
+							<h5>My preferred language:</h5>
+							<ul class="g01_options_list list-bullet"><li><a href="https://www.fireeye.fr" target="_blank">Français (French)</a></li><li><a href="https://www.fireeye.de" target="_blank">Deutsch (German)</a></li><li><a href="https://www.fireeye.jp" target="_blank">日本語 (Japanese)</a></li><li><a href="https://www.fireeye.kr" target="_blank">한국어 (Korean)</a></li><li><a href="/index.html">English</a></li><li><a href="/products/international-literature.html">More Languages</a></li></ul>
+						</div>
+					</li>
+					<li class="g01_options_item">
+						<div class="content-searchbox searchbox"><!-- Search Input: data-component-version="1.2" -->
+
+<a class="g01_options-option option-search" href="#header-search" data-for="q" data-behavior="showHeaderMenu focusField">Search FireEye.com</a>
+<div class="option-menu option-menu_search" id="header-search">
+	<form method="get" action="/search.html">
+		<fieldset class="search-field" title="Search FireEye.com">
+		<label class="search-field_label" for="q">Search FireEye.com</label>
+		<input class="input-text search-field_text" type="text" name="q" id="q" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search FireEye.com">
+		<button class="btn btn-secondary search-field_submit" type="submit">Go</button>
+		</fieldset>
+	</form>
+</div>
+</div>
+</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</header>
+</div>
+</div>
+<script type="text/javascript" src="/etc/designs/fireeye-www/clientlibs_components.js"></script>
+<script type="text/javascript" src="/etc/designs/fireeye-www/common/listeners.js"></script>
+<!-- TopNav (Base Page): data-component-version="1.10" -->
+<!-- Sling Include /content/fireeye-www/site-content/en_US/megamenus/jcr:content/parsys-navigation/primary_nav_f1bc -->
+	<div class="primary-nav primary_nav_f1bc"><!-- Primary Navigation: data-component-version="1.8" -->
+<div class="n03_placeholder" id="n03-navigation">
+	<div class="n03 n03v0 is-fixed" role="navigation" itemscope itemtype="http://schema.org/SiteNavigationElement">
+		<a class="n03-skip" href="#main">Skip Navigation</a>
+		<a class="n03_title" data-title="Menu" href="#navigation" data-behavior="show-nav"><h2 itemprop="headline">Site Navigation</h2></a>
+		<nav class="n03_nav" id="navigation">
+			<div class="n03_nav-primary" id="n03-primary">
+				<ul class="n03_list"><li class="n03_list-item is-primary">
+					<!-- /content/fireeye-www/en_US/blog.html || /content/fireeye-www/en_US/products.html -->
+					<div class="n03_list-item-sub_wrap">
+						<h4 class="n03_list-item-title">
+							<a href="/products.html" itemprop="url">Products</a><button class="n03_list-item-sub_show" data-behavior="show-nav-sub" role="button" type="button">Show More</button></h4>
+						<!-- Sling Include -->
+						<div class="content-0-par parsys"><div class="megamenus section"><!-- MegaMenu Container: data-component-version="1.4" -->
+<!-- MegaMenu Sub-navigation -->
+<div class="n03_list-item-sub">
+	<div class="n03-sub_container">
+		<div class="n03-sub_table"><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Network</h4><ul><li itemprop="url"><a href="/products/nx-network-security-products.html" itemprop="name">Network Security</a><em class="n03_xs"> NX Series</em></li>
+			<li itemprop="url"><a href="/products/nx-network-security-products/nx-power.html" itemprop="name"><span style="margin-left:20px">NX Power</span></a></li>
+			<li itemprop="url"><a href="/products/nx-network-security-products/nx-essentials.html" itemprop="name"><span style="margin-left:20px">NX Essentials</span></a></li>
+			<li itemprop="url"><a href="/products/nx-network-security-products/ssl-intercept.html" itemprop="name"><span style="margin-left:20px">SSL Intercept Appliance</span></a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Email</h4><ul><li itemprop="url"><a href="/products/ex-email-security-products.html" itemprop="name">Email Security</a><em class="n03_xs"> On-Premises or Cloud</em></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Mobile</h4><ul><li itemprop="url"><a href="/products/mobile-threat-protection-mobile-security-products.html" itemprop="name">Mobile Security</a><em class="n03_xs"> Mobile Threat Prevention</em></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Endpoint</h4><ul><li itemprop="url"><a href="/products/hx-endpoint-security-products.html" itemprop="name">Endpoint Security</a><em class="n03_xs"> HX Series</em></li>
+			<li itemprop="url"><a href="/products/mir-endpoint-forensics.html" itemprop="name">Endpoint Forensics</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Forensics</h4><ul><li itemprop="url"><a href="/products/enterprise-forensics.html" itemprop="name">Enterprise Forensics</a><em class="n03_xs"> PX and IA Series</em></li>
+			<li itemprop="url"><a href="/products/malware-analysis.html" itemprop="name">Malware Analysis</a><em class="n03_xs"> AX Series</em></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">File System and Storage</h4><ul><li itemprop="url"><a href="/products/fx-content-security-products.html" itemprop="name">File Content Security</a><em class="n03_xs"> FX Series</em></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Security Management Products</h4><ul><li itemprop="url"><a href="/products/threat-analytics-platform.html" itemprop="name">Threat Analytics Platform</a><em class="n03_xs"> Security Data Analytics</em></li>
+			<li itemprop="url"><a href="/products/central-management.html" itemprop="name">Central Management</a><em class="n03_xs"> CM Series</em></li>
+			<li itemprop="url"><a href="/products/security-orchestrator.html" itemprop="name">Security Orchestrator</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Subscriptions</h4><ul><li itemprop="url"><a href="/products/fireeye-as-a-service.html" itemprop="name">FireEye as a Service</a></li>
+			<li itemprop="url"><a href="/products/dynamic-threat-intelligence.html" itemprop="name">Threat Intelligence</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/products.html" itemprop="name">Browse All Products</a></h4></div>
+
+</div>
+</div></div>
+	</div>
+	<!-- MegaMenu Call to Action --></div>
+</div>
+
+</div>
+</div>
+				</li><li class="n03_list-item is-primary">
+					<!-- /content/fireeye-www/en_US/blog.html || /content/fireeye-www/en_US/solutions.html -->
+					<div class="n03_list-item-sub_wrap">
+						<h4 class="n03_list-item-title">
+							<a href="/solutions.html" itemprop="url">Solutions</a><button class="n03_list-item-sub_show" data-behavior="show-nav-sub" role="button" type="button">Show More</button></h4>
+						<!-- Sling Include -->
+						<div class="content-1-par parsys"><div class="megamenus section"><!-- MegaMenu Container: data-component-version="1.4" -->
+<!-- MegaMenu Sub-navigation -->
+<div class="n03_list-item-sub">
+	<div class="n03-sub_container">
+		<div class="n03-sub_table"><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Solutions for</h4><ul><li itemprop="url"><a href="/solutions/datacenter.html" itemprop="name">Data Center</a></li>
+			<li itemprop="url"><a href="/solutions/ransomware.html" itemprop="name">Ransomware</a></li>
+			<li itemprop="url"><a href="/solutions/endpoint-and-mobility.html" itemprop="name">Endpoint and Mobility</a></li>
+			<li itemprop="url"><a href="/solutions/enterprise-network-security.html" itemprop="name">Enterprise Networks</a></li>
+			<li itemprop="url"><a href="/solutions/incident-investigation.html" itemprop="name">Incident Investigation</a></li>
+			<li itemprop="url"><a href="/solutions/small-and-midsize-business.html" itemprop="name">Small and Midsize Businesses</a></li>
+			<li itemprop="url"><a href="/solutions/industrial-systems-and-critical-infrastructure-security.html" itemprop="name">Industrial Systems & Critical Infrastructure Security</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Industries</h4><ul><li itemprop="url"><a href="/solutions/financial-services.html" itemprop="name">Financial Services</a></li>
+			<li itemprop="url"><a href="/solutions/government.html" itemprop="name">Government</a></li>
+			<li itemprop="url"><a href="/solutions/healthcare.html" itemprop="name">Healthcare</a></li>
+			<li itemprop="url"><a href="/solutions/retail.html" itemprop="name">Retail</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Subscriptions</h4><ul><li itemprop="url"><a href="/products/fireeye-as-a-service.html" itemprop="name">FireEye as a Service</a></li>
+			<li itemprop="url"><a href="/products/dynamic-threat-intelligence.html" itemprop="name">Threat Intelligence</a></li>
+			</ul></div>
+
+</div>
+</div></div>
+	</div>
+	<!-- MegaMenu Call to Action --></div>
+</div>
+
+</div>
+</div>
+				</li><li class="n03_list-item is-primary">
+					<!-- /content/fireeye-www/en_US/blog.html || /content/fireeye-www/en_US/services.html -->
+					<div class="n03_list-item-sub_wrap">
+						<h4 class="n03_list-item-title">
+							<a href="/services.html" itemprop="url">Services</a><button class="n03_list-item-sub_show" data-behavior="show-nav-sub" role="button" type="button">Show More</button></h4>
+						<!-- Sling Include -->
+						<div class="content-2-par parsys"><div class="megamenus section"><!-- MegaMenu Container: data-component-version="1.4" -->
+<!-- MegaMenu Sub-navigation -->
+<div class="n03_list-item-sub" id="mandiant-mega-menu">
+	<div class="n03-sub_container">
+		<div class="n03-sub_table"><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/services/i-am-breached-what-do-i-do.html" itemprop="name">I Am Breached!</a></h4><ul><li itemprop="url"><a href="/services/mandiant-incident-response.html" itemprop="name">Incident Response Services</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/services/am-i-at-risk.html" itemprop="name">Am I At Risk?</a></h4><ul><li itemprop="url"><a href="/services/red-team-operations.html" itemprop="name">Red Team Operations</a></li>
+			<li itemprop="url"><a href="/services/penetration-testing.html" itemprop="name">Penetration Testing</a></li>
+			<li itemprop="url"><a href="/services/mandiant-industrial-control-system-gap-assessment.html" itemprop="name">Industrial Control Systems Healthcheck</a></li>
+			<li itemprop="url"><a href="/services/mergers-and-acquisitions-risk-assessment.html" itemprop="name">Mergers and Acquisitions (M&A) Risk Assessment</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/services/am-i-compromised.html" itemprop="name">Am I Compromised?</a></h4><ul><li itemprop="url"><a href="/services/mandiant-compromise-assessment.html" itemprop="name">Compromise Assessment</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/services/am-i-prepared.html" itemprop="name">Am I Prepared?</a></h4><ul><li itemprop="url"><a href="/services/mandiant-security-program-assessment.html" itemprop="name">Security Program Assessment</a></li>
+			<li itemprop="url"><a href="/services/mandiant-response-readiness-assessment.html" itemprop="name">Response Readiness Assessment</a></li>
+			<li itemprop="url"><a href="/services/tabletop-exercise.html" itemprop="name">Tabletop Exercise</a></li>
+			<li itemprop="url"><a href="/services/mandiant-incident-response-retainer-services.html" itemprop="name">Incident Response Retainer</a></li>
+			<li itemprop="url"><a href="/services/cyber-insurance-risk-assessment.html" itemprop="name">Cyber Insurance Risk Assessment</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/services/prepare-for-future-events.html" itemprop="name">Prepare for Future Events</a></h4><ul><li itemprop="url"><a href="/services/mandiant-cyber-defense-center-development.html" itemprop="name">Cyber Defense Center Development</a></li>
+			<li itemprop="url"><a href="/services/training.html" itemprop="name">Education Services</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Community Resources</h4><ul><li itemprop="url"><a href="/services/freeware.html" itemprop="name">Free Software</a></li>
+			</ul></div>
+
+</div>
+</div></div>
+	</div>
+	<!-- MegaMenu Call to Action --></div>
+</div>
+
+</div>
+</div>
+				</li><li class="n03_list-item is-primary">
+					<!-- /content/fireeye-www/en_US/blog.html || /content/fireeye-www/en_US/current-threats.html -->
+					<div class="n03_list-item-sub_wrap">
+						<h4 class="n03_list-item-title">
+							<a href="/current-threats.html" itemprop="url">Current Threats</a><button class="n03_list-item-sub_show" data-behavior="show-nav-sub" role="button" type="button">Show More</button></h4>
+						<!-- Sling Include -->
+						<div class="content-3-par parsys"><div class="megamenus section"><!-- MegaMenu Container: data-component-version="1.4" -->
+<!-- MegaMenu Sub-navigation -->
+<div class="n03_list-item-sub">
+	<div class="n03-sub_container">
+		<div class="n03-sub_table"><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Blogs</h4><ul><li itemprop="url"><a href="/blog/threat-research.html" itemprop="name">Threat Research Blog</a></li>
+			<li itemprop="url"><a href="/blog/products-and-services.html" itemprop="name">Products and Services Central</a></li>
+			<li itemprop="url"><a href="/blog/executive-perspective.html" itemprop="name">Executive Perspective Blog</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Intelligence Briefings and Bulletins</h4><ul><li itemprop="url"><a href="/current-threats/recent-zero-day-attacks.html" itemprop="name">Recent Zero-Day Exploits</a></li>
+			<li itemprop="url"><a href="/current-threats/annual-threat-report.html" itemprop="name">Annual Threat Reports</a></li>
+			<li itemprop="url"><a href="/current-threats/threat-intelligence-reports.html" itemprop="name">Threat Intelligence Reports</a></li>
+			<li itemprop="url"><a href="/current-threats/reports-by-industry.html" itemprop="name">Threat Intelligence Reports by Industry</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">What is Cyber Security?</h4><ul><li itemprop="url"><a href="/current-threats/detect-and-prevent.html" itemprop="name">Advanced Detection and Prevention</a></li>
+			<li itemprop="url"><a href="/current-threats/best-defense-against-spear-phishing-attacks.html" itemprop="name">Best Defense Against Spear Phishing</a></li>
+			<li itemprop="url"><a href="/current-threats/stopping-todays-cyber-attacks.html" itemprop="name">Target Cyber Criminals to Stop Cyber Crime</a></li>
+			<li itemprop="url"><a href="/current-threats/how-cyber-attackers-get-in.html" itemprop="name">How Cyber Attacks Compromise Networks</a></li>
+			<li itemprop="url"><a href="/current-threats/anatomy-of-a-cyber-attack.html" itemprop="name">Anatomy of Advanced Persistent Threats</a></li>
+			<li itemprop="url"><a href="/current-threats/what-a-ceo-needs-to-know-about-cyber-security.html" itemprop="name">Cyber Security ROI for CEOs</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">&nbsp;</h4><ul><li itemprop="url"><a href="/current-threats/tco.html" itemprop="name">The Cost and Value of Cyber Security</a></li>
+			<li itemprop="url"><a href="/current-threats/what-is-a-zero-day-exploit.html" itemprop="name">What is a Zero-Day Exploit?</a></li>
+			<li itemprop="url"><a href="/current-threats/cost-of-a-data-breach.html" itemprop="name">Cost of a Data Breach</a></li>
+			<li itemprop="url"><a href="/current-threats/next-generation-endpoint-security.html" itemprop="name">Next-Generation Endpoint Security</a></li>
+			<li itemprop="url"><a href="/current-threats/what-is-cyber-security/ransomware.html" itemprop="name">Ransomware: the Tool of Choice for Cyber Extortion</a></li>
+			</ul></div>
+
+</div>
+</div></div>
+	</div>
+	<!-- MegaMenu Call to Action --></div>
+</div>
+
+</div>
+</div>
+				</li></ul>
+			</div>
+			<div class="n03_nav-secondary" id="n03-secondary">
+				<ul class="n03_list"><li class="n03_list-item is-secondary">
+					<!-- /content/fireeye-www/en_US/blog.html || /content/fireeye-www/en_US/partners.html -->
+					<div class="n03_list-item-sub_wrap">
+						<h4 class="n03_list-item-title">
+							<a href="/partners.html" itemprop="url">Partners</a>
+						</h4>
+						<!-- Sling Include -->
+						<div class="parsys content-4-par"><div class="megamenus section"><!-- MegaMenu Container: data-component-version="1.4" -->
+<!-- MegaMenu Sub-navigation -->
+<div class="n03_list-item-sub">
+	<div class="n03-sub_container">
+		<div class="n03-sub_table"><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/partners.html" itemprop="name">FireEye Partners</a></h4><ul><li itemprop="url"><a href="/partners/resellers.html" itemprop="name">Value-Add Resellers</a></li>
+			<li itemprop="url"><a href="/partners/strategic-technology-partners.html" itemprop="name">Strategic Alliance Partners</a></li>
+			<li itemprop="url"><a href="/partners/global-solution-providers.html" itemprop="name">Global Service Providers & MSSPs</a></li>
+			<li itemprop="url"><a href="/partners/alliance-partners.html" itemprop="name">Cyber Security Coalition</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Partner Resources</h4><ul><li itemprop="url"><a href="https://tfs.fireeye.com/" target="_blank" itemprop="name">Partner Enablement - The Fuel Station</a></li>
+			<li itemprop="url"><a href="http://partnerportal.fireeye.com/" target="_blank" itemprop="name">Partner Portal</a></li>
+			<li itemprop="url"><a href="/company/education.html" itemprop="name">Education Center</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/partners/partnering-with-fireeye.html" itemprop="name">Partnering with FireEye</a></h4><ul><li itemprop="url"><a href="https://www2.fireeye.com/Partner-Request-LP-New.html" target="_blank" itemprop="name">Become a Partner</a></li>
+			<li itemprop="url"><a href="/partners/partner-certifications-and-accreditations.html" itemprop="name">Partner Certifications and Accreditations</a></li>
+			</ul></div>
+
+</div>
+</div></div>
+	</div>
+	<!-- MegaMenu Call to Action --></div>
+</div>
+
+</div>
+</div>
+				</li><li class="n03_list-item is-secondary">
+					<!-- /content/fireeye-www/en_US/blog.html || /content/fireeye-www/en_US/support.html -->
+					<div class="n03_list-item-sub_wrap">
+						<h4 class="n03_list-item-title">
+							<a href="/support.html" itemprop="url">Support</a>
+						</h4>
+						<!-- Sling Include -->
+						<div class="parsys content-5-par"><div class="megamenus section"><!-- MegaMenu Container: data-component-version="1.4" -->
+<!-- MegaMenu Sub-navigation -->
+<div class="n03_list-item-sub">
+	<div class="n03-sub_container">
+		<div class="n03-sub_table"><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Get Support</h4><ul><li itemprop="url"><a href="https://csportal.fireeye.com/secur/login_portal.jsp?orgId=00D3000000063LS&portalId=06030000000pSNE" target="_blank" itemprop="name">Online Portal</a><em class="n03_xs"> (login)</em></li>
+			<li itemprop="url"><a href="/support/contacts.html" itemprop="name">Contact Support</a></li>
+			<li itemprop="url"><a href="/support/programs.html" itemprop="name">Programs</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Find Answers</h4><ul><li itemprop="url"><a href="https://community.fireeye.com/" target="_blank" itemprop="name">Communities</a></li>
+			<li itemprop="url"><a href="/support/products.html" itemprop="name">Supported Products</a></li>
+			<li itemprop="url"><a href="/support/notices.html" itemprop="name">Support Notices</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Documentation</h4><ul><li itemprop="url"><a href="https://docs.fireeye.com" target="_blank" itemprop="name">Documentation Portal</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Education</h4><ul><li itemprop="url"><a href="https://community.fireeye.com/community/training/course-catalog/" target="_blank" itemprop="name">Course Catalog</a></li>
+			</ul></div>
+
+</div>
+</div></div>
+	</div>
+	<!-- MegaMenu Call to Action --></div>
+</div>
+
+</div>
+</div>
+				</li><li class="n03_list-item is-secondary">
+					<!-- /content/fireeye-www/en_US/blog.html || /content/fireeye-www/en_US/company.html -->
+					<div class="n03_list-item-sub_wrap">
+						<h4 class="n03_list-item-title">
+							<a href="/company.html" itemprop="url">Company</a>
+						</h4>
+						<!-- Sling Include -->
+						<div class="parsys content-6-par"><div class="megamenus section"><!-- MegaMenu Container: data-component-version="1.4" -->
+<!-- MegaMenu Sub-navigation -->
+<div class="n03_list-item-sub">
+	<div class="n03-sub_container">
+		<div class="n03-sub_table"><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">About Us</h4><ul><li itemprop="url"><a href="/company/why-fireeye.html" itemprop="name">Why FireEye</a></li>
+			<li itemprop="url"><a href="/company/leadership.html" itemprop="name">Leadership</a></li>
+			<li itemprop="url"><a href="/company/board-of-directors.html" itemprop="name">Board of Directors</a></li>
+			<li itemprop="url"><a href="http://investors.fireeye.com/" target="_blank" itemprop="name">Investor Relations</a></li>
+			<li itemprop="url"><a href="/company/legal.html" itemprop="name">Legal Documentation</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">News & Events</h4><ul><li itemprop="url"><a href="/company/press-releases.html" itemprop="name">Press Releases</a></li>
+			<li itemprop="url"><a href="/company/newsroom.html" itemprop="name">Newsroom</a></li>
+			<li itemprop="url"><a href="/company/events.html" itemprop="name">Events</a></li>
+			<li itemprop="url"><a href="/company/webinars.html" itemprop="name">Webinars</a></li>
+			<li itemprop="url"><a href="/company/awards.html" itemprop="name">Awards and Honors</a></li>
+			</ul></div>
+
+</div>
+</div><!-- MegaMenu Column -->
+			<div class="n03-sub_cell">
+				<div class="parsys"><div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title">Careers</h4><ul><li itemprop="url"><a href="/company/jobs.html" itemprop="name">Job Opportunities</a></li>
+			<li itemprop="url"><a href="http://universityrelations.fireeye.com/" target="_blank" itemprop="name">University Relations</a></li>
+			</ul></div>
+<div class="megamenu-list section"><!-- MegaMenu List: data-component-version="1.8" -->
+<h4 class="n03-sub_title" itemprop="url"><a href="/company/contact-us.html" itemprop="name">Contact Us</a></h4></div>
+
+</div>
+</div></div>
+	</div>
+	<!-- MegaMenu Call to Action --></div>
+</div>
+
+</div>
+</div>
+				</li></ul>
+			</div>
+			<button class="n03_list-item_more" data-behavior="show-nav-more" role="button" type="button">Show More</button>
+		</nav>
+	</div>
+</div>
+	</div>
+<!-- Breadcrumbs (Base Page): data-component-version="1.4" -->
+
+<!-- Cookie Banner (Blog Page): data-component-version="1.2" --><div id="cookie-privacy-banner" style="display:none;">
+	<div class="l_container">
+		<div class="g">
+			<div class="g-u-1">
+				<div class="g-content">
+					<div class="cookie-banner">
+						<p class="cookie-text">
+							To give you the best possible experience, this site uses cookies.&nbsp; Find out more on <a href='/company/privacy.html' target='_blank'>how we use cookies</a>.<button type="button" class="cookie-button highlighted" onclick='javascript:onAccept();'>Accept</button>
+							<button type="button" class="cookie-button" onclick='javascript:onDecline();'>Decline</button>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="breadcrumb breadcrumbs"><!-- Breadcrumb: data-component-version="1.5" -->
+<div class="l_container is-full">
+	<div class="g02 g02v0" id="g02-breadcrumbs">
+		<div class="g02_container">
+			<div class="g02_content">
+				<ul class="list-inline g02_list" itemscope itemtype="http://schema.org/BreadcrumbList">
+					<li class="g02_list_item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Home</span></a><meta itemprop="position" content="1" /></li>
+		<li class="g02_list_item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a itemprop="item" href="/blog.html"><span itemprop="name">FireEye Blogs</span></a><meta itemprop="position" content="2" /></li>
+		<li class="g02_list_item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a itemprop="item" href="/blog/threat-research.html"><span itemprop="name">Threat Research Blog</span></a><meta itemprop="position" content="3" /></li>
+		<li class="g02_list_item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><span itemprop="name">RIPPER ATM Malware and the 12 Million Baht Jackpot<meta itemprop="position" content="6" /></span>
+		</ul>
+				</div>
+		</div>
+	</div>
+</div>
+</div>
+<!-- Blog Page Content -->
+<main class="l_main" role="main">
+	<div class="l_container">
+		<div class="g">
+			<div class="g-u-17-24 ml_g-u-1">
+				<div class="g-content">
+					<div class="main blog"><!-- Blog Main --><div itemscope itemtype="http://schema.org/BlogPosting">
+		<div class="summary entrytextteaser"><!-- Blog Entry Text Teaser -->
+</div>
+<div class="entrytitle title"><!-- Blog Entry Title -->
+<!-- fireeye-blog-tags:malware-analysis --><!-- fireeye-blog-tags:cyber-crime --><!-- fireeye-blog-tags:financial-industry --><!-- fireeye-blog-tags:financial-services --><!-- fireeye-blog-authors:daniel-regalado --><!-- fireeye-blog-tags:cybercrime --><!-- fireeye-blog-tags:fireeye --><!-- fireeye-blog-tags:attack --><!-- fireeye-blog-tags:malware --><!-- fireeye-blog-tags:latest --><!-- fireeye-blog-threat-research:threat-research --><h1 itemprop="headline" class="small">RIPPER ATM Malware and the 12 Million Baht Jackpot</h1>
+<div class="c00 c00v0 entry-meta-block selfClear">
+	<time class="entry-date" itemprop="datePublished" content="2016-08-27T03:45:00Z">August 26, 2016</time>
+	<span class="sep"> | </span>
+	<span class="by-author" itemscope itemptype="http://schema.org/Person"> by <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-authors/daniel-regalado" title="View all entries filed under 'Fireeye - Authors : Daniel Regalado'">Daniel Regalado</a><span class="sep"> | </span><a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-threat-research/threat-research" title="View all entries filed under 'Threat Research : Threat Research'">Threat Research</a><meta itemprop="author" content="Daniel Regalado" /></span>
+</div>
+</div>
+<div class="par parsys"><div class="entrytext section"><!-- Blog Entry Text --><div class="c00 c00v0" itemprop="articleBody">
+		<p>On Aug. 23, 2016, FireEye detected a potentially new ATM malware sample that used some interesting techniques not seen before. To add more fuel to an existing fire, the sample was uploaded to VirusTotal from an IP address in Thailand a couple of minutes before the Bangkok Post newspaper reported&nbsp;the theft of 12 million baht from ATMs at banks in Thailand.</p>
+<p>In this blog, FireEye Labs dissects this new ATM malware that we have dubbed&nbsp;<b>RIPPER</b> (due to the project name “ATMRIPPER” identified in the sample) and documents indicators that strongly suggest this piece of malware is the one used to steal from the ATMs at banks in Thailand.</p>
+<h4>Connection to previous ATM Malware</h4>
+<ul>
+<li>Targets the same ATM brand.</li>
+<li>The technique used to expel currency follows the same strategy (already documented) performed by the <a href="https://www.symantec.com/security_response/writeup.jsp?docid=2014-051213-0525-99&amp;tabid=2" style="font-size: 12px; line-height: 1.538;"><b>Padpin</b></a><span style="font-size: 12px; line-height: 1.538;"> (Tyupkin), </span><b style="font-size: 12px; line-height: 1.538;">SUCEFUL</b><span style="font-size: 12px; line-height: 1.538;"> and </span><a href="https://www.proofpoint.com/us/threat-insight/post/Meet-GreenDispenser" style="font-size: 12px; line-height: 1.538;"><b>GreenDispenser</b></a>.</li>
+<li>Similar to <b style="font-size: 12px; line-height: 1.538;">SUCEFUL</b>, it is able to control the Card Reader device to Read or Eject the card on demand.</li>
+<li>Can disable the local network interface, similar to capabilities of the <b style="font-size: 12px; line-height: 1.538;">Padpin </b>family.</li>
+<li>Uses the “sdelete” secure deletion tool, similar to <b style="font-size: 12px; line-height: 1.538;">GreenDispenser</b>, to remove forensic evidence.</li>
+<li>Enforces a limit of 40 bank notes per withdrawal consistently, which is the maximum allowed by the ATM vendor.</li>
+</ul>
+<h4>New features, capabilities, or behaviors in RIPPER</h4>
+<ul>
+<li>It targets three of the main ATM Vendors worldwide, which is a first.</li>
+<li>RIPPER interacts with the ATM by inserting a specially manufactured ATM card with an EMV chip that serves as the authentication mechanism. Although this technique was already used by the <a href="http://news.drweb.com/show/?i=4167&amp;lng=en" style="font-size: 12px; line-height: 1.538;"><b>Skimmer</b></a><span style="font-size: 12px; line-height: 1.538;"> family, it is an uncommon mechanism.</span></li>
+</ul>
+<h4>Similarities between RIPPER and the recent ATM theft in Thailand</h4>
+<p><img src="/content/dam/fireeye-www/blog/images/Ripper/Table3.png"></p>
+<h4>RIPPER analysis</h4>
+<p>MD5: 15632224b7e5ca0ccb0a042daf2adc13</p>
+<p><i>RIPPER Persistence:</i></p>
+<p>RIPPER can maintain persistence using two modes: either as standalone service or masquerading as a legitimate ATM process.</p>
+<p>RIPPER is installed as a service if called with the following arguments:</p>
+<p><b>service install</b></p>
+<p>Before creating the service, it will kill the process “dbackup.exe”, which is specific to one common ATM vendor:</p>
+<p><b>cmd /c taskkill /IM dbackup.exe /T /F</b></p>
+<p>Then it will replace the original dbackup.exe binary under c:\Windows\system32\ (if present) with itself.</p>
+<p>Finally it will install a persistent service with following attributes:</p>
+<p><img src="/content/dam/fireeye-www/blog/images/Ripper/Code1.png"></p>
+<p>RIPPER can delete the “DBackup Service” service if run with the following arguments:</p>
+<p><b>service remove</b></p>
+<p>RIPPER can stop or start the “DBackup Service” with the following arguments:</p>
+<p>“<b>service start” or “service stop”</b></p>
+<p>RIPPER also supports the following command line switches:</p>
+<p><b>/autorun</b>: Will Sleep for 10 minutes and then run in the background, waiting for interaction.</p>
+<p><b>/install</b>: RIPPER will replace the ATM software running on the ATM as follows:</p>
+<p>Upon execution, RIPPER will kill the processes running in memory for the three targeted ATM Vendors via the native Windows “taskkill” tool.</p>
+<p>RIPPER will examine the contents of directories associated with the targeted ATM vendors and will replace legitimate executables with itself. This technique allows the malware to maintain the legitimate program name to avoid suspicion.</p>
+<p>RIPPER will maintain persistence by adding itself to the \Run\FwLoadPm registry key (that might already exist as part of the vendor installation), passing the “/autorun” parameter that is understood by the malware, as seen in Figure 1.</p>
+<p><img src="/content/dam/fireeye-www/blog/images/Ripper/Fig1.PNG"></p>
+<p><span class="type-XS">Figure 1: Registry key added for persistency</span></p>
+<p><b>/uninstall</b>: RIPPER removes the registry keys created</p>
+<h4>Running without parameters</h4>
+<p>If RIPPER is executed without any parameters, it will perform the following actions:</p>
+<p>1.&nbsp;&nbsp;&nbsp;&nbsp; It will connect with the Cash Dispenser, Card Reader and the Pinpad. Since every ATM brand has its own unique devices names, RIPPER will identify the current devices installed by enumerating them under the following registry key:</p>
+<p><b>HKEY_USERS\.DEFAULT\XFS\LOGICAL_SERVICES\</b></p>
+<p>2.&nbsp;&nbsp;&nbsp;&nbsp; RIPPER will make sure the devices are available by querying their status (Figure 2), and if not available, will exit.</p>
+<p><img src="/content/dam/fireeye-www/blog/images/Ripper/Fig2.png"></p>
+<p><span class="type-XS">Figure 2: Querying the devices status via WFSGetInfo() API</span></p>
+<p>3.&nbsp;&nbsp;&nbsp;&nbsp; For the Dispenser it will obtain information such as the Cash Unit details to determine the number and type of available notes.</p>
+<p>4.&nbsp;&nbsp;&nbsp;&nbsp; Finally it starts two threads; the first of which will monitor the status of the ATM devices to make sure they are available and will read all the keystrokes received from the Pinpad device waiting to interact with the thieves (see step 7), as seen in Figure 3.</p>
+<p><img src="/content/dam/fireeye-www/blog/images/Ripper/Fig3.png"></p>
+<p><span class="type-XS">Figure 3: Monitoring Pinpad keystrokes</span></p>
+<p>5.&nbsp;&nbsp;&nbsp;&nbsp; The second thread monitors the Card Reader, and once a card is inserted it validates the EMV chip for authentication to the ATM Malware.</p>
+<p>6.&nbsp;&nbsp;&nbsp;&nbsp; Once a valid card with a malicious EMV chip is detected, RIPPER will instantiate a timer to allow a thief to control the machine. Figure 4 depicts the timer function.</p>
+<p><img src="/content/dam/fireeye-www/blog/images/Ripper/Fig4.png"></p>
+<p><span class="type-XS">Figure 4: Monitoring the Card Reader</span></p>
+<p>7.&nbsp;&nbsp;&nbsp;&nbsp; Once the thieves start interacting with RIPPER, they enter instructions via the Pinpad and multiple options are displayed, including methods for dispensing currency. Figure 5 depicts some of the options available to the thieves.</p>
+<p>a.&nbsp;&nbsp;&nbsp;&nbsp; <b>CLEAN LOGS</b>: Will clear the log stored at: C:\WINDOWS\temp\clnup.dat</p>
+<p>b.&nbsp;&nbsp;&nbsp;&nbsp; <b>HIDE</b>: Will hide the Malware GUI by calling ShowWindow() API.</p>
+<p>c.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>NETWORK DISABLE</b>: Will shut down the ATM local network interface to prevent it from communicating with the bank. It can re-enable the connection if needed.</p>
+<p><img src="/content/dam/fireeye-www/blog/images/Ripper/Fig5.png"></p>
+<p><span class="type-XS">Figure 5: Main Menu</span></p>
+<p>d.&nbsp;&nbsp;&nbsp;&nbsp; <b>REBOOT</b>: Will call ExitWindowsEX() API without sending WM_QUERYENDSESSION message to avoid prompts for confirmation, causing the system to reboot.&nbsp;</p>
+<p>e.&nbsp;&nbsp;&nbsp;&nbsp; <b>BACK</b>: Ejects the malicious ATM card back to the thieves by calling the WFSExecute() with the command: WFS_CMD_IDC_EJECT_CARD. This option, depicted in Figure 6, was observed being used by the SUCEFUL family.</p>
+<p><img src="/content/dam/fireeye-www/blog/images/Ripper/Fig6.png"></p>
+<p><span class="type-XS">Figure 6: Asking Card Reader to eject the chip card</span></p>
+<h4>Conclusion</h4>
+<p>Through open sources, we’ve identified a family of malware that may have been used in recent ATM robberies and which bears some similarities to known families of malware. This malware family can be used to compromise multiple vendor platforms and leverages uncommon technology to access physical devices. In addition to requiring technical sophistication, attacks such as that affecting the ATMs in Thailand require coordination of both the virtual and the physical. This speaks to the formidable nature of the thieves.</p>
+</div>
+	<div class="clear-all"></div></div>
+
+</div>
+<div class="metadata"><!-- Blog Metadata -->
+
+
+
+
+
+
+
+<p class="postmetadata alt">
+    <small>
+        This entry was posted on Fri Aug 26 23:45:00 EDT 2016 and filed under <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/attack" title="View all entries filed under 'Fireeye - Blog Tags : Attack'">Attack</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/cyber-crime" title="View all entries filed under 'Fireeye - Blog Tags : Cyber Crime'">Cyber Crime</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/cybercrime" title="View all entries filed under 'Fireeye - Blog Tags : Cybercrime'">Cybercrime</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-authors/daniel-regalado" title="View all entries filed under 'Fireeye - Authors : Daniel Regalado'">Daniel Regalado</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/financial-services" title="View all entries filed under 'Fireeye - Blog Tags : Financial Services'">Financial Services</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/fireeye" title="View all entries filed under 'Fireeye - Blog Tags : FireEye'">FireEye</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/latest" title="View all entries filed under 'Fireeye - Blog Tags : Latest Blog Posts'">Latest
+  Blog Posts</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/malware" title="View all entries filed under 'Fireeye - Blog Tags : Malware'">Malware</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/malware-analysis" title="View all entries filed under 'Fireeye - Blog Tags : Malware Analysis'">Malware Analysis</a>, <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-threat-research/threat-research" title="View all entries filed under 'Threat Research : Threat Research'">Threat Research</a>
+ and <a href="/blog/threat-research.html/category/etc/tags/fireeye-blog-tags/financial-industry" title="View all entries filed under 'Fireeye - Blog Tags : financial industry'">financial industry</a>.
+    </small>
+</p>
+
+<span data-tracking="{event:'blogEntryView', values:{'blogEntryContentType': 'blog',
+                                'blogEntryUniqueID': 'http:\/\/prod.fireeye.com\/blog\/threat\-research\/2016\/08\/ripper_atm_malwarea.html',
+                                'blogEntryTitle': 'RIPPER ATM Malware and the 12 Million Baht Jackpot',
+                                'blogEntryAuthor':'Daniel Regalado',
+                                'blogEntryAddDate':'Fri Aug 26 23:45:00 EDT 2016',
+                                'blogEntryModificationDate':'Fri Aug 26 23:45:00 EDT 2016',
+                                'blogEntryComentsCount':'0',
+                                'blogEntryTags':'attack,cyber\-crime,cybercrime,daniel\-regalado,financial\-services,fireeye,latest,malware,malware\-analysis,threat\-research,financial\-industry',
+                                'blogEntryPath':'\/content\/fireeye\-www\/en_US\/blog\/threat\-research\/2016\/08\/ripper_atm_malwarea\/jcr:content\/metadata',
+                                'blogEntryPageLanguage':'en_US'}, componentPath:'social/blog/components/metadata'}">
+</span>
+</div>
+</div></div>
+</div>
+			</div>
+			<div id="sidebar" class="g-u-7-24 ml_g-u-1 blog-sidebar">
+				<div class="g-content">
+					<div class="sidebar parsys iparsys"><div class="section"><div class="new"></div>
+</div><div class="iparys_inherited"><div class="sidebar parsys iparsys"><div class="reference parbase section"><!-- Reference: data-component-version="1.1" -->
+<div style="display:inline;" class="cq-dd-paragraph"><div class="htmlpassthru_6225 htmlpassthru"><!-- HTML Passthru: data-component-version="1.4" -->
+
+<div style="padding:10px;border:solid #777 1px;border-radius: 8px;box-shadow: 3px 3px 2px;margin-bottom:20px; background-color:#FFFFFF;">
+	<h2><span style="padding-left:20px;">Sign up for</span> <br><span style="padding-left:40px;"">Email Updates</span></h2>
+	<script src="//app-sji.marketo.com/js/forms2/js/forms2.min.js"></script>
+<form id="mktoForm_3353"></form>
+ 
+<script>
+MktoForms2.loadForm("//app-sji.marketo.com", "848-DID-242", 3353,
+                                function(form) {
+                                                            var formEl = form.getFormElem()[0];
+                                                      
+                                                             form.onSuccess(function(vals, thankYouURL) {
+                                                                                          var thanksEl = document.createElement('DIV');
+                                                                                          thanksEl.innerHTML = 'Thank you for subscribing. You will receive emails as new content is posted.';
+                                                                                          formEl.parentNode.replaceChild(thanksEl, formEl);
+ 
+                                                                                          return false;
+                                                                });
+                                });
+</script>
+</div>
+
+<style type="text/css">
+div.authors li.categories {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+</style></div>
+</div></div>
+<div class="section htmlpassthru"><!-- HTML Passthru: data-component-version="1.4" -->
+
+<script type="text/javascript">
+//<![CDATA[
+if (cookiesOK != "decline") {
+
+document.write("<img src='https://pixel.mathtag.com/event/img?mt_id=836295&mt_adid=144176&v1=&v2=&v3=&s1=&s2=&s3=' width='1' height='1' />");
+
+// ]]>
+</script></div>
+<div class="parbase rssfeed section"><!-- RSS Feed: data-component-version="1.0" --><a href="/content/fireeye-www/en_US/blog/threat-research/_jcr_content.feed" target="_blank"><img src="/content/dam/legacy/images/blog/rss.png"/></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+			</div>
+		</div>
+	</div>
+</main>
+<!-- Footer (Base Page): data-component-version="1.5" --><!-- Sling Include /content/fireeye-www/site-content/en_US/footer/jcr:content/parsys-navigation/footer_f635 -->
+	<div class="footer_f635 footer"><!-- Footer: data-component-version="1.5" -->
+<!-- Footer Navigation -->
+<div class="l_container is-full" id="g03-footer">
+	<footer class="l_footer g03 g03v0 g03-4col">
+		<div class="l_footer-content"><!-- Footer Column -->
+			<div class="g03_list">
+				<div class="parsys"><div class="footer-list section"><!-- Footer List: data-component-version="1.4" -->
+<ul class="g03_block"><li class="g03_item"><a href="/products.html">Products</a></li>
+			<li class="g03_item"><a href="/solutions.html">Solutions</a></li>
+			<li class="g03_item"><a href="/services.html">Mandiant Consulting</a></li>
+			<li class="g03_item"><a href="/current-threats.html">Current Threats</a></li>
+			<li class="g03_item"><a href="/partners.html">Partners</a></li>
+			<li class="g03_item"><a href="/support.html">Support</a></li>
+			</ul></div>
+
+</div>
+</div><!-- Footer Column -->
+			<div class="g03_list">
+				<div class="parsys"><div class="footer-list section"><!-- Footer List: data-component-version="1.4" -->
+<ul class="g03_block"><li class="g03_item"><a href="/company.html">Company</a></li>
+			<li class="g03_item"><a href="/company/jobs.html">Careers</a></li>
+			<li class="g03_item"><a href="/company/press-releases.html">Press Releases</a></li>
+			<li class="g03_item"><a href="/company/webinars.html">Webinars</a></li>
+			<li class="g03_item"><a href="/company/events.html">Events</a></li>
+			<li class="g03_item"><a href="http://investors.fireeye.com/" target="_blank">Investor Relations</a></li>
+			</ul></div>
+
+</div>
+</div><!-- Footer Column -->
+			<div class="g03_list">
+				<div class="parsys"><div class="footer-list section"><!-- Footer List: data-component-version="1.4" -->
+<ul class="g03_block"><li class="g03_item"><a href="/company/incident-response.html">Incident?</a></li>
+			<li class="g03_item"><a href="/company/contact-us.html">Contact Us</a></li>
+			<li class="g03_item"><a href="https://www2.fireeye.com/manage-your-preferences.html" target="_blank">Communication Preferences</a></li>
+			<li class="g03_item"><a href="/company/security.html">Report Security Issue</a></li>
+			<li class="g03_item"><a href="/company/supplier.html">Supplier Documents</a></li>
+			<li class="g03_item"><a href="/company/legal.html">Legal Documentation</a></li>
+			</ul></div>
+
+</div>
+</div><!-- Footer Column -->
+			<div class="g03_list">
+				<div class="parsys"><div class="followus-footer section"><!-- Social Follow (Footer): data-component-version="1.9" --><ul class="g03_block g03-s" id="g03-followus-list"><li class="g03_item g03_item-s">
+		<a href="https://www.linkedin.com/company/fireeye" target="_blank">
+		<span class="g03-s-i ficon g03-s-i-li ficon-linkedin"></span>
+		<span class="g03-s_label">LinkedIn</span>
+		</a>
+	</li><li class="g03_item g03_item-s">
+		<a href="https://twitter.com/fireeye" target="_blank">
+		<span class="g03-s-i ficon g03-s-i-tw ficon-twitter2"></span>
+		<span class="g03-s_label">Twitter</span>
+		</a>
+	</li><li class="g03_item g03_item-s">
+		<a href="https://www.facebook.com/FireEye" target="_blank">
+		<span class="g03-s-i ficon g03-s-i-fb ficon-facebook2"></span>
+		<span class="g03-s_label">Facebook</span>
+		</a>
+	</li><li class="g03_item g03_item-s">
+		<a href="https://plus.google.com/+Fireeye/videos" target="_blank">
+		<span class="g03-s-i ficon g03-s-i-gp ficon-googleplus2"></span>
+		<span class="g03-s_label">Google+</span>
+		</a>
+	</li><li class="g03_item g03_item-s">
+		<a href="https://www.youtube.com/user/FireEyeInc" target="_blank">
+		<span class="g03-s-i ficon g03-s-i-yt ficon-youtube2"></span>
+		<span class="g03-s_label">YouTube</span>
+		</a>
+	</li><li class="g03_item g03_item-s">
+		<a href="https://itunes.apple.com/us/podcast/eye-on-security/id1073779629?mt=2" target="_blank">
+		<span class="g03-s-i ficon g03-s-i-pc ficon-podcast"></span>
+		<span class="g03-s_label">Podcasts</span>
+		</a>
+	</li><li class="g03_item g03_item-s">
+		<a href="http://www.glassdoor.com/Overview/Working-at-FireEye-EI_IE235161.11,18.htm" target="_blank">
+		<span class="g03-s-i ficon g03-s-i-gd ficon-glassdoor"></span>
+		<span class="g03-s_label">Glassdoor</span>
+		</a>
+	</li></ul>
+</div>
+<div class="section htmlpassthru"><!-- HTML Passthru: data-component-version="1.4" -->
+
+<strong>Contact Us:</strong><br>
+<span style="white-space: nowrap;">877-FIREEYE</span> <span style="white-space: nowrap;">(877-347-3393)</span></div>
+
+</div>
+</div><div class="g03_copyright">
+				<p class="g03_copyright_p">
+					Copyright&nbsp;&copy;&nbsp;2016&nbsp;FireEye, Inc.&nbsp;All rights reserved.&nbsp;<span class="g03-legal"><a href="/company/privacy.html">Privacy &amp; Cookies Policy</a> | <a href="/company/privacy-shield-commitment.html">Privacy Shield</a></span>
+				</p>
+			</div>
+		</div>
+	</footer>
+</div>
+</div>
+<!-- Footlibs (Blog Page): data-component-version="2.0" -->
+<script type="text/javascript" src="/etc/designs/fireeye-www/clientlibs_framework.js"></script>
+<script type="text/javascript" src="/etc/designs/fireeye-www/clientlibs_home.js"></script>
+<script type="text/javascript" src="/etc/designs/fireeye-www/clientlibs_footer.js"></script>
+<!-- Sling Include /content/fireeye-www/site-content/en_US/footlibs/jcr:content/grid-100-mid/htmlpassthru_c66c -->
+	<div class="htmlpassthru_c66c htmlpassthru"><!-- HTML Passthru: data-component-version="1.4" -->
+
+<script type="text/javascript" src="https://munchkin.marketo.net/munchkin.js"></script>
+<script type="text/javascript">
+// MKTO javascript
+jQuery(document).ready(function() {
+	mktoMunchkin("848-DID-242");
+});
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+if (cookiesOK != "decline") {
+
+	// Yahoo Gemini DOT tag
+	(function(w,d,t,r,u){
+		w[u]=w[u]||[];
+		w[u].push({'projectId':'10000','properties':{'pixelId':'435600'}});
+		var s=d.createElement(t);
+		s.src=r;
+		s.async=true;
+		s.onload=s.onreadystatechange=function(){
+			var y,rs=this.readyState,c=w[u];
+			if(rs&&rs!="complete"&&rs!="loaded"){
+				return
+			}
+			try{
+				y=YAHOO.ywa.I13N.fireBeacon;
+				w[u]=[];
+				w[u].push=function(p){y([p])};
+				y(c)
+			}
+			catch(e){}
+		};
+		var scr=d.getElementsByTagName(t)[0],par=scr.parentNode;
+		par.insertBefore(s,scr)
+	})(window,document,"script","https://s.yimg.com/wi/ytc.js","dotq");
+
+
+	// One Tag Conditional Container: FireEye (6639) | Main FireEye OneTag (5918)
+	var ft_onetag_5918 = {
+		ft_vars:{"ftXRef":"","ftXValue":"","ftXType":"","ftXName":"","ftXNumItems":"","ftXCurrency":"","U1":"","U2":"","U3":"","U4":"","U5":"","U6":"","U7":"","U8":"","U9":"","U10":"","U11":"","U12":"","U13":"","U14":"","U15":"","U16":"","U17":"","U18":"","U19":"","U20":""},
+		ot_dom:document.location.protocol+'//servedby.flashtalking.com',
+		ot_path:'/container/6639;55678;5918;iframe/?',
+		ot_href:'ft_referrer='+escape(document.location.href),
+		ot_rand:Math.random()*1000000,
+		ot_ref:document.referrer,
+		ot_init:function(){
+			var o=this,qs='',count=0,ns='';
+			for(var key in o.ft_vars){
+				qs+=(o.ft_vars[key]==''?'':key+'='+o.ft_vars[key]+'&');
+			}
+			count=o.ot_path.length+qs.length+o.ot_href+escape(o.ot_ref).length;
+			ns=o.ot_ns(count-2000);
+			document.write('<iframe style="position:absolute; visibility:hidden; width:1px; height:1px;" src="'+o.ot_dom+o.ot_path+qs+o.ot_href+'&ns='+ns+'&cb='+o.ot_rand+'"></iframe>');
+		},
+		ot_ns:function(diff){
+			if(diff>0){
+				var o=this,qo={},
+					sp=/(?:^|&)([^&=]*)=?([^&]*)/g,
+					fp=/^(http[s]?):\/\/?([^:\/\s]+)\/([\w\.]+[^#?\s]+)(.*)?/.exec(o.ot_ref),
+					ro={h:fp[2],p:fp[3],qs:fp[4].replace(sp,function(p1,p2,p3){if(p2)qo[p2]=[p3]})};
+				return escape(ro.h+ro.p.substring(0,10)+(qo.q?'?q='+unescape(qo.q):'?p='+unescape(qo.p)));
+			}else{
+				var o=this;
+				return escape(unescape(o.ot_ref));
+			}
+				}
+		}
+	ft_onetag_5918.ot_init();
+
+
+	// LeadLander javascript
+	var sf14gv = 16663; 
+	(function() { 
+		var sf14g = document.createElement('script');
+		sf14g.type = 'text/javascript';
+		sf14g.async = true; 
+		sf14g.src = 'https://t.sf14g.com/sf14g.js'; 
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(sf14g, s); 
+	})(); 
+}
+// ]]>
+
+// Google Code for Remarketing Tag
+var google_conversion_id = 1063990389;
+var google_custom_params = window.google_tag_params;
+var google_remarketing_only = true;
+</script>
+<script type="text/javascript" src="https://www.googleadservices.com/pagead/conversion.js"></script>
+<noscript>
+	<!-- Google Code for Remarketing Tag -->
+	<div style="display:inline;"><img height="1" width="1" style="border-style:none;" alt="" src="https://googleads.g.doubleclick.net/pagead/viewthroughconversion/1063990389/?value=0&amp;guid=ON&amp;script=0"/></div>
+	<!-- Just Media Code for remarketing tag -->
+	<img height="1" width="1" alt="" style="display:none;" src="//www.bizographics.com/collect/?pid=6572&fmt=gif"/>
+	</div>
+</noscript>
+</div>
+<div id="social-breadcrumbs"><!-- Social Share (Header): data-component-version="1.5" -->
+<span class="g02_share" id="g02-share-header">
+	<span class="g02_share_link">
+		<span class="ficon ficon-share"></span> 
+		<span class="g02_share_link_label">Share</span>
+	</span>
+	<div class="g02_share_buttons">
+		<!-- AddThis Button BEGIN -->
+		<div class="addthis_toolbox addthis_default_style" >
+			<a class="email_link ficon ficon-envelop3" href="mailto:info@fireeye.com"><span class="email_link_label">Email</span></a>
+			<a class="addthis_button_facebook_share at300b" fb:share:layout="button"></a>
+			<a class="addthis_button_tweet" tw:count="none"></a>
+			<a class="addthis_button_linkedin_counter" li:counter="none"></a>
+			<a class="addthis_button_google_plusone" g:plusone:size="tall" g:plusone:annotation="none"></a>
+		</div>
+		<script type="text/javascript">
+		//<![CDATA[
+		if (cookiesOK != "decline") {
+			llactid=16663;
+
+			(function() {
+				var addthis = document.createElement('script');
+				addthis.type = 'text/javascript';
+				addthis.async = true;
+				addthis.src = 'https://s7.addthis.com/js/300/addthis_widget.js#pubid=fewebadmin';
+				var addthiss = document.getElementsByTagName('script')[0];
+				addthiss.parentNode.insertBefore(addthis, addthiss);
+			})();
+		}
+		// ]]>
+		</script>
+		<!-- AddThis Button END -->
+	</div>
+</span>
+</div></body>
+</html>

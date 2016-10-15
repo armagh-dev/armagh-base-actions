@@ -41,7 +41,10 @@ module Armagh
 
       def to_hash
         h = {}
-        instance_variables.each { |v| h[v[1..-1]] = instance_variable_get(v) }
+        instance_variables.each do |v|
+          value = instance_variable_get(v)
+          h[v[1..-1]] = value unless value.nil?
+        end
         h
       end
 

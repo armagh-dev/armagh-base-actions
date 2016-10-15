@@ -119,8 +119,8 @@ module Armagh
       end
 
       def self.find_or_create_configuration( collection, name, values_for_create: {}, **args )
-        new_values = add_action_params( name, values )
-        super( collect, name, **args, values_for_create: new_values )
+        new_values = add_action_params( name, values_for_create )
+        super( collection, name, **args, values_for_create: new_values )
       end
 
       def with_locked_action_state( timeout = 10 )

@@ -3,9 +3,6 @@ Sheet1
 Sample Excel document.
 
 
-&quot;Today's scientists have substituted mathematics for experiments, and they wander off through equation after equation, and eventually build a structure which has no relation to reality.&quot; --Nikola Tesla
-
-
 Table 3x3 sample:
 
 Column1

@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="yes"?>
+<data>
+  <customer id="c2b03333356a">
+    <name>
+      <first>John</first>
+      <middle />
+      <last>Doe</last>
+    </name>
+    <address>
+      <street>51 Sample Rd</street>
+      <unit></unit>
+      <city>Happyville</city>
+      <state>YZ</state>
+      <zip>12345</zip>
+    </address>
+    <last_order_date></last_order_date>
+    <phone>555-123-4321</phone>
+    <test>Unused</test>
+  </customer>
+  <orders total="2">
+    <order id="4d08f9">
+      <item>Shampoo</item>
+      <description></description>
+      <total_price>29.99</total_price>
+      <shipping_method>2</shipping_method>
+    </order>
+    <order id="695d33">
+      <item>Conditioner</item>
+      <description></description>
+      <total_price>32.35</total_price>
+      <shipping_method></shipping_method>
+    </order>
+  </orders>
+</data>

@@ -1,0 +1,15 @@
+The fact that there are large numbers of vulnerabilities and exploits in major operating systems and large applications is no longer something known only by those in the security industry—as seen with the recent Shadow Brokers leak. Additionally, with market for applications and operating systems in the US$ billions, it should come as no surprise that threat actors are investing significant resources to take advantage of their vulnerabilities.
+
+Thank goodness we have security products to protect us.
+
+Yeah, right. We all know that it’s not the 98% you catch, but the 2% you miss that truly matters; and now—thanks to work by independent labs and researchers, we’ve learned that many of the security products installed to protect these operating systems and applications are prone to the same issues as the systems they’re supposed to protect. Take a look at Tavis Ormandy’s work through Project Zero on endpoint security products from Kaspersky, ESET, FireEye, and Trend Micro, for example. Ironic as this may be, his demonstration of security flaws within these products is not that surprising when you consider that the common denominator for all software development is people.
+
+Why trust security software to be written any more securely than document editor software or spreadsheet editor software? Yes, the purpose of the software is different (intrusion detection rather than editing words, for example), but use case doesn’t always drive design, and deadlines and work pressures are universal for all software developers. Greater protection requires a reduction in the attack surface, and utilizing sound best practices when developing software can make all the difference.
+
+The recent creation of CyberUL, a cyber version of Underwriters’ Laboratory with L0pht member and former Google employee Peiter Zatko (better known as Mudge) at the helm, could also significantly help in establishing universal standards for security requirements for security products (and the products they protect). While this is indeed progress, it is not without challenges and shouldn’t be seen as a panacea.
+
+Overall, awareness of security best practices, the need for additional standards, and the difference between malware and exploits has been good for the security industry. But security can be a bit like Russian nesting dolls (i.e., Matryoshka dolls). The deeper we go, the more we realize that there is still much that we don’t know. The Project Zero work cited above is a good example. Enterprise endpoint protection products have been around for more than 20 years, and we still have much to learn regarding their security.
+
+And things are about to get a lot more complicated. NSS Labs is evaluating more than fifty advanced endpoint protection (AEP) products for our 2016 AEP group test later this year.  A lot of system evaluation (and self-evaluation) is occurring in 2016, and both new industry darlings and security icons could be knocked down from their pedestals.
+
+Follow us on Twitter (@JsnPpp and @jayendra363) to keep informed as new research is released.

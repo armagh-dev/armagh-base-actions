@@ -17,7 +17,7 @@
 
 
 require_relative '../helpers/coverage_helper'
-require_relative '../helpers/fixture'
+require_relative '../helpers/fixture_helper'
 
 require 'test/unit'
 
@@ -30,18 +30,6 @@ class TestIntegrationPowerPoint < Test::Unit::TestCase
     set_fixture_dir('powerpoint')
   end
 
-  def test_to_search_text_ppt
-    binary = fixture('sample.ppt')
-    result = Armagh::Support::PowerPoint.to_search_text(binary)
-    assert_equal fixture('sample.ppt.search.txt', result), result
-  end
-
-  def test_to_display_text_ppt
-    binary = fixture('sample.ppt')
-    result = Armagh::Support::PowerPoint.to_display_text(binary)
-    assert_equal fixture('sample.ppt.display.txt', result), result
-  end
-
   def test_to_search_and_display_text_ppt
     binary = fixture('sample.ppt')
     result = Armagh::Support::PowerPoint.to_search_and_display_text(binary)
@@ -49,35 +37,11 @@ class TestIntegrationPowerPoint < Test::Unit::TestCase
                   fixture('sample.ppt.display.txt', result.last)], result
   end
 
-  def test_to_search_text_pptx
-    binary = fixture('sample.pptx')
-    result = Armagh::Support::PowerPoint.to_search_text(binary)
-    assert_equal fixture('sample.pptx.search.txt', result), result
-  end
-
-  def test_to_display_text_pptx
-    binary = fixture('sample.pptx')
-    result = Armagh::Support::PowerPoint.to_display_text(binary)
-    assert_equal fixture('sample.pptx.display.txt', result), result
-  end
-
   def test_to_search_and_display_text_pptx
     binary = fixture('sample.pptx')
     result = Armagh::Support::PowerPoint.to_search_and_display_text(binary)
     assert_equal [fixture('sample.pptx.search.txt', result.first),
                   fixture('sample.pptx.display.txt', result.last)], result
-  end
-
-  def test_to_search_text_pptm
-    binary = fixture('sample.pptm')
-    result = Armagh::Support::PowerPoint.to_search_text(binary)
-    assert_equal fixture('sample.pptm.search.txt', result), result
-  end
-
-  def test_to_display_text_pptm
-    binary = fixture('sample.pptm')
-    result = Armagh::Support::PowerPoint.to_display_text(binary)
-    assert_equal fixture('sample.pptm.display.txt', result), result
   end
 
   def test_to_search_and_display_text_pptm
