@@ -63,7 +63,7 @@ module Armagh
       define_parameter name: 'filetype_whitelist', description: 'List of file types that collection is allowed to collect', type: 'string_array', required: false, prompt: '[txt, pdf]'
       define_parameter name: 'filetype_blacklist', description: 'List of file types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[txt, pdf]'
       define_parameter name: 'mimetype_whitelist', description: 'List of mime types that collection is allowed to collect', type: 'string_array', required: false, prompt: '[text/html, text/plain]'
-      define_parameter name: 'mimetype_blacklist', description: 'List of mime types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[text/plain, text/plain]'
+      define_parameter name: 'mimetype_blacklist', description: 'List of mime types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[text/html, text/plain]'
 
 
       define_group_validation_callback callback_class: Armagh::Support::HTTP, callback_method: :validate

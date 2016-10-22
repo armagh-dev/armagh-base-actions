@@ -108,7 +108,7 @@ module Armagh
         new_values = Marshal.load( Marshal.dump( values ))
         new_values[ 'action' ] ||= {}
         new_values[ 'action' ][ 'name' ] ||= name
-        new_values[ 'action' ][ 'active' ] ||= true
+        new_values[ 'action' ][ 'active' ] = true unless new_values[ 'action' ].has_key?( 'active' )
 
         new_values
       end
