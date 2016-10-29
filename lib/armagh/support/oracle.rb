@@ -38,9 +38,7 @@ module Armagh
       class OracleError       < StandardError; end
       class InvalidQueryError < OracleError; end
 
-      module_function
-
-      def query(query, config)
+      def query_oracle(query, config)
         raise InvalidQueryError, "Query must be a String, instead: #{query.class}" unless query.is_a?(String)
         raise InvalidQueryError, 'Query cannot be empty' if query.strip.empty?
 

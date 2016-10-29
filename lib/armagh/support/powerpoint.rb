@@ -24,27 +24,26 @@ require_relative 'pdf'
 module Armagh
   module Support
     module PowerPoint
+      include PDF
 
-      class PowerPointError < StandardError; end
-      class NoTextError     < PowerPointError; end
+      class PowerPointError       < StandardError; end
+      class PowerPointNoTextError < PowerPointError; end
 
       POWERPOINT_TO_PDF_SHELL = %W(#{`which soffice`.strip} -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_powerpoint_file>)
 
-      module_function
-
-      def to_search_text(binary)
-        process_powerpoint(binary, :search)
+      def powerpoint_to_text(binary)
+        process_powerpoint(binary, :text)
       end
 
-      def to_display_text(binary)
+      def powerpoint_to_display(binary)
         process_powerpoint(binary, :display)
       end
 
-      def to_search_and_display_text(binary)
-        process_powerpoint(binary, :search, :display)
+      def powerpoint_to_text_and_display(binary)
+        process_powerpoint(binary, :text, :display)
       end
 
-      private_class_method def process_powerpoint(binary, *modes)
+      private def process_powerpoint(binary, *modes)
         result   = {}
         uuid     = SecureRandom.uuid
         work_dir = File.join(Dir.pwd, uuid)
@@ -65,18 +64,18 @@ module Armagh
         modes.each do |mode|
           result[mode] =
             case mode
-            when :search
-              PDF.to_search_text(pdf_binary)
+            when :text
+              pdf_to_text(pdf_binary)
             when :display
-              PDF.to_display_text(pdf_binary)
+              pdf_to_display(pdf_binary)
             end
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
       rescue Shell::MissingProgramError, PowerPointError
         raise
-      rescue PDF::NoTextError
-        raise NoTextError, 'Unable to extract text from PowerPoint document'
+      rescue PDFNoTextError
+        raise PowerPointNoTextError, 'Unable to extract text from PowerPoint document'
       rescue => e
         raise PowerPointError, e
       ensure

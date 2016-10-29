@@ -24,27 +24,20 @@ module Armagh
     module HTTP
       include Configh::Configurable
 
-      class HTTPError < StandardError;
-      end
-      class URLError < HTTPError;
-      end
-      class RedirectError < HTTPError;
-      end
-      class ConfigurationError < HTTPError;
-      end
-      class ConnectionError < HTTPError;
-      end
-      class MethodError < HTTPError;
-      end
-      class SafeError < HTTPError;
-      end
+      class HTTPError < StandardError; end
+      class URLError < HTTPError; end
+      class RedirectError < HTTPError; end
+      class ConfigurationError < HTTPError; end
+      class ConnectionError < HTTPError; end
+      class MethodError < HTTPError; end
+      class SafeError < HTTPError; end
 
       POST = 'post'.freeze
       GET = 'get'.freeze
 
       METHODS = [POST, GET]
 
-      define_parameter name: 'url', description: 'URL to collect from', type: 'populated_string', required: true, prompt: 'http://www.example.com/page'
+      define_parameter name: 'url', description: 'URL to collect from', type: 'populated_string', required: true, prompt: 'http://www.example.com:8080/page'
       define_parameter name: 'method', description: 'HTTP Method to use for collection (get or post)', type: 'populated_string', required: true, prompt: 'get or post', default: 'get'
       define_parameter name: 'fields', description: 'Fields to send as part of the request', type: 'hash', required: false, prompt: 'Hash of fields to send as part of the request', default: {}
       define_parameter name: 'headers', description: 'HTTP Headers to send as part of the request', type: 'hash', required: false, prompt: 'Hash of headers to send as part of the request', default: {}

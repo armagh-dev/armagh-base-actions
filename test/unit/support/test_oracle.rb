@@ -34,6 +34,7 @@ end
 require_relative '../../../lib/armagh/support/oracle'
 
 class TestOracle < Test::Unit::TestCase
+  include Armagh::Support::Oracle
 
   def setup
     cursor = mock('cursor')
@@ -51,23 +52,23 @@ class TestOracle < Test::Unit::TestCase
     @config.stubs(:oracle).returns(oracle)
   end
 
-  def test_query
-    Armagh::Support::Oracle.query('<sql statement>', @config) do |row|
+  def test_query_oracle
+    query_oracle('<sql statement>', @config) do |row|
       expected = {key: 'value'}
       assert_equal expected, row
     end
   end
 
-  def test_query_invalid
-    e = assert_raise Armagh::Support::Oracle::InvalidQueryError do
-      Armagh::Support::Oracle.query(nil, nil)
+  def test_query__oracle_invalid
+    e = assert_raise InvalidQueryError do
+      query_oracle(nil, nil)
     end
     assert_equal 'Query must be a String, instead: NilClass', e.message
   end
 
-  def test_query_empty
-    e = assert_raise Armagh::Support::Oracle::InvalidQueryError do
-      Armagh::Support::Oracle.query('', nil)
+  def test_query_oracle_empty
+    e = assert_raise InvalidQueryError do
+      query_oracle('', nil)
     end
     assert_equal 'Query cannot be empty', e.message
   end

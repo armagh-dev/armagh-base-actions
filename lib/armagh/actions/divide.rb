@@ -32,7 +32,7 @@ module Armagh
       include Encodable
       include Configh::Configurable
 
-      attr_accessor :source, :archive_file
+      attr_accessor :source
 
       def self.inherited( base )
         base.register_action
@@ -41,7 +41,6 @@ module Armagh
       def initialize( *args )
         super
         @source = nil
-        @archive_file = nil
       end
 
       # Doc is a CollectedDocument
@@ -56,7 +55,7 @@ module Armagh
 
         content_hash = {'bson_binary' => BSON::Binary.new(content)}
         action_doc = Documents::ActionDocument.new(document_id: SecureRandom.uuid, content: content_hash, metadata: metadata,
-                                                   docspec: docspec, source: @source, archive_file: @archive_file, new: true)
+                                                   docspec: docspec, source: @source, new: true)
         @caller.create_document(action_doc)
       end
     end

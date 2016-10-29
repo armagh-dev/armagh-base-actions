@@ -33,14 +33,14 @@ class TestPublish < Test::Unit::TestCase
       Object.send( :remove_const, :SubPublish )
     end
     Object.const_set :SubPublish, Class.new( Armagh::Actions::Publish )
-    SubPublish.define_default_input_type 'randomdoc'
-    SubPublish.define_output_docspec( 'type', 'published doctype', default_type: 'randomdoc', default_state: Armagh::Documents::DocState::PUBLISHED )
     @config_store = []
-    config = SubPublish.create_configuration( @config_store, 'set', {
-      'action' => { 'name' => 'mySubPublish' }
+    @config = SubPublish.create_configuration( @config_store, 'set', {
+      'action' => { 'name' => 'mySubPublish' },
+      'input'  => { 'docspec' => 'the_doctype:ready' },
+      'output' => { 'docspec' => 'the_doctype:published' }
       })
     
-    @publish_action = SubPublish.new( @caller, 'logger_name', config, @collection )
+    @publish_action = SubPublish.new( @caller, 'logger_name', @config, @collection )
   end
 
   def test_unimplemented_publish
@@ -52,52 +52,24 @@ class TestPublish < Test::Unit::TestCase
       Object.send( :remove_const, :SubPublish )
     end
     Object.const_set :SubPublish, Class.new( Armagh::Actions::Publish )
-    SubPublish.define_default_input_type 'randomdoc'
-    SubPublish.define_output_docspec( 'type1', 'published doctype', default_type: 'randomdoc', default_state: Armagh::Documents::DocState::PUBLISHED )
-    SubPublish.define_output_docspec( 'type2', 'published doctype', default_type: 'randomdoc', default_state: Armagh::Documents::DocState::PUBLISHED )
-    e = assert_raises( Configh::ConfigInitError) {
-      config = SubPublish.create_configuration( @config_store, 'wnop', { 'action' => { 'name' => 'mySubPublish' } })
+    e = assert_raises( Armagh::Actions::ConfigurationError ) {
+      SubPublish.define_output_docspec( 'type', 'published doctype', default_type: 'randomdoc', default_state: Armagh::Documents::DocState::PUBLISHED )
     }
-    assert_equal "Unable to create configuration SubPublish wnop: Publish actions must have exactly one output type", e.message
+    assert_equal "The output docspec is already defined for you in a publish action.", e.message
     
   
     Object.send( :remove_const, :SubPublish )
     Object.const_set :SubPublish, Class.new( Armagh::Actions::Publish )
-    SubPublish.define_default_input_type 'randomdoc'
-     e = assert_raises( Configh::ConfigInitError) {
-      config = SubPublish.create_configuration( @config_store, 'whop', { 'action' => { 'name' => 'mySubPublish' } })
+     e = assert_raises( Armagh::Actions::ConfigurationError ) {
+       SubPublish.define_default_input_type 'randomdoc'
     }
-    assert_equal "Unable to create configuration SubPublish whop: Publish actions must have exactly one output type", e.message
-  end
-
-  def test_validate_invalid_out_state
- 
-    if Object.const_defined?( :SubPublish )
-      Object.send( :remove_const, :SubPublish )
-    end
-    Object.const_set :SubPublish, Class.new( Armagh::Actions::Publish )
-    SubPublish.define_default_input_type 'randomdoc'
-    SubPublish.define_output_docspec( 'type1', 'published doctype', default_type: 'randomdoc', default_state: Armagh::Documents::DocState::WORKING )
-    e = assert_raises( Configh::ConfigInitError) {
-      config = SubPublish.create_configuration( @config_store, 'vios', { 'action' => { 'name' => 'mySubPublish' } })
-    }
-    assert_equal "Unable to create configuration SubPublish vios: Output document state for a Publish action must be published.", e.message
-    
-  
-    Object.send( :remove_const, :SubPublish )
-    Object.const_set :SubPublish, Class.new( Armagh::Actions::Publish )
-    SubPublish.define_default_input_type 'randomdoc'
-    SubPublish.define_output_docspec( 'type1', 'published doctype', default_type: 'randomdoc', default_state: Armagh::Documents::DocState::READY )
-     e = assert_raises( Configh::ConfigInitError) {
-      config = SubPublish.create_configuration( @config_store, 'vios2', { 'action' => { 'name' => 'mySubPublish' } })
-    }
-    assert_equal "Unable to create configuration SubPublish vios2: Action can't have same doc specs as input and output,Output document state for a Publish action must be published.", e.message
+    assert_equal "The input docspec is already defined for you in a publish action.", e.message
   end
 
   def test_get_existing_published_document
-    docspec = Armagh::Documents::DocSpec.new('PublishDocument', Armagh::Documents::DocState::WORKING)
-    doc = Armagh::Documents::ActionDocument.new(document_id: 'id', content: {'content' => 'old'}, metadata: {'meta' => 'old'},
-                                                 docspec: docspec, source: {}, new: true)
+    doc = Armagh::Documents::ActionDocument.new(
+             document_id: 'id', content: {'content' => 'old'}, metadata: {'meta' => 'old'},
+             docspec: @config.output.docspec, source: {}, new: true)
 
     @caller.expects(:get_existing_published_document).with(doc)
     @publish_action.get_existing_published_document doc

@@ -41,13 +41,14 @@ module Armagh
       define_parameter name: 'host', description: 'SFTP host or IP', type: 'populated_string', required: true, prompt: 'host.example.com or 10.0.0.1'
       define_parameter name: 'port', description: 'SFTP port', type: 'positive_integer', required: true, default: 22
       define_parameter name: 'directory_path', description: 'SFTP base directory path', type: 'populated_string', required: true, default: './'
+      define_parameter name: 'create_directory_path', description: 'If the target directory does not exist, create it', type: 'boolean', required: true, default: false
       define_parameter name: 'filename_pattern', description: 'Glob file pattern', type: 'string', required: false, prompt: '*.pdf'
       define_parameter name: 'username', description: 'SFTP user name', type: 'populated_string', required: true, prompt: 'user'
       define_parameter name: 'password', description: 'SFTP user password', type: 'encoded_string', required: false, prompt: 'password'
       define_parameter name: 'key', description: 'SSH Key for SFTP connection', type: 'string', required: false, prompt: 'password'
       define_parameter name: 'maximum_transfer', description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
-
-      define_group_validation_callback callback_class: self, callback_method: :validate
+      
+      define_group_test_callback callback_class: self, callback_method: :test_connection
 
       def SFTP.archive_config
         return @archive_config if @archive_config
@@ -55,7 +56,7 @@ module Armagh
         sftp_config = {
           'host' => ENV['ARMAGH_ARCHIVE_HOST'],
           'directory_path' => ENV['ARMAGH_ARCHIVE_PATH'],
-          'username' => ENV['ARMAGH_ARCHIVE_USER'],
+          'username' => ENV['ARMAGH_ARCHIVE_USER'] || ENV['USER'],
         }
         sftp_config['port'] = ENV['ARMAGH_ARCHIVE_PORT'].to_i if ENV['ARMAGH_ARCHIVE_PORT']
 
@@ -63,7 +64,7 @@ module Armagh
           'sftp' => sftp_config})
       end
 
-      def SFTP.validate(candidate_config)
+      def SFTP.test_connection(candidate_config)
         error = nil
         begin
           Connection.open(candidate_config) do |sftp|
@@ -92,6 +93,7 @@ module Armagh
 
           @host = sc.host
           @directory_path = sc.directory_path
+          @create_directory_path = sc.create_directory_path
           @filename_pattern = sc.filename_pattern || '*'
           username = sc.username
           @maximum_number_to_transfer = sc.maximum_transfer
@@ -153,7 +155,7 @@ module Armagh
             attempts_this_file = 0
             begin
               attempts_this_file += 1
-              mkdir_p(parent)
+              mkdir_p(parent) if @create_directory_path
               @sftp.upload!(local_path, File.join(@directory_path, local_path))
               yield local_path, nil if block_given?
               File.delete local_path if File.exists? local_path
@@ -173,7 +175,7 @@ module Armagh
           attempts = 0
           begin
             attempts += 1
-            mkdir_p dest_dir
+            mkdir_p( dest_dir ) if @create_directory_path
             @sftp.upload!(src, File.join(@directory_path, dest_dir, src))
           rescue => e
             retry if attempts < 3
@@ -194,6 +196,7 @@ module Armagh
           test_file.write 'This is test content'
           test_file.close
           remote_file = File.join(@directory_path, File.basename(test_file.path))
+          mkdir_p('') if @create_directory_path
 
           @sftp.upload!(test_file.path, remote_file)
           sleep 1
@@ -201,8 +204,7 @@ module Armagh
           nil
         rescue => e
           error = convert_errors(e)
-          error = error&.message
-
+          error = "SFTP Connection Test Error: #{error.message}"
         ensure
           test_file.unlink if test_file
           return error
@@ -361,6 +363,7 @@ module Armagh
           connection_options[:password] = sc.password.plain_text if sc.password
 
           if sc.key
+
             File.write(KEY_FILE_NAME, sc.key)
             connection_options[:keys] = [KEY_FILE_NAME]
           end

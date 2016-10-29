@@ -95,73 +95,80 @@ class TestIntegrationFTPAction < Test::Unit::TestCase
     
     @base_config[ 'ftp'][ 'host' ] = "idontexist.kurmudgeon.edd"
     
-    e = assert_raises( Configh::ConfigInitError ) do
-      Armagh::Support::FTP.create_configuration( @config_store, 'baddom', @base_config )
+    config_obj = nil
+    assert_nothing_raised do
+      config_obj = Armagh::Support::FTP.create_configuration( @config_store, 'baddom', @base_config )
     end
-    assert_equal "Unable to create configuration Armagh::Support::FTP baddom: FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd", e.message
+    assert_equal( { "test_connection" => "FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd" }, config_obj.test_and_return_errors )
   end
   
   def test_fail_test_bad_host
     
     @base_config[ 'ftp' ][ 'host' ] = "idontexist.kurmudgeon.edu"
     
-    e = assert_raises( Configh::ConfigInitError ) do
-      Armagh::Support::FTP.create_configuration( @config_store, 'badhost', @base_config )
+    config_obj = nil
+    assert_nothing_raised do
+      config_obj = Armagh::Support::FTP.create_configuration( @config_store, 'badhost', @base_config )
     end
-    assert_equal "Unable to create configuration Armagh::Support::FTP badhost: FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu", e.message
+    assert_equal( { "test_connection" => "FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu" }, config_obj.test_and_return_errors )
   end
 
   def test_fail_test_nonexistent_user
     
     @base_config[ 'ftp'][ 'username' ] = "idontexisteither"
     
-    e = assert_raises( Configh::ConfigInitError ) do
-      Armagh::Support::FTP.create_configuration( @config_store, 'nonexuser', @base_config )
+    config_obj = nil
+    assert_nothing_raised do
+      config_obj = Armagh::Support::FTP.create_configuration( @config_store, 'nonexuser', @base_config )
     end
-    assert_equal "Unable to create configuration Armagh::Support::FTP nonexuser: FTP Connection Test error: Permissions failure when logging in as idontexisteither.", e.message
+    assert_equal( { "test_connection" => "FTP Connection Test error: Permissions failure when logging in as idontexisteither." }, config_obj.test_and_return_errors )
   end
 
   def test_fail_test_wrong_password
     
     @base_config[ 'ftp' ][ 'password' ] = Configh::DataTypes::EncodedString.from_plain_text "NotMyPassword"
     
-    e = assert_raises( Configh::ConfigInitError ) do
-      Armagh::Support::FTP.create_configuration( @config_store, 'wrongpass', @base_config )
+    config_obj = nil
+    assert_nothing_raised do
+      config_obj = Armagh::Support::FTP.create_configuration( @config_store, 'wrongpass', @base_config )
     end
-    assert_equal "Unable to create configuration Armagh::Support::FTP wrongpass: FTP Connection Test error: Permissions failure when logging in as ftptest.", e.message
+    assert_equal( { "test_connection" => "FTP Connection Test error: Permissions failure when logging in as ftptest." }, config_obj.test_and_return_errors )
   end
 
   def test_fail_test_blank_password
     
     @base_config[ 'ftp' ][ 'password' ] = Configh::DataTypes::EncodedString.from_plain_text "NotMyPassword"
     
-    e = assert_raises( Configh::ConfigInitError ) do
-      Armagh::Support::FTP.create_configuration( @config_store, 'blankpass', @base_config )
+    config_obj = nil
+    assert_nothing_raised do
+      config_obj = Armagh::Support::FTP.create_configuration( @config_store, 'blankpass', @base_config )
     end
     
-    assert_true [ "Unable to create configuration Armagh::Support::FTP blankpass: FTP Connection Test error: Permissions failure when logging in as ftptest.",
-                  "Unable to create configuration Armagh::Support::FTP blankpass: FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." 
-                ].include? e.message
+    assert_true [ "FTP Connection Test error: Permissions failure when logging in as ftptest.",
+                  "FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." 
+                ].include? config_obj.test_and_return_errors[ 'test_connection' ]
   end
   
   def test_fail_test_noexistent_directory
     
     @base_config[ 'ftp' ][ 'directory_path' ] = "no_such_dir"
 
-    e = assert_raises( Configh::ConfigInitError ) do
-      Armagh::Support::FTP.create_configuration( @config_store, 'nonexdir', @base_config )
+    config_obj = nil
+    assert_nothing_raised do
+      config_obj = Armagh::Support::FTP.create_configuration( @config_store, 'nonexdir', @base_config )
     end
-    assert_equal "Unable to create configuration Armagh::Support::FTP nonexdir: FTP Connection Test error: User does not have access to directory no_such_dir.", e.message
+    assert_equal( { "test_connection" => "FTP Connection Test error: User does not have access to directory no_such_dir." }, config_obj.test_and_return_errors )
   end    
     
   def test_fail_test_readonly_directory
     
     @base_config[ 'ftp' ][ 'directory_path' ] = "read_only_dir"
     
-    e = assert_raises( Configh::ConfigInitError ) do
-      Armagh::Support::FTP.create_configuration( @config_store, 'rodir', @base_config )
+    config_obj = nil
+    assert_nothing_raised do
+      config_obj = Armagh::Support::FTP.create_configuration( @config_store, 'rodir', @base_config )
     end
-    assert_equal "Unable to create configuration Armagh::Support::FTP rodir: FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server.", e.message
+    assert_equal( { "test_connection" => "FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server."}, config_obj.test_and_return_errors )
   end    
  
   def test_put_then_get_files

@@ -25,34 +25,36 @@ require 'fakefs/safe'
 require_relative '../../../lib/armagh/support/powerpoint'
 
 class TestPowerPoint < Test::Unit::TestCase
+  include Armagh::Support::PowerPoint
 
   def setup
     @binary = StringIO.new('fake PowerPoint document')
     FakeFS { File.write('random.pdf', 'fake PDF document') }
     SecureRandom.stubs(:uuid).at_most(1).returns('random')
     Armagh::Support::Shell.stubs(:call).at_most(2).returns('pdf')
-    Armagh::Support::PDF.stubs(:to_search_text).at_most(1).returns('search')
-    Armagh::Support::PDF.stubs(:to_display_text).at_most(1).returns('display')
+    self.stubs(:pdf_to_text).at_most(1).returns('text')
+    self.stubs(:pdf_to_display).at_most(1).returns('display')
   end
 
-  def test_to_search_text
-    assert_equal 'search', FakeFS { Armagh::Support::PowerPoint.to_search_text(@binary) }
+  def test_powerpoint_to_text
+    assert_equal 'text', FakeFS { powerpoint_to_text(@binary) }
   end
 
-  def test_to_display_text
-    assert_equal 'display', FakeFS { Armagh::Support::PowerPoint.to_display_text(@binary) }
+  def test_powerpoint_to_display
+    assert_equal 'display', FakeFS { powerpoint_to_display(@binary) }
   end
 
-  def test_to_search_and_display_text
-    assert_equal ['search',
-                  'display'], FakeFS { Armagh::Support::PowerPoint.to_search_and_display_text(@binary) }
+  def test_powerpoint_to_text_and_display
+    assert_equal ['text', 'display'], FakeFS { powerpoint_to_text_and_display(@binary) }
   end
 
-  def test_private_class_method_process_powerpoint
-    e = assert_raise NoMethodError do
-      Armagh::Support::PowerPoint.process_powerpoint(@binary, :search)
+  def test_powerpoint_to_text_no_text_content_error
+    Armagh::Support::Shell.stubs(:call).raises(Armagh::Support::PDF::PDFNoTextError)
+    self.stubs(:pdf_to_text).returns('')
+    e = assert_raise PowerPointNoTextError do
+      FakeFS { powerpoint_to_text(@binary) }
     end
-    assert_equal "private method `process_powerpoint' called for Armagh::Support::PowerPoint:Module", e.message
+    assert_equal 'Unable to extract text from PowerPoint document', e.message
   end
 
 end

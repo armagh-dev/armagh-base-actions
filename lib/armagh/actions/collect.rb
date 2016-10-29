@@ -82,7 +82,6 @@ module Armagh
         end
 
         divider = @caller.instantiate_divider(docspec)
-        archive_file = nil
 
         if divider
           docspec_param = divider.config.find_all_parameters{ |p| p.group == 'output' && p.name == docspec_name }.first
@@ -95,20 +94,23 @@ module Armagh
             File.write(collected_file, collected)
           end
 
-          archive_file = @caller.archive(@logger_name, @name, collected_file, metadata, source) if @config.collect.archive
+          @caller.archive(@logger_name, @name, collected_file, metadata, source) if @config.collect.archive
 
           collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
           divider.source = source
-          divider.archive_file = archive_file
           divider.divide(collected_doc)
           divider.source = nil
-          divider.archive_file = nil
         else
           content = File.file?(collected) ? File.read(collected) : collected
-          archive_file = @caller.archive(@logger_name, @name, collected_file, metadata, source) if @config.collect.archive
+
+          if @config.collect.archive
+            collected_file = SecureRandom.uuid
+            File.write(collected_file, content)
+            @caller.archive(@logger_name, @name, collected_file, metadata, source)
+          end
           content_hash = {'bson_binary' => BSON::Binary.new(content)}
           action_doc = Documents::ActionDocument.new(document_id: SecureRandom.uuid, content: content_hash, metadata: metadata,
-                                                     docspec: docspec, source: source, archive_file: archive_file, new: true)
+                                                     docspec: docspec, source: source, new: true)
           @caller.create_document(action_doc)
         end
       end
@@ -125,8 +127,11 @@ module Armagh
         errors << "Schedule '#{schedule}' is not valid cron syntax." unless Support::Cron.valid_cron?(schedule)
 
         if candidate_config.collect.archive
-          sftp_error = Support::SFTP.validate(Support::SFTP.archive_config)
-          errors << "Archive Configuration Error: #{sftp_error}" if sftp_error
+          begin
+            Support::SFTP.archive_config
+          rescue => e
+            errors << "Archive Configuration Error: #{e}"
+          end
         end
 
         errors.empty? ? nil : errors.join(', ')

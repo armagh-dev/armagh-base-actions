@@ -24,9 +24,9 @@ require 'bson'
 module Armagh
   module Documents
     class ActionDocument
-      attr_reader :document_id, :source, :content, :metadata, :title, :copyright, :docspec, :document_timestamp, :display, :archive_file
+      attr_reader :document_id, :source, :content, :metadata, :title, :copyright, :docspec, :document_timestamp, :display
 
-      def initialize(document_id:, title: nil, copyright: nil, content:, metadata:, docspec:, source:, document_timestamp: nil, display: nil, archive_file: nil, new: false)
+      def initialize(document_id:, title: nil, copyright: nil, content:, metadata:, docspec:, source:, document_timestamp: nil, display: nil, new: false)
         # Not checking the types here for 2 reasons - PublishDocument extends this while overwriting setters and custom actions dont create their own action documents.
         @document_id = document_id
         @title = title
@@ -37,7 +37,6 @@ module Armagh
         @source = source
         @document_timestamp = document_timestamp
         @display = display
-        @archive_file = archive_file
         @new = new ? true : false
       end
 
@@ -114,7 +113,6 @@ module Armagh
           'document_timestamp' => @document_timestamp,
           'docspec' => @docspec.to_hash,
           'display' => @display,
-          'archive_file' => @archive_file
         }.to_json
       end
 

@@ -24,27 +24,26 @@ require_relative 'pdf'
 module Armagh
   module Support
     module Word
+      include PDF
 
-      class WordError   < StandardError; end
-      class NoTextError < WordError; end
+      class WordError       < StandardError; end
+      class WordNoTextError < WordError; end
 
       WORD_TO_TEXT_SHELL = %W(#{`which soffice`.strip} -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_word_file>)
 
-      module_function
-
-      def to_search_text(binary)
-        process_word(binary, :search)
+      def word_to_text(binary)
+        process_word(binary, :text)
       end
 
-      def to_display_text(binary)
+      def word_to_display(binary)
         process_word(binary, :display)
       end
 
-      def to_search_and_display_text(binary)
-        process_word(binary, :search, :display)
+      def word_to_text_and_display(binary)
+        process_word(binary, :text, :display)
       end
 
-      private_class_method def process_word(binary, *modes)
+      private def process_word(binary, *modes)
         result   = {}
         uuid     = SecureRandom.uuid
         work_dir = File.join(Dir.pwd, uuid)
@@ -61,21 +60,22 @@ module Armagh
         Shell.call(command)
 
         pdf_binary = File.read(pdf_file, mode: 'rb')
+
         modes.each do |mode|
           result[mode] =
             case mode
-            when :search
-              PDF.to_search_text(pdf_binary)
+            when :text
+              pdf_to_text(pdf_binary)
             when :display
-              PDF.to_display_text(pdf_binary)
+              pdf_to_display(pdf_binary)
             end
-
-          raise NoTextError, 'Unable to extract text from Word document' if result[mode].empty?
         end
 
         modes.size == 1 ? result[modes.first] : [result[modes.first], result[modes.last]]
       rescue Shell::MissingProgramError, WordError
         raise
+      rescue PDFNoTextError
+        raise WordNoTextError, 'Unable to extract text from Word document'
       rescue => e
         raise WordError, e
       ensure

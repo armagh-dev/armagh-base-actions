@@ -27,8 +27,17 @@ module Armagh
       include Configh::Configurable
       define_group_validation_callback callback_class: Publish, callback_method: :report_validation_errors
 
-      def self.inherited(base)
+      def self.inherited( base )
         base.register_action
+        base.define_output_docspec 'docspec', 'the published document'
+
+        base.define_singleton_method( :define_default_input_type ){ |*args|
+          raise ConfigurationError, 'The input docspec is already defined for you in a publish action.'
+        }
+        
+        base.define_singleton_method( :define_output_docspec) { |*args|
+          raise ConfigurationError, 'The output docspec is already defined for you in a publish action.'
+        }
       end
       
       # Gets the published action document

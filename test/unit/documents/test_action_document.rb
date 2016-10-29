@@ -36,7 +36,6 @@ class TestActionDocument < Test::Unit::TestCase
     @title = 'title'
     @copyright = 'copyright'
     @display = 'display'
-    @archive_file = 'archive file'
 		@doc = Armagh::Documents::ActionDocument.new(document_id: @document_id,
                                                  content: @content,
                                                  metadata: @metadata,
@@ -45,8 +44,7 @@ class TestActionDocument < Test::Unit::TestCase
                                                  document_timestamp: @document_timestamp,
                                                  title: @title,
                                                  copyright: @copyright,
-                                                 display: @display,
-                                                 archive_file: @archive_file,)
+                                                 display: @display)
   end
 
   def test_document_id
@@ -116,10 +114,6 @@ class TestActionDocument < Test::Unit::TestCase
     assert_raise(TypeError){@doc.document_timestamp = 123}
   end
 
-  def test_archive_file
-    assert_equal(@archive_file, @doc.archive_file)
-  end
-
   def test_source
     assert_equal(@source, @doc.source)
     assert_raise(NoMethodError){@doc.source={}}
@@ -177,7 +171,6 @@ class TestActionDocument < Test::Unit::TestCase
         'document_timestamp' => @doc.document_timestamp,
         'docspec' => @doc.docspec.to_hash,
         'display' => @doc.display,
-        'archive_file' => @doc.archive_file
     }.to_json
     assert_equal(expected, @doc.to_json)
   end

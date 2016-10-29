@@ -25,6 +25,7 @@ require 'mocha/test_unit'
 require_relative '../../../lib/armagh/support/pdf'
 
 class TestPDF < Test::Unit::TestCase
+  include Armagh::Support::PDF
 
   def setup
     @binary = StringIO.new('fake PDF')
@@ -32,67 +33,45 @@ class TestPDF < Test::Unit::TestCase
     SecureRandom.stubs(:uuid).returns('file')
   end
 
-  def test_to_search_text
+  def test_pdf_to_text
     Armagh::Support::Shell.stubs(:call).once.returns('called')
-    assert_equal 'called', FakeFS { Armagh::Support::PDF.to_search_text(@binary) }
+    assert_equal 'called', FakeFS { pdf_to_text(@binary) }
   end
 
-  def test_display_text
+  def test_pdf_to_display
     Armagh::Support::Shell.stubs(:call).once.returns('called')
-    assert_equal 'called', FakeFS { Armagh::Support::PDF.to_display_text(@binary) }
+    assert_equal 'called', FakeFS { pdf_to_display(@binary) }
   end
 
-  def test_search_and_display_text
+  def test_pdf_to_text_and_display
     Armagh::Support::Shell.stubs(:call).twice.returns('called')
-    assert_equal ['called', 'called'],
-      FakeFS { Armagh::Support::PDF.to_search_and_display_text(@binary) }
+    assert_equal ['called', 'called'], FakeFS { pdf_to_text_and_display(@binary) }
   end
 
-  def test_ocr_no_text_content
+  def test_pdf_to_text_optical_character_recognition_no_text_content
     Armagh::Support::Shell.stubs(:call).twice.returns('')
-    e = assert_raise Armagh::Support::PDF::NoTextError do
-      FakeFS { Armagh::Support::PDF.to_search_text(@binary) }
+    e = assert_raise PDFNoTextError do
+      FakeFS { pdf_to_text(@binary) }
     end
     assert_equal 'Unable to extract PDF text content', e.message
   end
 
-  def test_ocr
+  def test_pdf_to_text_optical_character_recognition
     Armagh::Support::Shell.stubs(:call).times(4).returns('', 'Processing pages 1 through 1.')
-    assert_equal 'ocr text', FakeFS { Armagh::Support::PDF.to_search_text(@binary) }
+    assert_equal 'ocr text', FakeFS { pdf_to_text(@binary) }
   end
 
-  def test_timeout
-    Armagh::Support::Shell.stubs(:call).once.then.raises(Armagh::Support::PDF::TimeoutError)
-    assert_raise Armagh::Support::PDF::TimeoutError do
-      FakeFS { Armagh::Support::PDF.to_search_text(@binary) }
+  def test_pdf_to_text_timeout
+    Armagh::Support::Shell.stubs(:call).once.then.raises(TimeoutError)
+    assert_raise PDFTimeoutError do
+      FakeFS { pdf_to_text(@binary) }
     end
   end
 
   def test_sanitize_bullets_points
     bullets = "\uf0b7\uf0a7\uf076\uf0d8\uf0fc\uf0a8\uf0de\uf0e0"
     Armagh::Support::Shell.stubs(:call).once.returns(bullets)
-    assert_equal "\u2022" * bullets.size, FakeFS { Armagh::Support::PDF.to_search_text(@binary) }
-  end
-
-  def test_private_class_method_process_pdf
-    e = assert_raise NoMethodError do
-      Armagh::Support::PDF.process_pdf(@binary, :search)
-    end
-    assert_equal "private method `process_pdf' called for Armagh::Support::PDF:Module", e.message
-  end
-
-  def test_private_class_method_optical_character_recognition
-    e = assert_raise NoMethodError do
-      Armagh::Support::PDF.optical_character_recognition(@binary)
-    end
-    assert_equal "private method `optical_character_recognition' called for Armagh::Support::PDF:Module", e.message
-  end
-
-  def test_private_class_method_sanitize_bullet_points
-    e = assert_raise NoMethodError do
-      Armagh::Support::PDF.sanitize_bullet_points('anything')
-    end
-    assert_equal "private method `sanitize_bullet_points' called for Armagh::Support::PDF:Module", e.message
+    assert_equal "\u2022" * bullets.size, FakeFS { pdf_to_text(@binary) }
   end
 
 end

@@ -47,8 +47,9 @@ class TestSFTP < Test::Unit::TestCase
       'host' => 'localhost',
       'maximum_transfer' => 4,
       'directory_path' => '/',
+      'create_directory_path' => true,
       'password' => Configh::DataTypes::EncodedString.from_plain_text('password_123'),
-      'username' => 'test_user',
+      'username' => 'test_user'
     }
     @config_store = []
     @config = Armagh::Support::SFTP.create_configuration(@config_store, 'fred', {'sftp' => @config_values})
@@ -116,15 +117,18 @@ class TestSFTP < Test::Unit::TestCase
   def test_custom_validation
     Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection)
     Armagh::Support::SFTP::Connection.any_instance.expects(:close)
-    Armagh::Support::SFTP.create_configuration(@config_store, 'w', {'sftp' => @config_values})
+    config = Armagh::Support::SFTP.create_configuration(@config_store, 'w', {'sftp' => @config_values})
+    config.test_and_return_errors
   end
 
   def test_custom_validation_exception
     e = RuntimeError.new('ERROR!')
-    Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection).raises(e)
-    assert_raise(Configh::ConfigInitError) {
-      Armagh::Support::SFTP.create_configuration(@config_store, 'bad', {'sftp' => @config_values})
-    }
+    Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection).returns( 'boom')
+    config = nil
+    assert_nothing_raised do
+      config = Armagh::Support::SFTP.create_configuration(@config_store, 'bad', {'sftp' => @config_values})
+    end
+    assert_equal( { "test_connection" => "boom" }, config.test_and_return_errors)
   end
 
   def test_error_handler
@@ -356,13 +360,14 @@ class TestSFTP < Test::Unit::TestCase
   end
 
   def test_test_connection_bad
+    Armagh::Support::SFTP::Connection.any_instance.stubs(:mkdir_p)
     @mocked_sftp_lib.stubs(:upload!).raises(RuntimeError.new)
     stub_close
     result = 'placeholder'
     Armagh::Support::SFTP::Connection.open(@config) do |sftp|
       result = sftp.test_connection
     end
-    assert_equal 'Unexpected SFTP error from host : RuntimeError', result
+    assert_equal 'SFTP Connection Test Error: Unexpected SFTP error from host : RuntimeError', result
   end
 
   def test_mkdir_p
@@ -476,6 +481,7 @@ class TestSFTP < Test::Unit::TestCase
     FakeFS do
       Dir.mkdir('/tmp')
       c = Armagh::Support::SFTP.create_configuration(@config_store, 'sftpkey', {'sftp' => test_config_values}) { |sftp|}
+      c.test_and_return_errors
       assert_equal(c.sftp.key, File.read('.ssh_key'))
     end
   end

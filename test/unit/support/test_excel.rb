@@ -25,6 +25,7 @@ require 'fakefs/safe'
 require_relative '../../../lib/armagh/support/excel'
 
 class TestExcel < Test::Unit::TestCase
+  include Armagh::Support::Excel
 
   def setup
     @binary   = StringIO.new('fake Excel document')
@@ -38,40 +39,26 @@ class TestExcel < Test::Unit::TestCase
     SecureRandom.stubs(:uuid).at_most(1).returns('random')
   end
 
-  def test_search_text
-    assert_equal @text, FakeFS { Armagh::Support::Excel.to_search_text(@binary) }
+  def test_excel_to_text
+    assert_equal @text, FakeFS { excel_to_text(@binary) }
   end
 
-  def test_display_text
-    assert_equal @html, FakeFS { Armagh::Support::Excel.to_display_text(@binary) }
+  def test_excel_to_display
+    assert_equal @html, FakeFS { excel_to_display(@binary) }
   end
 
-  def test_search_and_display_text
-    assert_equal [@text, @html], FakeFS { Armagh::Support::Excel.to_search_and_display_text(@binary) }
+  def test_excel_to_text_and_display
+    assert_equal [@text, @html], FakeFS { excel_to_text_and_display(@binary) }
   end
 
-  def test_search_text_invalid_binary
+  def test_excel_to_text_invalid_binary
     error = 'E Unsupported file format.'
     Armagh::Support::Shell.unstub(:call)
     Armagh::Support::Shell.stubs(:call).raises(Armagh::Support::Shell::ShellError, error)
-    e = assert_raise Armagh::Support::Excel::ExcelError do
-      Armagh::Support::Excel.to_search_text(nil)
+    e = assert_raise ExcelError do
+      excel_to_text(nil)
     end
     assert_equal error, e.message
-  end
-
-  def test_private_class_method_process_excel
-    e = assert_raise NoMethodError do
-      Armagh::Support::Excel.process_excel(@binary, :search)
-    end
-    assert_equal "private method `process_excel' called for Armagh::Support::Excel:Module", e.message
-  end
-
-  def test_private_class_method_extract_text
-    e = assert_raise NoMethodError do
-      Armagh::Support::Excel.extract_text('anything', [:search])
-    end
-    assert_equal "private method `extract_text' called for Armagh::Support::Excel:Module", e.message
   end
 
 end

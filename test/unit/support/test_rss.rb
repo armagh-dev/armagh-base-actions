@@ -86,8 +86,8 @@ class TestRSS < Test::Unit::TestCase
   end
 
   def test_collect_bad_format
-    stub_request(:get, 'http://fake.url').to_return(body: '')
-    assert_raise(Armagh::Support::RSS::RSSParseError.new('Unable to parse RSS content from http://fake.url.  Poorly formatted feed.')) {
+    stub_request(:get, 'http://fake.url').to_return(body: 'gorp')
+    assert_raise(Armagh::Support::RSS::RSSParseError.new('Unable to parse RSS content from http://fake.url.  Poorly formatted feed. Response body: gorp')) {
       Armagh::Support::RSS.collect_rss(@config, @state) { |channel, item, content_str, type, timestamp, exception|}
     }
   end

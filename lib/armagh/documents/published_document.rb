@@ -95,7 +95,7 @@ module Armagh
       end
 
       private def protect(item)
-        item.dup.freeze
+        item.nil? ? nil : item.dup.freeze
       end
 
       alias_method :hash, :content

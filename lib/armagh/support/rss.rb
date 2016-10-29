@@ -109,7 +109,7 @@ module Armagh
         begin
           rss = SimpleRSS.parse(http_response['body'])
         rescue => e
-          raise RSSParseError, "Unable to parse RSS content from #{config.http.url}.  #{e}."
+          raise RSSParseError, "Unable to parse RSS content from #{config.http.url}.  #{e}. Response body: #{ http_response[ 'body' ]}"
         end
         rss
       end

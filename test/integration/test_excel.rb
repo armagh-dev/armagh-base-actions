@@ -25,47 +25,48 @@ require_relative '../../lib/armagh/support/excel'
 
 class TestIntegrationExcel < Test::Unit::TestCase
   include FixtureHelper
+  include Armagh::Support::Excel
 
   def setup
     set_fixture_dir('excel')
   end
 
-  def test_to_search_and_display_text_xls
+  def test_excel_to_text_and_display_xls
     binary = fixture('sample.xls')
-    result = Armagh::Support::Excel.to_search_and_display_text(binary)
+    result = excel_to_text_and_display(binary)
     assert_equal [fixture('sample.xls.search.txt', result.first),
                   fixture('sample.xls.display.txt', result.last)], result
   end
 
-  def test_to_search_and_display_text_xlsx
+  def test_excel_to_text_and_display_xlsx
     binary = fixture('sample.xlsx')
-    result = Armagh::Support::Excel.to_search_and_display_text(binary)
+    result = excel_to_text_and_display(binary)
     assert_equal [fixture('sample.xlsx.search.txt', result.first),
                   fixture('sample.xlsx.display.txt', result.last)], result
   end
 
-  def test_to_search_and_display_text_xlsm
+  def test_excel_to_text_and_display_xlsm
     binary = fixture('sample.xlsm')
-    result = Armagh::Support::Excel.to_search_and_display_text(binary)
+    result = excel_to_text_and_display(binary)
     assert_equal [fixture('sample.xlsm.search.txt', result.first),
                   fixture('sample.xlsm.display.txt', result.last)], result
   end
 
-  def test_to_search_text_invalid_document
-    e = assert_raise Armagh::Support::Excel::ExcelError do
-      Armagh::Support::Excel.to_search_text(nil)
+  def test_excel_to_text_invalid_document
+    e = assert_raise ExcelError do
+      excel_to_text(nil)
     end
     assert_match %r(E Unsupported file format\.), e.message
   end
 
-  def test_to_search_text_missing_program
-    program = Armagh::Support::Excel::EXCEL_TO_TEXT_SHELL[0]
-    Armagh::Support::Excel::EXCEL_TO_TEXT_SHELL[0] = 'missing_program'
+  def test_excel_to_text_missing_program
+    program = EXCEL_TO_TEXT_SHELL[0]
+    EXCEL_TO_TEXT_SHELL[0] = 'missing_program'
     e = assert_raise Armagh::Support::Shell::MissingProgramError do
-      Armagh::Support::Excel.to_search_text(StringIO.new('fake Excel document'))
+      excel_to_text(StringIO.new('fake Excel document'))
     end
     assert_equal 'Please install required program "missing_program"', e.message
-    Armagh::Support::Excel::EXCEL_TO_TEXT_SHELL[0] = program
+    EXCEL_TO_TEXT_SHELL[0] = program
   end
 
 end

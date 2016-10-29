@@ -24,68 +24,69 @@ require_relative '../../lib/armagh/support/pdf'
 
 class TestIntegrationPDF < Test::Unit::TestCase
   include FixtureHelper
+  include Armagh::Support::PDF
 
   def setup
     set_fixture_dir('pdf')
   end
 
-  def test_to_search_text
+  def test_pdf_to_text
     binary = fixture('sample.pdf')
-    result = Armagh::Support::PDF.to_search_text(binary)
+    result = pdf_to_text(binary)
     assert_equal fixture('sample.pdf.search.txt', result), result
   end
 
-  def test_to_display_text
+  def test_pdf_to_display
     binary = fixture('sample.pdf')
-    result = Armagh::Support::PDF.to_display_text(binary)
+    result = pdf_to_display(binary)
     assert_equal fixture('sample.pdf.display.txt', result), result
   end
 
-  def test_to_search_text_ocr
+  def test_pdf_to_text_ocr
     binary = fixture('rotated.pdf')
-    result = Armagh::Support::PDF.to_search_text(binary)
+    result = pdf_to_text(binary)
     assert_equal fixture('rotated.pdf.search.txt', result), result
   end
 
-  def test_to_search_text_table
+  def test_pdf_to_text_table
     binary = fixture('table.pdf')
-    result = Armagh::Support::PDF.to_search_text(binary)
+    result = pdf_to_text(binary)
     assert_equal fixture('table.pdf.search.txt', result), result
   end
 
-  def test_to_search_and_display_text
+  def test_pdf_to_text_and_display
     binary = fixture('datatables_sampleall.pdf')
-    result = Armagh::Support::PDF.to_search_and_display_text(binary)
+    result = pdf_to_text_and_display(binary)
     assert_equal [fixture('datatables_sampleall.pdf.search.txt', result.first),
                   fixture('datatables_sampleall.pdf.display.txt', result.last)], result
   end
 
-  def test_to_search_and_display_text_timeout
+  def test_pdf_to_text_and_display_timeout
     start = Time.now
     binary = fixture('rotated.pdf')
-    e = assert_raise Armagh::Support::PDF::TimeoutError do
-      Armagh::Support::PDF.to_search_and_display_text(binary, timeout: 1)
+    e = assert_raise PDFTimeoutError do
+      pdf_to_text_and_display(binary, timeout: 1)
     end
-    assert_equal 'Execution expired while processing PDF', e.message
+    assert_equal 'Execution expired while processing PDF document', e.message
     assert_in_delta 1, Time.now - start, 0.5
   end
 
-  def test_to_search_text_invalid_document
+  def test_pdf_to_text_invalid_document
     binary = fixture('sample.pdf.search.txt')
-    e = assert_raise Armagh::Support::PDF::PDFError do
-      Armagh::Support::PDF.to_search_text(binary)
+    e = assert_raise PDFError do
+      pdf_to_text(binary)
     end
     assert_match %r/May not be a PDF file/, e.message
   end
 
-  def test_to_search_text_missing_program
-    program = Armagh::Support::PDF::PDF_TO_TEXT_SHELL[0]
-    Armagh::Support::PDF::PDF_TO_TEXT_SHELL[0] = 'missing_program'
+  def test_pdf_to_text_missing_program
+    program = PDF_TO_TEXT_SHELL[0]
+    PDF_TO_TEXT_SHELL[0] = 'missing_program'
     e = assert_raise Armagh::Support::Shell::MissingProgramError do
-      Armagh::Support::PDF.to_search_text(StringIO.new('fake PDF document'))
+      pdf_to_text(StringIO.new('fake PDF document'))
     end
     assert_equal 'Please install required program "missing_program"', e.message
-    Armagh::Support::PDF::PDF_TO_TEXT_SHELL[0] = program
+    PDF_TO_TEXT_SHELL[0] = program
   end
 
 end

@@ -42,7 +42,7 @@ module Armagh
       define_parameter name: "read_timeout",     description: "Timeout (secs) reading on a connection",  type: 'positive_integer', required: true,  default: 60
       define_parameter name: "delete_on_put",    description: "Delete each file put to the remote",      type: 'boolean',          required: true,  default: false
 
-      define_group_validation_callback callback_class: Armagh::Support::FTP, callback_method: :test_connection
+      define_group_test_callback callback_class: Armagh::Support::FTP, callback_method: :test_connection
 
       def FTP.test_connection( config )
 

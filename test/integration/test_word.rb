@@ -25,47 +25,48 @@ require_relative '../../lib/armagh/support/word'
 
 class TestIntegrationWord < Test::Unit::TestCase
   include FixtureHelper
+  include Armagh::Support::Word
 
   def setup
     set_fixture_dir('word')
   end
 
-  def test_to_search_and_display_text_doc
+  def test_word_to_text_and_display_doc
     binary = fixture('sample.doc')
-    result = Armagh::Support::Word.to_search_and_display_text(binary)
+    result = word_to_text_and_display(binary)
     assert_equal [fixture('sample.doc.search.txt', result.first),
                   fixture('sample.doc.display.txt', result.last)], result
   end
 
-  def test_to_search_and_display_text_docx
+  def test_word_to_text_and_display_docx
     binary = fixture('sample.docx')
-    result = Armagh::Support::Word.to_search_and_display_text(binary)
+    result = word_to_text_and_display(binary)
     assert_equal [fixture('sample.docx.search.txt', result.first),
                   fixture('sample.docx.display.txt', result.last)], result
   end
 
-  def test_to_search_and_display_text_docm
+  def test_word_to_text_and_display_docm
     binary = fixture('sample.docm')
-    result = Armagh::Support::Word.to_search_and_display_text(binary)
+    result = word_to_text_and_display(binary)
     assert_equal [fixture('sample.docm.search.txt', result.first),
                   fixture('sample.docm.display.txt', result.last)], result
   end
 
-  def test_to_search_text_invalid_document
-    e = assert_raise Armagh::Support::Word::WordError do
-      Armagh::Support::Word.to_search_text(StringIO.new('not a Word document'))
+  def test_word_to_text_invalid_document
+    e = assert_raise WordError do
+      word_to_text(StringIO.new('not a Word document'))
     end
     assert_match %r/Document is empty$/, e.message
   end
 
-  def test_to_search_text_missing_program
-    program = Armagh::Support::Word::WORD_TO_TEXT_SHELL[0]
-    Armagh::Support::Word::WORD_TO_TEXT_SHELL[0] = 'missing_program'
+  def test_word_to_text_missing_program
+    program = WORD_TO_TEXT_SHELL[0]
+    WORD_TO_TEXT_SHELL[0] = 'missing_program'
     e = assert_raise Armagh::Support::Shell::MissingProgramError do
-      Armagh::Support::Word.to_search_text(StringIO.new('fake Word document'))
+      word_to_text(StringIO.new('fake Word document'))
     end
     assert_equal 'Please install required program "missing_program"', e.message
-    Armagh::Support::Word::WORD_TO_TEXT_SHELL[0] = program
+    WORD_TO_TEXT_SHELL[0] = program
   end
 
 end

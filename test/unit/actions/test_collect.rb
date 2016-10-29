@@ -75,7 +75,6 @@ class TestCollect < Test::Unit::TestCase
       defined_params.expects(:find_all_parameters).returns([docspec_param])
       divider.expects(:config).returns(defined_params)
       divider.expects(:source=).twice
-      divider.expects(:archive_file=).twice
 
       divider.expects(:divide).with() do |collected_doc|
         assert_true collected_doc.is_a?(Armagh::Documents::CollectedDocument)
@@ -98,7 +97,6 @@ class TestCollect < Test::Unit::TestCase
       defined_params.expects(:find_all_parameters).returns([docspec_param])
       divider.expects(:config).returns(defined_params)
       divider.expects(:source=).twice
-      divider.expects(:archive_file=).twice
       collected_file = 'filename'
       File.write(collected_file, @content)
 
@@ -112,6 +110,31 @@ class TestCollect < Test::Unit::TestCase
 
       @collect_action.create(collected_file, {'meta' => true}, 'output_type', @source)
     end
+  end
+
+  def test_create_archive
+    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
+    @caller.expects(:instantiate_divider).returns(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    uuid = 'some id'
+    meta = {'meta' => true}
+
+    SecureRandom.stubs(:uuid).returns(uuid)
+    @caller.expects(:archive).with(logger_name, action_name, uuid, meta, @source)
+    @caller.expects(:create_document)
+
+    config = SubCollect.create_configuration(@config_store, 'a', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true}
+    })
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    FakeFS do
+      @collect_action.create(@content, meta, 'output_type', @source)
+    end
+
   end
 
   def test_create_undefined_type
@@ -206,7 +229,6 @@ class TestCollect < Test::Unit::TestCase
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
 
     Armagh::Support::SFTP.expects(:archive_config).returns(nil)
-    Armagh::Support::SFTP.expects(:validate).returns(nil)
 
     assert_nothing_raised {
       SubCollect.create_configuration([], 'inoutstate', {
@@ -225,8 +247,7 @@ class TestCollect < Test::Unit::TestCase
     SubCollect.include Configh::Configurable
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
 
-    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
-    Armagh::Support::SFTP.expects(:validate).returns('INVALID')
+    Armagh::Support::SFTP.expects(:archive_config).raises(RuntimeError.new('INVALID'))
 
     assert_raises(Configh::ConfigInitError.new('Unable to create configuration SubCollect inoutstate: Archive Configuration Error: INVALID')) {
       SubCollect.create_configuration([], 'inoutstate', {

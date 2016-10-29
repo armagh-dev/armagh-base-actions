@@ -28,21 +28,19 @@ module Armagh
 
       EXCEL_TO_TEXT_SHELL = %W(#{`which ssconvert`.strip} -T Gnumeric_html:html40frag <input_excel_file> <output_html_file>)
 
-      module_function
-
-      def to_search_text(binary)
-        process_excel(binary, :search)
+      def excel_to_text(binary)
+        process_excel(binary, :text)
       end
 
-      def to_display_text(binary)
+      def excel_to_display(binary)
         process_excel(binary, :display)
       end
 
-      def to_search_and_display_text(binary)
-        process_excel(binary, :search, :display)
+      def excel_to_text_and_display(binary)
+        process_excel(binary, :text, :display)
       end
 
-      private_class_method def process_excel(binary, *modes)
+      private def process_excel(binary, *modes)
         result   = {}
         uuid     = SecureRandom.uuid
         xls_file = uuid + '.xls'
@@ -57,7 +55,7 @@ module Armagh
         Shell.call(command, ignore_error: ['WARNING', 'Unexpected element'],
                              catch_error: 'E Unsupported file format.')
 
-        result = extract_text(out_file, modes)
+        result = extract_excel_text(out_file, modes)
 
         if result[modes.first].empty? || result[modes.last].empty?
           raise NoTextError, 'Unable to extract text from Excel document'
@@ -72,8 +70,8 @@ module Armagh
         Dir.glob(uuid + '*').each { |file| File.delete(file) }
       end
 
-      private_class_method def extract_text(out_file, modes)
-        do_text = modes.include?(:search)
+      private def extract_excel_text(out_file, modes)
+        do_text = modes.include?(:text)
         do_html = modes.include?(:display)
 
         text  = '' if do_text
@@ -115,10 +113,10 @@ module Armagh
         end
 
         if do_text && do_html
-          {search:  text.strip,
+          {text:  text.strip,
            display: html}
         elsif do_text
-          {search:  text.strip}
+          {text:  text.strip}
         elsif do_html
           {display: html}
         end

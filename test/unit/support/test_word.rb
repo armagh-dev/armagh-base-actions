@@ -25,34 +25,36 @@ require 'fakefs/safe'
 require_relative '../../../lib/armagh/support/word'
 
 class TestWord < Test::Unit::TestCase
+  include Armagh::Support::Word
 
   def setup
     @binary = StringIO.new('fake Word document')
     FakeFS { File.write('random.pdf', 'fake PDF document') }
     SecureRandom.stubs(:uuid).at_most(1).returns('random')
     Armagh::Support::Shell.stubs(:call).at_most(2).returns('pdf')
-    Armagh::Support::PDF.stubs(:to_search_text).at_most(1).returns('search')
-    Armagh::Support::PDF.stubs(:to_display_text).at_most(1).returns('display')
+    self.stubs(:pdf_to_text).at_most(1).returns('text')
+    self.stubs(:pdf_to_display).at_most(1).returns('display')
   end
 
-  def test_to_search_text
-    assert_equal 'search', FakeFS { Armagh::Support::Word.to_search_text(@binary) }
+  def test_word_to_text
+    assert_equal 'text', FakeFS { word_to_text(@binary) }
   end
 
-  def test_to_display_text
-    assert_equal 'display', FakeFS { Armagh::Support::Word.to_display_text(@binary) }
+  def test_word_to_display
+    assert_equal 'display', FakeFS { word_to_display(@binary) }
   end
 
-  def test_to_search_and_display_text
-    assert_equal ['search',
-                  'display'], FakeFS { Armagh::Support::Word.to_search_and_display_text(@binary) }
+  def test_word_to_text_and_display
+    assert_equal ['text', 'display'], FakeFS { word_to_text_and_display(@binary) }
   end
 
-  def test_private_class_method_process_word
-    e = assert_raise NoMethodError do
-      Armagh::Support::Word.process_word(@binary, :search)
+  def test_word_to_text_no_text_content_error
+    Armagh::Support::Shell.stubs(:call).raises(Armagh::Support::PDF::PDFNoTextError)
+    self.stubs(:pdf_to_text).returns('')
+    e = assert_raise WordNoTextError do
+      FakeFS { word_to_text(@binary) }
     end
-    assert_equal "private method `process_word' called for Armagh::Support::Word:Module", e.message
+    assert_equal 'Unable to extract text from Word document', e.message
   end
 
 end
