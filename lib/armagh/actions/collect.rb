@@ -16,7 +16,6 @@
 #
 
 require 'bson'
-require 'securerandom'
 require 'configh'
 
 require_relative 'action'
@@ -26,7 +25,8 @@ require_relative '../support/sftp'
 module Armagh
   module Actions
 
-    class ConfigurationError < StandardError; end
+    class ConfigurationError < StandardError;
+    end
 
     class Collect < Action
       include Configh::Configurable
@@ -38,19 +38,19 @@ module Armagh
 
       COLLECT_DOCTYPE_PREFIX = '__COLLECT__'
 
-      def self.inherited( base )
+      def self.inherited(base)
         base.register_action
         base.define_default_input_type COLLECT_DOCTYPE_PREFIX
 
-        base.define_singleton_method( :define_default_input_type ){ |*args|
+        base.define_singleton_method(:define_default_input_type) { |*args|
           raise ConfigurationError, 'You cannot define default input types for collectors'
         }
       end
 
-      def self.add_action_params( name, values )
+      def self.add_action_params(name, values)
         new_values = super
-        new_values[ 'input' ] ||= {}
-        new_values[ 'input' ][ 'docspec' ] = "#{ COLLECT_DOCTYPE_PREFIX }#{new_values['action']['name']}:ready"
+        new_values['input'] ||= {}
+        new_values['input']['docspec'] = "#{ COLLECT_DOCTYPE_PREFIX }#{new_values['action']['name']}:ready"
 
         new_values
       end
@@ -63,7 +63,7 @@ module Armagh
       # Collected can either be a string or a filename
       # raises ActionDocuments::Errors::DocSpecError
       def create(collected, metadata, docspec_name, source)
-        docspec_param = @config.find_all_parameters{ |p| p.group == 'output' && p.name == docspec_name }.first
+        docspec_param = @config.find_all_parameters { |p| p.group == 'output' && p.name == docspec_name }.first
         docspec = docspec_param&.value
         raise Documents::Errors::DocSpecError, "Creating an unknown docspec #{docspec_name}" unless docspec
         raise Errors::CreateError, "Collect action content must be a String, was a #{collected.class}." unless collected.is_a?(String)
@@ -84,13 +84,13 @@ module Armagh
         divider = @caller.instantiate_divider(docspec)
 
         if divider
-          docspec_param = divider.config.find_all_parameters{ |p| p.group == 'output' && p.name == docspec_name }.first
+          docspec_param = divider.config.find_all_parameters { |p| p.group == 'output' && p.name == docspec_name }.first
           docspec = docspec_param&.value
 
           if File.file? collected
             collected_file = collected
           else
-            collected_file = SecureRandom.uuid
+            collected_file = random_id
             File.write(collected_file, collected)
           end
 
@@ -104,22 +104,22 @@ module Armagh
           content = File.file?(collected) ? File.read(collected) : collected
 
           if @config.collect.archive
-            collected_file = SecureRandom.uuid
+            collected_file = random_id
             File.write(collected_file, content)
             @caller.archive(@logger_name, @name, collected_file, metadata, source)
           end
           content_hash = {'bson_binary' => BSON::Binary.new(content)}
-          action_doc = Documents::ActionDocument.new(document_id: SecureRandom.uuid, content: content_hash, metadata: metadata,
+          action_doc = Documents::ActionDocument.new(document_id: random_id, content: content_hash, metadata: metadata,
                                                      docspec: docspec, source: source, new: true)
           @caller.create_document(action_doc)
         end
       end
 
-      def Collect.report_validation_errors( candidate_config )
+      def Collect.report_validation_errors(candidate_config)
 
         errors = []
         valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
-        candidate_config.find_all_parameters{ |p| p.group == 'output' }.each do |docspec_param|
+        candidate_config.find_all_parameters { |p| p.group == 'output' }.each do |docspec_param|
           errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
         end
 

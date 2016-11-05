@@ -118,11 +118,11 @@ class TestCollect < Test::Unit::TestCase
 
     logger_name = 'logger'
     action_name = 'mysubcollect'
-    uuid = 'some id'
+    random_id = 'some id'
     meta = {'meta' => true}
 
-    SecureRandom.stubs(:uuid).returns(uuid)
-    @caller.expects(:archive).with(logger_name, action_name, uuid, meta, @source)
+    Armagh::Support::Random.stubs(:random_id).returns(random_id)
+    @caller.expects(:archive).with(logger_name, action_name, random_id, meta, @source)
     @caller.expects(:create_document)
 
     config = SubCollect.create_configuration(@config_store, 'a', {

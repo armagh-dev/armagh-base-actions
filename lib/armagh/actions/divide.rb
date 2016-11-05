@@ -54,7 +54,7 @@ module Armagh
         raise Errors::CreateError, "Divider metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
 
         content_hash = {'bson_binary' => BSON::Binary.new(content)}
-        action_doc = Documents::ActionDocument.new(document_id: SecureRandom.uuid, content: content_hash, metadata: metadata,
+        action_doc = Documents::ActionDocument.new(document_id: random_id, content: content_hash, metadata: metadata,
                                                    docspec: docspec, source: @source, new: true)
         @caller.create_document(action_doc)
       end

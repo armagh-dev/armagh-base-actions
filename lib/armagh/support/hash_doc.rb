@@ -25,7 +25,6 @@ module Armagh
       class InvalidReferenceError    < HashDocError; end
       class InvalidEnumHashDocError  < HashDocError; end
       class InvalidConcatLayoutError < HashDocError; end
-      class AuditNotEnabledError     < HashDocError; end
       class MissingBlockError        < HashDocError
         attr_accessor :message
         def initialize() @message = 'No block given (yield)' end
@@ -52,6 +51,7 @@ module Armagh
         restore = @ref
         @ref = get_node(*nodes, allow_missing: allow_missing)
         yield
+      ensure
         @ref = restore
       end
 
@@ -70,6 +70,7 @@ module Armagh
           @ref = ref
           yield index + 1
         end
+      ensure
         @ref = restore
       end
 
@@ -144,12 +145,10 @@ module Armagh
         result
       end
 
-      def begin_audit
-        @audit = {}
-      end
-
       def audit
-        raise AuditNotEnabledError, 'Please enable auditing first by calling "begin_audit"' unless @audit
+        raise MissingBlockError unless block_given?
+        @audit = {}
+        yield
         process_audit
         audit = {}
         @audit.sort.each do |field, count|

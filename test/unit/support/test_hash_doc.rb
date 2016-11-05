@@ -20,7 +20,7 @@ require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 
-require_relative '../../../lib/armagh/support/hash'
+require_relative '../../../lib/armagh/support/hash_doc'
 
 class TestHashDoc < Test::Unit::TestCase
 
@@ -105,7 +105,7 @@ class TestHashDoc < Test::Unit::TestCase
   end
 
   def test_get_default_dot
-    expected = 'Pip'
+   expected = 'Pip'
     assert_equal expected, @doc.get('xml.book.author.address.apt', default: expected)
   end
 
@@ -230,6 +230,16 @@ class TestHashDoc < Test::Unit::TestCase
     end
   end
 
+  def test_with_ref_gets_reset_after_error
+    hash = {'root'=>{'key'=>'value'}}
+    doc = Armagh::Support::HashDoc.new(hash)
+    begin
+      doc.with('root') { raise }
+    rescue
+    end
+    assert_equal hash, doc.get
+  end
+
   #
   # loop
   #
@@ -297,6 +307,16 @@ class TestHashDoc < Test::Unit::TestCase
       @doc.loop('xml')
     end
     assert_equal 'No block given (yield)', e.message
+  end
+
+  def test_loop_ref_gets_reset_after_error
+    hash = {'root'=>{'key'=>'value'}}
+    doc = Armagh::Support::HashDoc.new(hash)
+    begin
+      doc.loop('root') { raise }
+    rescue
+    end
+    assert_equal hash, doc.get
   end
 
   #
@@ -451,8 +471,7 @@ class TestHashDoc < Test::Unit::TestCase
 
   def test_concat_address
     @doc.with('xml', 'book', 'author', 'address') do
-      assert_equal '37 American Dr, Fiction, AA  00000',
-        @doc.concat('@street, @apt, @city, @state  @zip')
+      assert_equal '37 American Dr, Fiction, AA  00000', @doc.concat('@street, @apt, @city, @state  @zip')
     end
   end
 
@@ -493,6 +512,31 @@ class TestHashDoc < Test::Unit::TestCase
 
   def test_find_all_source_not_hash
     assert_equal [], @doc.find_all('array', 'just a string')
+  end
+
+  #
+  # audit
+  #
+
+  def test_audit_no_block_given
+    e = assert_raise Armagh::Support::HashDoc::MissingBlockError do
+      @doc.audit
+    end
+    assert_equal 'No block given (yield)', e.message
+  end
+
+  def test_audit
+    result = @doc.audit do
+      @doc.get 'xml', 'book', 'author', 'name', 'lname'
+      @doc.get 'xml', 'book', 'chapter', 1, 'text'
+      @doc.get 'xml', 'book', 'chapter', 2, 'text'
+    end
+    expected = {
+      0=>["apt", "attr_number", "city", "empty_string", "fname", "mname", "number", "state", "street", "title", "year", "zip"],
+      1=>["lname"],
+      2=>["text"]
+    }
+    assert_equal expected, result
   end
 
 end

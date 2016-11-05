@@ -23,6 +23,7 @@ require_relative 'loggable'
 require_relative 'stateful'
 require_relative 'errors'
 require_relative '../documents'
+require_relative '../support/random'
 
 module Armagh
   module Actions
@@ -127,6 +128,9 @@ module Armagh
         super( @state_collection, timeout )
       end
 
+      def random_id
+        Armagh::Support::Random.random_id
+      end
     end
   end
 end

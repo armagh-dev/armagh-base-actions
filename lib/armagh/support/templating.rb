@@ -30,13 +30,13 @@ module Armagh
 
       module_function
 
-      def render_template(template_path, *mode, bind: binding())
-        mode = template_config(:supported_modes) if mode.empty?
-        process_modes(template_path, mode, bind)
+      def render_template(template_path, *mode, **context)
+        mode  = template_config(:supported_modes) if mode.empty?
+        process_modes(template_path, mode, context)
       end
 
-      def render_partial(template_path)
-        process_template(template_path, binding())
+      def render_partial(template_path, **context)
+        process_template(template_path, context)
       end
 
       def template_config(setting = nil, mode = nil)
@@ -136,7 +136,7 @@ module Armagh
         template_config(:block_end, mode)
       end
 
-      private_class_method def process_modes(template_path, mode, bind)
+      private_class_method def process_modes(template_path, mode, context)
         modes = []
         user_modes = Array(mode)
         supported_modes = template_config(:supported_modes)
@@ -150,12 +150,12 @@ module Armagh
         result = modes.size == 1 ? '' : []
         modes.each do |m|
           template_config(mode: m)
-          result << process_template(template_path, bind)
+          result << process_template(template_path, context)
         end
         result
       end
 
-      private_class_method def process_template(template_path, bind)
+      private_class_method def process_template(template_path, context)
         raise InvalidModeError, 'Did you try to render a partial template before mode(s) are set?' unless template_config(:mode)
         raise MissingTemplateError, 'Template file path cannot be blank' if template_path.to_s.strip.empty?
         raise MissingTemplateError, "Missing template file #{template_path.inspect}" unless File.exist?(template_path)
@@ -164,8 +164,7 @@ module Armagh
           pattern: template_config(:pattern),
           compact: template_config(:compact),
           trim:    template_config(:trim)
-        ).result(bind).strip
-
+        ).evaluate(context).strip
       rescue => e
         erubis_error = e.backtrace.first[/^.{0,1}erubis(:.*?)$/, 1]
         if erubis_error

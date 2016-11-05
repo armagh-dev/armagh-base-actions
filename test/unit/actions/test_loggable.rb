@@ -93,4 +93,9 @@ class TestLoggable < Test::Unit::TestCase
     @caller.expects(:notify_ops).with(@logger_name, @name, message)
     @loggable.notify_ops message
   end
+
+  def test_logger
+    @caller.expects(:get_logger).with(@logger_name)
+    @loggable.logger
+  end
 end

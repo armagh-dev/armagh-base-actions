@@ -51,6 +51,12 @@ module Armagh
       def notify_dev(error)
         @caller.notify_dev(@logger_name, @name, error)
       end
+
+      # Gets the logger for a given action
+      # @return Logger
+      def logger
+        @caller.get_logger(@logger_name)
+      end
             
     end
   end

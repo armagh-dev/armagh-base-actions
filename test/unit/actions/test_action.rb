@@ -118,5 +118,19 @@ class TestAction < Test::Unit::TestCase
     assert_equal [ 'subsplit_ds1', 'subsplit_ds2' ], SubSplit.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
     assert_equal [ 'subsplit2_ds1' ], SubSplit2.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
   end
+
+  def test_random_id
+    SubSplit.define_default_input_type 'some_doctype'
+    SubSplit.define_output_docspec('test_type1', 'do the hokey pokey')
+    SubSplit.define_output_docspec('test_type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
+    config = SubSplit.create_configuration( @config_store, 'defoutds', {
+      'action' => { 'name' => 'fred_the_action'},
+      'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
+    })
+    split = SubSplit.new( @caller, 'logger_name', config, @collection )
+    id = split.random_id
+    assert_equal(id, id.strip)
+    assert_match(/^\w{#{Armagh::Support::Random::RANDOM_ID_LENGTH}}$/, id)
+  end
     
 end

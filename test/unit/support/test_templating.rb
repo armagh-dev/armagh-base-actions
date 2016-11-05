@@ -30,19 +30,19 @@ class TestTemplating < Test::Unit::TestCase
     @partial_template = 'partial_template.erubis'
 
     template = <<-end.gsub(/^\s+\| /, '')
-      | {{=header 'Title'}}
-      | {{-block_begin}}
-      | {{=field 'Label', 'Value'}}
-      | {{-block_next}}
-      | {{=render_partial '#{@partial_template}'}}
-      | {{-block_end}}
+      | {{=Armagh::Support::Templating.header 'Title'}}
+      | {{-Armagh::Support::Templating.block_begin}}
+      | {{=Armagh::Support::Templating.field 'Label', 'Value'}}
+      | {{-Armagh::Support::Templating.block_next}}
+      | {{=Armagh::Support::Templating.render_partial '#{@partial_template}'}}
+      | {{-Armagh::Support::Templating.block_end}}
     end
     FakeFS { File.write(@template, template) }
 
     partial_template = <<-end.gsub(/^\s+\| /, '')
-      | {{=header 'Partial'}}
-      | {{=field 'Empty', ''}}
-      | {{=field 'Missing', nil}}
+      | {{=Armagh::Support::Templating.header 'Partial'}}
+      | {{=Armagh::Support::Templating.field 'Empty', ''}}
+      | {{=Armagh::Support::Templating.field 'Missing', nil}}
     end
     FakeFS { File.write(@partial_template, partial_template) }
 
@@ -82,32 +82,27 @@ class TestTemplating < Test::Unit::TestCase
   end
 
   def test_render_template_argument_error
-    FakeFS { File.write(@template, '{{=header}}') }
+    FakeFS { File.write(@template, '{{=Armagh::Support::Templating.header}}') }
     e = assert_raise ArgumentError do
       FakeFS { Armagh::Support::Templating.render_template(@template, :text) }
     end
     assert_equal 'wrong number of arguments (given 0, expected 1..2)', e.message
   end
 
-  def test_render_template_with_binding
-    FakeFS { File.write(@template, '{{=binding_test}}') }
-    assert_equal 'Binding was successful!',
-      FakeFS { Armagh::Support::Templating.render_template(@template, :text, bind: binding()) }
-  end
-
-  def test_render_template_bad_binding
-    FakeFS { File.write(@template, '{{=binding_test}}') }
-    e = assert_raise Armagh::Support::Templating::TemplateError do
-      FakeFS { Armagh::Support::Templating.render_template(@template, :text) }
+  def test_render_partial_with_context
+    FakeFS { File.write('partial.erubis', "{{=@letter.inspect}}") }
+    FakeFS { File.write(@template, '{{=@letter}}-{{=Armagh::Support::Templating.render_partial "partial.erubis", letter: @letter}}') }
+    ['a', 'b', 'c'].each do |letter|
+      assert_equal "#{letter}-#{letter.inspect}",
+        FakeFS { Armagh::Support::Templating.render_template(@template, :text, letter: letter) }
     end
-    assert_match %r/^undefined local variable or method `binding_test'/, e.message
   end
 
   def test_render_partial_nested
-    FakeFS { File.write('1.erubis', "Partial 1: {{=render_partial '2.erubis'}}") }
-    FakeFS { File.write('2.erubis', "Partial 2: {{=render_partial '3.erubis'}}") }
+    FakeFS { File.write('1.erubis', "Partial 1: {{=Armagh::Support::Templating.render_partial '2.erubis'}}") }
+    FakeFS { File.write('2.erubis', "Partial 2: {{=Armagh::Support::Templating.render_partial '3.erubis'}}") }
     FakeFS { File.write('3.erubis', 'Partial 3: Success!') }
-    FakeFS { File.write(@template, "Master: {{=render_partial '1.erubis'}}") }
+    FakeFS { File.write(@template, "Master: {{=Armagh::Support::Templating.render_partial '1.erubis'}}") }
     assert_equal 'Master: Partial 1: Partial 2: Partial 3: Success!',
       FakeFS { Armagh::Support::Templating.render_template(@template, :text) }
   end
@@ -158,57 +153,36 @@ class TestTemplating < Test::Unit::TestCase
   end
 
   def test_header
-    assert_equal Armagh::Support::Templating.template_config(:text_header),
-      Armagh::Support::Templating.header('@title', :text)
+    assert_equal Armagh::Support::Templating.template_config(:text_header), Armagh::Support::Templating.header('@title', :text)
   end
 
   def test_field_empty
-    assert_equal Armagh::Support::Templating.template_config(:html_field_empty),
-      Armagh::Support::Templating.field('@label', '   ', :html)
+    assert_equal Armagh::Support::Templating.template_config(:html_field_empty), Armagh::Support::Templating.field('@label', '   ', :html)
   end
 
   def test_field_missing
-    assert_equal Armagh::Support::Templating.template_config(:html_field_missing),
-      Armagh::Support::Templating.field('@label', nil, :html)
+    assert_equal Armagh::Support::Templating.template_config(:html_field_missing), Armagh::Support::Templating.field('@label', nil, :html)
   end
 
   def test_block_begin
-    assert_equal Armagh::Support::Templating.template_config(:html_block_begin),
-      Armagh::Support::Templating.block_begin(:html)
+    assert_equal Armagh::Support::Templating.template_config(:html_block_begin), Armagh::Support::Templating.block_begin(:html)
   end
 
   def test_block_next
-    assert_equal Armagh::Support::Templating.template_config(:html_block_next),
-      Armagh::Support::Templating.block_next(:html)
+    assert_equal Armagh::Support::Templating.template_config(:html_block_next), Armagh::Support::Templating.block_next(:html)
   end
 
   def test_block_from_int_1
-    assert_equal Armagh::Support::Templating.template_config(:html_block_begin),
-      Armagh::Support::Templating.block_from_int(1, :html)
+    assert_equal Armagh::Support::Templating.template_config(:html_block_begin), Armagh::Support::Templating.block_from_int(1, :html)
   end
 
   def test_block_from_int_2
-    assert_equal Armagh::Support::Templating.template_config(:html_block_next),
-      Armagh::Support::Templating.block_from_int(2, :html)
+    assert_equal Armagh::Support::Templating.template_config(:html_block_next), Armagh::Support::Templating.block_from_int(2, :html)
   end
 
   def test_block_end
     Armagh::Support::Templating.template_config(text_block_end: 'end')
     assert_equal 'end', Armagh::Support::Templating.block_end(:text)
-  end
-
-  def test_private_class_method_process_modes
-    e = assert_raise NoMethodError do
-      Armagh::Support::Templating.process_modes('template', 'mode', 'bind')
-    end
-    assert_match %r/^private method `process_modes' called/, e.message
-  end
-
-  def test_private_class_method_process_template
-    e = assert_raise NoMethodError do
-      Armagh::Support::Templating.process_template('template', 'bind')
-    end
-    assert_match %r/^private method `process_template' called/, e.message
   end
 
   private def binding_test

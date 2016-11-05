@@ -22,12 +22,11 @@ require_relative '../helpers/fixture_helper'
 require 'test/unit'
 
 require_relative '../../lib/armagh/support/xml'
-require_relative '../../lib/armagh/support/hash'
+require_relative '../../lib/armagh/support/hash_doc'
 require_relative '../../lib/armagh/support/templating'
 
 class TestIntegrationTemplating < Test::Unit::TestCase
   include FixtureHelper
-  include Armagh::Support::Templating
 
   def setup
     set_fixture_dir('templating')
@@ -36,23 +35,20 @@ class TestIntegrationTemplating < Test::Unit::TestCase
   end
 
   def test_render_template_text
-    doc = @doc
     template_path = fixture_path('template.erubis')
-    result = render_template(template_path, :text, bind: binding())
+    result = Armagh::Support::Templating.render_template(template_path, :text, doc: @doc)
     assert_equal fixture('template.erubis.text', result), result
   end
 
   def test_render_template_html
-    doc = @doc
     template_path = fixture_path('template.erubis')
-    result = render_template(template_path, :html, bind: binding())
+    result = Armagh::Support::Templating.render_template(template_path, :html, doc: @doc)
     assert_equal fixture('template.erubis.html', result), result
   end
 
   def test_render_template_text_and_html
-    doc = @doc
     template_path = fixture_path('template.erubis')
-    result = render_template(template_path, :text, :html, bind: binding())
+    result = Armagh::Support::Templating.render_template(template_path, :text, :html, doc: @doc)
     assert_equal [fixture('template.erubis.text', result.first),
                   fixture('template.erubis.html', result.last)], result
   end
@@ -77,8 +73,8 @@ class TestIntegrationTemplating < Test::Unit::TestCase
           "unit",
           "zip"]}
     doc = Armagh::Support::HashDoc.new(@data)
-    doc.begin_audit
-    assert_equal expected, doc.audit
+    result = doc.audit {}
+    assert_equal expected, result
   end
 
   def test_audit_render_text
@@ -103,9 +99,10 @@ class TestIntegrationTemplating < Test::Unit::TestCase
           "zip"],
       2=>["item", "shipping_method", "total_price"]}
     doc = Armagh::Support::HashDoc.new(@data)
-    doc.begin_audit
-    render_template(fixture_path('template.erubis'), :text, bind: binding())
-    assert_equal expected, doc.audit
+    result = doc.audit do
+      Armagh::Support::Templating.render_template(fixture_path('template.erubis'), :text, doc: doc)
+    end
+    assert_equal expected, result
   end
 
   def test_audit_render_html
@@ -130,9 +127,10 @@ class TestIntegrationTemplating < Test::Unit::TestCase
           "zip"],
       2=>["item", "shipping_method", "total_price"]}
     doc = Armagh::Support::HashDoc.new(@data)
-    doc.begin_audit
-    render_template(fixture_path('template.erubis'), :html, bind: binding())
-    assert_equal expected, doc.audit
+    result = doc.audit do
+      Armagh::Support::Templating.render_template(fixture_path('template.erubis'), :html, doc: doc)
+    end
+    assert_equal expected, result
   end
 
   def test_audit_render_text_html
@@ -157,9 +155,10 @@ class TestIntegrationTemplating < Test::Unit::TestCase
           "zip"],
       4=>["item", "shipping_method", "total_price"]}
     doc = Armagh::Support::HashDoc.new(@data)
-    doc.begin_audit
-    render_template(fixture_path('template.erubis'), :text, :html, bind: binding())
-    assert_equal expected, doc.audit
+    result = doc.audit do
+      Armagh::Support::Templating.render_template(fixture_path('template.erubis'), :text, :html, doc: doc)
+    end
+    assert_equal expected, result
   end
 
 end

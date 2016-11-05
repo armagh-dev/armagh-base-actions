@@ -65,7 +65,8 @@ class TestConsume < Test::Unit::TestCase
   def test_edit_no_id
     yielded_doc = mock
     @caller.expects(:edit_document).with do |id, type|
-      assert_not_nil(id[/\w+-\w+-\w+-\w+-\w+/], 'ID was not a uuid')
+      assert_not_nil id
+      assert_not_empty id
       assert_equal(@config.output.output_type, type)
       true
     end.yields(yielded_doc)
