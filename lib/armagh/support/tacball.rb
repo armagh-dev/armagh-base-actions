@@ -27,12 +27,11 @@ module Armagh
 
       def create_tacball_file(
         docid:,
-        dateposted:,
+        dateposted: nil,
         title:,
         feed:,
         timestamp:,
         hastext: '',
-        pubtimestamp: '',
         source: '',
         originaltype: '',
         data_repository: '',
@@ -41,9 +40,11 @@ module Armagh
         html_content: '',
         inject_html: '',
         basename:,
-        output_path: ''
+        output_path: '',
+        logger:
       )
         begin
+          TAC.logger = logger
           TAC.create_tacball_file(
             docid: docid,
             dateposted: dateposted,
@@ -51,7 +52,6 @@ module Armagh
             feed: feed,
             timestamp: timestamp,
             hastext: hastext,
-            pubtimestamp: pubtimestamp,
             source: source,
             originaltype: originaltype,
             data_repository: data_repository,

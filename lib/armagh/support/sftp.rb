@@ -57,6 +57,7 @@ module Armagh
           'host' => ENV['ARMAGH_ARCHIVE_HOST'],
           'directory_path' => ENV['ARMAGH_ARCHIVE_PATH'],
           'username' => ENV['ARMAGH_ARCHIVE_USER'] || ENV['USER'],
+          'create_directory_path' => true
         }
         sftp_config['port'] = ENV['ARMAGH_ARCHIVE_PORT'].to_i if ENV['ARMAGH_ARCHIVE_PORT']
 
@@ -155,7 +156,8 @@ module Armagh
             attempts_this_file = 0
             begin
               attempts_this_file += 1
-              mkdir_p(parent) if @create_directory_path
+              mkdir_p(@directory_path) if @create_directory_path
+              mkdir_p(parent)
               @sftp.upload!(local_path, File.join(@directory_path, local_path))
               yield local_path, nil if block_given?
               File.delete local_path if File.exists? local_path
@@ -175,7 +177,8 @@ module Armagh
           attempts = 0
           begin
             attempts += 1
-            mkdir_p( dest_dir ) if @create_directory_path
+            mkdir_p(@directory_path) if @create_directory_path
+            mkdir_p(dest_dir)
             @sftp.upload!(src, File.join(@directory_path, dest_dir, src))
           rescue => e
             retry if attempts < 3

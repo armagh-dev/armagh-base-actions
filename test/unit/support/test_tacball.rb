@@ -16,6 +16,7 @@
 #
 
 require 'test/unit'
+require 'mocha/test_unit'
 require 'fakefs/safe'
 
 require_relative '../../helpers/coverage_helper'
@@ -37,7 +38,6 @@ class TestTacball < Test::Unit::TestCase
         feed: 'feed',
         timestamp: 1451696523,
         hastext: true,
-        pubtimestamp: 1451696523,
         source: 'source',
         originaltype: 'orig_type',
         data_repository: 'data_repo',
@@ -46,7 +46,8 @@ class TestTacball < Test::Unit::TestCase
         html_content: '',
         inject_html: true,
         basename: 'base_name.txt',
-        output_path: '/some/output/path'
+        output_path: '/some/output/path',
+        logger: mock('logger')
       )
       assert_equal expected_filename, output_filename
     }
@@ -60,7 +61,6 @@ class TestTacball < Test::Unit::TestCase
         feed: 'feed',
         timestamp: 1451696523,
         hastext: true,
-        pubtimestamp: 1451696523,
         source: 'source',
         originaltype: 'orig_type',
         data_repository: 'data_repo',
@@ -69,7 +69,8 @@ class TestTacball < Test::Unit::TestCase
         html_content: '',
         inject_html: true,
         basename: 'base_name.txt',
-        output_path: '/some/output/path'
+        output_path: '/some/output/path',
+        logger: mock('logger')
       )
     }
     assert_equal "missing keyword: docid", error.message
@@ -86,7 +87,6 @@ class TestTacball < Test::Unit::TestCase
           feed: 'feed',
           timestamp: 1451696523,
           hastext: true,
-          pubtimestamp: 1451696523,
           source: 'source',
           originaltype: 'orig_type',
           data_repository: 'data_repo',
@@ -95,7 +95,8 @@ class TestTacball < Test::Unit::TestCase
           html_content: '',
           inject_html: true,
           basename: 'base_name.txt',
-          output_path: '/some/output/path'
+          output_path: '/some/output/path',
+          logger: mock('logger')
         )
       }
       assert_equal "Document ID must be a string", error.message
