@@ -90,13 +90,11 @@ class TestHashDoc < Test::Unit::TestCase
   end
 
   def test_get_dig
-    assert_equal @hash.dig('xml', 'book', 'chapter', 1, 'text'),
-      @doc.get('xml', 'book', 'chapter', 1, 'text')
+    assert_equal @hash.dig('xml', 'book', 'chapter', 1, 'text'), @doc.get('xml', 'book', 'chapter', 1, 'text')
   end
 
   def test_get_dot
-    assert_equal @hash.dig('xml', 'book', 'chapter', 1, 'text'),
-      @doc.get('xml.book.chapter.1.text')
+    assert_equal @hash.dig('xml', 'book', 'chapter', 1, 'text'), @doc.get('xml.book.chapter.1.text')
   end
 
   def test_get_default
@@ -210,10 +208,10 @@ class TestHashDoc < Test::Unit::TestCase
   end
 
   def test_with_no_block_given
-    e = assert_raise Armagh::Support::HashDoc::MissingBlockError do
+    e = assert_raise LocalJumpError do
       @doc.with('xml')
     end
-    assert_equal 'No block given (yield)', e.message
+    assert_equal 'no block given (yield)', e.message
   end
 
   def test_with_nested_hierarchy_before_after
@@ -303,10 +301,10 @@ class TestHashDoc < Test::Unit::TestCase
   end
 
   def test_loop_no_block_given
-    e = assert_raise Armagh::Support::HashDoc::MissingBlockError do
+    e = assert_raise LocalJumpError do
       @doc.loop('xml')
     end
-    assert_equal 'No block given (yield)', e.message
+    assert_equal 'no block given (yield)', e.message
   end
 
   def test_loop_ref_gets_reset_after_error
@@ -319,26 +317,33 @@ class TestHashDoc < Test::Unit::TestCase
     assert_equal hash, doc.get
   end
 
+  def test_loop_ref_gets_reset_after_error_in_empty
+    hash = {'root'=>[]}
+    doc = Armagh::Support::HashDoc.new(hash)
+    begin
+      doc.loop('root', show_empty: true) { raise }
+    rescue
+    end
+    assert_equal hash, doc.get
+  end
+
   #
   # enum
   #
 
   def test_enum
     hash = {'Moby Dick'=>'A novel by American writer Herman Melville.'}
-    assert_equal [hash.keys.first, hash.values.first],
-      @doc.enum('xml', 'book', 'title', hash)
+    assert_equal [hash.keys.first, hash.values.first], @doc.enum('xml', 'book', 'title', hash)
   end
 
   def test_enum_dot
     hash = {'Moby Dick'=>'A giant, largely white bull sperm whale.'}
-    assert_equal [hash.keys.first, hash.values.first],
-      @doc.enum('xml.book.title', hash)
+    assert_equal [hash.keys.first, hash.values.first], @doc.enum('xml.book.title', hash)
   end
 
   def test_enum_not_found
     hash = {'other'=>'text'}
-    assert_equal [@hash.dig('xml', 'book', 'title'), nil],
-      @doc.enum('xml', 'book', 'title', hash)
+    assert_equal [@hash.dig('xml', 'book', 'title'), nil], @doc.enum('xml', 'book', 'title', hash)
   end
 
   def test_enum_else_as_array
@@ -355,8 +360,17 @@ class TestHashDoc < Test::Unit::TestCase
 
   def test_enum_else_pair
     hash = {nil=>['value', 'other']}
-    assert_equal hash[nil],
-      @doc.enum('xml', 'book', 'chapter', 1, 'text', hash)
+    assert_equal hash[nil], @doc.enum('xml', 'book', 'chapter', 1, 'text', hash)
+  end
+
+  def test_enum_default
+    hash = {'default'=>'Default'}
+    assert_equal ['default', 'Default'], @doc.enum('empty_string', hash, default: 'default')
+  end
+
+  def test_enum_default_else
+    hash = {nil=>'Other'}
+    assert_equal ['default', 'Other'], @doc.enum('empty_string', hash, default: 'default')
   end
 
   def test_enum_invalid_hash_error
@@ -412,8 +426,7 @@ class TestHashDoc < Test::Unit::TestCase
   end
 
   def test_concat_dot
-    assert_equal 'Moby Dick, The Spouter-Inn',
-      @doc.concat('@xml.book.title, @xml.book.chapter.2.text')
+    assert_equal 'Moby Dick, The Spouter-Inn', @doc.concat('@xml.book.title, @xml.book.chapter.2.text')
   end
 
   def test_concat_allow_missing
@@ -476,8 +489,7 @@ class TestHashDoc < Test::Unit::TestCase
   end
 
   def test_concat_prefix_suffix_dig
-    assert_equal '<Moby Dick: Melville>',
-      @doc.concat('<@xml.book.title: @xml.book.author.name.lname>')
+    assert_equal '<Moby Dick: Melville>', @doc.concat('<@xml.book.title: @xml.book.author.name.lname>')
   end
 
   def test_concat_invalid_reference
@@ -519,10 +531,10 @@ class TestHashDoc < Test::Unit::TestCase
   #
 
   def test_audit_no_block_given
-    e = assert_raise Armagh::Support::HashDoc::MissingBlockError do
+    e = assert_raise LocalJumpError do
       @doc.audit
     end
-    assert_equal 'No block given (yield)', e.message
+    assert_equal 'no block given (yield)', e.message
   end
 
   def test_audit

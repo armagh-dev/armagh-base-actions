@@ -27,6 +27,17 @@ require_relative '../../lib/armagh/support/templating'
 
 class TestIntegrationTemplating < Test::Unit::TestCase
   include FixtureHelper
+  include Armagh::Support::Templating
+
+  def custom_address(hash)
+    street   = hash['street']
+    unit     = hash['unit']
+    unit     = unit.empty? ? '' : "\nUnit #{hash['unit']}"
+    city     = hash['city']
+    county   = '( Some County )'
+    statezip = "#{hash['state']}-#{hash['zip']}"
+    field("#{street}#{unit}\n#{city} #{county}\n#{statezip}")
+  end
 
   def setup
     set_fixture_dir('templating')
@@ -36,19 +47,19 @@ class TestIntegrationTemplating < Test::Unit::TestCase
 
   def test_render_template_text
     template_path = fixture_path('template.erubis')
-    result = Armagh::Support::Templating.render_template(template_path, :text, doc: @doc)
+    result = render_template(template_path, :text, doc: @doc)
     assert_equal fixture('template.erubis.text', result), result
   end
 
   def test_render_template_html
     template_path = fixture_path('template.erubis')
-    result = Armagh::Support::Templating.render_template(template_path, :html, doc: @doc)
+    result = render_template(template_path, :html, doc: @doc)
     assert_equal fixture('template.erubis.html', result), result
   end
 
   def test_render_template_text_and_html
     template_path = fixture_path('template.erubis')
-    result = Armagh::Support::Templating.render_template(template_path, :text, :html, doc: @doc)
+    result = render_template(template_path, :text, :html, doc: @doc)
     assert_equal [fixture('template.erubis.text', result.first),
                   fixture('template.erubis.html', result.last)], result
   end
@@ -80,8 +91,7 @@ class TestIntegrationTemplating < Test::Unit::TestCase
   def test_audit_render_text
     expected = {
       0=>["description", "phone", "test"],
-      1=>["address",
-          "attr_id",
+      1=>["attr_id",
           "attr_total",
           "city",
           "customer",
@@ -97,10 +107,10 @@ class TestIntegrationTemplating < Test::Unit::TestCase
           "street",
           "unit",
           "zip"],
-      2=>["item", "shipping_method", "total_price"]}
+      2=>["address", "item", "shipping_method", "total_price"]}
     doc = Armagh::Support::HashDoc.new(@data)
     result = doc.audit do
-      Armagh::Support::Templating.render_template(fixture_path('template.erubis'), :text, doc: doc)
+      render_template(fixture_path('template.erubis'), :text, doc: doc)
     end
     assert_equal expected, result
   end
@@ -108,8 +118,7 @@ class TestIntegrationTemplating < Test::Unit::TestCase
   def test_audit_render_html
     expected = {
       0=>["description", "phone", "test"],
-      1=>["address",
-          "attr_id",
+      1=>["attr_id",
           "attr_total",
           "city",
           "customer",
@@ -125,10 +134,10 @@ class TestIntegrationTemplating < Test::Unit::TestCase
           "street",
           "unit",
           "zip"],
-      2=>["item", "shipping_method", "total_price"]}
+      2=>["address", "item", "shipping_method", "total_price"]}
     doc = Armagh::Support::HashDoc.new(@data)
     result = doc.audit do
-      Armagh::Support::Templating.render_template(fixture_path('template.erubis'), :html, doc: doc)
+      render_template(fixture_path('template.erubis'), :html, doc: doc)
     end
     assert_equal expected, result
   end
@@ -136,8 +145,7 @@ class TestIntegrationTemplating < Test::Unit::TestCase
   def test_audit_render_text_html
     expected = {
       0=>["description", "phone", "test"],
-      2=>["address",
-          "attr_id",
+      2=>["attr_id",
           "attr_total",
           "city",
           "customer",
@@ -153,10 +161,10 @@ class TestIntegrationTemplating < Test::Unit::TestCase
           "street",
           "unit",
           "zip"],
-      4=>["item", "shipping_method", "total_price"]}
+      4=>["address", "item", "shipping_method", "total_price"]}
     doc = Armagh::Support::HashDoc.new(@data)
     result = doc.audit do
-      Armagh::Support::Templating.render_template(fixture_path('template.erubis'), :text, :html, doc: doc)
+      render_template(fixture_path('template.erubis'), :text, :html, doc: doc)
     end
     assert_equal expected, result
   end

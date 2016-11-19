@@ -16,31 +16,49 @@
 #
 
 require 'tac'
+require 'configh'
 
 module Armagh
   module Support
     module Tacball
+      include Configh::Configurable
 
-      class TacballDataTypeError < StandardError; end
+      class TacballError < StandardError; end
+      class FieldTypeError < TacballError; end
+      class InvalidDocidError < TacballError; end
+      class InvalidFeedError < TacballError; end
+      class AttachmentOrOriginalExtnError < TacballError; end
+      class OriginalFileAndExtensionError < TacballError; end
+ 
+      define_parameter name: 'feed',
+                       description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED_REGEX}",
+                       type: 'string',
+                       required: true,
+                       group: 'tacball'
 
+      define_parameter name: 'source',
+                       description: 'TACBall Document Source Name',
+                       type: 'string',
+                       required: true,
+                       group: 'tacball'
+         
       module_function
 
       def create_tacball_file(
+        config,
         docid:,
         dateposted: nil,
         title:,
-        feed:,
         timestamp:,
-        hastext: '',
-        source: '',
+        hastext: false,
         originaltype: '',
         data_repository: '',
         txt_content: '',
         copyright: '',
         html_content: '',
-        inject_html: '',
+        inject_html: false,
         basename:,
-        output_path: '',
+        output_path: '.',
         logger:
       )
         begin
@@ -49,10 +67,10 @@ module Armagh
             docid: docid,
             dateposted: dateposted,
             title: title,
-            feed: feed,
+            feed: config.tacball.feed,
             timestamp: timestamp,
             hastext: hastext,
-            source: source,
+            source: config.tacball.source,
             originaltype: originaltype,
             data_repository: data_repository,
             txt_content: txt_content,
@@ -62,8 +80,16 @@ module Armagh
             basename: basename,
             output_path: output_path
           )
-        rescue TAC::TacballDataTypeError => e
-          raise TacballDataTypeError, e.message
+        rescue TAC::FieldTypeError => e
+          raise FieldTypeError, e.message
+        rescue TAC::InvalidDocidError => e
+          raise InvalidDocidError, e.message
+        rescue TAC::InvalidFeedError => e
+          raise InvalidFeedError, e.message
+        rescue TAC::AttachmentOrOriginalExtnError => e
+          raise AttachmentOrOriginalExtnError, e.message
+        rescue TAC::OriginalFileAndExtensionError => e
+          raise OriginalFileAndExtensionError, e.message
         end
       end
 

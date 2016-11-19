@@ -1,21 +1,25 @@
 Customer
 
-  Customer ID: c2b03333356a
-  Name: John Doe
-  Address: 51 Sample Rd, Happyville, YZ  12345
-  Last Order Date: N/A
-  Notes: None
+Customer ID: c2b03333356a
+Name: John Doe
+Address: 51 Sample Rd, Happyville, YZ  12345
+Last Order Date: N/A
+Notes: None
+Mailing Address:
+51 Sample Rd
+Happyville ( Some County )
+YZ-12345
 
-  This content is for text mode only
+This content is for text mode only
 
 Orders (2 total)
 
-  Order #: 1
-  Item: Shampoo
-  Total Price: 29.99
-  Shipping Method: 2 - Two-Day Air
+Order #: 1
+Item: Shampoo
+Total Price: 29.99
+Shipping Method: 2 - Two-Day Air
 
-  Order #: 2
-  Item: Conditioner
-  Total Price: 32.35
-  Shipping Method: Other
+Order #: 2
+Item: Conditioner
+Total Price: 32.35
+Shipping Method: Other

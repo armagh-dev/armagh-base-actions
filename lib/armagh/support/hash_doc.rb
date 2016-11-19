@@ -25,10 +25,6 @@ module Armagh
       class InvalidReferenceError    < HashDocError; end
       class InvalidEnumHashDocError  < HashDocError; end
       class InvalidConcatLayoutError < HashDocError; end
-      class MissingBlockError        < HashDocError
-        attr_accessor :message
-        def initialize() @message = 'No block given (yield)' end
-      end
 
       def initialize(hash = nil)
         set(hash) if hash
@@ -47,7 +43,6 @@ module Armagh
       end
 
       def with(*nodes, allow_missing: nil)
-        raise MissingBlockError unless block_given?
         restore = @ref
         @ref = get_node(*nodes, allow_missing: allow_missing)
         yield
@@ -56,9 +51,7 @@ module Armagh
       end
 
       def loop(*nodes, show_empty: nil, allow_missing: nil)
-        raise MissingBlockError unless block_given?
-        parent = get_node(*nodes, allow_missing: allow_missing) || []
-        parent = [parent] unless parent.is_a?(Array)
+        parent = Array(get_node(*nodes, allow_missing: allow_missing)) || []
         restore = @ref
         if parent.empty? && (show_empty || @show_empty_array)
           @ref = parent
@@ -74,10 +67,11 @@ module Armagh
         @ref = restore
       end
 
-      def enum(*nodes, hash, format: nil, allow_missing: nil)
+      def enum(*nodes, hash, format: nil, allow_missing: nil, default: nil)
         raise InvalidEnumHashDocError, %q(Please provide a valid enum hash lookup, e.g., {'value'=>'description', nil=>['else', 'lookup not found']}) unless hash.is_a?(Hash)
         format ||= @enum_format
         value  = get_node(*nodes, allow_missing: allow_missing)
+        value  = default if default && value.to_s.empty?
         result = hash[value]
         result =
           if result
@@ -146,7 +140,6 @@ module Armagh
       end
 
       def audit
-        raise MissingBlockError unless block_given?
         @audit = {}
         yield
         process_audit

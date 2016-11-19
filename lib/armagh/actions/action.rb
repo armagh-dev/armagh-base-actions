@@ -16,7 +16,6 @@
 #
 
 require 'configh'
-require 'securerandom'
 
 require_relative 'encodable'
 require_relative 'loggable'
@@ -29,6 +28,13 @@ module Armagh
   module Actions
 
     class ActionError < StandardError; end
+
+    class InvalidArgumentError < ActionError
+      def initialize(invalid_arg, invalid_value, expected_type)
+        msg = "#{invalid_arg} argument was a #{invalid_value.class.to_s}, but should be a #{expected_type}"
+        super(msg)
+      end
+    end
     # TODO base actions lib/armagh/actions/action.rb - Add a deduplication by action instance (string)
     # TODO base actions lib/armagh/actions/action.rb - Add a deduplication configuration for time to live per action instance
 
@@ -115,13 +121,11 @@ module Armagh
       end
 
       def self.create_configuration( collection, name, values, **args )
-        new_values = add_action_params( name, values ) if name.is_a?( String ) and values.is_a?( Hash )
-        super( collection, name, new_values, **args )
-      end
+        raise Armagh::Actions::InvalidArgumentError.new("values", values, Hash) unless values.is_a?(Hash)
+        raise Armagh::Actions::InvalidArgumentError.new("name", name, String) unless name.is_a?(String)
 
-      def self.find_or_create_configuration( collection, name, values_for_create: {}, **args )
-        new_values = add_action_params( name, values_for_create )
-        super( collection, name, **args, values_for_create: new_values )
+        new_values = add_action_params( name, values )
+        super( collection, name, new_values, **args )
       end
 
       def with_locked_action_state( timeout = 10 )

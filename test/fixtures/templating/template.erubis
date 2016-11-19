@@ -1,34 +1,38 @@
-{{-@doc.with 'data' do}}
-{{-@doc.with 'customer' do}}
-{{=Armagh::Support::Templating.header 'Customer'}}
+{{- @doc.with 'data' do }}
+{{- @doc.with 'customer' do }}
+{{= header 'Customer', css: 'customer-section' }}
 
-{{=Armagh::Support::Templating.block_begin-}}
-  {{=Armagh::Support::Templating.field 'Customer ID', @doc.get('attr_id')}}
-  {{=Armagh::Support::Templating.field 'Name', @doc.concat('@name.first @name.middle @name.last', allow_missing: true)}}
-  {{-@doc.with 'address' do}}{{=Armagh::Support::Templating.field 'Address', @doc.concat('@street, @unit, @city, @state  @zip')}}{{-end}}
-{{=Armagh::Support::Templating.block_next-}}
-  {{=Armagh::Support::Templating.field 'Last Order Date', @doc.get('last_order_date', default: 'N/A')}}
-  {{=Armagh::Support::Templating.field 'Notes', @doc.get('notes', allow_missing: true, default: 'None')}}
-{{=Armagh::Support::Templating.block_end-}}
+{{= block_begin -}}
+{{= field 'Customer ID', @doc.get('attr_id') }}
+{{= field 'Name', @doc.concat('@name.first @name.middle @name.last', allow_missing: true) }}
+{{- @doc.with 'address' do }}
+{{= field 'Address', @doc.concat('@street, @unit, @city, @state  @zip') }}
+{{- end }}
+{{= block_next -}}
+{{= field 'Last Order Date', @doc.get('last_order_date', default: 'N/A') }}
+{{= field 'Notes', @doc.get('notes', allow_missing: true, default: 'None') }}
+Mailing Address:
+{{= custom_address @doc.get('address') }}
+{{= block_end -}}
 
-{{-if Armagh::Support::Templating.mode == :text}}
-  This content is for text mode only
-{{-elsif Armagh::Support::Templating.mode == :html}}
-  This content is for html mode only
-{{-end}}
-{{-end # customer}}
+{{- if mode?(:text) }}
+This content is for text mode only
+{{- elsif mode?(:html) }}
+This content is for html mode only
+{{- end }}
+{{- end # customer }}
 
-{{-@doc.with 'orders' do}}
-{{=Armagh::Support::Templating.header 'Orders (' + @doc.get('attr_total') + ' total)'}}
+{{- @doc.with 'orders' do }}
+{{= header 'Orders (' + @doc.get('attr_total') + ' total)', css: 'order-section' }}
 
-{{-@doc.loop 'order', show_empty: true do |i|}}
-{{=Armagh::Support::Templating.block_from_int i-}}
-  {{=Armagh::Support::Templating.field 'Order #', i}}
-  {{=Armagh::Support::Templating.field 'Item', @doc.get('item')}}
-  {{=Armagh::Support::Templating.field 'Total Price', @doc.get('total_price')}}
-  {{=Armagh::Support::Templating.field 'Shipping Method', @doc.enum('shipping_method', '1'=>'Ground', '2'=>'Two-Day Air', '3'=>'One-Day Air', nil=>'Other', format: '%s - %s')}}
+{{- @doc.loop 'order', show_empty: true do |i| }}
+{{= block_from_int i -}}
+{{= field 'Order #', i }}
+{{= field 'Item', @doc.get('item') }}
+{{= field 'Total Price', @doc.get('total_price') }}
+{{= field 'Shipping Method', @doc.enum('shipping_method', '1'=>'Ground', '2'=>'Two-Day Air', '3'=>'One-Day Air', nil=>'Other', format: '%s - %s') }}
 
-{{-end # loop}}
-{{=Armagh::Support::Templating.block_end-}}
-{{-end # orders}}
-{{-end # root}}
+{{- end # loop }}
+{{= block_end -}}
+{{- end # orders }}
+{{- end # root }}
