@@ -31,7 +31,7 @@ module Armagh
       class OriginalFileAndExtensionError < TacballError; end
  
       define_parameter name: 'feed',
-                       description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED_REGEX}",
+                       description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED}",
                        type: 'string',
                        required: true,
                        group: 'tacball'
@@ -47,16 +47,13 @@ module Armagh
       def create_tacball_file(
         config,
         docid:,
-        dateposted: nil,
         title:,
         timestamp:,
-        hastext: false,
         originaltype: '',
         data_repository: '',
         txt_content: '',
         copyright: '',
         html_content: '',
-        inject_html: false,
         basename:,
         output_path: '.',
         logger:
@@ -65,18 +62,15 @@ module Armagh
           TAC.logger = logger
           TAC.create_tacball_file(
             docid: docid,
-            dateposted: dateposted,
             title: title,
             feed: config.tacball.feed,
             timestamp: timestamp,
-            hastext: hastext,
             source: config.tacball.source,
             originaltype: originaltype,
             data_repository: data_repository,
             txt_content: txt_content,
             copyright: copyright,
             html_content: html_content,
-            inject_html: inject_html,
             basename: basename,
             output_path: output_path
           )

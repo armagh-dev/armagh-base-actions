@@ -34,16 +34,13 @@ class TestTacball < Test::Unit::TestCase
     @config = Armagh::Support::Tacball.create_configuration([], 'test', @config_values)
     @tacball_fields = {
       :docid => '4025/docid',
-      :dateposted => 1451696523,
       :title => 'title',
       :timestamp => 1451696523,
-      :hastext => true,
       :originaltype => 'text/plain',
       :data_repository => 'data_repo',
       :txt_content => 'hello world',
       :copyright => 'copyright',
       :html_content => '',
-      :inject_html => true,
       :basename => 'basename.txt',
       :output_path => '/some/output/path',
       :logger => mock('logger')
@@ -123,7 +120,7 @@ class TestTacball < Test::Unit::TestCase
       error = assert_raise(Armagh::Support::Tacball::InvalidDocidError) {
         Armagh::Support::Tacball.create_tacball_file(@config, @opts)
       }
-      assert_equal "Document ID (#{@opts[:docid]}) must be in the format #{TAC::VALID_DOCID_REGEX}.", error.message
+      assert_equal "Document ID (#{@opts[:docid]}) must be in the format #{TAC::VALID_DOCID_WITH_PREFIX}", error.message
     }
   end
 
@@ -140,7 +137,7 @@ class TestTacball < Test::Unit::TestCase
       error = assert_raise(Armagh::Support::Tacball::InvalidFeedError) {
         Armagh::Support::Tacball.create_tacball_file(config, @opts)
       }
-      assert_equal "Feed (#{config.tacball.feed}) must be in the format #{TAC::VALID_FEED_REGEX}.", error.message
+      assert_equal "Feed (#{config.tacball.feed}) must be in the format #{TAC::VALID_FEED}", error.message
     }
   end
 

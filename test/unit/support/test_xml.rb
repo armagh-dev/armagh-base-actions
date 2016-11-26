@@ -236,5 +236,36 @@ class TestXML < Test::Unit::TestCase
     assert_equal divided_errors.flatten.first, Armagh::Support::XML::Divider::MaxSizeTooSmallError
   end
 
+  def test_dig_first
+    hash = {
+      'field1' => 'field1 value',
+      'field2' => {
+        'sub1' => 'sub1 value',
+        'sub2' => [
+          {'subsub1' => 'subsub1 value'},
+          {'subsub2' => 'subsub2 value'},
+          {'subsub1' => 'subsub1 value (alternate)', 'subsub2' => 'subsub2 value (alternate)'},
+        ]
+      }
+    }
+
+    assert_equal('field1 value', Armagh::Support::XML.dig_first(hash, 'field1'))
+    assert_equal('sub1 value', Armagh::Support::XML.dig_first(hash, 'field2', 'sub1'))
+    assert_equal('subsub1 value', Armagh::Support::XML.dig_first(hash, 'field2', 'sub2', 'subsub1'))
+    assert_equal('subsub2 value', Armagh::Support::XML.dig_first(hash, 'field2', 'sub2', 'subsub2'))
+
+    assert_equal('field1 value', Armagh::Support::XML.dig_first([hash], 'field1'))
+    assert_equal('sub1 value', Armagh::Support::XML.dig_first([hash], 'field2', 'sub1'))
+    assert_equal('subsub1 value', Armagh::Support::XML.dig_first([hash], 'field2', 'sub2', 'subsub1'))
+    assert_equal('subsub2 value', Armagh::Support::XML.dig_first([hash], 'field2', 'sub2', 'subsub2'))
+
+    assert_nil(Armagh::Support::XML.dig_first(hash, 'invalid'))
+    assert_nil(Armagh::Support::XML.dig_first(hash, 'field2', 'invalid'))
+    assert_nil(Armagh::Support::XML.dig_first(hash, 'field2', 'sub2', 'invalid'))
+    assert_nil(Armagh::Support::XML.dig_first(hash, 'invalid', 'sub2'))
+
+    assert_nil(Armagh::Support::XML.dig_first(nil, 'invalid', 'sub2'))
+  end
+
 end
 
