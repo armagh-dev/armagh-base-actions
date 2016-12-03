@@ -57,7 +57,7 @@ module Armagh
           text_field:               '[[@label]][[@value]]',
           text_field_label:         '[[@label]]: ',
           html_field:               '<div class="[[@css]]">[[@label]][[@value]]</div>',
-          html_field_label:         '<span>[[@label]]:</span>',
+          html_field_label:         '<span>[[@label]]: </span>',
           html_field_css:           'field_value',
 
           text_field_empty:         '',

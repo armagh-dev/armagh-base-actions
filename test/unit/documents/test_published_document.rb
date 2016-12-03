@@ -122,13 +122,13 @@ class TestPublishedDocument < Test::Unit::TestCase
 
   def test_nils
     doc = Armagh::Documents::PublishedDocument.new(document_id: @document_id,
-                                                  content: @content,
-                                                  metadata: @metadata,
-                                                  docspec: @docspec,
-                                                  source: @source)
-    assert_nil doc.title
-    assert_nil doc.copyright
-    assert_nil doc.document_timestamp
+                                                   content: @content,
+                                                   metadata: @metadata,
+                                                   docspec: @docspec,
+                                                   source: @source,
+                                                   title: @title,
+                                                   copyright: @copyright,
+                                                   document_timestamp: @document_timestamp)
     assert_nil doc.display
   end
 end

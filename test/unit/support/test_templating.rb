@@ -63,7 +63,7 @@ class TestTemplating < Test::Unit::TestCase
     FakeFS { File.write(@partial_template, partial_template) }
 
     @expected_text  = "Title\nLabel: Value\nPartial"
-    @expected_html  = "<div class=\"field_header\">Title</div>\n<div class=\"field_value\"><span>Label:</span>Value</div>\n<div class=\"field_header\">Partial</div>\n<div class=\"field_empty\"><span>Empty:</span></div>\n<div class=\"field_empty\"><span>Missing:</span></div>"
+    @expected_html  = "<div class=\"field_header\">Title</div>\n<div class=\"field_value\"><span>Label: </span>Value</div>\n<div class=\"field_header\">Partial</div>\n<div class=\"field_empty\"><span>Empty:</span></div>\n<div class=\"field_empty\"><span>Missing:</span></div>"
     @expected_array = [@expected_text, @expected_html]
     template_config # initialize default config
   end
@@ -354,13 +354,13 @@ class TestTemplating < Test::Unit::TestCase
     set_mode_text
     assert_equal "label: line1\nline2\nline3", field('label', "line1\nline2\nline3")
     set_mode_html
-    assert_equal '<div class="field_value"><span>label:</span>line1<br />line2<br />line3</div>',
+    assert_equal '<div class="field_value"><span>label: </span>line1<br />line2<br />line3</div>',
       field('label', "line1\nline2\nline3")
   end
 
   def test_field_escape_html
     set_mode_html
-    assert_equal '<div class="field_value"><span>&lt;&#39;label&#39;&gt;:</span>&lt;&#39;value&#39;&gt;</div>',
+    assert_equal '<div class="field_value"><span>&lt;&#39;label&#39;&gt;: </span>&lt;&#39;value&#39;&gt;</div>',
       field("<'label'>", "<'value'>")
   end
 
@@ -371,7 +371,7 @@ class TestTemplating < Test::Unit::TestCase
 
   def test_field_with_css
     set_mode_html
-    assert_equal '<div class="css"><span>label:</span>value</div>', field('label', 'value', css: 'css')
+    assert_equal '<div class="css"><span>label: </span>value</div>', field('label', 'value', css: 'css')
   end
 
   def test_field_no_label_with_css

@@ -62,13 +62,18 @@ module Armagh
 
       # Collected can either be a string or a filename
       # raises ActionDocuments::Errors::DocSpecError
-      def create(collected, metadata, docspec_name, source)
+      def create(document_id: nil, title: nil, copyright: nil, document_timestamp: nil, collected:, metadata:, docspec_name:, source:)
         docspec_param = @config.find_all_parameters { |p| p.group == 'output' && p.name == docspec_name }.first
         docspec = docspec_param&.value
         raise Documents::Errors::DocSpecError, "Creating an unknown docspec #{docspec_name}" unless docspec
         raise Errors::CreateError, "Collect action content must be a String, was a #{collected.class}." unless collected.is_a?(String)
         raise Errors::CreateError, "Collect action source must be a Source type, was a #{source.class}." unless source.is_a?(Documents::Source)
         raise Errors::CreateError, "Collect action metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
+
+        raise Errors::CreateError, "Collect action document_id must be a String, was a #{document_id.class}." unless document_id.nil? || document_id.is_a?(String)
+        raise Errors::CreateError, "Collect action title must be a String, was a #{title.class}." unless title.nil? || title.is_a?(String)
+        raise Errors::CreateError, "Collect action copyright must be a String, was a #{copyright.class}." unless copyright.nil? || copyright.is_a?(String)
+        raise Errors::CreateError, "Collect action document_timestamp must be a Time, was a #{document_timestamp.class}." unless document_timestamp.nil? || document_timestamp.is_a?(Time)
 
         case source.type
           when 'file'
@@ -94,23 +99,51 @@ module Armagh
             File.write(collected_file, collected)
           end
 
-          @caller.archive(@logger_name, @name, collected_file, metadata, source) if @config.collect.archive
-
           collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
-          divider.source = source
+          divider.doc_details = {
+            'source' => source,
+            'document_id' => document_id,
+            'title' => title,
+            'copyright' => copyright,
+            'document_timestamp' => document_timestamp
+          }
+
+          if @config.collect.archive
+            archive_data = {
+              'source' => source.to_hash,
+              'document_id' => document_id,
+              'title' => title,
+              'copyright' => copyright,
+              'document_timestamp' => document_timestamp,
+              'metadata' => metadata
+            }
+            archive_data.delete_if{|_k, v| v.nil?}
+
+            @caller.archive(@logger_name, @name, collected_file, archive_data)
+          end
+
           divider.divide(collected_doc)
-          divider.source = nil
+          divider.doc_details = nil
         else
           content = File.file?(collected) ? File.read(collected) : collected
 
+          action_doc = Documents::ActionDocument.new(document_id: document_id,
+                                                     content: nil,
+                                                     metadata: metadata,
+                                                     title: title,
+                                                     copyright: copyright,
+                                                     document_timestamp: document_timestamp,
+                                                     docspec: docspec,
+                                                     source: source,
+                                                     new: true)
+          action_doc.raw = content
+
           if @config.collect.archive
-            collected_file = random_id
+            collected_file = source.filename || random_id
             File.write(collected_file, content)
-            @caller.archive(@logger_name, @name, collected_file, metadata, source)
+            @caller.archive(@logger_name, @name, collected_file, action_doc.to_archive_hash)
           end
-          content_hash = {'bson_binary' => BSON::Binary.new(content)}
-          action_doc = Documents::ActionDocument.new(document_id: random_id, content: content_hash, metadata: metadata,
-                                                     docspec: docspec, source: source, new: true)
+
           @caller.create_document(action_doc)
         end
       end

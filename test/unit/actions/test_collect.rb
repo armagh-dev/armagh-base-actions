@@ -61,7 +61,7 @@ class TestCollect < Test::Unit::TestCase
   def test_create_no_divider
     @caller.expects(:instantiate_divider).returns(nil)
     @caller.expects(:create_document)
-    @collect_action.create(@content, {'meta' => true}, 'output_type', @source)
+    @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: @source)
   end
 
   def test_create_with_divider_content
@@ -74,7 +74,8 @@ class TestCollect < Test::Unit::TestCase
       defined_params = mock
       defined_params.expects(:find_all_parameters).returns([docspec_param])
       divider.expects(:config).returns(defined_params)
-      divider.expects(:source=).twice
+      divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+      divider.expects(:doc_details=).with(nil)
 
       divider.expects(:divide).with() do |collected_doc|
         assert_true collected_doc.is_a?(Armagh::Documents::CollectedDocument)
@@ -83,11 +84,16 @@ class TestCollect < Test::Unit::TestCase
         true
       end
 
-      @collect_action.create(@content, {'meta' => true}, 'output_type', @source)
+      @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: @source)
     end
   end
 
-  def test_create_with_divider_file
+  def test_create_with_divider_file_and_archive
+    document_id = '123'
+    title = 'title'
+    timestamp = Time.at(0)
+    copyright = 'copyright'
+
     FakeFS do
       divider = mock
       @caller.expects(:instantiate_divider).returns(divider)
@@ -96,7 +102,8 @@ class TestCollect < Test::Unit::TestCase
       defined_params = mock
       defined_params.expects(:find_all_parameters).returns([docspec_param])
       divider.expects(:config).returns(defined_params)
-      divider.expects(:source=).twice
+      divider.expects(:doc_details=).with({'source' => @source, 'document_id' => document_id, 'title' => title, 'copyright' => copyright, 'document_timestamp' => timestamp})
+      divider.expects(:doc_details=).with(nil)
       collected_file = 'filename'
       File.write(collected_file, @content)
 
@@ -108,7 +115,7 @@ class TestCollect < Test::Unit::TestCase
         valid
       end
 
-      @collect_action.create(collected_file, {'meta' => true}, 'output_type', @source)
+      @collect_action.create(collected: collected_file, metadata: {'meta' => true}, docspec_name: 'output_type', source: @source, document_id: document_id, title: title, document_timestamp: timestamp, copyright: copyright)
     end
   end
 
@@ -118,11 +125,11 @@ class TestCollect < Test::Unit::TestCase
 
     logger_name = 'logger'
     action_name = 'mysubcollect'
-    random_id = 'some id'
+    random_id = 'someid'
     meta = {'meta' => true}
 
     Armagh::Support::Random.stubs(:random_id).returns(random_id)
-    @caller.expects(:archive).with(logger_name, action_name, random_id, meta, @source)
+    @caller.expects(:archive).with(logger_name, action_name, random_id, {'metadata' => meta, 'source' => @source.to_hash})
     @caller.expects(:create_document)
 
     config = SubCollect.create_configuration(@config_store, 'a', {
@@ -132,60 +139,146 @@ class TestCollect < Test::Unit::TestCase
 
     @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
     FakeFS do
-      @collect_action.create(@content, meta, 'output_type', @source)
+      @collect_action.create(collected: @content, metadata: meta, docspec_name: 'output_type', source: @source)
     end
+  end
 
+  def test_create_archive_divider
+    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
+    divider = mock
+    @caller.expects(:instantiate_divider).returns(divider)
+
+    random_id = 'random_id'
+    Armagh::Support::Random.stubs(:random_id).returns(random_id)
+
+    docspec_param = mock
+    docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
+    defined_params = mock
+    defined_params.expects(:find_all_parameters).returns([docspec_param])
+    divider.expects(:config).returns(defined_params)
+    divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+    divider.expects(:doc_details=).with(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    meta = {'meta' => true}
+
+    @caller.expects(:archive).with(logger_name, action_name, random_id, {'source' => {'type' => 'url', 'url' => 'some url'}, 'metadata' => {'meta' => true}})
+    divider.expects(:divide)
+
+    config = SubCollect.create_configuration(@config_store, 'a', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true}
+    })
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    FakeFS do
+      @collect_action.create(collected: @content, metadata: meta, docspec_name: 'output_type', source: @source)
+    end
+  end
+
+  def test_create_archive_known_filename
+    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
+    @caller.expects(:instantiate_divider).returns(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    meta = {'meta' => true}
+    filename = 'filename'
+    @source.filename = filename
+
+    @caller.expects(:archive).with(logger_name, action_name, filename, {'metadata' => meta, 'source' => @source.to_hash})
+    @caller.expects(:create_document)
+
+    config = SubCollect.create_configuration(@config_store, 'a', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true}
+    })
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    FakeFS do
+      @collect_action.create(collected: @content, metadata: meta, docspec_name: 'output_type', source: @source)
+    end
   end
 
   def test_create_undefined_type
     assert_raise(Armagh::Documents::Errors::DocSpecError) do
-      @collect_action.create('something', {}, 'bad_type', @source)
+      @collect_action.create(collected: 'something', metadata: {}, docspec_name: 'bad_type', source: @source)
     end
   end
 
   def test_invalid_create_content
     assert_raise(Armagh::Actions::Errors::CreateError) do
-      @collect_action.create({}, {}, 'output_type', @source)
+      @collect_action.create(collected: {}, metadata: {}, docspec_name: 'output_type', source: @source)
     end
   end
 
+  def test_invalid_create_metadata
+    assert_raise(Armagh::Actions::Errors::CreateError) do
+      @collect_action.create(collected: '', metadata: '', docspec_name: 'output_type', source: @source)
+    end
+  end
+
+  def test_invalid_create_document_id
+    assert_raise(Armagh::Actions::Errors::CreateError) do
+      @collect_action.create(collected: '', metadata: {}, docspec_name: 'output_type', source: @source, document_id: 123)
+    end
+  end
+
+  def test_invalid_create_title
+    assert_raise(Armagh::Actions::Errors::CreateError) do
+      @collect_action.create(collected: '', metadata: {}, docspec_name: 'output_type', source: @source, title: 123)
+    end
+  end
+
+  def test_invalid_create_copyright
+    assert_raise(Armagh::Actions::Errors::CreateError) do
+      @collect_action.create(collected: '', metadata: {}, docspec_name: 'output_type', source: @source, copyright: 123)
+    end
+  end
+
+  def test_invalid_create_document_timestamp
+    assert_raise(Armagh::Actions::Errors::CreateError) do
+      @collect_action.create(collected: '', metadata: {}, docspec_name: 'output_type', source: @source, document_timestamp: 123)
+    end
+  end
   def test_file_source
     source = Armagh::Documents::Source.new(type: 'file', filename: 'filename', host: 'host', path: 'path')
 
     @caller.expects(:instantiate_divider).returns(nil)
     @caller.expects(:create_document).returns(nil)
 
-    @collect_action.create(@content, {'meta' => true}, 'output_type', source)
+    @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: source)
   end
 
   def test_file_source_bad_filename
     source = Armagh::Documents::Source.new(type: 'file', host: 'host', path: 'path')
     e = Armagh::Actions::Errors::CreateError.new('Source filename must be set.')
-    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
+    assert_raise(e) { @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: source) }
   end
 
   def test_file_source_bad_path
     source = Armagh::Documents::Source.new(type: 'file', filename: 'filename', host: 'host')
     e = Armagh::Actions::Errors::CreateError.new('Source path must be set.')
-    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
+    assert_raise(e) { @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: source) }
   end
 
   def test_file_source_bad_host
     source = Armagh::Documents::Source.new(type: 'file', filename: 'filename', path: 'path')
     e = Armagh::Actions::Errors::CreateError.new('Source host must be set.')
-    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
+    assert_raise(e) { @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: source) }
   end
 
   def test_url_source_bad_url
     source = Armagh::Documents::Source.new(type: 'url')
     e = Armagh::Actions::Errors::CreateError.new('Source url must be set.')
-    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
+    assert_raise(e) { @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: source) }
   end
 
   def test_source_bad_type
     source = Armagh::Documents::Source.new(type: 'invalid')
     e = Armagh::Actions::Errors::CreateError.new('Source type must be url or file.')
-    assert_raise(e) { @collect_action.create(@content, {'meta' => true}, 'output_type', source) }
+    assert_raise(e) { @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: source) }
   end
 
   def test_valid_invalid_out_state

@@ -121,8 +121,15 @@ class TestActionDocument < Test::Unit::TestCase
 
   def test_new_document?
     assert_false @doc.new_document?
-    @doc = Armagh::Documents::ActionDocument.new(document_id: @document_id, content: @content, metadata: @metadata,
-                                      docspec: @docspec, source: @source, new: true)
+    @doc = Armagh::Documents::ActionDocument.new(document_id: @document_id,
+                                                 content: @content,
+                                                 metadata: @metadata,
+                                                 docspec: @docspec,
+                                                 source: @source,
+                                                 new: true,
+                                                 title: @title,
+                                                 copyright: @copyright,
+                                                 document_timestamp: @document_timestamp)
     assert_true @doc.new_document?
   end
 
@@ -133,6 +140,10 @@ class TestActionDocument < Test::Unit::TestCase
     @doc.text = text
     assert_equal({'text_content' => 'some text'}, @doc.content)
     assert_equal(text, @doc.text)
+
+    @doc.instance_variable_set(:@content, nil)
+    @doc.text = text
+    assert_equal(text, @doc.text)
   end
 
   def test_raw
@@ -141,6 +152,10 @@ class TestActionDocument < Test::Unit::TestCase
     assert_not_empty @doc.content
     @doc.raw = raw
     assert_equal({'bson_binary' => BSON::Binary.new(raw)}, @doc.content)
+    assert_equal(raw, @doc.raw)
+
+    @doc.instance_variable_set(:@content, nil)
+    @doc.raw = raw
     assert_equal(raw, @doc.raw)
   end
 
@@ -173,5 +188,18 @@ class TestActionDocument < Test::Unit::TestCase
         'display' => @doc.display,
     }.to_json
     assert_equal(expected, @doc.to_json)
+  end
+
+  def test_to_archive_hash
+    expected = {
+      'document_id' => @doc.document_id,
+      'title' => @doc.title,
+      'copyright' => @doc.copyright,
+      'metadata' => @doc.metadata,
+      'source' => @doc.source,
+      'document_timestamp' => @doc.document_timestamp,
+      'display' => @doc.display,
+    }
+    assert_equal(expected, @doc.to_archive_hash)
   end
 end

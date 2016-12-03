@@ -32,7 +32,7 @@ module Armagh
       include Encodable
       include Configh::Configurable
 
-      attr_accessor :source
+      attr_accessor :doc_details
 
       def self.inherited( base )
         base.register_action
@@ -40,7 +40,7 @@ module Armagh
 
       def initialize( *args )
         super
-        @source = nil
+        @doc_details = nil
       end
 
       # Doc is a CollectedDocument
@@ -53,9 +53,15 @@ module Armagh
         docspec = docspec_param&.value
         raise Errors::CreateError, "Divider metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
 
-        content_hash = {'bson_binary' => BSON::Binary.new(content)}
-        action_doc = Documents::ActionDocument.new(document_id: random_id, content: content_hash, metadata: metadata,
-                                                   docspec: docspec, source: @source, new: true)
+        action_doc = Documents::ActionDocument.new(document_id: @doc_details['document_id'],
+                                                   source: @doc_details['source'],
+                                                   content: nil, metadata: metadata,
+                                                   title: @doc_details['title'],
+                                                   copyright: @doc_details['copyright'],
+                                                   docspec: docspec,
+                                                   document_timestamp: @doc_details['document_timestamp'],
+                                                   new: true)
+        action_doc.raw = content
         @caller.create_document(action_doc)
       end
     end

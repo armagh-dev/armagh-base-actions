@@ -26,7 +26,7 @@ module Armagh
     class ActionDocument
       attr_reader :document_id, :source, :content, :metadata, :title, :copyright, :docspec, :document_timestamp, :display
 
-      def initialize(document_id:, title: nil, copyright: nil, content:, metadata:, docspec:, source:, document_timestamp: nil, display: nil, new: false)
+      def initialize(document_id:, title:, copyright:, content:, metadata:, docspec:, source:, document_timestamp:, display: nil, new: false)
         # Not checking the types here for 2 reasons - PublishDocument extends this while overwriting setters and custom actions dont create their own action documents.
         @document_id = document_id
         @title = title
@@ -89,7 +89,7 @@ module Armagh
       end
 
       def text=(text)
-        content.clear
+        content.nil? ? self.content = {} : content.clear
         content['text_content'] = text
       end
 
@@ -98,11 +98,11 @@ module Armagh
       end
 
       def raw=(raw_data)
-        content.clear
+        content.nil? ? self.content = {} : content.clear
         content['bson_binary'] = BSON::Binary.new(raw_data)
       end
 
-      def to_json
+      def to_hash
         {
           'document_id' => @document_id,
           'title' => @title,
@@ -113,7 +113,18 @@ module Armagh
           'document_timestamp' => @document_timestamp,
           'docspec' => @docspec.to_hash,
           'display' => @display,
-        }.to_json
+        }
+      end
+
+      def to_json
+        to_hash.to_json
+      end
+
+      def to_archive_hash
+        h = to_hash
+        h.delete('content')
+        h.delete('docspec')
+        h.delete_if{|_k, v| v.nil?}
       end
 
       alias_method :hash, :content

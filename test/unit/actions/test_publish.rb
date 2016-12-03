@@ -69,7 +69,7 @@ class TestPublish < Test::Unit::TestCase
   def test_get_existing_published_document
     doc = Armagh::Documents::ActionDocument.new(
              document_id: 'id', content: {'content' => 'old'}, metadata: {'meta' => 'old'},
-             docspec: @config.output.docspec, source: {}, new: true)
+             docspec: @config.output.docspec, source: {}, new: true, title: 'title', copyright: 'copyright', document_timestamp: Time.at(0).utc)
 
     @caller.expects(:get_existing_published_document).with(doc)
     @publish_action.get_existing_published_document doc

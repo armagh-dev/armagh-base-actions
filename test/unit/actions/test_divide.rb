@@ -69,7 +69,7 @@ class TestDivide < Test::Unit::TestCase
 
     @caller.expects(:create_document)
 
-    @divide_action.source = {}
+    @divide_action.doc_details = {}
     @divide_action.create(content, meta)
   end
 
