@@ -31,10 +31,13 @@ module Armagh
 
       define_parameter name: 'max_items', description: 'Maximum number of items to collect', type: 'positive_integer', required: true, default: 100, prompt: '100'
       define_parameter name: 'link_field', description: 'Field containing link to the content.', type: 'string', prompt: 'field_name', default: 'link'
-      define_parameter name: 'content_field', description: 'Field containing content.  If set, overrides link_field.', type: 'string', required: false, prompt: 'field_name'
+      define_parameter name: 'content_field', description: 'Field containing content.', type: 'string', required: false, prompt: 'field_name'
+      define_parameter name: 'collect_link', description: 'Collect data from the content link, not the content field.', type: 'boolean', required: true, default: false
       define_parameter name: 'additional_fields', description: 'Additional fields to collect from the RSS feed (in addition to the defaults', type: 'string_array', required: true, prompt: '[field1, field2]', default: []
       define_parameter name: 'full_collect', description: 'Do a collection of the full available RSS history.', type: 'boolean', required: true, default: false
       define_parameter name: 'description_no_content', description: 'Add the description as content in case there is no content.', type: 'boolean', required: true, default: false
+      define_parameter name: 'id_pattern', description: 'ID capture pattern.', type: 'string', required: true, default: '(.*)', prompt: 'id=(\w+)', group: 'rss'
+      define_parameter name: 'passthrough', description: "Don't try to populate fields during the collect phase.", type: 'boolean', required: true, default: false, group: 'rss'
 
       # Additional media tags
       SimpleRSS.item_tags.concat [:'media:rating', :'media:rating#scheme', :'media:description', :'media:keywords',
@@ -58,8 +61,10 @@ module Armagh
         rss_items = get_filtered_rss(rss, last_collect, config.rss.max_items)
 
         content_field = config.rss.content_field
-        content_field = content_field.to_sym if content_field
-        link_field = config.rss.link_field.to_sym
+        content_field = clean_field(content_field).to_sym if content_field
+
+        link_field = config.rss.link_field
+        link_field = clean_field(link_field).to_sym
 
         channel = {}
         SimpleRSS.feed_tags.each{|t| channel[t.to_s] = rss.send(t) if rss.respond_to?(t)}
@@ -67,10 +72,7 @@ module Armagh
         rss_items.each do |item|
           error = nil
           begin
-            if content_field
-              type = parent_type
-              content = item[content_field]
-            elsif item[link_field]
+            if config.rss.collect_link
               response = http.fetch(item[link_field])
               content = response['body']
 
@@ -80,7 +82,13 @@ module Armagh
                 type = HTTP.extract_type(response['head']) || parent_type
               end
             else
-              type = parent_type
+              if content_field
+                type = parent_type
+                content = item[content_field]
+                content << "\n\nOriginal Content: #{item[link_field]}" if item[link_field]
+              else
+                type = parent_type
+              end
             end
           rescue => e
             error = RSSError.new("Unknown RSS error occurred from #{config.http.url}: #{e}.")
@@ -95,6 +103,13 @@ module Armagh
           state.content['last_collect'] = timestamp if state.content['last_collect'].nil? || timestamp > state.content['last_collect']
         end
 
+      end
+
+      private_class_method def clean_field(field)
+        field.gsub!(':', '_')
+        field.gsub!('#', '_')
+        field.gsub!(' ', '_')
+        field
       end
 
       private_class_method def setup_fields(config)

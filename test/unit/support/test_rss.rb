@@ -104,7 +104,7 @@ class TestRSS < Test::Unit::TestCase
 
     stub_request(:get, 'http://fake.url').to_return(body: fixture('rss_link.xml'))
     stub_request(:get, 'http://another.fake.url').to_return(body: content, headers: {'Content-Type' => 'text/plain; charset=ISO-8859-1'})
-    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'additional_fields' => []}})
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'collect_link' => true}})
     entered = false
     Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_str, type, timestamp, exception|
       entered = true
@@ -117,7 +117,7 @@ class TestRSS < Test::Unit::TestCase
   def test_bad_link_collect
     stub_request(:get, 'http://fake.url').to_return(body: fixture('rss_link.xml'))
     stub_request(:get, 'http://another.fake.url').to_timeout
-    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'additional_fields' => []}})
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'collect_link' => true}})
     Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_str, type, timestamp, exception|
       assert_kind_of(Armagh::Support::RSS::RSSError, exception)
     }
@@ -144,7 +144,7 @@ class TestRSS < Test::Unit::TestCase
     sub_content = 'something'
     stub_request(:get, 'http://fake.url').to_return(body: content)
     stub_request(:get, 'http://another.fake.url').to_return(body: sub_content)
-    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'additional_fields' => []}})
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'collect_link' => true}})
 
     entered = false
     Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_str, type, timestamp, exception|
@@ -184,5 +184,26 @@ class TestRSS < Test::Unit::TestCase
     assert_equal 2, items.length
     descriptions = items.collect{|i| i['description']}.sort
     assert_equal(['New Item', 'Old Item'], descriptions)
+  end
+
+  def test_collect_complex_path
+    content = fixture('rss_media_type.xml')
+    stub_request(:get, 'http://fake.url').to_return(body: content)
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'content_field' => 'media:content type', 'link_field' => 'something fake'}})
+
+    expected = 'pdf'
+    actual = nil
+    Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_str, type, timestamp, exception|
+      actual = content_str
+    }
+    assert_equal(expected, actual)
+
+
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'content_field' => 'media:content#type', 'link_field' => 'something fake'}})
+    actual = nil
+    Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_str, type, timestamp, exception|
+      actual = content_str
+    }
+    assert_equal(expected, actual)
   end
 end

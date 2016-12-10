@@ -48,7 +48,8 @@ class TestIntegrationRSS < Test::Unit::TestCase
         'url' => @feed_url,
       },
       'rss' => {
-        'full_collect' => true
+        'full_collect' => true,
+        'collect_link' => true
       }
     }
 
