@@ -28,12 +28,13 @@ class TestTacball < Test::Unit::TestCase
     @config_values = {
       'tacball' => {
         'feed' => 'carnitas',
-        'source' => 'chipotle'
+        'source' => 'chipotle',
+        'type' => 'Test'
       }
     }
     @config = Armagh::Support::Tacball.create_configuration([], 'test', @config_values)
     @tacball_fields = {
-      :docid => '4025/docid',
+      :docid => 'docid',
       :title => 'title',
       :timestamp => 1451696523,
       :originaltype => 'text/plain',
@@ -41,34 +42,23 @@ class TestTacball < Test::Unit::TestCase
       :txt_content => 'hello world',
       :copyright => 'copyright',
       :html_content => '',
-      :basename => 'basename.txt',
       :output_path => '/some/output/path',
-      :logger => mock('logger')
+      :logger => mock('logger'),
+      :type => 'Failover'
     }
     @opts = @tacball_fields.clone
+    @orig_env = ENV['ARMAGH_TAC_DOC_PREFIX']
+    ENV['ARMAGH_TAC_DOC_PREFIX'] = '4025'
+  end
+
+  def teardown
+    ENV['ARMAGH_TAC_DOC_PREFIX'] = @orig_env
   end
 
   def test_create_tacball_file
-    expected_filename = 'basename.txt.tgz.1451696523.160102'
-    FakeFS {
-      FileUtils.touch('basename.txt.')
-      output_filename = Armagh::Support::Tacball.create_tacball_file(@config, @opts)
-      assert_equal expected_filename, output_filename
-    }
-  end
-
-  def test_create_tacball_file_with_docid_type_error
-    expected = Armagh::Support::Tacball::FieldTypeError.new('Document ID must be a string')
-
-    @opts[:docid] = 4025
-    assert_raise(expected) {
-      Armagh::Support::Tacball.create_tacball_file(@config, @opts)
-    }
-
-    @opts[:docid] = nil
-    assert_raise(expected) {
-      Armagh::Support::Tacball.create_tacball_file(@config, @opts)
-    }
+    expected_filename = 'Test-docid.tgz.1451696523.160102'
+    output_filename = FakeFS { Armagh::Support::Tacball.create_tacball_file(@config, @opts) }
+    assert_equal expected_filename, output_filename
   end
 
   def test_create_tacball_file_with_title_type_error
@@ -114,13 +104,14 @@ class TestTacball < Test::Unit::TestCase
   end
 
   def test_create_tacball_file_with_invalid_docid
-    @opts[:docid] = 'bad prefix/bad doc'
+    @opts[:docid] = 'bad doc'
+    ENV['ARMAGH_TAC_DOC_PREFIX'] = 'bad prefix'
     FakeFS {
       FileUtils.touch('basename.txt.')
       error = assert_raise(Armagh::Support::Tacball::InvalidDocidError) {
         Armagh::Support::Tacball.create_tacball_file(@config, @opts)
       }
-      assert_equal "Document ID (#{@opts[:docid]}) must be in the format #{TAC::VALID_DOCID_WITH_PREFIX}", error.message
+      assert_equal "Document ID (bad prefix/Test-#{@opts[:docid]}) must be in the format #{TAC::VALID_DOCID_WITH_PREFIX}", error.message
     }
   end
 
@@ -163,6 +154,15 @@ class TestTacball < Test::Unit::TestCase
       }
       assert_equal error_message, error.message
     }
+  end
+
+  def test_create_tacball_no_type
+    @config_values['tacball'].delete('type')
+    @config = Armagh::Support::Tacball.create_configuration([], 'test', @config_values)
+
+    expected_filename = 'Failover-docid.tgz.1451696523.160102'
+    output_filename = FakeFS { Armagh::Support::Tacball.create_tacball_file(@config, @opts) }
+    assert_equal expected_filename, output_filename
   end
 
 end

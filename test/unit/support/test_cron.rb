@@ -24,6 +24,10 @@ require 'mocha/test_unit'
 require_relative '../../../lib/armagh/support/cron'
 
 class TestCron < Test::Unit::TestCase
+  def setup
+    @time = Time.new(2007,11,1,15,25,0)
+  end
+
   def test_valid_cron
     assert_true Armagh::Support::Cron.valid_cron?('* * * * *')
     assert_true Armagh::Support::Cron.valid_cron?('*/10 */10 * * *')
@@ -36,13 +40,42 @@ class TestCron < Test::Unit::TestCase
   end
 
   def test_next_execution_time
-    time = Time.new(2007,11,1,15,25,0)
     next_time = Time.new(2007,11,1,15,26,0)
-    assert_equal(next_time, Armagh::Support::Cron.next_execution_time('* * * * *', time))
+    assert_equal(next_time, Armagh::Support::Cron.next_execution_time('* * * * *', @time))
+  end
+
+  def test_next_execution_time_minute
+    next_time = Time.new(2007,11,1,16,10,0)
+    assert_equal(next_time, Armagh::Support::Cron.next_execution_time('10 * * * *', @time))
+  end
+
+  def test_next_execution_time_hour
+    next_time = Time.new(2007,11,2,10,00,0)
+    assert_equal(next_time, Armagh::Support::Cron.next_execution_time('* 10 * * *', @time))
+  end
+
+  def test_next_execution_time_day
+    next_time = Time.new(2007,11,5,0,0,0)
+    assert_equal(next_time, Armagh::Support::Cron.next_execution_time('* * 5 * *', @time))
+  end
+
+  def test_next_execution_time_month
+    next_time = Time.new(2008,4,1,0,0,0)
+    assert_equal(next_time, Armagh::Support::Cron.next_execution_time('* * * 4 *', @time))
+  end
+
+  def test_next_execution_time_dow
+    next_time = Time.new(2007,11,6,0,0,0)
+    assert_equal(next_time, Armagh::Support::Cron.next_execution_time('* * * * 2', @time))
+  end
+
+  def test_divide_minute
+    next_time = Time.new(2007,11,1,15,30,0)
+    assert_equal(next_time, Armagh::Support::Cron.next_execution_time('*/10 * * * *', @time))
   end
 
   def test_next_execution_time_invalid
-    time = Time.new(2007,11,1,15,25,0)
-    assert_raise(Armagh::Support::Cron::CronError){Armagh::Support::Cron.next_execution_time('invalid', time)}
+    assert_raise(Armagh::Support::Cron::CronError){Armagh::Support::Cron.next_execution_time('invalid', @time)}
   end
+
 end

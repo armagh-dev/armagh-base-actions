@@ -45,7 +45,7 @@ module Armagh
         parser = CronParser.new(cron_string)
         parser.next(last_execution_time)
       rescue
-        raise CronError, 'An unexpected cron error occured.'
+        raise CronError, 'An unexpected cron error occurred.'
       end
     end
   end

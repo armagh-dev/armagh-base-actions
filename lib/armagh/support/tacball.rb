@@ -32,14 +32,20 @@ module Armagh
  
       define_parameter name: 'feed',
                        description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED}",
-                       type: 'string',
+                       type: 'populated_string',
                        required: true,
                        group: 'tacball'
 
       define_parameter name: 'source',
                        description: 'TACBall Document Source Name',
-                       type: 'string',
+                       type: 'populated_string',
                        required: true,
+                       group: 'tacball'
+
+      define_parameter name: 'type',
+                       description: "Document ID type.  For example, if set to Test, the docid will be in the format #{ENV['ARMAGH_TAC_DOC_PREFIX']}/Test-123456.  If not set, defaults to the document type.",
+                       type: 'populated_string',
+                       required: false,
                        group: 'tacball'
          
       module_function
@@ -49,19 +55,23 @@ module Armagh
         docid:,
         title:,
         timestamp:,
+        type: '',
         originaltype: '',
         data_repository: '',
         txt_content: '',
         copyright: '',
         html_content: '',
-        basename:,
         output_path: '.',
         logger:
       )
         begin
           TAC.logger = logger
+          type = config.tacball.type || type
+          basename = "#{type}-#{docid}"
+          docid_with_prefix = "#{ENV['ARMAGH_TAC_DOC_PREFIX']}/#{basename}"
+
           TAC.create_tacball_file(
-            docid: docid,
+            docid: docid_with_prefix,
             title: title,
             feed: config.tacball.feed,
             timestamp: timestamp,
