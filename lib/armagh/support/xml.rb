@@ -23,18 +23,49 @@ require 'configh'
 module Armagh
   module Support
     module XML
+      include Configh::Configurable
       extend XML::Splitter
       extend XML::Divider
       extend XML::Parser
 
+      define_parameter name: 'get_doc_id_from',
+                       description: 'XML field/s that contain document ID',
+                       type: 'string_array',
+                       required: false,
+                       group: 'xml'
+
+      define_parameter name: 'get_doc_title_from',
+                       description: 'XML field/s that contain document title',
+                       type: 'string_array',
+                       required: false,
+                       group: 'xml'
+
+      define_parameter name: 'get_doc_timestamp_from',
+                       description: 'XML field/s that contain document timestamp',
+                       type: 'string_array',
+                       required: false,
+                       group: 'xml'
+
+      define_parameter name: 'get_doc_copyright_from',
+                       description: 'XML field/s that contain document copyrights',
+                       type: 'string_array',
+                       required: false,
+                       group: 'xml'
+
+      define_parameter name: 'html_nodes',
+                       description: 'HTML nodes that need to be kept as-is and not converted into a hash',
+                       type: 'string_array',
+                       required: false,
+                       group: 'xml'
+
       module_function
 
-      def to_hash(xml, text_nodes = nil)
-        Parser.to_hash(xml, text_nodes)
+      def to_hash(xml, html_nodes_no_parse = nil)
+        Parser.to_hash(xml, html_nodes_no_parse)
       end
 
-      def file_to_hash(xml, text_nodes = nil)
-        Parser.file_to_hash(xml, text_nodes)
+      def file_to_hash(xml, html_nodes_no_parse = nil)
+        Parser.file_to_hash(xml, html_nodes_no_parse)
       end
 
       def html_to_hash(html)
@@ -54,6 +85,10 @@ module Armagh
         end
 
         nil
+      end
+
+      def get_doc_attr(xml, attr_name)
+        dig_first(xml, *attr_name)
       end
     end
   end

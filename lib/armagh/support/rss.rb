@@ -106,10 +106,10 @@ module Armagh
       end
 
       private_class_method def clean_field(field)
-        field.gsub!(':', '_')
-        field.gsub!('#', '_')
-        field.gsub!(' ', '_')
-        field
+        cleaned = field.gsub(':', '_')
+        cleaned.gsub!('#', '_')
+        cleaned.gsub!(' ', '_')
+        cleaned
       end
 
       private_class_method def setup_fields(config)

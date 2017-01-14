@@ -15,11 +15,10 @@
 # limitations under the License.
 #
 
-require_relative '../../helpers/coverage_helper'
-
 require 'test/unit'
 require 'fakefs/safe'
 
+require_relative '../../helpers/coverage_helper'
 require_relative '../../../lib/armagh/support/xml'
 
 module XMLTestHelpers
@@ -96,7 +95,7 @@ class TestXML < Test::Unit::TestCase
     ]
 
     @config_store = []
-    @config_size_default = Armagh::Support::XML.create_configuration( @config_store, 'def', {} )
+    @config_size_default = Armagh::Support::XML.create_configuration( @config_store, 'def', {'xml' => {'html_nodes' => ['body.content']}} )
     @config_size_800     = Armagh::Support::XML.create_configuration( @config_store, 's800', {'xml' => { 'size_per_part'  => 800, 'xml_element' => 'sdnEntry' }})
     @config_size_1000    = Armagh::Support::XML.create_configuration( @config_store, 's1000', { 'xml' => { 'size_per_part'  => 1000, 'xml_element' => 'sdnEntry' }})
   end
@@ -105,7 +104,7 @@ class TestXML < Test::Unit::TestCase
     FakeFS::FileSystem.clear
   end
 
-  def test_text_node
+  def test_html_node
     xml = @xml.sub(/<\/chapter>/, <<-end.gsub(/^\s+\|/, '')
       |  <body.content>
       |    <style>
@@ -125,40 +124,41 @@ class TestXML < Test::Unit::TestCase
     end
     )
     expected = {"book"=>{"authors"=>{"name"=>["Someone","Sometwo"]},"chapters"=>{"chapter"=>[{"attr_key"=>"chappy","body_content"=>"\n    <style>\n      body {\n        font-size: 10pt;\n        color: #777;\n      }\n    </style>\n    <p>Treat this section like text</p>\n    <div>\n      <span>\n        as-is without parsing to a hash\n      </span>\n    </div>\n  ","number"=>"1","title"=>"A Fine Beginning"},{"number"=>"2","title"=>"A Terrible End"}]},"data"=>"Some Data","title"=>"Book Title"}}
-    assert_equal expected, Armagh::Support::XML.to_hash(xml, 'body.content')
+    assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
+    assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes.first)
   end
 
   def test_to_hash
-    assert_equal @expected, Armagh::Support::XML.to_hash(@xml)
+    assert_equal @expected, Armagh::Support::XML.to_hash(@xml, @config_size_default.xml.html_nodes)
   end
 
   def test_to_hash_repeating_nodes_attrs_and_text
     xml = '<xml><div id="123" class="css">stuff</div><div id="124" class="css2">more stuff</div><div>just text</div></xml>'
     expected = {"xml"=>{"div"=>[{"attr_class"=>"css","attr_id"=>"123","text"=>"stuff"},{"attr_class"=>"css2","attr_id"=>"124","text"=>"more stuff"},"just text"]}}
-    assert_equal expected, Armagh::Support::XML.to_hash(xml)
+    assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
   end
 
   def test_to_hash_invalid_element_names
     xml = '<xml><$node>value</$node><body.content>stuff</body.content></xml>'
     expected = {"xml"=>{"_node"=>"value","body_content"=>"stuff"}}
-    assert_equal expected, Armagh::Support::XML.to_hash(xml)
+    assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
   end
 
   def test_to_hash_bad_xml
     expected = {"bad"=>{"attr_"=>"", "attr_xml"=>""}}
-    assert_equal expected, Armagh::Support::XML.to_hash('<bad xml <')
+    assert_equal expected, Armagh::Support::XML.to_hash('<bad xml <', @config_size_default.xml.html_nodes)
   end
 
   def test_to_hash_not_xml
     e = assert_raise Armagh::Support::XML::Parser::XMLParseError do
-      Armagh::Support::XML.to_hash('this is not XML')
+      Armagh::Support::XML.to_hash('this is not XML', @config_size_default.xml.html_nodes)
     end
     assert_equal 'Attempting to apply text to an empty stack', e.message
   end
 
   def test_to_hash_missmatched_input
     e = assert_raise Armagh::Support::XML::Parser::XMLParseError do
-      Armagh::Support::XML.to_hash({hash_instead_of_string: true})
+      Armagh::Support::XML.to_hash({hash_instead_of_string: true}, @config_size_default.xml.html_nodes)
     end
     assert_equal 'no implicit conversion of Hash into String', e.message
   end
@@ -167,14 +167,14 @@ class TestXML < Test::Unit::TestCase
     result = ''
     FakeFS {
       File.open('sample.xml', 'w') { |f| f << @xml }
-      result = Armagh::Support::XML.file_to_hash('sample.xml')
+      result = Armagh::Support::XML.file_to_hash('sample.xml', @config_size_default.xml.html_nodes)
     }
     assert_equal @expected, result
   end
 
   def test_file_to_hash_missing_file
     e = assert_raise Armagh::Support::XML::Parser::XMLParseError do
-      Armagh::Support::XML.file_to_hash('missing.file')
+      Armagh::Support::XML.file_to_hash('missing.file', @config_size_default.xml.html_nodes)
     end
     assert_equal 'No such file or directory @ rb_sysopen - missing.file', e.message
   end
@@ -267,5 +267,56 @@ class TestXML < Test::Unit::TestCase
     assert_nil(Armagh::Support::XML.dig_first(nil, 'invalid', 'sub2'))
   end
 
+  def test_get_doc_attr_with_id
+    hash = {
+      'doc_ID' => 'abc123',
+      'field2' => 'field2 value'
+    }
+    assert_equal 'abc123', Armagh::Support::XML.get_doc_attr(hash, ['doc_ID'])
+  end
+  
+  def test_get_doc_attr_with_title
+    hash = {
+      'field1' => 'field1 value',
+      'field2' => {
+        'sub2' => 'sub2 value',
+        'Headline' => 'Breaking News'
+      }
+    }
+    assert_equal 'Breaking News', Armagh::Support::XML.get_doc_attr(hash, ['field2', 'Headline'])
+  end
+
+  def test_get_doc_attr_with_timestamp
+    hash = {
+      'field1' => 'field1 value',
+      'field2' => 'field2 value',
+      'field3' => {
+        'sub3' => {
+          'subsub3' => {
+            'Timestamp' => '1483555818'
+          }
+        }
+      }
+    }
+    assert_equal '1483555818', Armagh::Support::XML.get_doc_attr(hash, ['field3', 'sub3', 'subsub3', 'Timestamp'])
+  end
+
+  def test_get_doc_attr_with_copyrights
+    hash = {
+      'field1' => 'field1 value',
+      'field2' => 'field2 value',
+      'field3' => 'field3 value',
+      'field4' => {
+        'sub4' => {
+          'subsub4' => {
+            'subsubsub4' => {
+              'copyright' => 'Copyright Line'
+            }
+          }
+        }
+      }
+    }
+    assert_equal 'Copyright Line', Armagh::Support::XML.get_doc_attr(hash, ['field4', 'sub4', 'subsub4', 'subsubsub4', 'copyright'])
+  end
 end
 

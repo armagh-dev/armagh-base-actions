@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 require 'configh'
+require 'facets/kernel/deep_copy'
 
 require 'ox'
 
@@ -26,16 +27,21 @@ module Armagh
           element.to_s.gsub(/\$|\./, '_')
         end
 
-        def initialize(text_nodes = nil, xml = nil)
+        def initialize(xml = nil, html_nodes = nil)
           @stack       = []
-          @text_values = {}
-          @text_nodes  = Array(text_nodes)
-          @text_nodes.each do |node|
+          @html_values = {}
+          if html_nodes.is_a? Array
+            @html_nodes = html_nodes.deep_copy
+          else
+            @html_nodes = [html_nodes.dup]
+          end
+
+          @html_nodes.each do |node|
             value = xml[/<#{node}>(.*)<\/#{node}>/m, 1]
             node = clean_element(node)
-            @text_values[node] = value
+            @html_values[node] = value
           end
-          @text_nodes.map! { |k, _| k = clean_element(k) }
+          @html_nodes.map! { |k, _| k = clean_element(k) }
         end
 
         def clean_element(element)
@@ -44,9 +50,9 @@ module Armagh
 
         def start_element(name)
           name = clean_element(name)
-          if @text_nodes.include? name
+          if @html_nodes.include? name
             @current_text_node = name
-            @stack.push name => @text_values[name]
+            @stack.push name => @html_values[name]
           end
           @stack.push name => nil unless @current_text_node
         end

@@ -26,18 +26,18 @@ module Armagh
 
         module_function
 
-        def to_hash(xml, text_nodes = nil)
+        def to_hash(xml, html_nodes = nil)
           io = StringIO.new(xml)
-          file_to_hash(io, text_nodes)
+          file_to_hash(io, html_nodes)
         rescue => e
           raise XMLParseError, e
         ensure
           io.close if io
         end
 
-        def file_to_hash(xml_file, text_nodes = nil)
+        def file_to_hash(xml_file, html_nodes = nil)
           xml = xml_file.is_a?(StringIO) ? xml_file.read : File.read(xml_file)
-          handler = XML::Hasher.new(text_nodes, xml)
+          handler = XML::Hasher.new(xml, html_nodes)
           Ox.sax_parse(handler, xml)
           handler.data
         rescue => e

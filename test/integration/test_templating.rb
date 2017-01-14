@@ -41,7 +41,11 @@ class TestIntegrationTemplating < Test::Unit::TestCase
 
   def setup
     set_fixture_dir('templating')
-    @data = Armagh::Support::XML.to_hash(fixture('data.xml'))
+    config_values = {
+      'xml' => {'html_nodes' => ['body.content']}
+    }
+    config = Armagh::Support::XML.create_configuration([], 'int_test', config_values)
+    @data = Armagh::Support::XML.to_hash(fixture('data.xml'), config)
     @doc  = Armagh::Support::HashDoc.new(@data)
   end
 

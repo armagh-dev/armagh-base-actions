@@ -16,6 +16,7 @@
 #
 
 require 'configh'
+require 'facets/kernel/deep_copy'
 
 require_relative 'shell'
 
@@ -68,9 +69,9 @@ module Armagh
           part.dup
         end
 
-        extract_pattern(html_parts.first, :after, config.html.extract_after)
-        extract_pattern(html_parts.first, :until, config.html.extract_until)
-        exclude_pattern(html_parts.first,         config.html.exclude)
+        extract_pattern(html_parts.first, :after, config.html.extract_after.deep_copy)
+        extract_pattern(html_parts.first, :until, config.html.extract_until.deep_copy)
+        exclude_pattern(html_parts.first,         config.html.exclude.deep_copy)
         force_breaks(html_parts.first)         if config.html.force_breaks
 
         html_parts.each do |part|
