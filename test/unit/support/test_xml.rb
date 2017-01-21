@@ -195,7 +195,7 @@ class TestXML < Test::Unit::TestCase
     e = assert_raise Armagh::Support::XML::Parser::XMLParseError do
       Armagh::Support::XML.html_to_hash('<html<body<pText')
     end
-    assert_equal 'invalid format, document not terminated at line 1, column 24 [parse.c:831]', e.message.strip
+    assert_include e.message, 'invalid format'
   end
 
   test "divides source xml into array of multiple xml strings having max size of 'size_per_part' bytes" do

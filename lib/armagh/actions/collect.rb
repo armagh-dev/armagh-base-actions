@@ -50,7 +50,7 @@ module Armagh
       def self.add_action_params(name, values)
         new_values = super
         new_values['input'] ||= {}
-        new_values['input']['docspec'] = "#{ COLLECT_DOCTYPE_PREFIX }#{new_values['action']['name']}:ready"
+        new_values['input']['docspec'] = "#{ COLLECT_DOCTYPE_PREFIX }#{new_values['action']['name']}:#{Documents::DocState::READY}"
 
         new_values
       end
