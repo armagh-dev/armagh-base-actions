@@ -32,6 +32,8 @@ module Armagh
           @html_values = {}
           if html_nodes.is_a? Array
             @html_nodes = html_nodes.deep_copy
+          elsif html_nodes.nil?
+            @html_nodes = []
           else
             @html_nodes = [html_nodes.dup]
           end

@@ -179,6 +179,15 @@ class TestXML < Test::Unit::TestCase
     assert_equal 'No such file or directory @ rb_sysopen - missing.file', e.message
   end
 
+  def test_file_to_hash_nil_html_nodes
+    result = ''
+    FakeFS {
+      File.open('sample.xml', 'w') { |f| f << @xml }
+      result = Armagh::Support::XML.file_to_hash('sample.xml', nil)
+    }
+    assert_equal @expected, result
+  end
+
   def test_html_to_hash
     html = '<html><body><p>Text</p></body></html>'
     expected = {"html"=>{"body"=>{"p"=>"Text"}}}

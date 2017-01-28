@@ -58,26 +58,29 @@ class TestIntegrationActionStateful < Test::Unit::TestCase
   end
   
   def test_new_state_doc
-    
     @action.with_locked_action_state( 10 ) do |state|
       state.content = { 'Yohoho' => 'rum' }
     end
-    
-    d = @action_state_store.find( { '_id' => 'fred_state' }).first
-    assert_equal( {"_id"=>"fred_state", "content"=>{"Yohoho"=>"rum"}, "locked_by"=>nil, "locked_at"=>nil, "type"=>"Armagh::Actions::ActionStateDocument"}, d )
+    d = @action_state_store.find( { 'name' => 'fred_state' }).first
+    assert_equal 'fred_state', d['name']
+    assert_equal ({"Yohoho"=>"rum"}), d['content']
+    assert_equal nil, d['locked_by']
+    assert_equal nil, d['locked_at']
+    assert_equal 'Armagh::Actions::ActionStateDocument', d['type']
   end
   
   def test_new_state_doc_and_reopen
-    
     assert_nothing_raised do
       @action.with_locked_action_state( 10 ) do |state|
         state.content = { 'Yohoho' => 'rum' }
       end
     end
-    
-    d = @action_state_store.find( { '_id' => 'fred_state' }).first
-    assert_equal( {"_id"=>"fred_state", "content"=>{"Yohoho"=>"rum"}, "locked_by"=>nil, "locked_at"=>nil, "type"=>"Armagh::Actions::ActionStateDocument"}, d )
-    
+    d = @action_state_store.find( { 'name' => 'fred_state' }).first
+    assert_equal 'fred_state', d['name']
+    assert_equal ({"Yohoho"=>"rum"}), d['content']
+    assert_equal nil, d['locked_by']
+    assert_equal nil, d['locked_at']
+    assert_equal 'Armagh::Actions::ActionStateDocument', d['type']
     assert_nothing_raised do
       @action.with_locked_action_state( 10 ) do |state|
         assert_equal( { 'Yohoho' => 'rum' }, state.content )
@@ -85,74 +88,71 @@ class TestIntegrationActionStateful < Test::Unit::TestCase
     end
   end
   
-  def test_wait_but_no_timeout
-    
-    pid = Thread.new do 
+  def test_wait_no_timeout
+    pid = Process.fork do 
       assert_nothing_raised do
         @action.with_locked_action_state( 10 ) do |state|
           state.content = { 'Yohoho' => 'rum' }
-          sleep 20
+          sleep 15
         end
       end
     end
-
-    sleep 15 
-    
+    sleep 20 
     assert_nothing_raised do
       @action.with_locked_action_state(10) do |state|
         assert_equal( { 'Yohoho' => 'rum' }, state.content )
       end
     end
-    
+    pid2, status2 = Process.wait2
+    assert_equal pid, pid2
+    assert_equal 0, status2.exitstatus
   end
 
-  def test_wait_timeout
-    
-    pid = Thread.new do 
+  def test_wait_with_timeout
+    pid = Process.fork do
       assert_nothing_raised do
         @action.with_locked_action_state( 10 ) do |state|
           state.content = { 'Yohoho' => 'rum' }
-          sleep 60
+          sleep 15
         end
       end
     end
-
     sleep 10 
-    
     assert_raises( Armagh::Actions::ActionStateTimeoutError ) do
-      @action.with_locked_action_state(5) do |state|
+      @action.with_locked_action_state(1) do |state|
       end
     end
-    
+    pid2, status2 = Process.wait2
+    assert_equal pid, pid2
+    assert_equal 0, status2.exitstatus
   end   
   
   def test_save
-    
     assert_nothing_raised do
       @action.with_locked_action_state( 10 ) do |state|
-        
         state.content[ 'Yohoho' ] = 'rum'
         assert_nothing_raised do
           state.save
         end
-        d = @action_state_store.find( { '_id' => 'fred_state' }).first
-        assert_equal 'fred_state', d['_id']
+        d = @action_state_store.find( { 'name' => 'fred_state' }).first
+        assert_equal 'fred_state', d['name']
         assert_equal( {"Yohoho"=>"rum"}, d['content'] )
         assert_not_nil d['locked_by']
-        
         state.content[ 'cheer' ] = 'beer'
         assert_nothing_raised do
           state.save
         end
-        d = @action_state_store.find( { '_id' => 'fred_state' }).first
-        assert_equal 'fred_state', d['_id']
+        d = @action_state_store.find( { 'name' => 'fred_state' }).first
+        assert_equal 'fred_state', d['name']
         assert_equal( {"Yohoho"=>"rum","cheer"=>"beer"}, d['content'] )
         assert_not_nil d['locked_by']
-        
       end
     end
-    
-    d = @action_state_store.find( { '_id' => 'fred_state' }).first
-    assert_equal( {"_id"=>"fred_state", "content"=>{"Yohoho"=>"rum","cheer"=>"beer"}, "locked_by"=>nil, "locked_at"=>nil, "type"=>"Armagh::Actions::ActionStateDocument"}, d )
+    d = @action_state_store.find( { 'name' => 'fred_state' }).first
+    assert_equal 'fred_state', d['name']
+    assert_equal ({"Yohoho"=>"rum","cheer"=>"beer"}), d['content']
+    assert_equal nil, d['locked_by']
+    assert_equal nil, d['locked_at']
+    assert_equal 'Armagh::Actions::ActionStateDocument', d['type']
   end
 end
