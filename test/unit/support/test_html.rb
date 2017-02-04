@@ -158,4 +158,10 @@ class TestHTML < Test::Unit::TestCase
     assert_equal "undefined method `html' for nil:NilClass", e.message
   end
 
+  def test_merge_multiple_pages
+    Armagh::Support::Shell.unstub(:call_with_input)
+    merged = Armagh::Support::HTML.merge_multiple_pages(%w(ONE TWO THREE FOUR))
+    assert_equal("ONE\n\n--- PAGE 2 ---\n\nTWO\n\n--- PAGE 3 ---\n\nTHREE\n\n--- PAGE 4 ---\n\nFOUR", merged)
+  end
+
 end

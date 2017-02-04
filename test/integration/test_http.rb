@@ -52,9 +52,15 @@ class TestIntegrationHTTP < Test::Unit::TestCase
   end
   
   def fetch_site( override_url = nil, override_method = nil, override_fields = nil)
-    response = @http.fetch( override_url, override_method, override_fields )
-    @head = response['head']
-    @content = response['body']
+    responses = @http.fetch( override_url, override_method, override_fields )
+    @heads = []
+    @contents = []
+
+    responses.each do |response|
+      @heads << response['head']
+      @contents << response['body']
+    end
+    responses
   end
 
   def fetch_page( override_url = nil, override_method = nil, override_fields = nil )
@@ -63,7 +69,13 @@ class TestIntegrationHTTP < Test::Unit::TestCase
   end
 
   def assert_content(expected)
-    assert_include @content, expected
+    includes = false
+    @contents.each do |content|
+      includes ||= content.include? expected
+      break if includes
+    end
+
+    assert_true includes, "#{@contents} did not include #{expected}"
   end
 
   def load_local_integration_test_config
@@ -188,5 +200,13 @@ class TestIntegrationHTTP < Test::Unit::TestCase
     configure_connection( Armagh::Support::HTTP::GET, 'infinite_redirection')
     expected = Armagh::Support::HTTP::RedirectError.new("Too many redirects from 'https://testserver.noragh.com/suites/infinite_redirection'.")
     assert_raise(expected){fetch_page}
+  end
+
+  def test_multiple_pages
+    configure_connection(Armagh::Support::HTTP::GET, 'multiple_pages')
+    fetch_page
+    assert_content('You made it to page one')
+    assert_content('You made it to page two')
+    assert_equal(2, @contents.length)
   end
 end

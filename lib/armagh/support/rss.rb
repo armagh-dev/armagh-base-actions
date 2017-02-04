@@ -48,11 +48,11 @@ module Armagh
       module_function
 
       def collect_rss(config, state)
-        raise ArgumentError, 'Block must be provided to collect_rss, which yields |item, content_str, type, timestamp, exception|' unless block_given?
+        raise ArgumentError, 'Block must be provided to collect_rss, which yields |item, content_array, type, timestamp, exception|' unless block_given?
         setup_fields(config)
 
         http = HTTP::Connection.new(config)
-        http_response = http.fetch
+        http_response = http.fetch.first
         rss = parse_response(config, http_response)
 
         parent_type = HTTP.extract_type(http_response['head'])
@@ -70,22 +70,27 @@ module Armagh
         SimpleRSS.feed_tags.each{|t| channel[t.to_s] = rss.send(t) if rss.respond_to?(t)}
 
         rss_items.each do |item|
+          content = []
           error = nil
           begin
             if config.rss.collect_link
               response = http.fetch(item[link_field])
-              content = response['body']
+
+              response.each do |item|
+                content << item['body']
+              end
 
               if item[:media_content_type]
                 type = {'type' => item[:media_content_type], 'encoding' => 'binary'}
               else
-                type = HTTP.extract_type(response['head']) || parent_type
+                type = HTTP.extract_type(response.first['head']) || parent_type
               end
             else
               if content_field
                 type = parent_type
-                content = item[content_field]
-                content << "\n\nOriginal Content: #{item[link_field]}" if item[link_field]
+                content_text = item[content_field]
+                content_text << "\n\nOriginal Content: #{item[link_field]}" if item[link_field]
+                content << content_text
               else
                 type = parent_type
               end
@@ -94,7 +99,9 @@ module Armagh
             error = RSSError.new("Unknown RSS error occurred from #{config.http.url}: #{e}.")
           end
 
-          content = item[:description] if (content.nil? || content.empty?) && config.rss.description_no_content
+          content.compact!
+
+          content = [item[:description]] if (content.empty?) && config.rss.description_no_content
           timestamp = item[:armagh_timestamp]
           item.stringify_keys!
 

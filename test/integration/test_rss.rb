@@ -102,8 +102,8 @@ class TestIntegrationRSS < Test::Unit::TestCase
       assert_equal("ITEM-GUID-#{item_count}", item['guid'])
       assert_equal(item_date, item['armagh_timestamp'])
 
-      assert_equal("<!DOCTYPE html>\n<html>\n<head>\n  <title>TestWebServer</title>\n</head>\n<body>\n\n<h1>This is "\
-          "RSS item #{item_count}.</h1>\n<p>There really isn't much more to say.</p>\n\n</body>\n</html>\n", content_str)
+      assert_equal(["<!DOCTYPE html>\n<html>\n<head>\n  <title>TestWebServer</title>\n</head>\n<body>\n\n<h1>This is "\
+          "RSS item #{item_count}.</h1>\n<p>There really isn't much more to say.</p>\n\n</body>\n</html>\n"], content_str)
 
       assert_equal({'type' => 'text/html', 'encoding' => 'utf-8'}, type)
 

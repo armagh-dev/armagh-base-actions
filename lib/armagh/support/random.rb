@@ -18,7 +18,7 @@
 module Armagh
   module Support
     module Random
-      RANDOM_ID_LENGTH = 26
+      RANDOM_ID_LENGTH = 20
 
       module_function
 

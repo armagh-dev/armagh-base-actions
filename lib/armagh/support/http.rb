@@ -18,6 +18,7 @@
 require 'httpclient'
 require 'configh'
 require_relative 'encoding'
+require_relative '../support/xml/parser'
 
 module Armagh
   module Support
@@ -57,12 +58,13 @@ module Armagh
       define_parameter name: 'filetype_blacklist', description: 'List of file types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[txt, pdf]'
       define_parameter name: 'mimetype_whitelist', description: 'List of mime types that collection is allowed to collect', type: 'string_array', required: false, prompt: '[text/html, text/plain]'
       define_parameter name: 'mimetype_blacklist', description: 'List of mime types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[text/html, text/plain]'
+      define_parameter name: 'multiple_pages', description: 'Collect multiple pages', type: 'boolean', required: true, default: true
+      define_parameter name: 'max_pages', description: 'Maximum number of pages to collect when collecting multiple', type: 'positive_integer', required: true, default: 10
 
 
       define_group_validation_callback callback_class: Armagh::Support::HTTP, callback_method: :validate
 
       def HTTP.validate(candidate_config)
-
         hc = candidate_config.http
         messages = []
 
@@ -141,18 +143,31 @@ module Armagh
         info
       end
 
+      def HTTP.get_next_page_url(page_content, source_url)
+        page_content.scan(/<a.*?href.*?<\/a>/im) do |h_link|
+          down = h_link.downcase
+          if down.include?('next')
+            link = down[/href=['"](.+?)['"]/m, 1]
+            if !down.include?('disable') && (link.gsub(/\d/, '').include?(source_url.gsub(/\d/, '')) || down.include?('page'))
+              return link
+            end
+          end
+        end
+
+        nil
+      end
 
       class Connection
         DEFAULT_HEADERS = {
-          # User agent string to use, if not defined in a header.  Taken from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/ on Jun 2, 2016
-          'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'.freeze
+          # User agent string to use, if not defined in a header.  Taken from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/ on Jan 25, 2017
+          'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'.freeze
         }.freeze
 
         COOKIE_STORE = File.join('', 'tmp', 'armagh_cookie.dat').freeze
 
         def initialize(config)
 
-          raise ConfigurationError, "Connection must be initialized with a Configh configuration object" unless config.is_a?(Configh::Configuration)
+          raise ConfigurationError, 'Connection must be initialized with a Configh configuration object' unless config.is_a?(Configh::Configuration)
           @config = config.http
           @url = @config.url.strip
           @method = @config.method.downcase
@@ -174,7 +189,6 @@ module Armagh
 
         # Fetches the content of a given URL.
         def fetch(override_url = nil, override_method = nil, override_fields = nil)
-
           url = override_url || @url
           method = override_method || @config.method
           fields = override_fields || @config.fields
@@ -248,7 +262,7 @@ module Armagh
           raise HTTP::ConfigurationError, "Unable to set authentication.  #{e.message}"
         end
 
-        private def request(url, method, fields)
+        private def request(url, method, fields, pages = [])
           raise SafeError, "Unable to request from '#{url}' due to whitelist/blacklist rules." unless acceptable_uri? url
 
           case method
@@ -264,7 +278,15 @@ module Armagh
 
           if response.ok?
             response_text = Support::Encoding.fix_encoding(response.content)
-            {'head' => header_hash, 'body' => response_text}
+
+            pages << {'head' => header_hash, 'body' => response_text}
+
+            if @config.multiple_pages && pages.length < @config.max_pages
+              next_url = HTTP.get_next_page_url(response_text, url)
+              request(next_url, method, fields, pages) if next_url
+            end
+
+            pages
           else
             if response.status == 302
               raise HTTP::RedirectError, "Attempted to redirect from '#{@url}' but redirection is not allowed."

@@ -62,6 +62,19 @@ module Armagh
       HTML_TO_TEXT_SHELL = %W(#{`which w3m`.strip} -T text/html -cols 10000 -O UTF-8 -o alt_entity=false)
       HTML_PART_DELIMITER = '|~!@#^&*|'
 
+      HTML_PAGE_DELIMITER = '*#Y*@^~YU'
+      HTML_PAGE_BREAK = "\n\n--- PAGE %d ---\n\n"
+
+      def HTML.merge_multiple_pages(content_array)
+        merged_content = ''
+
+        content_array.each_with_index do |content, idx|
+          merged_content << content
+          merged_content << HTML_PAGE_BREAK % (idx + 2) unless idx == content_array.length - 1
+        end
+        merged_content
+      end
+
       def html_to_text(*html_parts, config)
         html_parts.map! do |part|
           raise InvalidHTMLError, "HTML must be a String, instead: #{part.class}" unless part.is_a?(String)

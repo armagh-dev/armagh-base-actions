@@ -40,9 +40,10 @@ class TestHTTP < Test::Unit::TestCase
     config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpget', { 'http' => { 'url' => 'http://fake.url' }})
     @http = Armagh::Support::HTTP::Connection.new( config )
     response = @http.fetch
-    assert_equal(@expected_response, response['body'])
-    assert_equal('200', response['head']['Status'])
-    assert_equal(@expected_response.length.to_s, response['head']['Content-Length'])
+    assert_equal(1, response.length)
+    assert_equal(@expected_response, response.first['body'])
+    assert_equal('200', response.first['head']['Status'])
+    assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
   end
 
   def test_fetch_https_get
@@ -50,9 +51,10 @@ class TestHTTP < Test::Unit::TestCase
     config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpsget', { 'http' => { 'url' => 'https://fake.url' }})
     @http = Armagh::Support::HTTP::Connection.new( config )
     response = @http.fetch
-    assert_equal(@expected_response, response['body'])
-    assert_equal('200', response['head']['Status'])
-    assert_equal(@expected_response.length.to_s, response['head']['Content-Length'])
+    assert_equal(1, response.length)
+    assert_equal(@expected_response, response.first['body'])
+    assert_equal('200', response.first['head']['Status'])
+    assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
   end
 
   def test_fetch_http_post
@@ -62,9 +64,10 @@ class TestHTTP < Test::Unit::TestCase
     })
     @http = Armagh::Support::HTTP::Connection.new( config )
     response = @http.fetch
-    assert_equal(@expected_response, response['body'])
-    assert_equal('200', response['head']['Status'])
-    assert_equal(@expected_response.length.to_s, response['head']['Content-Length'])
+    assert_equal(1, response.length)
+    assert_equal(@expected_response, response.first['body'])
+    assert_equal('200', response.first['head']['Status'])
+    assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
   end
 
   def test_fetch_https_post
@@ -74,9 +77,10 @@ class TestHTTP < Test::Unit::TestCase
     })
     @http = Armagh::Support::HTTP::Connection.new( config )
     response = @http.fetch
-    assert_equal(@expected_response, response['body'])
-    assert_equal('200', response['head']['Status'])
-    assert_equal(@expected_response.length.to_s, response['head']['Content-Length'])
+    assert_equal(1, response.length)
+    assert_equal(@expected_response, response.first['body'])
+    assert_equal('200', response.first['head']['Status'])
+    assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
   end
 
   def test_fetch_default_headers
@@ -453,5 +457,27 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new(config)
     assert_nothing_raised { @http.fetch }
     assert_raise(Armagh::Support::HTTP::SafeError.new("Unable to request from 'http://fake2.url' due to whitelist/blacklist rules for mime type.")) { @http.fetch('http://fake2.url') }
+  end
+
+  def test_get_next_page_url
+    next_url = 'http://www.example.com/2'
+
+    content = "blah blah blah <a href='#{next_url}'>Next Page</a> and some more content"
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://www.example.com/1'))
+
+    content = "blah blah blah <a href='#{next_url}'>Next Page</a> and some more content"
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
+
+    content = "blah blah blah <a href='#{next_url}'>Next</a> and some more content"
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://www.example.com/1'))
+
+    content = "blah blah blah <a href='#{next_url}'><span>Next Page</span></a> and some more content"
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
+
+    content = "blah blah blah <div id='paginationWrapper'><span class='paginationNumbers'>Page 1 of 2</span><ul id='paginationList'><li><a class='nextPage' title='Next Page' href='#{next_url}'></a></li></ul></div>"
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
+
+    content = "blah blah blah <div id='paginationWrapper'><span class='paginationNumbers'>Page 1 of 2</span><ul id='paginationList'><li><a class='nextPage disabled' title='Next Page' href='#{next_url}'></a></li></ul></div>"
+    assert_nil(Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
   end
 end

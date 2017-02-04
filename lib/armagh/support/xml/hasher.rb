@@ -35,7 +35,8 @@ module Armagh
           elsif html_nodes.nil?
             @html_nodes = []
           else
-            @html_nodes = [html_nodes.dup]
+            @html_nodes = [html_nodes&.dup]
+            @html_nodes.compact!
           end
 
           @html_nodes.each do |node|
