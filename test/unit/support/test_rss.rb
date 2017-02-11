@@ -51,7 +51,7 @@ class TestRSS < Test::Unit::TestCase
       entered = true
       assert_not_empty(channel)
       assert_not_empty(content_array)
-      assert_equal([item['description']], content_array)
+      assert_equal([item['description'].gsub('&lt;div&gt;', '<div>')], content_array)
       assert_equal({'type' => 'text/html', 'encoding' => 'us-ascii'}, type)
       assert_kind_of(Time, timestamp)
       assert_nil exception

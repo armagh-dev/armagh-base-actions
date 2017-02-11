@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require 'cgi'
 require 'configh'
 require 'simple-rss'
 require 'facets/hash/stringify_keys'
@@ -88,8 +89,7 @@ module Armagh
             else
               if content_field
                 type = parent_type
-                content_text = item[content_field]
-                content_text << "\n\nOriginal Content: #{item[link_field]}" if item[link_field]
+                content_text = CGI.unescape_html(item[content_field]) # TODO JBOWES
                 content << content_text
               else
                 type = parent_type
