@@ -27,12 +27,10 @@ require_relative '../../lib/armagh/actions/stateful'
 class TestIntegrationRSS < Test::Unit::TestCase
 
   def self.startup
-    puts 'Starting Mongo'
     MongoSupport.instance.start_mongo
   end
 
   def self.shutdown
-    puts 'Stopping Mongo'
     MongoSupport.instance.stop_mongo
   end
 

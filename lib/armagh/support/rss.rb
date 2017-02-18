@@ -37,7 +37,6 @@ module Armagh
       define_parameter name: 'additional_fields', description: 'Additional fields to collect from the RSS feed (in addition to the defaults', type: 'string_array', required: true, prompt: '[field1, field2]', default: []
       define_parameter name: 'full_collect', description: 'Do a collection of the full available RSS history.', type: 'boolean', required: true, default: false
       define_parameter name: 'description_no_content', description: 'Add the description as content in case there is no content.', type: 'boolean', required: true, default: false
-      define_parameter name: 'id_pattern', description: 'ID capture pattern.', type: 'string', required: true, default: '(.*)', prompt: 'id=(\w+)', group: 'rss'
       define_parameter name: 'passthrough', description: "Don't try to populate fields during the collect phase.", type: 'boolean', required: true, default: false, group: 'rss'
 
       # Additional media tags
