@@ -29,6 +29,7 @@ require 'mongo'
 module Armagh
   module StandardActions
     class TIASCollect < Actions::Collect
+      define_output_docspec 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY
     end
   end
 end

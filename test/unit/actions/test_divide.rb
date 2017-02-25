@@ -62,6 +62,19 @@ class TestDivide < Test::Unit::TestCase
   def test_unimplemented_divide
     assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@divide_action.divide(nil)}
   end
+  
+  def test_output_docspec_not_defined
+    Object.const_set :BadSubDivide, Class.new( Armagh::Actions::Divide )
+    BadSubDivide.define_default_input_type 'innie'
+    e = assert_raises( Configh::ConfigInitError ) do
+      div_config = BadSubDivide.create_configuration( @config_store, 'set2', {
+        'action' => { 'name' => 'mysubdivide' },
+        'input'  => { 'doctype' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )}
+      })
+      @divide_action = BadSubDivide.new( @caller, 'logger_name', div_config, @collection)
+    end
+    assert_equal "Unable to create configuration BadSubDivide set2: Divide actions must have at least one output docspec defined in the class", e.message
+  end    
 
   def test_create
     content = {'content' => true}

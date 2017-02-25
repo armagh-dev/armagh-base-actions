@@ -34,6 +34,8 @@ module Armagh
 
       attr_accessor :doc_details
 
+      define_group_validation_callback callback_class: Divide, callback_method: :report_validation_errors
+
       def self.inherited( base )
         base.register_action
       end
@@ -64,6 +66,22 @@ module Armagh
         action_doc.raw = content
         @caller.create_document(action_doc)
       end
+      
+      def Divide.report_validation_errors( candidate_config )
+        errors = []
+        output_docspec_defined = false
+        valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
+        
+        candidate_config.find_all_parameters { |p| p.group == 'output' }.each do |docspec_param|
+          output_docspec_defined = true
+          errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
+        end
+
+        errors << "Divide actions must have at least one output docspec defined in the class" unless output_docspec_defined
+        
+        errors.empty? ? nil : errors.join(', ')
+      end
+      
     end
   end
 end

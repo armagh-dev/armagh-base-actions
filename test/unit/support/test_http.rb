@@ -33,6 +33,7 @@ class TestHTTP < Test::Unit::TestCase
   def setup
     @expected_response = 'response body'
     @config_store = []
+    @original_verbose = $VERBOSE
   end
 
   def test_fetch_http_get
@@ -44,6 +45,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_equal(@expected_response, response.first['body'])
     assert_equal('200', response.first['head']['Status'])
     assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_https_get
@@ -55,6 +57,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_equal(@expected_response, response.first['body'])
     assert_equal('200', response.first['head']['Status'])
     assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_http_post
@@ -68,6 +71,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_equal(@expected_response, response.first['body'])
     assert_equal('200', response.first['head']['Status'])
     assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_https_post
@@ -81,6 +85,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_equal(@expected_response, response.first['body'])
     assert_equal('200', response.first['head']['Status'])
     assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_default_headers
@@ -90,6 +95,7 @@ class TestHTTP < Test::Unit::TestCase
     })
     @http = Armagh::Support::HTTP::Connection.new( config )
     @http.fetch
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_proxy
@@ -108,6 +114,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'https://fake.url')
     @http = Armagh::Support::HTTP::Connection.new( config )
     @http.fetch
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_auth
@@ -128,6 +135,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'https://fake.url').with(basic_auth: [ 'username', 'password' ])
 
     @http.fetch
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_headers
@@ -143,6 +151,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').with(headers: headers)
     @http = Armagh::Support::HTTP::Connection.new( config )
     @http.fetch
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_redirect
@@ -151,6 +160,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').to_return(:status => 302, :body => '', :headers => {Location: 'http://fake.url2'})
     stub_request(:any, 'http://fake.url2')
     @http.fetch
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_too_many_redirect
@@ -161,6 +171,7 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new( config )
     e = assert_raise(Armagh::Support::HTTP::RedirectError) {@http.fetch }
     assert_equal("Too many redirects from 'http://fake.url0'.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_disabled_redirects
@@ -169,6 +180,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').to_return(:status => 302, :body => '', :headers => {Location: 'http://fake.url2'})
     e = assert_raise(Armagh::Support::HTTP::RedirectError) {@http.fetch}
     assert_equal("Attempted to redirect from 'http://fake.url' but redirection is not allowed.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_too_many_redirect_response
@@ -177,6 +189,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').to_raise(HTTPClient::BadResponseError.new('retry count exceeded'))
     e = assert_raise(Armagh::Support::HTTP::RedirectError) {@http.fetch}
     assert_equal("Too many redirects from 'http://fake.url'.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_https_to_http_redirect_chain
@@ -186,6 +199,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'https://fake.url2').to_return(:status => 302, :body => '', :headers => {Location: 'http://fake.url2'})
     stub_request(:any, 'http://fake.url2')
     assert_raise(Armagh::Support::HTTP::RedirectError.new("Attempted to redirect from an https resource to a no non-https resource while retrieving 'http://fake.url'.  Considering enabling allow_https_to_http.")){@http.fetch}
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_https_to_http_redirect_chain_allowed
@@ -195,6 +209,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'https://fake.url2').to_return(:status => 302, :body => '', :headers => {Location: 'http://fake.url2'})
     stub_request(:any, 'http://fake.url2')
     @http.fetch
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_https_to_http_redirect_chain_allowed_relative
@@ -203,6 +218,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').to_return(:status => 302, :body => '', :headers => {Location: '/something'})
     stub_request(:any, 'http://fake.url/something')
     @http.fetch
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_unknown_bad_response
@@ -211,21 +227,25 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').to_raise(HTTPClient::BadResponseError.new('bad response'))
     e = assert_raise(Armagh::Support::HTTP::ConnectionError) {@http.fetch}
     assert_equal("Unexpected error requesting 'http://fake.url' - bad response.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_config_bad_protocol
     e = assert_raise(Configh::ConfigInitError) { Armagh::Support::HTTP.create_configuration( @config_store, 'a', { 'http' => { 'url' => 'nope://url' }})}
     assert_equal("Unable to create configuration Armagh::Support::HTTP a: 'nope://url' is not a valid HTTP or HTTPS URL.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_config_bad_url
     e = assert_raise(Configh::ConfigInitError) { Armagh::Support::HTTP.create_configuration( @config_store, 'b', { 'http' => { 'url' => 'bad url' }})}
     assert_equal("Unable to create configuration Armagh::Support::HTTP b: 'bad url' is not a valid HTTP or HTTPS URL.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_config_bad_method
     e = assert_raise(Configh::ConfigInitError) {Armagh::Support::HTTP.create_configuration( @config_store, 'c', { 'http' => { 'url' => 'http://fake.url', 'method' => 'bad' }})}
     assert_equal("Unable to create configuration Armagh::Support::HTTP c: Allowed HTTP Methods are post, get.  Was set to \'bad\'.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_no_proxy_user_or_pass
@@ -244,6 +264,7 @@ class TestHTTP < Test::Unit::TestCase
       config1[ 'http' ].delete k
       e = assert_raise(Configh::ConfigInitError) { Armagh::Support::HTTP.create_configuration( @config_store, 'd', config1 )}
       assert_equal(expected_message, e.message)
+      assert_equal @original_verbose, $VERBOSE 
     end
  end
 
@@ -257,6 +278,7 @@ class TestHTTP < Test::Unit::TestCase
     }
     e = assert_raise(Configh::ConfigInitError) {Armagh::Support::HTTP.create_configuration( @config_store, 'e', config_values )}
     assert_equal("Unable to create configuration Armagh::Support::HTTP e: 'bad proxy' proxy is not a valid HTTP or HTTPS URL.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_config_bad_cert
@@ -276,6 +298,7 @@ class TestHTTP < Test::Unit::TestCase
 
     e = assert_raise(Configh::ConfigInitError){Armagh::Support::HTTP.create_configuration( @config_store, 'f', config_values )}
     assert_equal('Unable to create configuration Armagh::Support::HTTP f: Certificate Error: BAD CERTIFICATE.', e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_config_bad_key
@@ -295,6 +318,7 @@ class TestHTTP < Test::Unit::TestCase
 
     e = assert_raise(Configh::ConfigInitError){Armagh::Support::HTTP.create_configuration( @config_store, 'g', config_values )}
     assert_equal('Unable to create configuration Armagh::Support::HTTP g: Key Error: BAD KEY.', e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_no_cert_or_key
@@ -312,6 +336,7 @@ class TestHTTP < Test::Unit::TestCase
       config_values_bad['http'].delete k
       e = assert_raise(Configh::ConfigInitError) { Armagh::Support::HTTP.create_configuration( @config_store, 'h', config_values_bad )}
       assert_equal(expected_message, e.message)
+      assert_equal @original_verbose, $VERBOSE 
     end
   end
 
@@ -330,6 +355,7 @@ class TestHTTP < Test::Unit::TestCase
       config_values_bad['http'].delete k
       e = assert_raise( Configh::ConfigInitError ) { Armagh::Support::HTTP.create_configuration( @config_store, 'j', config_values_bad )}
       assert_equal(expected_message, e.message)
+      assert_equal @original_verbose, $VERBOSE 
     end
   end
 
@@ -339,6 +365,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').to_return(:status => [999, 'Invoked Error'], :body => '')
     e = assert_raise(Armagh::Support::HTTP::ConnectionError) {@http.fetch}
     assert_equal("Unexpected HTTP response from 'http://fake.url': 999 - Invoked Error.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_timeout
@@ -347,14 +374,25 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').to_timeout
     e = assert_raise(Armagh::Support::HTTP::ConnectionError) {@http.fetch}
     assert_equal("HTTP response from 'http://fake.url' timed out.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
+  def test_fetch_timeout_with_url_override
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'm', { 'http' => { 'url' => 'http://unused.url' }} )
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    stub_request(:any, 'http://fake.url').to_timeout
+    e = assert_raise(Armagh::Support::HTTP::ConnectionError) {@http.fetch('http://fake.url')}
+    assert_equal("HTTP response from 'http://fake.url' timed out.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
+  end
+  
   def test_fetch_configuration_error
     config = Armagh::Support::HTTP.create_configuration( @config_store, 'n', { 'http' => { 'url' => 'http://fake.url' }} )
     @http = Armagh::Support::HTTP::Connection.new( config )
     stub_request(:any, 'http://fake.url').to_raise(HTTPClient::ConfigurationError.new('Invoked Configuration Error'))
     e = assert_raise(Armagh::Support::HTTP::ConfigurationError) {@http.fetch}
     assert_equal("HTTP configuration error from 'http://fake.url': Invoked Configuration Error.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_unexpected_error
@@ -363,6 +401,7 @@ class TestHTTP < Test::Unit::TestCase
     stub_request(:any, 'http://fake.url').to_raise('Unexpected Error')
     e = assert_raise(Armagh::Support::HTTP::ConnectionError) {@http.fetch}
     assert_equal("Unexpected error requesting 'http://fake.url' - Unexpected Error.", e.message)
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_uri_host_whitelist
@@ -373,6 +412,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_false @http.acceptable_uri?('https://bad.fake.url/something')
     assert_true @http.acceptable_uri?('https://subdomain.fake2.url/something')
     assert_false @http.acceptable_uri?('https://fake2.url/something')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_uri_host_blacklist
@@ -383,6 +423,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_true @http.acceptable_uri?('https://good.fake.url/something')
     assert_false @http.acceptable_uri?('https://subdomain.fake2.url/something')
     assert_true @http.acceptable_uri?('https://fake2.url/something')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_uri_host_whiteblack
@@ -390,6 +431,7 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new( config )
     assert_false @http.acceptable_uri?('https://www.google.com')
     assert_false @http.acceptable_uri?('https://fake.url/something')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_uri_filetype_whitelist
@@ -398,6 +440,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_true @http.acceptable_uri?('https://www.google.com/index.php')
     assert_true @http.acceptable_uri?('https://www.google.com/index.html')
     assert_false @http.acceptable_uri?('https://www.google.com/index.json')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_uri_filetype_blacklist
@@ -406,6 +449,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_false @http.acceptable_uri?('https://www.google.com/index.php')
     assert_false @http.acceptable_uri?('https://www.google.com/index.html')
     assert_true @http.acceptable_uri?('https://www.google.com/index.json')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_uri_filetype_whiteblack
@@ -414,6 +458,7 @@ class TestHTTP < Test::Unit::TestCase
     assert_false @http.acceptable_uri?('https://www.google.com/index.php')
     assert_false @http.acceptable_uri?('https://www.google.com/index.html')
     assert_false @http.acceptable_uri?('https://www.google.com/index.json')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_mime_type_whitelist
@@ -421,6 +466,7 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new( config )
     assert_true @http.acceptable_mime_type?('text/plain')
     assert_false @http.acceptable_mime_type?('text/html')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_mime_type_blacklist
@@ -428,6 +474,7 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new( config )
     assert_true @http.acceptable_mime_type?('text/plain')
     assert_false @http.acceptable_mime_type?('text/html')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_acceptable_mime_type_whiteblack
@@ -435,6 +482,7 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new( config )
     assert_false @http.acceptable_mime_type?('text/plain')
     assert_false @http.acceptable_mime_type?('text/html')
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_unacceptable_uri_blacklists
@@ -442,6 +490,7 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new(config)
     assert_raise(Armagh::Support::HTTP::SafeError.new("Unable to request from 'http://fake.url' due to whitelist/blacklist rules.")) { @http.fetch }
     assert_raise(Armagh::Support::HTTP::SafeError.new("Unable to request from 'http://something/bad.xml' due to whitelist/blacklist rules.")) { @http.fetch('http://something/bad.xml') }
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_get_mimes
@@ -457,6 +506,7 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new(config)
     assert_nothing_raised { @http.fetch }
     assert_raise(Armagh::Support::HTTP::SafeError.new("Unable to request from 'http://fake2.url' due to whitelist/blacklist rules for mime type.")) { @http.fetch('http://fake2.url') }
+    assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_get_next_page_url
@@ -479,5 +529,6 @@ class TestHTTP < Test::Unit::TestCase
 
     content = "blah blah blah <div id='paginationWrapper'><span class='paginationNumbers'>Page 1 of 2</span><ul id='paginationList'><li><a class='nextPage disabled' title='Next Page' href='#{next_url}'></a></li></ul></div>"
     assert_nil(Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
+    assert_equal @original_verbose, $VERBOSE 
   end
 end

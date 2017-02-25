@@ -169,7 +169,8 @@ module Armagh
         case e.message
         when 'no implicit conversion of String into Integer',
              'String does not have #dig method',
-             'Fixnum does not have #dig method'
+             'Fixnum does not have #dig method',
+             'Integer does not have #dig method'
           return nil if allow_missing
           raise InvalidReferenceError, nodes.to_s
         end

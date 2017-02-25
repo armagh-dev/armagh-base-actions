@@ -41,6 +41,7 @@ module Armagh
       define_parameter name: 'host', description: 'SFTP host or IP', type: 'populated_string', required: true, prompt: 'host.example.com or 10.0.0.1'
       define_parameter name: 'port', description: 'SFTP port', type: 'positive_integer', required: true, default: 22
       define_parameter name: 'directory_path', description: 'SFTP base directory path', type: 'populated_string', required: true, default: './'
+      define_parameter name: 'duplicate_put_directory_paths', description: 'Directories receiving duplicate files on the same server', type: 'string_array', required: false, default: []
       define_parameter name: 'create_directory_path', description: 'If the target directory does not exist, create it', type: 'boolean', required: true, default: false
       define_parameter name: 'filename_pattern', description: 'Glob file pattern', type: 'string', required: false, prompt: '*.pdf'
       define_parameter name: 'username', description: 'SFTP user name', type: 'populated_string', required: true, prompt: 'user'
@@ -94,6 +95,7 @@ module Armagh
 
           @host = sc.host
           @directory_path = sc.directory_path
+          @duplicate_put_directory_paths = sc.duplicate_put_directory_paths
           @create_directory_path = sc.create_directory_path
           @filename_pattern = sc.filename_pattern || '*'
           username = sc.username
@@ -109,6 +111,15 @@ module Armagh
           @sftp.session.close if @sftp && !@sftp.session.closed?
         end
 
+        #
+        # files to transfer can be in subdirectories.  
+        # the subdirectory structure is preserved in transfer.
+        # example:
+        #    @directory_path is fred/
+        #    remote files are fred/alice/file1, fred/alice/file2, fred/martha/file3, fred/file4
+        #    then files will be created locally as, and yielded to block as:
+        #       alice/file1, alice/file2, martha/file3, file4
+        #
         def get_files
           failed_files = 0
 
@@ -117,69 +128,89 @@ module Armagh
           entries_to_transfer.each do |entry|
             file_attempts = 0
 
-            relative_path = entry.name
-            parent = File.dirname(relative_path)
-            remote_path = File.join(@directory_path, relative_path)
+            remote_relative_filepath = entry.name
+            remote_relative_dirpath  = File.dirname(remote_relative_filepath) 
+            remote_full_filepath     = File.join(@directory_path, remote_relative_filepath)
+            
             attributes = entry.attributes.attributes.collect { |k, v| [k.to_s, v] }.to_h
-
             attributes['mtime'] = Time.at(attributes['mtime']).utc if attributes['mtime']
             attributes['atime'] = Time.at(attributes['atime']).utc if attributes['atime']
-
             begin
               file_attempts += 1
 
-              FileUtils.mkdir_p parent
+              local_dirpath  = remote_relative_dirpath
+              local_filepath = remote_relative_filepath
+              FileUtils.mkdir_p local_dirpath  
 
-              @sftp.download!(remote_path, relative_path)
-              yield relative_path, attributes, nil if block_given?
-              @sftp.remove!(remote_path)
+              @sftp.download!(remote_full_filepath, local_filepath)
+              yield local_filepath, attributes, nil if block_given?
+              @sftp.remove!(remote_full_filepath)
 
               failed_files = 0
             rescue => e
               retry unless file_attempts >= 3
-              converted_error = convert_errors(e, host: @host, file: relative_path)
+              converted_error = convert_errors(e, host: @host, file: remote_relative_filepath)
               failed_files += 1
-              yield relative_path, attributes, converted_error
+              yield remote_relative_filepath, attributes, converted_error
               raise SFTPError, 'Three files failed in a row.  Aborting.' if failed_files == 3
             end
           end
         end
 
+        # subdirectories are preserved across the put.
+        #
         def put_files
-          local_files = Dir.glob(@filename_pattern)
-          files_to_transfer = local_files.select { |f| File.file? f }.first(@maximum_number_to_transfer)
+          local_filepaths = Dir.glob(@filename_pattern)
+          files_to_transfer = local_filepaths.select { |f| File.file? f }.first(@maximum_number_to_transfer)
           failed_files = 0
-
-          files_to_transfer.each do |local_path|
-            parent = File.dirname(local_path)
+          
+          remote_base_dirpaths = [ @directory_path, *@duplicate_put_directory_paths ]
+          
+          files_to_transfer.each do |local_filepath|
+            
+            raise SFTPError, "Local file #{ local_filepath } does not exist" unless File.exists?(local_filepath)
 
             attempts_this_file = 0
             begin
               attempts_this_file += 1
-              mkdir_p(@directory_path) if @create_directory_path
-              mkdir_p(parent)
-              @sftp.upload!(local_path, File.join(@directory_path, local_path))
-              yield local_path, nil if block_given?
-              File.delete local_path if File.exists? local_path
+              remote_base_dirpaths.each do |remote_base_dirpath|
+                remote_full_filepath = File.join( remote_base_dirpath, local_filepath )
+                mkdir_p( File.dirname( remote_full_filepath ))
+                @sftp.upload!( local_filepath, remote_full_filepath )
+              end
+              
+              yield local_filepath, nil if block_given?
+              File.delete local_filepath if File.exists? local_filepath
               failed_files = 0
+              
             rescue => e
               retry if attempts_this_file < 3
-              converted_error = convert_errors(e, host: @host, file: local_path)
+              converted_error = convert_errors(e, host: @host, file: local_filepath)
               failed_files += 1
-              yield local_path, converted_error
+              yield local_filepath, converted_error
               raise SFTPError, 'Three files failed in a row.  Aborting.' if failed_files == 3
             end
           end
         end
 
+        # if src has relative dir components, they are preserved across the put.  for example:
+        # @directory_path = 'base'
+        # dest_dir = 'fred'
+        # src = 'alice/file1'
+        # remote file path is base/fred/alice/file1
+        #
         def put_file(src, dest_dir)
           raise FileError, "Local file '#{src}' is not a file." unless File.file? src
+          
           attempts = 0
           begin
             attempts += 1
-            mkdir_p(@directory_path) if @create_directory_path
-            mkdir_p(dest_dir)
-            @sftp.upload!(src, File.join(@directory_path, dest_dir, src))
+            
+            [ @directory_path, *@duplicate_put_directory_paths ].each do |remote_base_dirpath|
+              remote_full_dirpath = File.join( remote_base_dirpath, dest_dir, File.dirname( src ))
+              mkdir_p( remote_full_dirpath ) if @create_directory_path
+              @sftp.upload!(src, File.join(remote_full_dirpath, File.basename(src)))
+            end
           rescue => e
             retry if attempts < 3
             raise convert_errors(e, host: @host, file: src)
@@ -187,9 +218,13 @@ module Armagh
         end
 
         def remove(path)
-          @sftp.session.exec!("rm -rf #{File.join(@directory_path, path)}")
+          @sftp.session.exec!("rm -rf #{path}")
         rescue => e
           raise convert_errors(e, host: @host, file: path)
+        end
+        
+        def remove_subpath( path )
+          remove( File.join( @directory_path, path ))
         end
 
         def test_connection
@@ -199,7 +234,7 @@ module Armagh
           test_file.write 'This is test content'
           test_file.close
           remote_file = File.join(@directory_path, File.basename(test_file.path))
-          mkdir_p('') if @create_directory_path
+          mksubdir_p('') if @create_directory_path
 
           @sftp.upload!(test_file.path, remote_file)
           sleep 1
@@ -213,37 +248,47 @@ module Armagh
           return error
         end
 
-        def mkdir_p(dir)
-          full_dir = File.join(@directory_path, dir)
+        def mkdir_p(full_dir)
           Pathname.new(full_dir).descend do |path|
             path = path.to_s
             begin
-              raise FileError, "Could not create #{dir}.  #{path} is a file." unless @sftp.stat!(path).directory?
+              raise FileError, "Could not create #{full_dir}.  #{path} is a file." unless @sftp.stat!(path).directory?
             rescue Net::SFTP::StatusException => e
               if e.code == 2
                 # Dir does not exist
                 @sftp.mkdir!(path)
               else
-                raise convert_errors(e, host: @host, file: dir)
+                raise convert_errors(e, host: @host, file: full_dir)
               end
             rescue => e
-              raise convert_errors(e, host: @host, file: dir)
+              raise convert_errors(e, host: @host, file: full_dir)
             end
           end
         end
-
-        def rmdir(dir)
-          full_dir = File.join(@directory_path, dir)
-          @sftp.rmdir! full_dir
-        rescue => e
-          raise convert_errors(e, host: @host, file: dir)
+        
+        def mksubdir_p( path )
+          mkdir_p( File.join( @directory_path, path ))
         end
 
-        def ls(dir)
-          full_dir = File.join(@directory_path, dir)
+        def rmdir(full_dir)
+          @sftp.rmdir! full_dir
+        rescue => e
+          raise convert_errors(e, host: @host, file: full_dir)
+        end
+        
+        def rmsubdir(dir)
+          rmdir( File.join( @directory_path, dir ))
+        end
+          
+
+        def ls(full_dir)
           @sftp.dir.entries(full_dir).lazy.collect { |i| i.name }.select { |i| i != '..' && i != '.' }.sort
         rescue => e
-          raise convert_errors(e, host: @host, file: dir)
+          raise convert_errors(e, host: @host, file: full_dir)
+        end
+        
+        def ls_subdir(dir)
+          ls( File.join( @directory_path, dir ))
         end
 
         private def convert_sftp_status_exception(e, host: nil, file: nil)

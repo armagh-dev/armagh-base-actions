@@ -45,7 +45,18 @@ class TestSplit < Test::Unit::TestCase
   def test_unimplemented_split
     assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@split_action.split(nil)}
   end
-
+  
+  def test_output_docspec_not_defined
+    Object.const_set :BadSubSplit, Class.new( Armagh::Actions::Split )
+    BadSubSplit.define_default_input_type 'fred'
+    e=assert_raises( Configh::ConfigInitError ) do
+      @config = BadSubSplit.create_configuration( @config_store, 'set', {
+        'action' => { 'name' => 'mysubcollect' }
+        })    
+    end
+    assert_equal "Unable to create configuration BadSubSplit set: Split actions must have at least one output docspec defined in the class", e.message
+  end
+  
   def test_edit
     yielded_doc = mock
     @caller.expects(:edit_document).with('123', @config.output.output_type).yields(yielded_doc)

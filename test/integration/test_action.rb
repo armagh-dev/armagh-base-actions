@@ -53,6 +53,7 @@ class TestIntegrationAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised { 
       SubSplit.define_default_input_type 'test_type1'
+      SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
       config = SubSplit.create_configuration( @config_store, action_name, {} )
       SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
@@ -65,6 +66,7 @@ class TestIntegrationAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised { 
       SubSplit.define_default_input_type type
+      SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
       config = SubSplit.create_configuration( @config_store, 'defintype', { 
         'action' => { 'name' => 'fred_the_action'} }) 
       SubSplit.new( @caller, 'logger_name', config, @action_state_store )
@@ -97,13 +99,13 @@ class TestIntegrationAction < Test::Unit::TestCase
 
   def test_define_output_docspec_bad_default_state
     e = assert_raise(Configh::ParameterDefinitionError) {SubSplit.define_output_docspec('generated_doctype', 'description', default_state: 'invalid')}
-    assert_equal "generated_doctype output document spec: Unknown state invalid.  Valid states are WORKING, READY, PUBLISHED, Type must be a non-empty string.", e.message
+    assert_equal 'generated_doctype output document spec: Unknown state invalid.  Valid states are PUBLISHED, READY, WORKING, Type must be a non-empty string.', e.message
   end
 
   def test_valid_bad_type    
     Object.const_set "BadClass", Class.new( Armagh::Actions::Action )
     e = assert_raises( Armagh::Actions::ActionError) { BadClass.new( @caller, 'logger_name', Object.new, @action_state_store )}
-    assert_equal "Unknown Action Type Actions::Action.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect, Armagh::Actions::Divide.", e.message
+    assert_equal 'Unknown Action Type Actions::Action.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect, Armagh::Actions::Divide.', e.message
     
   end
   
@@ -115,7 +117,7 @@ class TestIntegrationAction < Test::Unit::TestCase
     e = assert_raise( Armagh::Actions::ConfigurationError ) {
       SubCollect.define_default_input_type 'blech'
     }
-    assert_equal "You cannot define default input types for collectors", e.message
+    assert_equal 'You cannot define default input types for collectors', e.message
   end
   
   def test_you_have_your_stuff_i_have_mine

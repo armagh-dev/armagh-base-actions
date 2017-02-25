@@ -27,8 +27,11 @@ module Armagh
         class StringValueError < StringDigestError; end
 
       def md5(str)
-        raise StringDigest::StringValueError, 'Input string cannot be nil or empty' if str.nil? || str.empty?
-        Digest::MD5.hexdigest(str).to_i(16).to_s(36)
+        raise StringDigest::StringValueError, 'Input must be a string' unless str.is_a? String
+        raise StringDigest::StringValueError, 'Input must not be empty' if str.empty?
+        digest = Digest::MD5.base64digest(str)
+        digest.gsub!(/[+\/=]/,'')
+        digest
       end
 
     end

@@ -57,6 +57,18 @@ class TestCollect < Test::Unit::TestCase
   def test_input_doctype_override
     assert_equal "#{SubCollect::COLLECT_DOCTYPE_PREFIX}mysubcollect:ready", @collect_action.config.input.docspec.to_s
   end
+  
+  def test_output_doctype_not_defined
+    Object.const_set :BadSubCollect, Class.new(Armagh::Actions::Collect)
+    @config_store = []
+    e = assert_raises( Configh::ConfigInitError ) do
+      config = BadSubCollect.create_configuration(@config_store, 'a', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'schedule' => '*/5 * * * *', 'archive' => false}
+      })
+    end
+    assert_equal "Unable to create configuration BadSubCollect a: Collect actions must have at least one output docspec defined in the class", e.message
+  end
 
   def test_create_no_divider
     @caller.expects(:instantiate_divider).returns(nil)

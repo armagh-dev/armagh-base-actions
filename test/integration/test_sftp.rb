@@ -157,6 +157,7 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
     created_files = []
     put_files = []
+    errors =[]
 
 
     FakeFS do
@@ -170,7 +171,7 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
       Armagh::Support::SFTP::Connection.open(config) do |sftp|
         sftp.put_files do |filename, error|
-          assert_nil error
+          errors << error unless error.nil?
           put_files << filename.chomp
         end
       end
@@ -178,6 +179,7 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
     assert_equal(config.sftp.maximum_transfer, put_files.length)
     assert_empty(put_files - created_files)
+    assert_empty(errors)
 
     FakeFS::FileSystem.clear
 
@@ -256,7 +258,7 @@ class TestIntegrationSFTP < Test::Unit::TestCase
   ensure
     begin
       Armagh::Support::SFTP::Connection.open(config) do |sftp|
-        sftp.remove(filename)
+        sftp.remove_subpath(filename)
       end
     rescue Armagh::Support::SFTP::FileError
       # ignore
@@ -267,23 +269,23 @@ class TestIntegrationSFTP < Test::Unit::TestCase
   end
 
   def test_put_file_ls_remove
-    dest_dir = READ_WRITE_DIR
+    dest_subdir = 'subdir'
+    
     @config_values[ 'create_directory_path' ] = true
     files = %w(file1 file2 file3)
     config = Armagh::Support::SFTP.create_configuration(@config_store, 'putget', {'sftp' => @config_values})
-    FakeFS do
+    
+    FakeFS do 
       files.each { |f| FileUtils.touch f }
-    end
 
-    Armagh::Support::SFTP::Connection.open(config) do |sftp|
-      FakeFS do
-        files.each { |f| sftp.put_file(f, dest_dir) }
+      Armagh::Support::SFTP::Connection.open(config) do |sftp|
+        files.each { |f| sftp.put_file(f, dest_subdir) }
+
+        assert_equal(files, sftp.ls_subdir(dest_subdir))
+        sftp.remove_subpath(dest_subdir)
+        ls = sftp.ls_subdir( '.')
+        assert_not_include(ls, dest_subdir)
       end
-
-      assert_equal(files, sftp.ls(dest_dir))
-      sftp.remove(dest_dir)
-      ls = sftp.ls('.')
-      assert_not_include(ls, dest_dir)
     end
   end
 end

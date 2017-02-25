@@ -42,6 +42,7 @@ class TestAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised {
       SubSplit.define_default_input_type 'test_type1'
+      SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
       config = SubSplit.create_configuration( @config_store, action_name, {} )
       SubSplit.new( @caller, 'logger_name', config, @collection )
     }
@@ -54,6 +55,7 @@ class TestAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised {
       SubSplit.define_default_input_type type
+      SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
       config = SubSplit.create_configuration( @config_store, 'defintype', {
         'action' => { 'name' => 'fred_the_action'} })
       SubSplit.new( @caller, 'logger_name', config, @collection )
@@ -86,13 +88,13 @@ class TestAction < Test::Unit::TestCase
 
   def test_define_output_docspec_bad_default_state
     e = assert_raise(Configh::ParameterDefinitionError) {SubSplit.define_output_docspec('generated_doctype', 'description', default_state: 'invalid')}
-    assert_equal "generated_doctype output document spec: Unknown state invalid.  Valid states are WORKING, READY, PUBLISHED, Type must be a non-empty string.", e.message
+    assert_equal 'generated_doctype output document spec: Unknown state invalid.  Valid states are PUBLISHED, READY, WORKING, Type must be a non-empty string.', e.message
   end
 
   def test_valid_bad_type
     Object.const_set "BadClass", Class.new( Armagh::Actions::Action )
     e = assert_raises( Armagh::Actions::ActionError) { BadClass.new( @caller, 'logger_name', Object.new, @collection )}
-    assert_equal "Unknown Action Type Actions::Action.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect, Armagh::Actions::Divide.", e.message
+    assert_equal 'Unknown Action Type Actions::Action.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect, Armagh::Actions::Divide.', e.message
 
   end
 
@@ -104,7 +106,7 @@ class TestAction < Test::Unit::TestCase
     e = assert_raise( Armagh::Actions::ConfigurationError ) {
       SubCollect.define_default_input_type 'blech'
     }
-    assert_equal "You cannot define default input types for collectors", e.message
+    assert_equal 'You cannot define default input types for collectors', e.message
   end
 
   def test_you_have_your_stuff_i_have_mine
@@ -130,7 +132,7 @@ class TestAction < Test::Unit::TestCase
     split = SubSplit.new( @caller, 'logger_name', config, @collection )
     id = split.random_id
     assert_equal(id, id.strip)
-    assert_match(/^\w{#{Armagh::Support::Random::RANDOM_ID_LENGTH}}$/, id)
+    assert_match(/^\w{#{Armagh::Support::Random::RANDOM_ID_LENGTH - 5},#{Armagh::Support::Random::RANDOM_ID_LENGTH}}$/, id)
   end
 
   def test_create_config_with_bad_value_type
@@ -150,6 +152,21 @@ class TestAction < Test::Unit::TestCase
       config = SubSplit.create_configuration( @config_store, nil, {} )
       SubSplit.new( @caller, 'logger_name', config )
     }
+  end
+
+  def test_workflow_parameter
+    SubSplit.define_output_docspec('test', 'desc', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
+    config = nil
+    assert_nothing_raised do
+      config = SubSplit.create_configuration( @config_store, 'workflow_test', {
+        'action' => {
+          'name' => 'workflow_test_action',
+          'workflow' => 'MyWorkflow'
+        },
+        'input' => { 'docspec' => Armagh::Documents::DocSpec.new('docspec', Armagh::Documents::DocState::READY) }
+      })
+    end
+    assert_equal 'MyWorkflow', config.get.dig('values', 'action', 'workflow')
   end
 
 end

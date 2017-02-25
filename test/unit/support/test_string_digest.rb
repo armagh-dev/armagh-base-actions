@@ -24,21 +24,21 @@ require_relative '../../../lib/armagh/support/string_digest'
 class TestStringDigest < Test::Unit::TestCase
 
   def test_md5
-    assert_equal '5luw5ld8t195dpiliva0krvsz', Armagh::Support::StringDigest.md5('hello world')
+    assert_equal 'XrY7uAe7tCTyyK7j1rNww', Armagh::Support::StringDigest.md5('hello world')
   end
 
   def test_md5_with_nil_str
-    e = assert_raise(Armagh::Support::StringDigest::StringValueError) do
+    e = Armagh::Support::StringDigest::StringValueError.new 'Input must be a string'
+    assert_raise(e) do
       Armagh::Support::StringDigest.md5(nil)
     end
-    assert_equal 'Input string cannot be nil or empty', e.message
   end
 
   def test_md5_with_empty_str
-    e = assert_raise(Armagh::Support::StringDigest::StringValueError) do
+    e = Armagh::Support::StringDigest::StringValueError.new 'Input must not be empty'
+    assert_raise(e) do
       Armagh::Support::StringDigest.md5('')
     end
-    assert_equal 'Input string cannot be nil or empty', e.message
   end
 
 end

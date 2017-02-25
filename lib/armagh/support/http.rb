@@ -204,14 +204,16 @@ module Armagh
           end
 
           # verbose toggle because httpclient internally uses Kernel#warn
-          old_verbose = $VERBOSE = nil
+          old_verbose = $VERBOSE
+          $VERBOSE = nil
           response = request(url, method, fields)
 
           @client.save_cookie_store
-          $VERBOSE = old_verbose
           response
         rescue URI::InvalidURIError
-          raise HTTP::URLError, "'#{@url}' is not a valid HTTP or HTTPS URL."
+          raise HTTP::URLError, "'#{url}' is not a valid HTTP or HTTPS URL."
+        ensure
+          $VERBOSE = old_verbose
         end
 
         def acceptable_uri?(uri)
@@ -289,31 +291,31 @@ module Armagh
             pages
           else
             if response.status == 302
-              raise HTTP::RedirectError, "Attempted to redirect from '#{@url}' but redirection is not allowed."
+              raise HTTP::RedirectError, "Attempted to redirect from '#{url}' but redirection is not allowed."
             else
-              raise HTTP::ConnectionError, "Unexpected HTTP response from '#{@url}': #{response.status} - #{response.reason}."
+              raise HTTP::ConnectionError, "Unexpected HTTP response from '#{url}': #{response.status} - #{response.reason}."
             end
           end
         rescue HTTPClient::TimeoutError # KEEP
-          raise HTTP::ConnectionError, "HTTP response from '#{@url}' timed out."
+          raise HTTP::ConnectionError, "HTTP response from '#{url}' timed out."
         rescue HTTPClient::ConfigurationError => e # KEEP
-          raise HTTP::ConfigurationError, "HTTP configuration error from '#{@url}': #{e.message}."
+          raise HTTP::ConfigurationError, "HTTP configuration error from '#{url}': #{e.message}."
         rescue HTTPClient::BadResponseError => e
           if e.message == 'retry count exceeded'
             if @client.follow_redirect_count == 0
-              raise HTTP::RedirectError, "Attempted to redirect from '#{@url}' but redirection is not allowed."
+              raise HTTP::RedirectError, "Attempted to redirect from '#{url}' but redirection is not allowed."
             else
-              raise HTTP::RedirectError, "Too many redirects from '#{@url}'."
+              raise HTTP::RedirectError, "Too many redirects from '#{url}'."
             end
           elsif e.message == 'redirecting to non-https resource'
-            raise HTTP::RedirectError, "Attempted to redirect from an https resource to a no non-https resource while retrieving '#{@url}'.  Considering enabling allow_https_to_http."
+            raise HTTP::RedirectError, "Attempted to redirect from an https resource to a no non-https resource while retrieving '#{url}'.  Considering enabling allow_https_to_http."
           else
-            raise HTTP::ConnectionError, "Unexpected error requesting '#{@url}' - #{e.message}."
+            raise HTTP::ConnectionError, "Unexpected error requesting '#{url}' - #{e.message}."
           end
         rescue HTTP::HTTPError
           raise
         rescue => e
-          raise HTTP::ConnectionError, "Unexpected error requesting '#{@url}' - #{e.message}."
+          raise HTTP::ConnectionError, "Unexpected error requesting '#{url}' - #{e.message}."
         end
 
         private def header_to_hash(head)

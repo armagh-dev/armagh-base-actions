@@ -43,13 +43,13 @@ module Armagh
             
       def self.report_validation_errors( type, state )
         errors = []
-        errors << "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }.join(", ")}" unless DocState.valid_state?(state)
+        errors << "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }.sort.join(', ')}" unless DocState.valid_state?(state)
         errors << 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
         errors.empty? ? nil : errors.join(", ")
       end  
 
       def initialize(type, state)
-        raise Errors::DocStateError, "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }}" unless DocState.valid_state?(state)
+        raise Errors::DocStateError, "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }.sort.join(', ')}" unless DocState.valid_state?(state)
         raise Errors::DocSpecError, 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
 
         @type = type.freeze

@@ -26,13 +26,23 @@ require_relative '../../../lib/armagh/support/random'
 class TestRandom < Test::Unit::TestCase
 
   def test_random_str
-    assert_match(/^\w{30}$/, Armagh::Support::Random.random_str(30))
-    assert_match(/^\w{12}$/, Armagh::Support::Random.random_str(12))
+    rdm = Armagh::Support::Random.random_str(30)
+    assert_true rdm.length <= 30
+    assert_in_delta(30, rdm.length, 5)
+
+    rdm = Armagh::Support::Random.random_str(12)
+    assert_true rdm.length <= 12
+    assert_in_delta(12, rdm.length, 5)
+
     assert_not_equal(Armagh::Support::Random.random_str(20), Armagh::Support::Random.random_str(20))
   end
 
   def test_random_id
-    assert_match(/^\w{#{Armagh::Support::Random::RANDOM_ID_LENGTH}}$/, Armagh::Support::Random.random_id)
+    id = Armagh::Support::Random.random_id
+
+    assert_true id.length <= Armagh::Support::Random::RANDOM_ID_LENGTH
+    assert_in_delta(Armagh::Support::Random::RANDOM_ID_LENGTH, id.length, 5)
+
     assert_not_equal(Armagh::Support::Random.random_id, Armagh::Support::Random.random_id)
   end
 

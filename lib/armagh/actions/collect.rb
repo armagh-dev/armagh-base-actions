@@ -151,11 +151,16 @@ module Armagh
       def Collect.report_validation_errors(candidate_config)
 
         errors = []
+        output_docspec_defined = false
         valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
+        
         candidate_config.find_all_parameters { |p| p.group == 'output' }.each do |docspec_param|
+          output_docspec_defined = true
           errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
         end
 
+        errors << "Collect actions must have at least one output docspec defined in the class" unless output_docspec_defined
+        
         schedule = candidate_config.collect.schedule
         errors << "Schedule '#{schedule}' is not valid cron syntax." unless Support::Cron.valid_cron?(schedule)
 

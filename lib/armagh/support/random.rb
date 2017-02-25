@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+require 'securerandom'
+
 module Armagh
   module Support
     module Random
@@ -27,7 +29,9 @@ module Armagh
       end
 
       def random_str(length)
-        rand(36**length).to_s(36).rjust(length, '0')
+        random = SecureRandom.base64(length * 3/4)
+        random.gsub!(/[+\/=]/,'')
+        random
       end
     end
   end
