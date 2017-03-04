@@ -29,13 +29,12 @@ class TestInit < Test::Unit::TestCase
   def setup
     @base_dir = '/tmp/test_actions'
     @asset_dir = File.join(__dir__, '..', '..', '..', 'assets')
-    FakeFS.activate!
+    @pwd = Dir.pwd
   end
 
   def teardown
     FileUtils.rm_rf @base_dir
-    FakeFS.deactivate!
-    FakeFS::FileSystem.clear
+    Dir.chdir @pwd
   end
 
   def test_create_scaffolding

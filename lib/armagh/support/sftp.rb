@@ -65,7 +65,7 @@ module Armagh
         @archive_config = Armagh::Support::SFTP.create_configuration([], 'archive', {
           'sftp' => sftp_config})
       end
-
+      
       def SFTP.test_connection(candidate_config)
         error = nil
         begin

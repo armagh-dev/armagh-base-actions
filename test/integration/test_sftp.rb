@@ -28,6 +28,8 @@ require_relative '../../lib/armagh/support/sftp.rb'
 class TestIntegrationSFTP < Test::Unit::TestCase
 
   SFTP_TEST_DIR = 'sftp'
+  SFTP_DUP_PUT_DIR1 = 'readwrite_sftp_dup_dir1' 
+  SFTP_DUP_PUT_DIR2 = 'readwrite_sftp_dup_dir2'
 
   NO_ACCESS_DIR = 'no_access_dir'
   READ_ONLY_DIR = 'read_only_sftp_dir'
@@ -153,12 +155,12 @@ class TestIntegrationSFTP < Test::Unit::TestCase
     @config_values['maximum_transfer'] = 5
     @config_values['filename_pattern'] = '**/*.txt'
     @config_values['create_directory_path' ] = true
+    @config_values['duplicate_put_directory_paths'] = [ SFTP_DUP_PUT_DIR1, SFTP_DUP_PUT_DIR2 ]
     config = Armagh::Support::SFTP.create_configuration(@config_store, 'putget', {'sftp' => @config_values})
 
     created_files = []
     put_files = []
     errors =[]
-
 
     FakeFS do
       FileUtils.mkdir_p SFTP_TEST_DIR
@@ -181,36 +183,43 @@ class TestIntegrationSFTP < Test::Unit::TestCase
     assert_empty(put_files - created_files)
     assert_empty(errors)
 
-    FakeFS::FileSystem.clear
+    @config_values.delete 'duplicate_put_directory_paths'
+    @config_values['create_directory_path'] = false
+    [ READ_WRITE_DIR, SFTP_DUP_PUT_DIR1, SFTP_DUP_PUT_DIR2 ].each do |from_dir|
+      
+      @config_values['directory_path'] = from_dir
+      getter_config = Armagh::Support::SFTP.create_configuration(@config_store, "get_put_#{from_dir}", {'sftp' => @config_values})
 
-    assert_empty FakeFS { Dir.glob(config.sftp.filename_pattern) }
+      FakeFS::FileSystem.clear
+      assert_empty FakeFS { Dir.glob(getter_config.sftp.filename_pattern) }
 
-    got_files = []
-    files_on_fs = []
-    FakeFS do
-      Armagh::Support::SFTP::Connection.open(config) do |sftp|
+      got_files = []
+      files_on_fs = []
+      FakeFS do
+        Armagh::Support::SFTP::Connection.open(getter_config) do |sftp|
+          sftp.get_files do |filename, attributes, error|
+            got_files << File.join('', filename) # FakeFS puts a leading /
+            assert_not_empty attributes
+            assert_kind_of Time, attributes['mtime']
+            assert_nil error
+          end
+        end
+
+        files_on_fs = Dir.glob(getter_config.sftp.filename_pattern)
+      end
+
+      assert_equal(getter_config.sftp.maximum_transfer, files_on_fs.length)
+      assert_equal(getter_config.sftp.maximum_transfer, got_files.length)
+      assert_equal(files_on_fs.sort, got_files.sort)
+
+      no_more_files = true
+      Armagh::Support::SFTP::Connection.open(getter_config) do |sftp|
         sftp.get_files do |filename, attributes, error|
-          got_files << File.join('', filename) # FakeFS puts a leading /
-          assert_not_empty attributes
-          assert_kind_of Time, attributes['mtime']
-          assert_nil error
+          no_more_files = false
         end
       end
-
-      files_on_fs = Dir.glob(config.sftp.filename_pattern)
+      assert_true no_more_files
     end
-
-    assert_equal(config.sftp.maximum_transfer, files_on_fs.length)
-    assert_equal(config.sftp.maximum_transfer, got_files.length)
-    assert_equal(files_on_fs.sort, got_files.sort)
-
-    no_more_files = true
-    Armagh::Support::SFTP::Connection.open(config) do |sftp|
-      sftp.get_files do |filename, attributes, error|
-        no_more_files = false
-      end
-    end
-    assert_true no_more_files
   ensure
     begin
       Armagh::Support::SFTP::Connection.open(config) do |sftp|
