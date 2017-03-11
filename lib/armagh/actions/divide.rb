@@ -16,11 +16,11 @@
 #
 
 require 'bson'
-require 'securerandom'
 
 require_relative 'action'
 require_relative 'encodable'
 require_relative 'loggable'
+require 'configh/configurable'
 
 module Armagh
   module Actions
@@ -36,11 +36,12 @@ module Armagh
 
       define_group_validation_callback callback_class: Divide, callback_method: :report_validation_errors
 
-      def self.inherited( base )
+      def self.inherited(base)
         base.register_action
+        base.define_output_docspec 'docspec', 'Docspec output from divider'
       end
 
-      def initialize( *args )
+      def initialize(*args)
         super
         @doc_details = nil
       end
@@ -51,8 +52,9 @@ module Armagh
       end
 
       def create(content, metadata)
-        docspec_param = @config.find_all_parameters{ |p| p.group == 'output' && p.type == 'docspec' }.first
+        docspec_param = @config.find_all_parameters { |p| p.group == 'output' && p.type == 'docspec' && p.name == 'docspec' }.first
         docspec = docspec_param&.value
+
         raise Errors::CreateError, "Divider metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
 
         action_doc = Documents::ActionDocument.new(document_id: @doc_details['document_id'],
@@ -66,22 +68,22 @@ module Armagh
         action_doc.raw = content
         @caller.create_document(action_doc)
       end
-      
-      def Divide.report_validation_errors( candidate_config )
+
+      def self.report_validation_errors(candidate_config)
         errors = []
-        output_docspec_defined = false
         valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
-        
-        candidate_config.find_all_parameters { |p| p.group == 'output' }.each do |docspec_param|
-          output_docspec_defined = true
+
+        num_output_docspecs = 0
+
+        candidate_config.find_all_parameters { |p| p.group == 'output' && p.type == 'docspec' }.each do |docspec_param|
+          num_output_docspecs += 1
           errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
         end
 
-        errors << "Divide actions must have at least one output docspec defined in the class" unless output_docspec_defined
-        
+        errors << "Divide actions must have one output docspec defined in the class.  There were #{num_output_docspecs} defined." unless num_output_docspecs == 1
+
         errors.empty? ? nil : errors.join(', ')
       end
-      
     end
   end
 end

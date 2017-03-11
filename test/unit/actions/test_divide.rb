@@ -41,23 +41,24 @@ class TestDivide < Test::Unit::TestCase
       'action' => { 'name' => 'mysubcollect' },
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false}
     })
-    
+
     if Object.const_defined?( :SubDivide )
       Object.send( :remove_const, :SubDivide )
     end
     Object.const_set :SubDivide, Class.new( Armagh::Actions::Divide )
     SubDivide.define_default_input_type 'innie'
-    SubDivide.define_output_docspec( 'littledocs', 'action description ')
+
 
     @config_store = []
     div_config = SubDivide.create_configuration( @config_store, 'set2', {
       'action' => { 'name' => 'mysubdivide' },
-      'input'  => { 'doctype' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )},
-      'output' => { 'littledocs' => Armagh::Documents::DocSpec.new( 'danslittledocs', Armagh::Documents::DocState::READY )}
+      'input'  => { 'docspec' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )},
+      'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'danslittledocs', Armagh::Documents::DocState::READY )}
     })
+
     @divide_action = SubDivide.new( @caller, 'logger_name', div_config, @collection)
-    
-  end 
+
+  end
 
   def test_unimplemented_divide
     assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@divide_action.divide(nil)}
@@ -69,15 +70,32 @@ class TestDivide < Test::Unit::TestCase
     e = assert_raises( Configh::ConfigInitError ) do
       div_config = BadSubDivide.create_configuration( @config_store, 'set2', {
         'action' => { 'name' => 'mysubdivide' },
-        'input'  => { 'doctype' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )}
+        'input'  => { 'docspec' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )}
       })
       @divide_action = BadSubDivide.new( @caller, 'logger_name', div_config, @collection)
     end
-    assert_equal "Unable to create configuration BadSubDivide set2: Divide actions must have at least one output docspec defined in the class", e.message
-  end    
+    assert_equal 'Unable to create configuration BadSubDivide set2: output docspec: type validation failed: value cannot be nil', e.message
+  end
+
+  def test_too_many_output_docspecs
+    e = Configh::ConfigInitError.new('Unable to create configuration SubDivide set2: Divide actions must have one output docspec defined in the class.  There were 2 defined.')
+
+    assert_raise(e) do
+      SubDivide.define_output_docspec 'docspec2', 'another output docspec'
+
+      SubDivide.create_configuration(@config_store, 'set2', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::READY),
+          'docspec2' => Armagh::Documents::DocSpec.new('danslittledocs2', Armagh::Documents::DocState::READY),
+        }
+      })
+    end
+  end
 
   def test_create
-    content = {'content' => true}
+    content = "some content"
     meta = {'meta' => true}
 
     @caller.expects(:create_document)

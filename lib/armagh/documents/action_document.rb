@@ -89,6 +89,8 @@ module Armagh
       end
 
       def text=(text)
+       raise TypeError, "Value for 'text' argument expected to be a string." unless text.is_a? String
+
         content.nil? ? self.content = {} : content.clear
         content['text_content'] = text
       end
@@ -98,6 +100,8 @@ module Armagh
       end
 
       def raw=(raw_data)
+       raise TypeError, 'Value for raw_data expected to be a string.' unless raw_data.is_a? String
+
         content.nil? ? self.content = {} : content.clear
         content['bson_binary'] = BSON::Binary.new(raw_data)
       end

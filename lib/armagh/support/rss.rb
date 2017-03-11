@@ -88,7 +88,7 @@ module Armagh
             else
               if content_field
                 type = parent_type
-                content_text = CGI.unescape_html(item[content_field]) # TODO JBOWES
+                content_text = CGI.unescape_html(item[content_field])
                 content << content_text
               else
                 type = parent_type
