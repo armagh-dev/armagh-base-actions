@@ -66,6 +66,83 @@ class TestPublish < Test::Unit::TestCase
     assert_equal "The input docspec is already defined for you in a publish action.", e.message
   end
 
+  def test_no_out_spec
+    e = Configh::ConfigInitError.new('Unable to create configuration SubPublish set2: output docspec: type validation failed: value cannot be nil')
+    assert_raise(e) do
+      SubPublish.create_configuration(@config_store, 'set2', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
+        'output' => {
+        }
+      })
+    end
+  end
+
+  def test_no_in_spec
+    e = Configh::ConfigInitError.new('Unable to create configuration SubPublish set2: input docspec: type validation failed: value cannot be nil')
+    assert_raise(e) do
+      SubPublish.create_configuration(@config_store, 'set2', {
+        'action' => {'name' => 'mysubdivide'},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::PUBLISHED),
+        }
+      })
+    end
+  end
+
+  def test_invalid_in_spec
+    e = Configh::ConfigInitError.new("Unable to create configuration SubPublish set2: Input docspec 'docspec' state must be ready.")
+    assert_raise(e) do
+      SubPublish.create_configuration(@config_store, 'set2', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::WORKING)},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::PUBLISHED),
+        }
+      })
+    end
+  end
+
+  def test_invalid_out_spec
+    e = Configh::ConfigInitError.new("Unable to create configuration SubPublish set2: Output docspec 'docspec' state must be one of: published.")
+    assert_raise(e) do
+      SubPublish.create_configuration(@config_store, 'set2', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::WORKING),
+        }
+      })
+    end
+  end
+
+  def test_same_in_out_spec
+    e = assert_raise do
+      SubPublish.create_configuration(@config_store, 'set2', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY),
+        }
+      })
+
+      assert_true e.message.include?("Action can't have same doc specs as input and output.")
+    end
+  end
+
+  def test_diff_out_types
+    e = Configh::ConfigInitError.new('Unable to create configuration SubPublish set2: Input doctype (dansbigdocs) and output doctype (dansbigdocs2) must be the same for Publish actions')
+    assert_raise(e) do
+      SubPublish.create_configuration(@config_store, 'set2', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs2', Armagh::Documents::DocState::PUBLISHED),
+        }
+      })
+    end
+  end
+
   def test_get_existing_published_document
     doc = Armagh::Documents::ActionDocument.new(
              document_id: 'id', content: {'content' => 'old'}, metadata: {'meta' => 'old'},

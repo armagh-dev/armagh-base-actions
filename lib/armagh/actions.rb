@@ -40,5 +40,21 @@ module Armagh
       
       actions
     end
+
+    def self.name_to_class(action_class_name)
+
+      klass = nil
+      begin
+        klass = eval( action_class_name )
+      rescue
+        raise "Action class name #{action_class_name} not valid"
+      end
+
+      unless defined_actions.include?( klass )
+        raise "Class #{action_class_name} is not a defined standard or custom action"
+      end
+
+      klass
+    end
   end
 end

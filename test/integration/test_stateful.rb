@@ -49,7 +49,8 @@ class TestIntegrationActionStateful < Test::Unit::TestCase
     @action_state_store = MongoSupport.instance.client[ 'test_action_state_store' ]
     config_hash = { 
       'action' => { 'name' => 'fred' },
-      'collect' => { 'schedule' => '0 * * * *', 'archive' => false }
+      'collect' => { 'schedule' => '0 * * * *', 'archive' => false },
+      'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
     }
     @logger = mock
     action_config = Armagh::StandardActions::TIASCollect.create_configuration( [], 'fred', config_hash )

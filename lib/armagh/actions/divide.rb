@@ -33,12 +33,14 @@ module Armagh
       include Configh::Configurable
 
       attr_accessor :doc_details
-
       define_group_validation_callback callback_class: Divide, callback_method: :report_validation_errors
+
+      VALID_INPUT_STATE = Documents::DocState::READY
+      VALID_OUTPUT_STATES = [Documents::DocState::READY, Documents::DocState::WORKING].freeze
 
       def self.inherited(base)
         base.register_action
-        base.define_output_docspec 'docspec', 'Docspec output from divider'
+        base.define_output_docspec 'docspec', 'The docspec of the default output from this action'
       end
 
       def initialize(*args)
@@ -71,16 +73,12 @@ module Armagh
 
       def self.report_validation_errors(candidate_config)
         errors = []
-        valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
 
-        num_output_docspecs = 0
+        docspec_errors = validate_docspecs(candidate_config)
+        errors.concat docspec_errors
 
-        candidate_config.find_all_parameters { |p| p.group == 'output' && p.type == 'docspec' }.each do |docspec_param|
-          num_output_docspecs += 1
-          errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
-        end
-
-        errors << "Divide actions must have one output docspec defined in the class.  There were #{num_output_docspecs} defined." unless num_output_docspecs == 1
+        output_docspec_params = candidate_config.find_all_parameters{ |p| p.group == 'output' }
+        errors << 'Divide actions must have exactly one output docspec.' unless output_docspec_params.length == 1
 
         errors.empty? ? nil : errors.join(', ')
       end

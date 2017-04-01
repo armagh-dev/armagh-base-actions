@@ -39,7 +39,8 @@ class TestDivide < Test::Unit::TestCase
     @config_store = []
     coll_config = SubCollect.create_configuration( @config_store, 'set', {
       'action' => { 'name' => 'mysubcollect' },
-      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false}
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
     if Object.const_defined?( :SubDivide )
@@ -78,18 +79,89 @@ class TestDivide < Test::Unit::TestCase
   end
 
   def test_too_many_output_docspecs
-    e = Configh::ConfigInitError.new('Unable to create configuration SubDivide set2: Divide actions must have one output docspec defined in the class.  There were 2 defined.')
+    e = Configh::ConfigInitError.new('Unable to create configuration SubDivide set3: Divide actions must have exactly one output docspec.')
 
     assert_raise(e) do
       SubDivide.define_output_docspec 'docspec2', 'another output docspec'
 
-      SubDivide.create_configuration(@config_store, 'set2', {
+      SubDivide.create_configuration(@config_store, 'set3', {
         'action' => {'name' => 'mysubdivide'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::READY),
           'docspec2' => Armagh::Documents::DocSpec.new('danslittledocs2', Armagh::Documents::DocState::READY),
         }
+      })
+    end
+  end
+
+  def test_no_out_spec
+    e = Configh::ConfigInitError.new('Unable to create configuration SubDivide set4: output docspec: type validation failed: value cannot be nil')
+
+    assert_raise(e) do
+      SubDivide.create_configuration(@config_store, 'set4', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
+      })
+    end
+  end
+
+  def test_no_in_spec
+    Object.send(:remove_const, :SubDivide) if Object.const_defined?(:SubDivide)
+    Object.const_set :SubDivide, Class.new( Armagh::Actions::Divide )
+
+    e = Configh::ConfigInitError.new('Unable to create configuration SubDivide set5: input docspec: type validation failed: value cannot be nil')
+
+    assert_raise(e) do
+      SubDivide.create_configuration(@config_store, 'set5', {
+        'action' => {'name' => 'mysubdivide'},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::READY),
+        }
+      })
+    end
+  end
+
+  def test_invalid_in_spec
+    e = Configh::ConfigInitError.new("Unable to create configuration SubDivide set6: Input docspec 'docspec' state must be ready.")
+
+    assert_raise(e) do
+      SubDivide.create_configuration(@config_store, 'set6', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::PUBLISHED)},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::READY),
+        }
+      })
+    end
+  end
+
+  def test_invalid_out_spec
+    e = Configh::ConfigInitError.new("Unable to create configuration SubDivide set7: Output docspec 'docspec' state must be one of: ready, working.")
+
+    assert_raise(e) do
+      SubDivide.create_configuration(@config_store, 'set7', {
+        'action' => {'name' => 'mysubdivide'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
+        'output' => {
+          'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::PUBLISHED),
+        }
+      })
+    end
+  end
+
+  def test_valid_out_spec
+    assert_nothing_raised do
+      SubDivide.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'subdivide'},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      })
+
+      SubDivide.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'subdivide'},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
       })
     end
   end

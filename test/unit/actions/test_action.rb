@@ -42,8 +42,9 @@ class TestAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised {
       SubSplit.define_default_input_type 'test_type1'
-      SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
-      config = SubSplit.create_configuration( @config_store, action_name, {} )
+      config = SubSplit.create_configuration( @config_store, action_name, {
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      } )
       SubSplit.new( @caller, 'logger_name', config, @collection )
     }
     assert_equal action_name, config.action.name
@@ -57,7 +58,8 @@ class TestAction < Test::Unit::TestCase
       SubSplit.define_default_input_type type
       SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
       config = SubSplit.create_configuration( @config_store, 'defintype', {
-        'action' => { 'name' => 'fred_the_action'} })
+        'action' => { 'name' => 'fred_the_action'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}})
       SubSplit.new( @caller, 'logger_name', config, @collection )
     }
     assert_equal type, config.input.docspec.type
@@ -68,22 +70,22 @@ class TestAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised {
       SubSplit.define_default_input_type 'some_doctype'
-      SubSplit.define_output_docspec('test_type1', 'do the hokey pokey')
-      SubSplit.define_output_docspec('test_type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
+      SubSplit.define_output_docspec('type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
       config = SubSplit.create_configuration( @config_store, 'defoutds', {
         'action' => { 'name' => 'fred_the_action'},
-        'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
+        'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY ),
+                      'type2' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
       SubSplit.new( @caller, 'logger_name', config, @collection )
     }
-    docspec = config.output.test_type2
+    docspec = config.output.type2
     assert docspec.is_a?( Armagh::Documents::DocSpec )
   end
 
   def test_define_output_docspec_bad_name
     e = assert_raise(Configh::ParameterDefinitionError) {SubSplit.define_output_docspec(nil,nil)}
     assert_equal 'name: string is empty or nil', e.message
-    assert_empty SubSplit.defined_parameters.find_all{ |p| p.group == 'output' and p.type == 'docspec' }
+    assert_empty SubSplit.defined_parameters.find_all{ |p| p.group == 'output' && p.type == 'docspec' && p.name != 'docspec' }
   end
 
   def test_define_output_docspec_bad_default_state
@@ -117,17 +119,19 @@ class TestAction < Test::Unit::TestCase
     Object.const_set "SubSplit2", Class.new( Armagh::Actions::Split )
     SubSplit2.define_output_docspec 'subsplit2_ds1', 'desc'
 
-    assert_equal [ 'subsplit_ds1', 'subsplit_ds2' ], SubSplit.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
-    assert_equal [ 'subsplit2_ds1' ], SubSplit2.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
+    assert_equal %w(docspec subsplit_ds1 subsplit_ds2), SubSplit.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
+    assert_equal %w(docspec subsplit2_ds1), SubSplit2.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
   end
 
   def test_random_id
     SubSplit.define_default_input_type 'some_doctype'
-    SubSplit.define_output_docspec('test_type1', 'do the hokey pokey')
-    SubSplit.define_output_docspec('test_type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
+    SubSplit.define_output_docspec('type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
     config = SubSplit.create_configuration( @config_store, 'defoutds', {
       'action' => { 'name' => 'fred_the_action'},
-      'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
+      'output' => {
+        'docspec' => Armagh::Documents::DocSpec.new( 'default_type', Armagh::Documents::DocState::READY ),
+        'type2' => Armagh::Documents::DocSpec.new( 'dans_type2', Armagh::Documents::DocState::READY )
+      }
     })
     split = SubSplit.new( @caller, 'logger_name', config, @collection )
     id = split.random_id
@@ -155,7 +159,6 @@ class TestAction < Test::Unit::TestCase
   end
 
   def test_workflow_parameter
-    SubSplit.define_output_docspec('test', 'desc', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
     config = nil
     assert_nothing_raised do
       config = SubSplit.create_configuration( @config_store, 'workflow_test', {
@@ -163,7 +166,8 @@ class TestAction < Test::Unit::TestCase
           'name' => 'workflow_test_action',
           'workflow' => 'MyWorkflow'
         },
-        'input' => { 'docspec' => Armagh::Documents::DocSpec.new('docspec', Armagh::Documents::DocState::READY) }
+        'input' => { 'docspec' => Armagh::Documents::DocSpec.new('docspec', Armagh::Documents::DocState::READY) },
+        'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
       })
     end
     assert_equal 'MyWorkflow', config.get.dig('values', 'action', 'workflow')

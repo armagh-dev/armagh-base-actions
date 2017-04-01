@@ -37,7 +37,7 @@ class TestConsume < Test::Unit::TestCase
     SubConsume.define_default_input_type 'consumed'
     SubConsume.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
     @config = SubConsume.create_configuration( @config_store, 'set', {
-      'action' => { 'name' => 'mysubcollect' }
+      'action' => { 'name' => 'subconsume' }
       })
     
     @consume_action = SubConsume.new( @caller, 'logger_name', @config, @collection )
@@ -76,7 +76,7 @@ class TestConsume < Test::Unit::TestCase
     end
   end
 
-  def test_valid_invalid_out_state
+  def test_valid_invalid_out_spec
     if Object.const_defined?( :SubConsume )
       Object.send( :remove_const, :SubConsume )
     end
@@ -85,10 +85,63 @@ class TestConsume < Test::Unit::TestCase
     SubConsume.define_output_docspec( 'consumed_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
     e = assert_raises( Configh::ConfigInitError ) {
       config = SubConsume.create_configuration( @config_store, 'inoutstate', {
-        'action' => { 'name' => 'mysubcollect' }
+        'action' => { 'name' => 'subconsume' }
       })
     }
     assert_equal "Unable to create configuration SubConsume inoutstate: Output docspec 'consumed_doc' state must be one of: ready, working.", e.message
+  end
+
+  def test_no_out_spec
+    Object.send(:remove_const, :SubConsume) if Object.const_defined?(:SubConsume)
+    Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
+    SubConsume.define_default_input_type 'consumed'
+    assert_nothing_raised {
+      config = SubConsume.create_configuration( @config_store, 'inoutstate', {
+        'action' => { 'name' => 'subconsume' }
+      })
+    }
+  end
+
+  def test_no_in_spec
+    Object.send(:remove_const, :SubConsume) if Object.const_defined?(:SubConsume)
+    Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
+    e = Configh::ConfigInitError.new('Unable to create configuration SubConsume inoutstate: input docspec: type validation failed: value cannot be nil')
+    assert_raise(e) {
+      config = SubConsume.create_configuration( @config_store, 'inoutstate', {
+        'action' => { 'name' => 'subconsume' }
+      })
+    }
+  end
+
+  def test_invalid_in_spec
+    Object.send(:remove_const, :SubConsume) if Object.const_defined?(:SubConsume)
+    Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
+    SubConsume.define_default_input_type 'consumed'
+    e = Configh::ConfigInitError.new("Unable to create configuration SubConsume inoutstate: Input docspec 'docspec' state must be published.")
+    assert_raise(e) {
+      config = SubConsume.create_configuration( @config_store, 'inoutstate', {
+        'action' => { 'name' => 'subconsume' },
+        'input' => {'docspec' => 'consume:working'}
+      })
+    }
+  end
+
+  def test_valid_out_spec
+    SubConsume.define_output_docspec('docspec', 'action description')
+
+    assert_nothing_raised do
+      SubConsume.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'subconsume'},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      })
+
+      SubConsume.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'subconsume'},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
+      })
+    end
   end
 
   def test_inheritence

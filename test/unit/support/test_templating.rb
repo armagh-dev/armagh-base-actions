@@ -124,6 +124,11 @@ class TestTemplating < Test::Unit::TestCase
     assert_equal 'custom_public_helper: Erubis::Context', FakeFS { render_template(@template, :text) }
   end
 
+  def test_render_template_calling_custom_public_template_helper_method_via_instance_variable
+    FakeFS { File.write(@template, '{{= @test_templating.custom_public_helper(self.class) }}') }
+    assert_equal 'custom_public_helper: Erubis::Context', FakeFS { render_template(@template, :text) }
+  end
+
   def test_render_template_calling_custom_template_helper_with_unsupported_yield
     FakeFS { File.write(@template, '{{= custom_helper_with_unsupported_yield(self.class) { "content" } }}') }
     e = assert_raise LocalJumpError do

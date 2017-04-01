@@ -26,17 +26,12 @@ module Armagh
       
       include Configh::Configurable
       define_group_validation_callback callback_class: Consume, callback_method: :report_validation_errors
-      
+
+      VALID_INPUT_STATE = Documents::DocState::PUBLISHED
+      VALID_OUTPUT_STATES = [nil, Documents::DocState::READY, Documents::DocState::WORKING].freeze
+
       def self.inherited( base )
-        
         base.register_action
-        base.define_singleton_method( :define_default_input_type) { |args|
-          
-          default_type, description = args
-          description ||= 'Type of document this document acts on'
-          define_parameter name: "docspec", type: 'docspec', required: true, description: description, 
-                         default: Documents::DocSpec.new( default_type, Documents::DocState::PUBLISHED ), group: 'input'
-        }
       end
 
       # Doc is an PublishedDocument
@@ -55,14 +50,10 @@ module Armagh
       end
 
       def Consume.report_validation_errors( candidate_config )
-
         errors = []
-        valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
-        candidate_config.find_all_parameters{ |p| p.group == 'output' }.each do |docspec_param|
-          errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
-        end
-
-        errors.empty? ? nil : errors.join(", ")
+        docspec_errors = validate_docspecs(candidate_config)
+        errors.concat docspec_errors
+        errors.empty? ? nil : errors.join(', ')
       end
     end
   end

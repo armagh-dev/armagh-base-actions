@@ -53,8 +53,9 @@ class TestIntegrationAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised { 
       SubSplit.define_default_input_type 'test_type1'
-      SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
-      config = SubSplit.create_configuration( @config_store, action_name, {} )
+      config = SubSplit.create_configuration( @config_store, action_name, {
+        'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
+      } )
       SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
     assert_equal action_name, config.action.name
@@ -66,9 +67,10 @@ class TestIntegrationAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised { 
       SubSplit.define_default_input_type type
-      SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
-      config = SubSplit.create_configuration( @config_store, 'defintype', { 
-        'action' => { 'name' => 'fred_the_action'} }) 
+      config = SubSplit.create_configuration( @config_store, 'defintype', {
+        'action' => { 'name' => 'fred_the_action'},
+        'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
+      })
       SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
     assert_equal type, config.input.docspec.type
@@ -79,11 +81,12 @@ class TestIntegrationAction < Test::Unit::TestCase
     config = nil
     assert_nothing_raised { 
       SubSplit.define_default_input_type 'some_doctype'
-      SubSplit.define_output_docspec('test_type1', 'do the hokey pokey')
       SubSplit.define_output_docspec('test_type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
       config = SubSplit.create_configuration( @config_store, 'defoutds', { 
-        'action' => { 'name' => 'fred_the_action'}, 
-        'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
+        'action' => { 'name' => 'fred_the_action'},
+        'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY ),
+                      'test_type2' => Armagh::Documents::DocSpec.new( 'dans_type2', Armagh::Documents::DocState::READY )
+        }
       }) 
       SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
@@ -94,7 +97,7 @@ class TestIntegrationAction < Test::Unit::TestCase
   def test_define_output_docspec_bad_name
     e = assert_raise(Configh::ParameterDefinitionError) {SubSplit.define_output_docspec(nil,nil)}
     assert_equal 'name: string is empty or nil', e.message
-    assert_empty SubSplit.defined_parameters.find_all{ |p| p.group == 'output' and p.type == 'docspec' }
+    assert_empty SubSplit.defined_parameters.find_all{ |p| p.group == 'output' && p.type == 'docspec' && p.name != 'docspec' }
   end
 
   def test_define_output_docspec_bad_default_state
@@ -128,8 +131,8 @@ class TestIntegrationAction < Test::Unit::TestCase
     Object.const_set "SubSplit2", Class.new( Armagh::Actions::Split )
     SubSplit2.define_output_docspec 'subsplit2_ds1', 'desc'
     
-    assert_equal [ 'subsplit_ds1', 'subsplit_ds2' ], SubSplit.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
-    assert_equal [ 'subsplit2_ds1' ], SubSplit2.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
+    assert_equal %w(docspec subsplit_ds1 subsplit_ds2), SubSplit.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
+    assert_equal %w(docspec subsplit2_ds1), SubSplit2.defined_parameters.find_all{ |p| p.group == 'output' }.collect{ |p| p.name }.sort
   end
     
   def test_serialization
@@ -138,21 +141,30 @@ class TestIntegrationAction < Test::Unit::TestCase
     assert_nothing_raised { 
       SubSplit.define_default_input_type 'some_doctype'
       SubSplit.define_output_docspec('test_type1', 'do the hokey pokey')
-      SubSplit.define_output_docspec('test_type2', 'and turn yourself around', default_state: Armagh::Documents::DocState::READY, default_type: 'type')
       SubSplit.define_parameter name: 'count', type: 'integer', required: true, default: 6, group: 'grp', description: 'desc'
       config = SubSplit.create_configuration( @config_store, 'defaultds', { 
-        'action' => { 'name' => 'fred_the_action'}, 
-        'output' => { 'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )}
+        'action' => { 'name' => 'fred_the_action'},
+        'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'default', Armagh::Documents::DocState::READY ),
+                      'test_type1' => Armagh::Documents::DocSpec.new( 'dans_type1', Armagh::Documents::DocState::READY )
+        }
       }) 
       SubSplit.new( @caller, 'logger_name', config, @action_state_store )
     }
-    docspec = config.output.test_type2
-    assert docspec.is_a?( Armagh::Documents::DocSpec )
-    
+
+    default = config.output.docspec
+    assert default.is_a?( Armagh::Documents::DocSpec )
     stored_config = SubSplit.find_configuration( @config_store, 'defaultds' )
-    docspec = stored_config.output.test_type2
-    assert docspec.is_a?( Armagh::Documents::DocSpec )
-    assert_equal 'type', docspec.type
-    assert_equal 'ready', docspec.state
+    type1 = stored_config.output.docspec
+    assert type1.is_a?( Armagh::Documents::DocSpec )
+    assert_equal 'default', type1.type
+    assert_equal 'ready', type1.state
+
+    type1 = config.output.test_type1
+    assert type1.is_a?( Armagh::Documents::DocSpec )
+    stored_config = SubSplit.find_configuration( @config_store, 'defaultds' )
+    type1 = stored_config.output.test_type1
+    assert type1.is_a?( Armagh::Documents::DocSpec )
+    assert_equal 'dans_type1', type1.type
+    assert_equal 'ready', type1.state
   end
 end

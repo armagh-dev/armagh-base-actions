@@ -20,9 +20,9 @@
 module Armagh
   module Documents
     module DocState
-      WORKING = 'working'
-      READY = 'ready'
-      PUBLISHED = 'published'
+      WORKING = 'working'.freeze
+      READY = 'ready'.freeze
+      PUBLISHED = 'published'.freeze
 
       def self.valid_state?(state)
         DocState::constants.collect { |c| DocState.const_get(c) }.include?(state)

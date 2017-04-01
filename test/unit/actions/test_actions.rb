@@ -48,4 +48,23 @@ class TestActions < Test::Unit::TestCase
     
     assert_equal defined_classes, Armagh::Actions.defined_actions
   end
+
+  def test_name_to_class_good
+    klass = Armagh::Actions.name_to_class('Armagh::StandardActions::ThisTestCollect')
+    assert_equal Armagh::StandardActions::ThisTestCollect, klass
+  end
+  
+  def test_name_to_class_doesnt_exist
+    e = assert_raises do
+      Armagh::Actions.name_to_class( 'blah' )
+    end
+    assert_equal 'Action class name blah not valid', e.message
+  end
+
+  def test_name_to_class_not_an_action
+    e = assert_raises do
+      Armagh::Actions.name_to_class( 'String' )
+    end
+    assert_equal 'Class String is not a defined standard or custom action', e.message
+  end
 end

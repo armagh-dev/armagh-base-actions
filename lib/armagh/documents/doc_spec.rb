@@ -21,16 +21,24 @@ require_relative 'errors'
 
 module Configh
   module DataTypes
-    
-    def DataTypes.ensure_is_docspec( value )
-      if value.is_a?( String ) 
-        begin
-          type, state = value.split(':')
-          
-          value = Armagh::Documents::DocSpec.new( type, eval("Armagh::Documents::DocState::#{state.upcase}")) if state
-        rescue; end
+
+    def DataTypes.ensure_is_docspec(value)
+      if value.is_a?(String)
+        type, state = value.split(':')
+
+        state_val = case state
+                      when Armagh::Documents::DocState::READY
+                        Armagh::Documents::DocState::READY
+                      when Armagh::Documents::DocState::WORKING
+                        Armagh::Documents::DocState::WORKING
+                      when Armagh::Documents::DocState::PUBLISHED
+                        Armagh::Documents::DocState::PUBLISHED
+                      else
+                        nil
+                    end
+        value = Armagh::Documents::DocSpec.new(type, state_val) if state_val
       end
-      raise TypeError, "value #{value} cannot be cast as a docspec" unless value.is_a?( Armagh::Documents::DocSpec )
+      raise TypeError, "value #{value} cannot be cast as a docspec" unless value.is_a?(Armagh::Documents::DocSpec)
       value
     end
   end
@@ -40,13 +48,13 @@ module Armagh
   module Documents
     class DocSpec
       attr_reader :type, :state
-            
-      def self.report_validation_errors( type, state )
+
+      def self.report_validation_errors(type, state)
         errors = []
         errors << "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }.sort.join(', ')}" unless DocState.valid_state?(state)
         errors << 'Type must be a non-empty string.' unless type.is_a?(String) && !type.empty?
         errors.empty? ? nil : errors.join(", ")
-      end  
+      end
 
       def initialize(type, state)
         raise Errors::DocStateError, "Unknown state #{state}.  Valid states are #{Armagh::Documents::DocState::constants.collect { |c| c.to_s }.sort.join(', ')}" unless DocState.valid_state?(state)
@@ -74,11 +82,11 @@ module Armagh
 
       def to_hash
         {
-            "type" => @type,
-            "state" => @state
+          "type" => @type,
+          "state" => @state
         }
       end
-                   
+
     end
   end
 end

@@ -27,9 +27,13 @@ module Armagh
       # Can create/edit additional documents of any type or state
       include Configh::Configurable
       define_group_validation_callback callback_class: Split, callback_method: :report_validation_errors
-    
+
+      VALID_INPUT_STATE = Documents::DocState::READY
+      VALID_OUTPUT_STATES = [Documents::DocState::READY, Documents::DocState::WORKING].freeze
+
       def self.inherited( base )
         base.register_action
+        base.define_output_docspec 'docspec', 'The docspec of the default output from this action'
       end
       
       # Doc is an ActionDocument
@@ -37,7 +41,7 @@ module Armagh
         raise Errors::ActionMethodNotImplemented, 'Split actions must overwrite the split method.'
       end
 
-      def edit(id = random_id, docspec_name)
+      def edit(id = random_id, docspec_name = 'docspec')
         docspec_param = @config.find_all_parameters{ |p| p.group == 'output' and p.name == docspec_name }.first
         docspec = docspec_param&.value
         raise Documents::Errors::DocSpecError.new "Editing an unknown docspec #{docspec_name}." if docspec.nil?
@@ -48,18 +52,10 @@ module Armagh
       end
 
       def Split.report_validation_errors( candidate_config )
-
         errors = []
-        output_docspec_defined = false
-        valid_states = [Documents::DocState::READY, Documents::DocState::WORKING]
-        candidate_config.find_all_parameters{ |p| p.group == 'output' }.each do |docspec_param|
-          output_docspec_defined = true
-          errors << "Output docspec '#{docspec_param.name}' state must be one of: #{valid_states.join(", ")}." unless valid_states.include?(docspec_param.value.state)
-        end
-       
-        errors << "Split actions must have at least one output docspec defined in the class" unless output_docspec_defined
-
-        errors.empty? ? nil : errors.join(", ")
+        docspec_errors = validate_docspecs(candidate_config)
+        errors.concat docspec_errors
+        errors.empty? ? nil : errors.join(', ')
       end
 
     end

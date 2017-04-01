@@ -35,8 +35,6 @@ module Armagh
         super(msg)
       end
     end
-    # TODO base actions lib/armagh/actions/action.rb - Add a deduplication by action instance (string)
-    # TODO base actions lib/armagh/actions/action.rb - Add a deduplication configuration for time to live per action instance
 
     class Action
       attr_reader :name, :config
@@ -48,6 +46,12 @@ module Armagh
 
       define_group_validation_callback callback_class: Action, callback_method: :report_validation_errors
 
+      # VALID_INPUT_STATE should be overwritten by subclass.  There can only be one.
+      VALID_INPUT_STATE = nil
+
+      # VALID_OUTPUT_STATES should be overwritten by subclass.
+      VALID_OUTPUT_STATES = []
+
       def self.register_action
 
         include Configh::Configurable
@@ -57,11 +61,11 @@ module Armagh
         define_parameter name: 'workflow', type: 'populated_string', required: false, description: 'Workflow this action config belongs to', prompt: 'Comtex', group: 'action'
         define_parameter name: 'docspec', type: 'docspec', required: true, description: 'Input doctype for this action', group: 'input'
 
-        define_singleton_method( :define_default_input_type ){ |args|
+        define_singleton_method(:define_default_input_type) { |args|
           default_type, description = args
           description ||= 'The type of document this action accepts'
           define_parameter name: "docspec", type: 'docspec', required: true, description: description,
-                           default: Documents::DocSpec.new( default_type, Documents::DocState::READY ), group: 'input'
+                           default: Documents::DocSpec.new(default_type, self::VALID_INPUT_STATE), group: 'input'
 
         }
 
@@ -104,12 +108,27 @@ module Armagh
       end
 
       def Action.report_validation_errors( candidate_config )
-        configured_output_docspecs = candidate_config.find_all_parameters{ |p| p.group == 'output' and p.type == 'docspec' }.collect{ |p| p.value }
-        if configured_output_docspecs.include?( candidate_config.input.docspec )
-          return "Action can't have same doc specs as input and output"
-        else
-          return nil
+        errors = []
+        errors.empty? ? nil : errors.join(', ')
+      end
+
+      def self.validate_docspecs(candidate_config)
+        errors = []
+        configured_output_docspecs = candidate_config.find_all_parameters{ |p| p.group == 'output' and p.type == 'docspec' }
+
+        errors << 'Action must have at least one output docspec defined.' unless configured_output_docspecs.length > 0 || self::VALID_OUTPUT_STATES.include?(nil)
+
+        configured_output_docspecs.each do |output_docspec|
+          errors << "Action can't have same doc specs as input and output." if output_docspec.value == candidate_config.input.docspec
+          errors << "Output docspec '#{output_docspec.name}' state must be one of: #{self::VALID_OUTPUT_STATES.compact.join(', ')}." unless self::VALID_OUTPUT_STATES.include? output_docspec.value.state
         end
+
+        configured_input_docspecs = candidate_config.find_all_parameters{ |p| p.group == 'input' and p.type == 'docspec' }
+        configured_input_docspec = configured_input_docspecs.first
+
+        errors << 'Actions can only have one input docspec' unless configured_input_docspecs.length == 1
+        errors << "Input docspec '#{configured_input_docspec.name}' state must be #{self::VALID_INPUT_STATE}." unless configured_input_docspec.value.state == self::VALID_INPUT_STATE
+        errors
       end
 
       def self.add_action_params( name, values )

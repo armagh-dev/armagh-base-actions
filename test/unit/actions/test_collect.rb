@@ -38,7 +38,8 @@ class TestCollect < Test::Unit::TestCase
     @config_store = []
     config = SubCollect.create_configuration(@config_store, 'a', {
       'action' => {'name' => 'mysubcollect'},
-      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false}
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
     @collect_action = SubCollect.new(@caller, 'logger_name', config, @collection)
@@ -56,18 +57,6 @@ class TestCollect < Test::Unit::TestCase
 
   def test_input_doctype_override
     assert_equal "#{SubCollect::COLLECT_DOCTYPE_PREFIX}mysubcollect:ready", @collect_action.config.input.docspec.to_s
-  end
-  
-  def test_output_doctype_not_defined
-    Object.const_set :BadSubCollect, Class.new(Armagh::Actions::Collect)
-    @config_store = []
-    e = assert_raises( Configh::ConfigInitError ) do
-      config = BadSubCollect.create_configuration(@config_store, 'a', {
-        'action' => {'name' => 'mysubcollect'},
-        'collect' => {'schedule' => '*/5 * * * *', 'archive' => false}
-      })
-    end
-    assert_equal "Unable to create configuration BadSubCollect a: Collect actions must have at least one output docspec defined in the class", e.message
   end
 
   def test_create_no_divider
@@ -144,9 +133,11 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:archive).with(logger_name, action_name, random_id, {'metadata' => meta, 'source' => @source.to_hash})
     @caller.expects(:create_document)
 
-    config = SubCollect.create_configuration(@config_store, 'a', {
+    config = SubCollect.create_configuration(@config_store, 'a_cre_arch', {
       'action' => {'name' => action_name},
-      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true}
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+
     })
 
     @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
@@ -178,9 +169,10 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:archive).with(logger_name, action_name, random_id, {'source' => {'type' => 'url', 'url' => 'some url'}, 'metadata' => {'meta' => true}})
     divider.expects(:divide)
 
-    config = SubCollect.create_configuration(@config_store, 'a', {
+    config = SubCollect.create_configuration(@config_store, 'a_cre_arch_div', {
       'action' => {'name' => action_name},
-      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true}
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
     @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
@@ -202,9 +194,10 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:archive).with(logger_name, action_name, filename, {'metadata' => meta, 'source' => @source.to_hash})
     @caller.expects(:create_document)
 
-    config = SubCollect.create_configuration(@config_store, 'a', {
+    config = SubCollect.create_configuration(@config_store, 'a_cre_arc_kn_fn', {
       'action' => {'name' => action_name},
-      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true}
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
     @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
@@ -293,20 +286,46 @@ class TestCollect < Test::Unit::TestCase
     assert_raise(e) { @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: source) }
   end
 
-  def test_valid_invalid_out_state
-    if Object.const_defined?(:SubCollect)
-      Object.send(:remove_const, :SubCollect)
+  def test_valid_out_spec
+    SubCollect.define_output_docspec('docspec', 'action description')
+
+    assert_nothing_raised do
+      SubCollect.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      })
+
+      SubCollect.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
+      })
     end
+  end
+
+  def test_invalid_out_spec
+    Object.send(:remove_const, :SubCollect) if Object.const_defined?(:SubCollect)
     Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED)
     e = assert_raises(Configh::ConfigInitError) {
       config = SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
-        'input' => {'doctype' => 'randomdoc'}
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
     assert_equal "Unable to create configuration SubCollect inoutstate: Output docspec 'collected_doc' state must be one of: ready, working.", e.message
+  end
+
+  def test_multiple_in_spec
+    Object.send(:remove_const, :SubCollect) if Object.const_defined?(:SubCollect)
+    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
+    e = Armagh::Actions::ConfigurationError.new('You cannot define default input types for collectors')
+    assert_raise(e){SubCollect.define_default_input_type('trigger')}
   end
 
   def test_valid_invalid_cron
@@ -320,7 +339,8 @@ class TestCollect < Test::Unit::TestCase
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => 'invalid', 'archive' => false},
-        'input' => {'doctype' => 'randomdoc'}
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
   end
@@ -339,7 +359,8 @@ class TestCollect < Test::Unit::TestCase
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
-        'input' => {'doctype' => 'randomdoc'}
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
   end
@@ -358,7 +379,8 @@ class TestCollect < Test::Unit::TestCase
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
-        'input' => {'doctype' => 'randomdoc'}
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
   end

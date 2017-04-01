@@ -34,10 +34,10 @@ class TestSplit < Test::Unit::TestCase
     end
     Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
     SubSplit.define_default_input_type 'fred'
-    SubSplit.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
     @config_store = []
     @config = SubSplit.create_configuration( @config_store, 'set', {
-      'action' => { 'name' => 'mysubcollect' }
+      'action' => { 'name' => 'subsplit' },
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     @split_action = Armagh::Actions::Split.new( @caller, 'logger_name', @config, @collection)
   end
@@ -45,23 +45,12 @@ class TestSplit < Test::Unit::TestCase
   def test_unimplemented_split
     assert_raise(Armagh::Actions::Errors::ActionMethodNotImplemented) {@split_action.split(nil)}
   end
-  
-  def test_output_docspec_not_defined
-    Object.const_set :BadSubSplit, Class.new( Armagh::Actions::Split )
-    BadSubSplit.define_default_input_type 'fred'
-    e=assert_raises( Configh::ConfigInitError ) do
-      @config = BadSubSplit.create_configuration( @config_store, 'set', {
-        'action' => { 'name' => 'mysubcollect' }
-        })    
-    end
-    assert_equal "Unable to create configuration BadSubSplit set: Split actions must have at least one output docspec defined in the class", e.message
-  end
-  
+
   def test_edit
     yielded_doc = mock
-    @caller.expects(:edit_document).with('123', @config.output.output_type).yields(yielded_doc)
+    @caller.expects(:edit_document).with('123', @config.output.docspec).yields(yielded_doc)
 
-    @split_action.edit('123', 'output_type') do |doc|
+    @split_action.edit('123') do |doc|
       assert_equal yielded_doc, doc
     end
   end
@@ -77,7 +66,7 @@ class TestSplit < Test::Unit::TestCase
     @caller.expects(:edit_document).with do |id, type|
       assert_not_nil id
       assert_not_empty id
-      assert_equal(@config.output.output_type, type)
+      assert_equal(@config.output.docspec, type)
       true
     end.yields(yielded_doc)
 
@@ -86,19 +75,99 @@ class TestSplit < Test::Unit::TestCase
     end
   end
 
-  def test_validate_invalid_out_state
+  def test_edit_custom_spec
+    SubSplit.define_output_docspec( 'docspec2', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
+
+    yielded_doc = mock
+
+    @config = SubSplit.create_configuration( @config_store, 'set2', {
+      'action' => { 'name' => 'subsplit' },
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY),
+                   'docspec2' => Armagh::Documents::DocSpec.new('type2', Armagh::Documents::DocState::READY)}
+    })
+    @split_action = Armagh::Actions::Split.new( @caller, 'logger_name', @config, @collection)
+
+    @caller.expects(:edit_document).with('123', @config.output.docspec2).yields(yielded_doc)
+
+    @split_action.edit('123', 'docspec2') do |doc|
+      assert_equal yielded_doc, doc
+    end
+  end
+
+  def test_validate_invalid_out_spec
     if Object.const_defined?( :SubSplit )
       Object.send( :remove_const, :SubSplit )
     end
     Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
     SubSplit.define_default_input_type 'fred'
-    SubSplit.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
     e = assert_raises( Configh::ConfigInitError ) {
       config = SubSplit.create_configuration( @config_store, 'vios', {
-        'action' => { 'name' => 'mysubcollect' }
+        'action' => { 'name' => 'subsplit' },
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::PUBLISHED)}
       })
     }
-    assert_equal('Unable to create configuration SubSplit vios: Output docspec \'output_type\' state must be one of: ready, working.', e.message )
+    assert_equal('Unable to create configuration SubSplit vios: Output docspec \'docspec\' state must be one of: ready, working.', e.message )
+  end
+
+  def test_no_out_spec
+    if Object.const_defined?(:SubSplit)
+      Object.send(:remove_const, :SubSplit)
+    end
+    Object.const_set :SubSplit, Class.new(Armagh::Actions::Split)
+    SubSplit.define_default_input_type 'fred'
+
+    e = Configh::ConfigInitError.new('Unable to create configuration SubSplit inoutstate: output docspec: type validation failed: value cannot be nil')
+    assert_raise(e) do
+      SubSplit.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'subsplit'},
+        'input' => {'doctype' => 'randomdoc'},
+      })
+    end
+  end
+
+  def test_no_in_spec
+    Object.send(:remove_const, :SubSplit) if Object.const_defined?(:SubSplit)
+    Object.const_set :SubSplit, Class.new(Armagh::Actions::Split)
+
+    SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
+
+    e = Configh::ConfigInitError.new('Unable to create configuration SubSplit inoutstate: input docspec: type validation failed: value cannot be nil')
+    assert_raise(e) do
+      SubSplit.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'subsplit'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      })
+    end
+  end
+
+  def test_invalid_in_spec
+    Object.send(:remove_const, :SubSplit) if Object.const_defined?(:SubSplit)
+    Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
+    SubSplit.define_default_input_type 'docspec'
+    e = Configh::ConfigInitError.new("Unable to create configuration SubSplit inoutstate: Input docspec 'docspec' state must be ready.")
+    assert_raise(e) {
+      config = SubSplit.create_configuration( @config_store, 'inoutstate', {
+        'action' => { 'name' => 'subconsume' },
+        'input' => {'docspec' => 'consume:working'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      })
+    }
+  end
+
+  def test_valid_out_spec
+    assert_nothing_raised do
+      SubSplit.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'subsplit'},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      })
+
+      SubSplit.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'subsplit'},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
+      })
+    end
   end
 
   def test_inheritence

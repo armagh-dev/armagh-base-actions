@@ -27,6 +27,9 @@ module Armagh
       include Configh::Configurable
       define_group_validation_callback callback_class: Publish, callback_method: :report_validation_errors
 
+      VALID_INPUT_STATE = Documents::DocState::READY
+      VALID_OUTPUT_STATES = [Documents::DocState::PUBLISHED].freeze
+
       def self.inherited( base )
         base.register_action
         base.define_output_docspec 'docspec', 'the published document'
@@ -51,24 +54,21 @@ module Armagh
       end
 
       def Publish.report_validation_errors( candidate_config )
+        errors = []
+        docspec_errors = validate_docspecs(candidate_config)
+        errors.concat docspec_errors
 
-        valid_states = [Documents::DocState::PUBLISHED ]
-        
         output_docspec_params = candidate_config.find_all_parameters{ |p| p.group == 'output' }
-        docspec_param = output_docspec_params.first
-        
-        return "Publish actions must have exactly one output type" unless output_docspec_params.length == 1
-        
+        errors << 'Publish actions must have exactly one output type' unless output_docspec_params.length == 1
+
         docspec_param = output_docspec_params.first
         output_doctype = docspec_param.value.type
         
         unless output_doctype == candidate_config.input.docspec.type
-          return "Input doctype (#{candidate_config.input.docspec.type}) and output doctype (#{output_doctype}) must be the same"
+          errors << "Input doctype (#{candidate_config.input.docspec.type}) and output doctype (#{output_doctype}) must be the same for Publish actions"
         end
-        
-        return "Output document state for a Publish action must be published." unless valid_states.include?(docspec_param.value.state)
-        
-        return nil
+
+        errors.empty? ? nil : errors.join(', ')
        end
      end
   end

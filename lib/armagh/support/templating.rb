@@ -17,6 +17,7 @@
 
 require 'erubis'
 require 'cgi'
+require 'facets/string/snakecase'
 
 module Armagh
   module Support
@@ -221,7 +222,7 @@ module Armagh
         raise MissingTemplateError, "Missing template file #{template_path.inspect}" unless File.exist?(template_path)
 
         context             = Erubis::Context.new(context)
-        class_name          = convert_class_name_from_camel_to_snake
+        class_name          = self.class.to_s[/:?:?(\w+)$/, 1].snakecase
         context[class_name] = self
         methods_to_bind     = []
 
@@ -257,12 +258,6 @@ module Armagh
         else
           raise e
         end
-      end
-
-      private def convert_class_name_from_camel_to_snake
-        string = self.class.to_s.strip[/:?:?(\w+)$/, 1] || 'instance'
-        return string.downcase if string[/^[A-Z]+$/]
-        string.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').gsub(/([a-z])([A-Z])/, '\1_\2').downcase
       end
 
     end
