@@ -47,11 +47,11 @@ module Armagh
 
       module_function
 
-      def collect_rss(config, state)
+      def collect_rss(config, state, logger: nil)
         raise ArgumentError, 'Block must be provided to collect_rss, which yields |item, content_array, type, timestamp, exception|' unless block_given?
         setup_fields(config)
 
-        http = HTTP::Connection.new(config)
+        http = HTTP::Connection.new(config, logger: logger)
         http_response = http.fetch.first
         rss = parse_response(config, http_response)
 

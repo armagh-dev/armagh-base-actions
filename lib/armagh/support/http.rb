@@ -165,13 +165,14 @@ module Armagh
 
         COOKIE_STORE = File.join('', 'tmp', 'armagh_cookie.dat').freeze
 
-        def initialize(config)
+        def initialize(config, logger: nil)
 
           raise ConfigurationError, 'Connection must be initialized with a Configh configuration object' unless config.is_a?(Configh::Configuration)
           @config = config.http
           @url = @config.url.strip
           @method = @config.method.downcase
           @headers = DEFAULT_HEADERS.merge @config.headers
+          @logger = logger
 
           @client = HTTPClient.new # Don't add agent to the new call as library details are appended to the end
           @client.follow_redirect_count = 0 unless @config.follow_redirects
@@ -206,7 +207,9 @@ module Armagh
           # verbose toggle because httpclient internally uses Kernel#warn
           old_verbose = $VERBOSE
           $VERBOSE = nil
+          start = Time.now
           response = request(url, method, fields)
+          @logger.debug "Fetched #{url} in #{Time.now - start} seconds" if @logger
 
           @client.save_cookie_store
           response
