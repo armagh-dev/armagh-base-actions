@@ -531,4 +531,36 @@ class TestHTTP < Test::Unit::TestCase
     assert_nil(Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
     assert_equal @original_verbose, $VERBOSE 
   end
+
+  def test_fetch_multiple_pages
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'disredir', { 'http' => { 'url' => 'http://fake.url', 'multiple_pages' => true }})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    expected = ['part 1', 'part 2']
+    stub_request(:get, 'http://fake.url').to_return(body: expected[0])
+    stub_request(:get, 'http://fake.url2').to_return(body: expected[1])
+    Armagh::Support::HTTP.stubs(:get_next_page_url).with(expected[0], 'http://fake.url').returns 'http://fake.url2'
+    Armagh::Support::HTTP.stubs(:get_next_page_url).with(expected[1], 'http://fake.url2').returns nil
+
+    result =  @http.fetch.collect{|r|r['body']}
+    assert_equal(expected, result)
+  end
+
+  def test_fetch_no_multiple_pages
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'disredir', { 'http' => { 'url' => 'http://fake.url', 'multiple_pages' => false }})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    stub_request(:get, 'http://fake.url').to_return(body: @expected_response)
+    Armagh::Support::HTTP.expects(:get_next_page_url).never
+
+    @http.fetch.collect{|r|r['body']}
+  end
+
+  def test_fetch_override_multiple_pages
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'disredir', { 'http' => { 'url' => 'http://fake.url', 'multiple_pages' => true }})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    stub_request(:get, 'http://fake.url').to_return(body: @expected_response)
+    Armagh::Support::HTTP.expects(:get_next_page_url).never
+
+    @http.fetch(multiple_pages: false).collect{|r|r['body']}
+  end
+
 end

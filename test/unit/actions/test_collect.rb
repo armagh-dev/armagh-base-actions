@@ -247,6 +247,7 @@ class TestCollect < Test::Unit::TestCase
       @collect_action.create(collected: '', metadata: {}, docspec_name: 'output_type', source: @source, document_timestamp: 123)
     end
   end
+
   def test_file_source
     source = Armagh::Documents::Source.new(type: 'file', filename: 'filename', host: 'host', path: 'path')
 
@@ -328,7 +329,7 @@ class TestCollect < Test::Unit::TestCase
     assert_raise(e){SubCollect.define_default_input_type('trigger')}
   end
 
-  def test_valid_invalid_cron
+  def test_valid_invalid_schedule
     if Object.const_defined?(:SubCollect)
       Object.send(:remove_const, :SubCollect)
     end
@@ -343,6 +344,23 @@ class TestCollect < Test::Unit::TestCase
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
+  end
+
+  def test_valid_no_schedule
+    Object.send(:remove_const, :SubCollect) if Object.const_defined?(:SubCollect)
+
+    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
+    SubCollect.include Configh::Configurable
+    SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
+
+    assert_nothing_raised do
+      SubCollect.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'archive' => false},
+        'input' => {'doctype' => 'randomdoc'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      })
+    end
   end
 
   def test_valid_archive

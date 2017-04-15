@@ -206,4 +206,23 @@ class TestRSS < Test::Unit::TestCase
     }
     assert_equal(expected, actual)
   end
+
+  def test_multiple_collect_not_first
+    content = 'Some Content'
+
+    stub_request(:get, 'http://fake.url').to_return(body: fixture('rss_link.xml'))
+    stub_request(:get, 'http://another.fake.url').to_return(body: content, headers: {'Content-Type' => 'text/plain; charset=ISO-8859-1'})
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss_tcl', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'collect_link' => true}})
+    entered = false
+
+    Armagh::Support::HTTP.expects(:get_next_page_url).with(content, 'http://fake.url').never
+    Armagh::Support::HTTP.expects(:get_next_page_url).with(content, 'http://another.fake.url/')
+
+    Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_array, type, timestamp, exception|
+      entered = true
+      assert_equal([content], content_array)
+      assert_equal({'encoding' => 'ISO-8859-1', 'type' => 'text/plain'}, type)
+    }
+    assert_true entered, 'RSS block never executed'
+  end
 end

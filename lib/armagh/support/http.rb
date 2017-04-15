@@ -123,7 +123,11 @@ module Armagh
       end
 
       def HTTP.validate_fields(candidate_fields)
-        "Fields must be a hash" unless candidate_fields.is_a?(Hash)
+        'Fields must be a hash' unless candidate_fields.is_a?(Hash)
+      end
+
+      def HTTP.validate_multiple_pages(candidate_multiple_pages)
+        'Multiple_pages must be true or false' unless candidate_multiple_pages.is_a?(TrueClass) || candidate_multiple_pages.is_a?(FalseClass)
       end
 
       def HTTP.extract_type(header)
@@ -159,8 +163,8 @@ module Armagh
 
       class Connection
         DEFAULT_HEADERS = {
-          # User agent string to use, if not defined in a header.  Taken from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/ on Jan 25, 2017
-          'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'.freeze
+          # User agent string to use, if not defined in a header.  Taken from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/ on April 7, 2017
+          'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'.freeze
         }.freeze
 
         COOKIE_STORE = File.join('', 'tmp', 'armagh_cookie.dat').freeze
@@ -189,15 +193,17 @@ module Armagh
         end
 
         # Fetches the content of a given URL.
-        def fetch(override_url = nil, override_method = nil, override_fields = nil)
+        def fetch(override_url = nil, method: nil, fields: nil, multiple_pages: nil)
           url = override_url || @url
-          method = override_method || @config.method
-          fields = override_fields || @config.fields
+          method = method || @config.method
+          fields = fields || @config.fields
+          multiple_pages = multiple_pages.nil? ? @config.multiple_pages : multiple_pages
 
           override_error_messages = []
           override_error_messages << HTTP.validate_url(url)
           override_error_messages << HTTP.validate_method(method)
           override_error_messages << HTTP.validate_fields(fields)
+          override_error_messages << HTTP.validate_multiple_pages(multiple_pages)
           override_error_messages.compact!
 
           unless override_error_messages.empty?
@@ -208,7 +214,7 @@ module Armagh
           old_verbose = $VERBOSE
           $VERBOSE = nil
           start = Time.now
-          response = request(url, method, fields)
+          response = request(url, method, fields, multiple_pages)
           @logger.debug "Fetched #{url} in #{Time.now - start} seconds" if @logger
 
           @client.save_cookie_store
@@ -267,7 +273,7 @@ module Armagh
           raise HTTP::ConfigurationError, "Unable to set authentication.  #{e.message}"
         end
 
-        private def request(url, method, fields, pages = [])
+        private def request(url, method, fields, multiple_pages, pages = [])
           raise SafeError, "Unable to request from '#{url}' due to whitelist/blacklist rules." unless acceptable_uri? url
 
           case method
@@ -286,9 +292,9 @@ module Armagh
 
             pages << {'head' => header_hash, 'body' => response_text}
 
-            if @config.multiple_pages && pages.length < @config.max_pages
+            if multiple_pages && pages.length < @config.max_pages
               next_url = HTTP.get_next_page_url(response_text, url)
-              request(next_url, method, fields, pages) if next_url
+              request(next_url, method, fields, multiple_pages, pages) if next_url
             end
 
             pages

@@ -52,7 +52,7 @@ class TestIntegrationHTTP < Test::Unit::TestCase
   end
   
   def fetch_site( override_url = nil, override_method = nil, override_fields = nil)
-    responses = @http.fetch( override_url, override_method, override_fields )
+    responses = @http.fetch( override_url, method: override_method, fields: override_fields )
     @heads = []
     @contents = []
 

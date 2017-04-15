@@ -31,7 +31,7 @@ module Armagh
     class Collect < Action
       include Configh::Configurable
 
-      define_parameter name: 'schedule', type: 'string', required: true, description: 'Schedule to run the collector.  Cron syntax', prompt: '*/15 * * * *', group: 'collect'
+      define_parameter name: 'schedule', type: 'populated_string', required: false, description: 'Schedule to run the collector.  Cron syntax.  If not set, Collect must be manually triggered.', prompt: '*/15 * * * *', group: 'collect'
       define_parameter name: 'archive', type: 'boolean', required: true, description: 'Archive collected documents', group: 'collect', default: true
 
       define_group_validation_callback callback_class: Collect, callback_method: :report_validation_errors
@@ -166,7 +166,7 @@ module Armagh
         end
 
         schedule = candidate_config.collect.schedule
-        errors << "Schedule '#{schedule}' is not valid cron syntax." unless Support::Cron.valid_cron?(schedule)
+        errors << "Schedule '#{schedule}' is not valid cron syntax." if schedule && !Support::Cron.valid_cron?(schedule)
 
         errors.empty? ? nil : errors.join(', ')
       end

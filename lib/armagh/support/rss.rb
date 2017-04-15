@@ -52,7 +52,7 @@ module Armagh
         setup_fields(config)
 
         http = HTTP::Connection.new(config, logger: logger)
-        http_response = http.fetch.first
+        http_response = http.fetch(multiple_pages: false).first
         rss = parse_response(config, http_response)
 
         parent_type = HTTP.extract_type(http_response['head'])
