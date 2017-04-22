@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 
-require 'securerandom'
-
 module Armagh
   module Support
     module Random
       RANDOM_ID_LENGTH = 20
+
+      CHARS = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
 
       module_function
 
@@ -29,9 +29,7 @@ module Armagh
       end
 
       def random_str(length)
-        random = SecureRandom.base64(length * 3/4)
-        random.gsub!(/[+\/=]/,'')
-        random
+        CHARS.sample(length).join
       end
     end
   end
