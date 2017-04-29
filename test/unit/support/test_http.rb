@@ -244,7 +244,7 @@ class TestHTTP < Test::Unit::TestCase
 
   def test_config_bad_method
     e = assert_raise(Configh::ConfigInitError) {Armagh::Support::HTTP.create_configuration( @config_store, 'c', { 'http' => { 'url' => 'http://fake.url', 'method' => 'bad' }})}
-    assert_equal("Unable to create configuration Armagh::Support::HTTP c: Allowed HTTP Methods are post, get.  Was set to \'bad\'.", e.message)
+    assert_equal("Unable to create configuration Armagh::Support::HTTP c: http method: value is not one of the options", e.message)
     assert_equal @original_verbose, $VERBOSE 
   end
 
@@ -266,7 +266,7 @@ class TestHTTP < Test::Unit::TestCase
       assert_equal(expected_message, e.message)
       assert_equal @original_verbose, $VERBOSE 
     end
- end
+  end
 
   def test_bad_proxy
     config_values =  { 

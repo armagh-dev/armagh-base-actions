@@ -62,7 +62,7 @@ class TestPDF < Test::Unit::TestCase
   end
 
   def test_pdf_to_text_timeout
-    Armagh::Support::Shell.stubs(:call).once.then.raises(TimeoutError)
+    Armagh::Support::Shell.stubs(:call).once.then.raises(Timeout::Error)
     assert_raise PDFTimeoutError do
       FakeFS { pdf_to_text(@binary) }
     end

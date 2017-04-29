@@ -123,7 +123,7 @@ class TestXML < Test::Unit::TestCase
       |</chapter>
     end
     )
-    expected = {"book"=>{"authors"=>{"name"=>["Someone","Sometwo"]},"chapters"=>{"chapter"=>[{"attr_key"=>"chappy","body_content"=>"\n    <style>\n      body {\n        font-size: 10pt;\n        color: #777;\n      }\n    </style>\n    <p>Treat this section like text</p>\n    <div>\n      <span>\n        as-is without parsing to a hash\n      </span>\n    </div>\n  ","number"=>"1","title"=>"A Fine Beginning"},{"number"=>"2","title"=>"A Terrible End"}]},"data"=>"Some Data","title"=>"Book Title"}}
+    expected = {"book"=>{"authors"=>{"name"=>["Someone","Sometwo"]},"chapters"=>{"chapter"=>[{"attr_key"=>"chappy","body_content"=>"<style>\n      body {\n        font-size: 10pt;\n        color: #777;\n      }\n    </style>\n    <p>Treat this section like text</p>\n    <div>\n      <span>\n        as-is without parsing to a hash\n      </span>\n    </div>","number"=>"1","title"=>"A Fine Beginning"},{"number"=>"2","title"=>"A Terrible End"}]},"data"=>"Some Data","title"=>"Book Title"}}
     assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
     assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes.first)
   end

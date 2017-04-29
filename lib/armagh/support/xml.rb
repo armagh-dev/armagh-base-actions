@@ -15,10 +15,8 @@
 # limitations under the License.
 #
 
-require 'armagh/actions'
+require_relative '../base/actions'
 Dir[File.join(__dir__, File.basename(__FILE__, ".*"), "*.rb")].each { |file| require file }
-
-require 'configh'
 
 module Armagh
   module Support

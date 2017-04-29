@@ -15,8 +15,6 @@
 # limitations under the License.
 #
 
-require 'configh'
-
 module Armagh
   module Support
     module XML

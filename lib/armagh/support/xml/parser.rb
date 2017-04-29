@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-require 'configh'
 require_relative 'hasher'
 
 module Armagh
@@ -38,7 +37,8 @@ module Armagh
         def file_to_hash(xml_file, html_nodes = nil)
           xml = xml_file.is_a?(StringIO) ? xml_file.read : File.read(xml_file)
           handler = XML::Hasher.new(xml, html_nodes)
-          Ox.sax_parse(handler, xml)
+          options = { skip: :skip_white }
+          Ox.sax_parse(handler, xml, options)
           handler.data
         rescue => e
           raise XMLParseError, e

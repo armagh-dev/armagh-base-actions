@@ -39,7 +39,7 @@ module Armagh
       METHODS = [POST, GET]
 
       define_parameter name: 'url', description: 'URL to collect from', type: 'populated_string', required: true, prompt: 'http://www.example.com:8080/page'
-      define_parameter name: 'method', description: 'HTTP Method to use for collection (get or post)', type: 'populated_string', required: true, prompt: 'get or post', default: 'get'
+      define_parameter name: 'method', description: 'HTTP Method to use for collection (get or post)', type: 'populated_string', options: %w(get post), required: true, prompt: 'get or post', default: 'get'
       define_parameter name: 'fields', description: 'Fields to send as part of the request', type: 'hash', required: false, prompt: 'Hash of fields to send as part of the request', default: {}
       define_parameter name: 'headers', description: 'HTTP Headers to send as part of the request', type: 'hash', required: false, prompt: 'Hash of headers to send as part of the request', default: {}
       define_parameter name: 'username', description: 'Username for basic http authentication', type: 'string', required: false
@@ -69,7 +69,6 @@ module Armagh
         messages = []
 
         messages << validate_url(hc.url)
-        messages << validate_method(hc.method)
         if (hc.proxy_username || hc.proxy_password) && !(hc.proxy_username && hc.proxy_password)
           messages << 'In order to use proxy authentication, both proxy_username and proxy_password must be defined.'
         end
@@ -116,10 +115,6 @@ module Armagh
           message = "'#{candidate_url}' is not a valid HTTP or HTTPS URL."
         end
         message
-      end
-
-      def HTTP.validate_method(candidate_method)
-        "Allowed HTTP Methods are #{METHODS.join(", ")}.  Was set to '#{candidate_method}'." unless METHODS.include?(candidate_method.downcase)
       end
 
       def HTTP.validate_fields(candidate_fields)
@@ -201,7 +196,6 @@ module Armagh
 
           override_error_messages = []
           override_error_messages << HTTP.validate_url(url)
-          override_error_messages << HTTP.validate_method(method)
           override_error_messages << HTTP.validate_fields(fields)
           override_error_messages << HTTP.validate_multiple_pages(multiple_pages)
           override_error_messages.compact!

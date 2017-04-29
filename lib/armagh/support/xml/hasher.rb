@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'configh'
+
 require 'facets/kernel/deep_copy'
 
 require 'ox'
@@ -25,6 +25,10 @@ module Armagh
       class Hasher < Ox::Sax
         def self.clean_element(element)
           element.to_s.gsub(/\$|\./, '_')
+        end
+
+        def self.clean_value(value)
+          value.to_s.strip
         end
 
         def initialize(xml = nil, html_nodes = nil)
@@ -42,20 +46,24 @@ module Armagh
           @html_nodes.each do |node|
             value = xml[/<#{node}>(.*)<\/#{node}>/m, 1]
             node = clean_element(node)
-            @html_values[node] = value
+            @html_values[node] = clean_value(value)
           end
           @html_nodes.map! { |k, _| k = clean_element(k) }
         end
 
-        def clean_element(element)
+        private def clean_element(element)
           self.class.clean_element(element)
+        end
+
+        private def clean_value(value)
+          self.class.clean_value(value)
         end
 
         def start_element(name)
           name = clean_element(name)
           if @html_nodes.include? name
             @current_text_node = name
-            @stack.push name => @html_values[name]
+            @stack.push name => clean_value(@html_values[name])
           end
           @stack.push name => nil unless @current_text_node
         end
@@ -82,7 +90,7 @@ module Armagh
           current = @stack.last
           key = current.keys.first
           current[key] ||= {}
-          current[key]["attr_#{clean_element(name)}"] = value
+          current[key]["attr_#{clean_element(name)}"] = clean_value(value)
         end
 
         def text(value)
@@ -92,14 +100,14 @@ module Armagh
           key = current.keys.first
           current[key] ||= {}
           if current[key].empty?
-            current[key] = value
+            current[key] = clean_value(value)
           else
-            current[key]['text'] = value
+            current[key]['text'] = clean_value(value)
           end
         end
 
         def cdata(value)
-          text(value)
+          text(clean_value(value))
         end
 
         def data
