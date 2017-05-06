@@ -17,9 +17,9 @@
 
 
 # require 'armagh/actions'
-Dir[File.join(__dir__, File.basename(__FILE__, ".*"), "*.rb")].each { |file| require file }
+Dir[File.join(__dir__, 'csv', "*.rb")].each { |file| require file }
 
-require 'configh'
+#require 'configh'
 
 module Armagh
   module Support
@@ -27,7 +27,7 @@ module Armagh
       extend CSV::Divider
       extend CSV::Splitter
 
-      module_function
+#      module_function
 
     end
   end

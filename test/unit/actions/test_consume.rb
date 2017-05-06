@@ -132,13 +132,13 @@ class TestConsume < Test::Unit::TestCase
     assert_nothing_raised do
       SubConsume.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subconsume'},
-        'input' => {'doctype' => 'randomdoc'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new( 'randomdoc', Armagh::Documents::DocState::PUBLISHED)},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
 
       SubConsume.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subconsume'},
-        'input' => {'doctype' => 'randomdoc'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new( 'randomdoc', Armagh::Documents::DocState::PUBLISHED)},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
       })
     end

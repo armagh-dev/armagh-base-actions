@@ -20,7 +20,7 @@ require_relative '../../helpers/coverage_helper'
 require 'test/unit'
 require 'mocha/test_unit'
 
-require_relative '../../../lib/armagh/support/csv'
+require_relative '../../../lib/armagh/support/csv/'
 
 
 module CSVTestHelpers

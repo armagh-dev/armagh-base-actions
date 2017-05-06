@@ -154,13 +154,13 @@ class TestDivide < Test::Unit::TestCase
     assert_nothing_raised do
       SubDivide.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subdivide'},
-        'input' => {'doctype' => 'randomdoc'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('randomdoc', Armagh::Documents::DocState::READY)},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
 
       SubDivide.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subdivide'},
-        'input' => {'doctype' => 'randomdoc'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('randomdoc', Armagh::Documents::DocState::READY)},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
       })
     end

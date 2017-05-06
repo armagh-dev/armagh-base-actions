@@ -294,14 +294,12 @@ class TestCollect < Test::Unit::TestCase
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
-        'input' => {'doctype' => 'randomdoc'},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
 
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
-        'input' => {'doctype' => 'randomdoc'},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
       })
     end
@@ -315,7 +313,6 @@ class TestCollect < Test::Unit::TestCase
       config = SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
-        'input' => {'doctype' => 'randomdoc'},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
@@ -340,7 +337,6 @@ class TestCollect < Test::Unit::TestCase
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => 'invalid', 'archive' => false},
-        'input' => {'doctype' => 'randomdoc'},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
@@ -357,7 +353,6 @@ class TestCollect < Test::Unit::TestCase
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'archive' => false},
-        'input' => {'doctype' => 'randomdoc'},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     end
@@ -377,7 +372,6 @@ class TestCollect < Test::Unit::TestCase
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
-        'input' => {'doctype' => 'randomdoc'},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
@@ -397,7 +391,6 @@ class TestCollect < Test::Unit::TestCase
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
-        'input' => {'doctype' => 'randomdoc'},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }

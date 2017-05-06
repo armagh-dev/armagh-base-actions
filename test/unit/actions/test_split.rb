@@ -120,7 +120,7 @@ class TestSplit < Test::Unit::TestCase
     assert_raise(e) do
       SubSplit.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subsplit'},
-        'input' => {'doctype' => 'randomdoc'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('randomdoc', Armagh::Documents::DocState::READY)},
       })
     end
   end
@@ -158,13 +158,13 @@ class TestSplit < Test::Unit::TestCase
     assert_nothing_raised do
       SubSplit.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subsplit'},
-        'input' => {'doctype' => 'randomdoc'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('randomdoc', Armagh::Documents::DocState::READY) },
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
 
       SubSplit.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subsplit'},
-        'input' => {'doctype' => 'randomdoc'},
+        'input' => {'docspec' => Armagh::Documents::DocSpec.new('randomdoc', Armagh::Documents::DocState::READY) },
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
       })
     end
