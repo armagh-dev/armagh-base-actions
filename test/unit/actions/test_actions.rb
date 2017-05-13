@@ -25,14 +25,14 @@ require_relative '../../../lib/armagh/actions'
 
 module Armagh
   module StandardActions
-    
     class ThisTestCollect < Actions::Collect; end
     class ThisTestPublish < Actions::Publish; end
   end
   
   module CustomActions
-    
     class ThatTestSplit < Actions::Split; end
+    class InvalidClass; end
+    class InvalidAction < Actions::Action; end
   end
 end
 

@@ -19,25 +19,41 @@ Dir[File.join(__dir__, 'actions', '*.rb')].each { |file| require file }
 
 module Armagh
   module Actions
-    
+
+    BASE_ACTION_TYPES = [Collect, Consume, Divide, Publish, Split]
+
     def self.defined_actions
-      
+
       actions = []
-      
-      modules = [ "StandardActions", "CustomActions" ].collect{ |mod|
+
+      modules = %w(StandardActions CustomActions).collect do |mod|
         begin
-          Armagh.const_get mod 
+          Armagh.const_get mod
         rescue
         end
-      }.compact
-      
-      modules.each do |mod|
-        actions.concat mod.constants.collect{ |c| 
-          maybe_class = mod.const_get(c) 
-          maybe_class if maybe_class.is_a?( Class )
-        }.compact
       end
-      
+
+      modules.compact!
+
+      modules.each do |mod|
+        actions.concat mod.constants.collect {|c|
+          klass = nil
+          maybe_class = mod.const_get(c)
+
+          if maybe_class.is_a?(Class)
+            BASE_ACTION_TYPES.each do |type|
+              if maybe_class < type
+                klass = maybe_class
+                break
+              end
+            end
+          end
+
+          klass
+        }
+      end
+
+      actions.compact!
       actions
     end
 
