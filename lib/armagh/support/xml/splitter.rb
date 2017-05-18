@@ -28,14 +28,14 @@ module Armagh
                          required: true,
                          prompt: 'Specify name for a repeated element <name>'
 
-        module_function
-
         class XMLSplitError < StandardError; end
         class XMLTypeError < XMLSplitError; end
         class XMLValueError < XMLSplitError; end
         class RepElemNameValueNotFound < XMLSplitError; end
 
-        def split(xml, config)
+        module_function
+
+        def split_parts(xml, config)
           raise Splitter::XMLTypeError, 'XML must be a string' unless xml.is_a?(String)
           raise Splitter::XMLValueError, 'XML cannot be nil or empty' if xml.nil? || xml.empty?
           small_xmls = []

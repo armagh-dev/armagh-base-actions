@@ -16,10 +16,12 @@
 #
 
 require 'test/unit'
+require 'mocha/test_unit'
 require 'fakefs/safe'
 
 require_relative '../../helpers/coverage_helper'
 require_relative '../../../lib/armagh/support/xml'
+require_relative '../../../lib/armagh/support/xml/divider'
 
 module XMLTestHelpers
   def combine_parts(parts)
@@ -84,7 +86,10 @@ class TestXML < Test::Unit::TestCase
     @expected = {"book"=>{"authors"=>{"name"=>["Someone","Sometwo"]},"chapters"=>{"chapter"=>[{"attr_key"=>"chappy","number"=>"1","title"=>"A Fine Beginning"},{"number"=>"2","title"=>"A Terrible End"}]},"data"=>"Some Data","title"=>"Book Title"}}
 
     fixtures_path = File.join(__dir__, '..', '..', 'fixtures', 'xml')
+
     @big_xml = File.join fixtures_path, 'big_xml.xml'
+    @collected_big_xml = stub(:collected_doc)
+    @collected_big_xml.stubs(:collected_file).returns(@big_xml)
     @expected_divided_content = [
       "<?xml version=\"1.0\" standalone=\"yes\"?>\r\n<sdnList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://tempuri.org/sdnList.xsd\">\r\n  <publshInformation>\r\n    <Publish_Date>05/30/2014</Publish_Date>\r\n    <Record_Count>5931</Record_Count>\r\n  </publshInformation>\r\n  <sdnEntry>\r\n    <uid>10</uid>\r\n    <lastName>ABASTECEDORA NAVAL Y INDUSTRIAL, S.A.</lastName>\r\n    <sdnType>Entity</sdnType>\r\n    <programList>\r\n      <program>CUBA</program>\r\n    </programList>\r\n    <akaList>\r\n      <aka>\r\n        <uid>4</uid>\r\n        <type>a.k.a.</type>\r\n        <category>strong</category>\r\n        <lastName>ANAINSA</lastName>\r\n      </aka>\r\n    </akaList>\r\n    <addressList>\r\n      <address>\r\n        <uid>7</uid>\r\n        <country>Panama</country>\r\n      </address>\r\n    </addressList>\r\n  </sdnEntry>\r\n</sdnList>\r\n",
       "<?xml version=\"1.0\" standalone=\"yes\"?>\r\n<sdnList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://tempuri.org/sdnList.xsd\">\r\n  <publshInformation>\r\n    <Publish_Date>05/30/2014</Publish_Date>\r\n    <Record_Count>5931</Record_Count>\r\n  </publshInformation>\r\n  <sdnEntry>\r\n    <uid>15</uid>\r\n    <firstName>Nury de Jesus</firstName>\r\n    <lastName>ABDELNUR</lastName>\r\n    <sdnType>Individual</sdnType>\r\n    <programList>\r\n      <program>CUBA</program>\r\n    </programList>\r\n    <addressList>\r\n      <address>\r\n        <uid>12</uid>\r\n        <country>Panama</country>\r\n      </address>\r\n    </addressList>\r\n  </sdnEntry>\r\n</sdnList>\r\n",
@@ -96,8 +101,8 @@ class TestXML < Test::Unit::TestCase
 
     @config_store = []
     @config_size_default = Armagh::Support::XML.create_configuration( @config_store, 'def', {'xml' => {'html_nodes' => ['body.content']}} )
-    @config_size_800     = Armagh::Support::XML.create_configuration( @config_store, 's800', {'xml' => { 'size_per_part'  => 800, 'xml_element' => 'sdnEntry' }})
-    @config_size_1000    = Armagh::Support::XML.create_configuration( @config_store, 's1000', { 'xml' => { 'size_per_part'  => 1000, 'xml_element' => 'sdnEntry' }})
+    @config_size_800     = Armagh::Support::XML::Divider.create_configuration( @config_store, 's800', {'xml' => { 'size_per_part'  => 800, 'xml_element' => 'sdnEntry' }})
+    @config_size_1000    = Armagh::Support::XML::Divider.create_configuration( @config_store, 's1000', { 'xml' => { 'size_per_part'  => 1000, 'xml_element' => 'sdnEntry' }})
   end
 
   def teardown
@@ -210,7 +215,7 @@ class TestXML < Test::Unit::TestCase
   test "divides source xml into array of multiple xml strings having max size of 'size_per_part' bytes" do
     actual_divided_content = []
 
-    Armagh::Support::XML.divided_parts(@big_xml, @config_size_1000) do |part, errors|
+    Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_1000) do |part, errors|
       actual_divided_content << part
     end
 
@@ -219,11 +224,11 @@ class TestXML < Test::Unit::TestCase
   end
 
   test "when xml is well-formed, divided parts match source xml when recombined" do
-    expected_combined_content = IO.binread(@big_xml)
+    expected_combined_content = IO.binread(@collected_big_xml.collected_file)
     divided_content = []
     divided_errors = []
 
-    Armagh::Support::XML.divided_parts(@big_xml, @config_size_1000) do |part, errors|
+    Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_1000) do |part, errors|
       divided_content << part
       divided_errors  << errors unless errors.empty?
     end
@@ -237,7 +242,7 @@ class TestXML < Test::Unit::TestCase
     divided_content = []
     divided_errors = []
 
-    Armagh::Support::XML.divided_parts(@big_xml, @config_size_800) do |part, errors|
+    Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_800) do |part, errors|
       divided_content << part
       divided_errors  << errors unless errors.empty?
     end
@@ -283,7 +288,7 @@ class TestXML < Test::Unit::TestCase
     }
     assert_equal 'abc123', Armagh::Support::XML.get_doc_attr(hash, ['doc_ID'])
   end
-  
+
   def test_get_doc_attr_with_title
     hash = {
       'field1' => 'field1 value',

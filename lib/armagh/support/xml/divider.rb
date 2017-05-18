@@ -16,29 +16,29 @@
 #
 #
 
+require 'configh'
+
 module Armagh
   module Support
     module XML
       module Divider
+        include Configh::Configurable
+
         class XMLDivideError       < StandardError;  end
         class MaxSizeTooSmallError < XMLDivideError; end
 
-        def self.extended(base)
-          base.include Configh::Configurable
+        define_parameter name: 'size_per_part',
+                               description: 'The size of parts that the source file is divided into (in bytes)',
+                               type: 'positive_integer',
+                               default: 1_000_000,
+                               required: false,
+                               group: 'xml'
 
-          base.class_eval do
-            define_parameter name: 'size_per_part',
-                                   description: 'The size of parts that the source file is divided into (in bytes)',
-                                   type: 'positive_integer',
-                                   default: 1_000_000,
-                                   required: false
-
-            define_parameter name: 'xml_element',
-                                   description: 'The name of the repeated node in the source XML file to be extracted',
-                                   type: 'string',
-                                   required: false
-          end
-        end
+        define_parameter name: 'xml_element',
+                               description: 'The name of the repeated node in the source XML file to be extracted',
+                               type: 'string',
+                               required: false,
+                               group: 'xml'
 
 
         def divided_parts(source, options)
@@ -47,14 +47,14 @@ module Armagh
           @size_per_part   = options.xml.size_per_part
           @xml_element     = options.xml.xml_element
           @processed_bytes = 0
-          @total_bytes ||= IO.read(source).size
+          @total_bytes ||= IO.read(source.collected_file).size
 
           while eof == false
-            @sub_string      = IO.read(source, @size_per_part, @offset)
+            @sub_string      = IO.read(source.collected_file, @size_per_part, @offset)
             @sub_string_size = @sub_string.size
 
             @header ||= divided_part_header
-            @footer ||= IO.read(source).lines.last
+            @footer ||= IO.read(source.collected_file).lines.last
 
             find_previous_complete_record if last_line_has_partial_record?
 

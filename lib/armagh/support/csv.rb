@@ -27,8 +27,6 @@ module Armagh
       extend CSV::Divider
       extend CSV::Splitter
 
-#      module_function
-
     end
   end
 end

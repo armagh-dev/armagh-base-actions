@@ -44,6 +44,12 @@ module Armagh
                        required: false,
                        group: 'xml'
 
+      define_parameter name: 'timestamp_format',
+                       description: 'Format for XML field/s that contain document timestamp',
+                       type: 'string',
+                       required: false,
+                       group: 'xml'
+
       define_parameter name: 'get_doc_copyright_from',
                        description: 'XML field/s that contain document copyrights',
                        type: 'string_array',
