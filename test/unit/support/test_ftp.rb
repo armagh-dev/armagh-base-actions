@@ -24,7 +24,7 @@ require 'fakefs/safe'
 
 require_relative '../../../lib/armagh/support/ftp.rb'
 
-class TestUnitFTPSupport < Test::Unit::TestCase
+class TestFTP < Test::Unit::TestCase
 
   def setup
 
@@ -89,7 +89,6 @@ class TestUnitFTPSupport < Test::Unit::TestCase
   end
 
   def assert_create_configuration_returns_config_or_errors( changed_params, expected_errors )
-
     static_values = merge_config_values( @base_valid_config, changed_params )
 
     check_errors = nil
@@ -101,9 +100,7 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     end
 
     if expected_errors
-
       assert_equal( expected_errors, check_errors, "config errors were incorrect" ) if expected_errors
-
     else
       static_values.each do |grp,grp_hash|
         grp_hash.each do |pname,val|
@@ -139,12 +136,60 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'host' => nil }}, "Unable to create configuration Armagh::Support::FTP fred: ftp host: type validation failed: value cannot be nil" )
   end
 
-  def test_config_missing_username
-    assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'username' => nil }}, "Unable to create configuration Armagh::Support::FTP fred: ftp username: type validation failed: value cannot be nil" )
+  def test_config_anonymous
+    mock_ftp
+    @mock_ftp.unstub(:login)
+    @mock_ftp.expects(:login).with()
+    @mock_ftp.unstub(:close)
+    @mock_ftp.unstub(:chdir)
+    config = assert_create_configuration_returns_config_or_errors( {'ftp' => {'anonymous' => true }}, nil)
+    assert_true config.ftp.anonymous
+    Armagh::Support::FTP::Connection.new(config)
+  end
+
+  def test_config_not_anonymous
+    mock_ftp
+    @mock_ftp.unstub(:login)
+    @mock_ftp.expects(:login).with('myftpuser', 'MyFtpPassword')
+    @mock_ftp.unstub(:close)
+    @mock_ftp.unstub(:chdir)
+    config = assert_create_configuration_returns_config_or_errors( {'ftp' => {'anonymous' => false }}, nil)
+    assert_false config.ftp.anonymous
+    Armagh::Support::FTP::Connection.new(config)
   end
 
   def test_config_missing_password
-    assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'password' => nil }}, "Unable to create configuration Armagh::Support::FTP fred: ftp password: type validation failed: value cannot be nil" )
+    config = assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'password' => nil }}, nil)
+    assert_equal({'ftp_validation' => 'Username and password must be specified when not using anonymous authentication.'}, config.test_and_return_errors)
+  end
+
+  def test_config_missing_username
+    config = assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'password' => nil }}, nil)
+    assert_equal({'ftp_validation' => 'Username and password must be specified when not using anonymous authentication.'}, config.test_and_return_errors)
+  end
+
+  def test_config_anonymous_with_username
+    config = assert_create_configuration_returns_config_or_errors( { 'ftp' => {'password' => nil, 'anonymous' => true }}, nil)
+    assert_equal({'ftp_validation' => 'Ambiguous use of anonymous with username or password.'}, config.test_and_return_errors)
+  end
+
+  def test_config_anonymous_with_password
+    config = assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'username' => nil, 'anonymous' => true }}, nil)
+    assert_equal({'ftp_validation' => 'Ambiguous use of anonymous with username or password.'}, config.test_and_return_errors)
+  end
+
+  def test_config_validation_anonymous
+    config = assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'username' => nil, 'password' => nil, 'anonymous' => true }}, nil)
+
+    Net::FTP.expects(:new).returns( @mock_ftp )
+    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
+    @mock_ftp.expects(:login).with().returns(true)
+    @mock_ftp.expects(:chdir).with( @test_ftp_directory_path ).returns(true)
+    @mock_ftp.stubs(:putbinaryfile)
+    @mock_ftp.stubs(:delete)
+    @mock_ftp.expects(:close)
+
+    assert_empty config.test_and_return_errors
   end
 
   def test_config_failed_group_test
@@ -154,7 +199,7 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
     config = Armagh::Support::FTP.create_configuration( @config_store, 'cfgv', @base_valid_config )
     
-    assert_equal( { "test_connection" => "FTP Connection Test error: Permissions failure when logging in as myftpuser." }, config.test_and_return_errors )
+    assert_equal({'ftp_validation' => 'FTP Connection Test error: Permissions failure when logging in as myftpuser.'}, config.test_and_return_errors )
   end
 
 
@@ -238,7 +283,7 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:login).with( @test_ftp_username, '' ).raises(Net::FTPPermError)
 
     config = Armagh::Support::FTP.create_configuration( @config_store, 'rebpssf', use_config )
-    assert_equal( { "test_connection" => "FTP Connection Test error: Permissions failure when logging in as myftpuser." }, config.test_and_return_errors )
+    assert_equal({'ftp_validation' => 'FTP Connection Test error: Permissions failure when logging in as myftpuser.'}, config.test_and_return_errors )
   end
 
   def test_reply_error_blank_password_servers_sends_ftpreplyerror
@@ -250,9 +295,9 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:login).with( @test_ftp_username, '').raises( Net::FTPReplyError )
 
     config = Armagh::Support::FTP.create_configuration( @config_store, 'rebpssff', use_config )
-    assert [ "FTP Connection Test error: Ambiguous FTP Reply error from server.",
-             "FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password." 
-           ].include? config.test_and_return_errors[ 'test_connection' ]
+    assert ['FTP Connection Test error: Ambiguous FTP Reply error from server.',
+            'FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password.'
+           ].include? config.test_and_return_errors[ 'ftp_validation' ]
   end
 
   def test_reply_error_wrong_password_servers_sends_ftpreplyerror
@@ -264,7 +309,7 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:login).with( @test_ftp_username, 'badpassword').raises( Net::FTPReplyError )
 
     config = Armagh::Support::FTP.create_configuration( @config_store, 'rebpssff', use_config )
-    assert_equal( { "test_connection" => "FTP Connection Test error: Ambiguous FTP Reply error from server." }, config.test_and_return_errors )
+    assert_equal({'ftp_validation' => 'FTP Connection Test error: Ambiguous FTP Reply error from server.'}, config.test_and_return_errors )
   end
 
   def test_unhandled_error
@@ -273,10 +318,10 @@ class TestUnitFTPSupport < Test::Unit::TestCase
 
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
-    @mock_ftp.expects(:login).raises( StandardError, "Some error message" )
+    @mock_ftp.expects(:login).raises(StandardError, 'Some error message')
 
     config = Armagh::Support::FTP.create_configuration( @config_store, 'rebpssff', use_config )
-    assert_equal( { "test_connection" => "FTP Connection Test error: Unknown error raised on FTP connect: Some error message" }, config.test_and_return_errors )
+    assert_equal({'ftp_validation' => 'FTP Connection Test error: Unknown error raised on FTP connect: Some error message'}, config.test_and_return_errors )
   end
 
   def test_reply_error_with_password
@@ -348,25 +393,23 @@ class TestUnitFTPSupport < Test::Unit::TestCase
   def test_get_files
 
     test_ftp_filename_pattern = '*.txt'
-    config = config_good( { 'ftp' => { 'maximum_transfer' => 5, 'filename_pattern' => test_ftp_filename_pattern }})
+    config = config_good({'ftp' => {'maximum_transfer' => 5, 'filename_pattern' => test_ftp_filename_pattern}})
 
-    Net::FTP.expects(:new).returns( @mock_ftp )
-    @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
-    @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
-    @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
-    @mock_ftp.expects(:nlst).with( test_ftp_filename_pattern ).returns( (1..9).collect{ |i| "file#{i}.txt" } )
-    @mock_ftp.expects(:getbinaryfile).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)
+    Net::FTP.expects(:new).returns(@mock_ftp)
+    @mock_ftp.expects(:connect).with(@test_ftp_host, 21)
+    @mock_ftp.expects(:login).with(@test_ftp_username, @test_ftp_password.plain_text).returns(true)
+    @mock_ftp.expects(:chdir).with(@test_ftp_directory_path).returns(true)
+    @mock_ftp.expects(:getbinaryfile).times(5).with() {|fn| /file[12345].txt/ =~ fn}.returns(true)
     @mock_ftp.expects(:mtime).times(5).returns(Time.now)
-    @mock_ftp.expects(:delete).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)
+    @mock_ftp.expects(:delete).times(5).with() {|fn| /file[12345].txt/ =~ fn}.returns(true)
     @mock_ftp.expects(:close)
 
-    assert_nothing_raised do
-      Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
-        ftp_connection.get_files do |local_filename, attributes, error_string|
-          assert_not_empty local_filename
-          assert_kind_of(Time, attributes['mtime'])
-          assert_nil error_string
-        end
+    Armagh::Support::FTP::Connection.open(config) do |ftp_connection|
+      ftp_connection.expects(:ls_r).returns((1..9).collect {|i| "file#{i}.txt"})
+      ftp_connection.get_files do |local_filename, attributes, error_string|
+        assert_not_empty local_filename
+        assert_kind_of(Time, attributes['mtime'])
+        assert_nil error_string
       end
     end
   end
@@ -379,12 +422,12 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
-    @mock_ftp.expects(:nlst).with( test_ftp_filename_pattern ).returns( (1..9).collect{ |i| "file#{i}.txt" } )
     @mock_ftp.stubs(:getbinaryfile).raises(Net::ReadTimeout)
     @mock_ftp.expects(:close)
 
     assert_raises(Armagh::Support::FTP::ConnectionError) do
       Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
+        ftp_connection.expects(:ls_r).returns((1..9).collect {|i| "file#{i}.txt"})
         ftp_connection.get_files do |local_filename, attributes, error_string|
           assert_nil local_filename
           assert_empty attributes
@@ -402,12 +445,12 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).returns(true)
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
-    @mock_ftp.expects(:nlst).with( test_ftp_filename_pattern ).returns( (1..9).collect{ |i| "file#{i}.txt" } )
     @mock_ftp.stubs(:getbinaryfile).raises(StandardError, "Some error message")
     @mock_ftp.expects(:close)
 
     assert_raises(Armagh::Support::FTP::ConnectionError) do
       Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
+        ftp_connection.expects(:ls_r).returns((1..9).collect {|i| "file#{i}.txt"})
         ftp_connection.get_files do |local_filename, attributes, error_string|
           assert_nil local_filename
           assert_empty attributes
@@ -427,6 +470,7 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
     @mock_ftp.expects(:putbinaryfile).times(5).with(){ |fn| /file[12345].txt/ =~ fn }.returns(true)
     @mock_ftp.expects(:close)
+    @mock_ftp.stubs(:mkdir)
 
     FakeFS do
       FileUtils.mkdir_p( '/tmp' )
@@ -456,21 +500,28 @@ class TestUnitFTPSupport < Test::Unit::TestCase
     @mock_ftp.expects(:chdir).with( @test_ftp_directory_path  ).returns( true )
     @mock_ftp.stubs(:putbinaryfile).raises(StandardError, "Some error message")
     @mock_ftp.expects(:close)
+    @mock_ftp.stubs(:mkdir)
+
+    exception = nil
 
     FakeFS do
       FileUtils.mkdir_p( '/tmp' )
       (1..9).each { |i| FileUtils.touch( "/tmp/file#{i}.txt" )}
       Dir.chdir( '/tmp' )
 
-      assert_raises(Armagh::Support::FTP::ConnectionError) do
+      begin
         Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
           ftp_connection.put_files do |local_filename, error_string|
             assert_nil local_filename
             assert_kind_of(String, error_string)
           end
         end
+      rescue => e
+        exception = e
       end
     end
+
+    assert_kind_of Armagh::Support::FTP::ConnectionError, exception
   end
 
   def test_write_and_delete_test_file_error
@@ -490,5 +541,113 @@ class TestUnitFTPSupport < Test::Unit::TestCase
       }
     end
     assert_equal "Unable to write / delete a test file.  Verify path and permissions on the server.", e.message
+  end
+
+  def test_ls
+    config = config_good
+    mock_ftp
+    expected = [1,2,3]
+
+    @mock_ftp.expects(:nlst).returns expected
+
+    Armagh::Support::FTP::Connection.open( config ) do |ftp|
+      assert_equal(expected,ftp.ls)
+    end
+  end
+
+  def test_directory?
+    config = config_good
+    mock_ftp
+
+    @mock_ftp.expects(:size).with('dir').raises(Net::FTPPermError.new('550 Could not get file size'))
+    @mock_ftp.expects(:size).with('file').returns(1024)
+    Armagh::Support::FTP::Connection.open( config ) do |ftp|
+      assert_true ftp.directory? 'dir'
+    end
+
+    mock_ftp
+    Armagh::Support::FTP::Connection.open( config ) do |ftp|
+      assert_false ftp.directory? 'file'
+    end
+  end
+
+  def test_mkdir_p
+    config = config_good
+    mock_ftp
+
+    @mock_ftp.expects(:mkdir).with 'some'
+    @mock_ftp.expects(:mkdir).with 'some/file'
+    @mock_ftp.expects(:mkdir).with 'some/file/path'
+
+    Armagh::Support::FTP::Connection.open( config ) do |ftp|
+      ftp.mkdir_p 'some/file/path'
+    end
+  end
+
+  def test_rmdir
+    config = config_good
+    mock_ftp
+
+    @mock_ftp.unstub(:delete)
+    @mock_ftp.expects(:nlst).with('some/file/path').returns %w(some/file/path/dir some/file/path/file1 some/file/path/file2)
+    @mock_ftp.expects(:nlst).with('some/file/path/dir').returns %w(some/file/path/dir/file3 some/file/path/dir/file4)
+
+    @mock_ftp.expects(:delete).with('some/file/path/file1')
+    @mock_ftp.expects(:delete).with('some/file/path/file2')
+    @mock_ftp.expects(:delete).with('some/file/path/dir/file3')
+    @mock_ftp.expects(:delete).with('some/file/path/dir/file4')
+
+    @mock_ftp.expects(:rmdir).with('some/file/path/dir')
+    @mock_ftp.expects(:rmdir).with('some/file/path')
+
+    Armagh::Support::FTP::Connection.open( config ) do |ftp|
+      ftp.expects(:directory?).with('some/file/path/dir').returns(true)
+      ftp.expects(:directory?).with('some/file/path/file1').returns(false)
+      ftp.expects(:directory?).with('some/file/path/file2').returns(false)
+      ftp.expects(:directory?).with('some/file/path/dir/file3').returns(false)
+      ftp.expects(:directory?).with('some/file/path/dir/file4').returns(false)
+
+      ftp.rmdir 'some/file/path'
+    end
+  end
+
+  def test_ls_r
+    config = config_good
+    mock_ftp
+
+    expected = ['file_0.txt',
+                'file_1.txt',
+                'subdir/file 0.txt',
+                'subdir/file 1.txt']
+    actual = []
+
+    @mock_ftp.expects(:nlst).with('-R something').returns(
+        [
+            './:',
+            'file_0.txt',
+            'file_1.txt',
+            'subdir',
+            '',
+            './subdir:',
+            './subdir/file 0.txt',
+            './subdir/file 1.txt'
+        ])
+
+    Armagh::Support::FTP::Connection.open(config) do |ftp|
+      ftp.expects(:directory?).with('file_0.txt').returns(false)
+      ftp.expects(:directory?).with('file_1.txt').returns(false)
+
+      ftp.expects(:directory?).with('subdir').returns(:true)
+      ftp.expects(:directory?).with('./subdir/file 0.txt').returns(false)
+      ftp.expects(:directory?).with('./subdir/file 1.txt').returns(false)
+
+      ftp.expects(:directory).with('./:').never
+
+      ftp.expects(:directory).with('./subdir:').never
+
+      actual = ftp.ls_r('something')
+    end
+
+    assert_equal expected, actual
   end
 end
