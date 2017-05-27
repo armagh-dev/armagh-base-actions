@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>CDC Outbreaks - US Based and International</title>
+		<description>An RSS feed of Outbreaks Affecting international Travelers monitored by the Centers for Disease Control and Prevention (CDC).</description>
+		<link>https://www.cdc.gov/outbreaks/index.html</link>
+		<atom:link href="https://www.cdc.gov/outbreaks/index.html" rel="self" type="application/rss+xml" />
+		<image>
+			<title>Centers for Disease Control and Prevention (CDC)</title>
+			<url>https://www.cdc.gov/homepage/images/img-cdcLogoHeader.png</url>
+			<link>https://www.cdc.gov/outbreaks/index.html</link>
+			<width>159</width>
+			<height>92</height>
+		</image>
+		<language>en-US</language>
+		<webMaster>cdcweb@cdc.gov</webMaster>
+		<category>Health</category>
+		<category>Public Health</category>
+		<item>
+			<title>Vulto Creamery Soft Raw Milk Cheese &#8211; Listeria monocytogenes</title>
+			<description></description>
+			<link>http://www2c.cdc.gov/podcasts/download.asp?af=h&amp;f=8645217</link>
+			<guid isPermaLink="true">http://www2c.cdc.gov/podcasts/download.asp?af=h&amp;f=8645217</guid>
+			<pubDate>Thu, 09 Mar 2017 15:04:00 EDT</pubDate>
+		</item>
+	</channel>
+</rss>

@@ -123,6 +123,25 @@ class TestRSS < Test::Unit::TestCase
     }
   end
 
+  def test_collect_rss_with_html_escaped_links
+    content = 'hello world'
+    clean_link = "http://www2c.cdc.gov/podcasts/download.asp?af=h&f=8645217"
+    Armagh::Support::HTTP::Connection.any_instance
+      .expects(:fetch)
+      .once
+      .with(:multiple_pages => false)
+      .returns(
+        [ { "head"=>{"Status"=>"200", "Content-Type"=>"text/html; charset=us-ascii"}, "body" => fixture('rss_html_escaped_links.xml') } ]
+      )
+    Armagh::Support::HTTP::Connection.any_instance
+      .expects(:fetch)
+      .once
+      .with(clean_link)
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss_tcl', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'collect_link' => true}})
+    Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_array, type, timestamp, exception|
+    }
+  end
+
   def test_description_no_content
     config = Armagh::Support::RSS.create_configuration(@config_store, 'rss-tdnc092', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'additional_fields' => [], 'description_no_content' => true}})
     rss_test('rss-0.92.xml', 'rss-tdnc092', config)

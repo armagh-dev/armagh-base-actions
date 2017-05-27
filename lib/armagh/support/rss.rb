@@ -53,6 +53,7 @@ module Armagh
 
         http = HTTP::Connection.new(config, logger: logger)
         http_response = http.fetch(multiple_pages: false).first
+
         rss = parse_response(config, http_response)
 
         parent_type = HTTP.extract_type(http_response['head'])
@@ -74,12 +75,10 @@ module Armagh
           error = nil
           begin
             if config.rss.collect_link
-              response = http.fetch(item[link_field])
-
+              response = http.fetch(CGI.unescape_html(item[link_field]))
               response.each do |item|
                 content << item['body']
               end
-
               if item[:media_content_type]
                 type = {'type' => item[:media_content_type], 'encoding' => 'binary'}
               else
@@ -130,7 +129,7 @@ module Armagh
         begin
           rss = SimpleRSS.parse(http_response['body'])
         rescue => e
-          raise RSSParseError, "Unable to parse RSS content from #{config.http.url}.  #{e}. Response body: #{ http_response[ 'body' ]}"
+          raise RSSParseError, "Unable to parse RSS content from #{config.http.url}.  #{e}. Response body: #{http_response['body']}"
         end
         rss
       end
