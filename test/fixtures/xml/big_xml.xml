@@ -96,7 +96,6 @@
     </addressList>
   </sdnEntry>
   <sdnEntry></sdnEntry>
-  <sdnEntry id="123" />
   <sdnEntry id="124">
     <uid>42</uid>
     <lastName>MR. COOL</lastName>

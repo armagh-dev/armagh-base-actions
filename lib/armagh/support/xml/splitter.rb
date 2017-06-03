@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+require 'configh'
+
 module Armagh
   module Support
     module XML
@@ -40,21 +42,25 @@ module Armagh
           raise Splitter::XMLValueError, 'XML cannot be nil or empty' if xml.nil? || xml.empty?
           small_xmls = []
           repeated_element_regex = %r/(?=<#{config.xml_splitter.repeated_element_name}(?:| .*?)>)/
+          closing_repeated_element_regex = %r/(?=<\/#{config.xml_splitter.repeated_element_name}>)/
           xmls = xml.split(repeated_element_regex)
-          raise Splitter::RepElemNameValueNotFound, 'Repeated element name must be present in XML' if xmls.size == 1
-          header = xmls.first
-          footer = xmls.last.split("</#{config.xml_splitter.repeated_element_name}>").last.strip
-          (1...xmls.size).each do |i|
-            xml = header + xmls[i] + (i == xmls.size-1 ? '' : footer)
-            small_xmls.push(xml)
+
+          if xmls.size > 1
+            header = xmls.first
+            footer = xmls.last.split("</#{config.xml_splitter.repeated_element_name}>").last.strip
+            (1...xmls.size).each do |i|
+              raise Splitter::RepElemNameValueNotFound, "Repeated element name must be present in XML split: #{xmls[i]}" unless xmls[i].match(repeated_element_regex) && xmls[i].match(closing_repeated_element_regex)
+              xml = header + xmls[i] + (i == xmls.size-1 ? '' : footer)
+              small_xmls.push(xml)
+            end
           end
+
           small_xmls
         rescue XMLSplitError
           raise
         rescue => e
           raise XMLSplitError, e
         end
-
       end
     end
   end

@@ -179,8 +179,8 @@ class TestIntegrationHTTP < Test::Unit::TestCase
   end
 
   def test_404
-    configure_connection( Armagh::Support::HTTP::GET, 'not_a_valid_page')
-    expected = Armagh::Support::HTTP::ConnectionError.new("Unexpected HTTP response from 'https://testserver.noragh.com/suites/not_a_valid_page': 404 - Not Found.")
+    configure_connection( Armagh::Support::HTTP::GET, 'something/not_a_valid_page')
+    expected = Armagh::Support::HTTP::ConnectionError.new("Unexpected HTTP response from 'https://testserver.noragh.com/suites/something/not_a_valid_page': 404 - Not Found.")
     assert_raise(expected){fetch_page}
   end
 

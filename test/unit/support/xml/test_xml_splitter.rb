@@ -34,6 +34,7 @@ class TestXMLSplitter < Test::Unit::TestCase
   def test_split_with_valid_xml_string
     xml = fixture('big_xml.xml')
     small_xmls = Armagh::Support::XML::Splitter.split_parts(xml, @config)
+
     expected_xmls = fixture('big_xml.xml.results.txt', small_xmls.to_s)
     assert_equal expected_xmls, small_xmls.to_s
   end
@@ -54,15 +55,6 @@ class TestXMLSplitter < Test::Unit::TestCase
     assert_equal 'XML cannot be nil or empty', e.message
   end
 
-  def test_split_with_repeated_element_name_not_in_xml
-    config = Armagh::Support::XML::Splitter.create_configuration([], 'xml', 'xml_splitter'=>{'repeated_element_name'=>'hello'})
-    xml = fixture('big_xml.xml')
-    e = assert_raise Armagh::Support::XML::Splitter::RepElemNameValueNotFound do
-      Armagh::Support::XML::Splitter.split_parts(xml, config)
-    end
-    assert_equal 'Repeated element name must be present in XML', e.message
-  end
-
   def test_split_with_exact_match
     config = Armagh::Support::XML::Splitter.create_configuration([], 'xml', 'xml_splitter'=>{'repeated_element_name'=>'bill'})
     xml = '<root><bill>Bill 1</bill><bill>Bill 2</bill></root>'
@@ -72,12 +64,12 @@ class TestXMLSplitter < Test::Unit::TestCase
   end
 
   def test_split_with_partial_match
-    config = Armagh::Support::XML::Splitter.create_configuration([], 'xml', 'xml_splitter'=>{'repeated_element_name'=>'bill'})
-    xml = "<root><billparty>Hello</billparty></root>"
+    config = Armagh::Support::XML::Splitter.create_configuration([], 'xml', 'xml_splitter'=>{'repeated_element_name'=>'billparty'})
+    xml = "<root><billparty>Hello</billparty><billparty>Goodbye</bill></root>"
     e = assert_raise Armagh::Support::XML::Splitter::RepElemNameValueNotFound do
       Armagh::Support::XML::Splitter.split_parts(xml, config)
     end
-    assert_equal 'Repeated element name must be present in XML', e.message
+    assert_match /Repeated element name must be present in XML split: .*/ , e.message
   end
 
   def test_split_with_unexpected_errors
