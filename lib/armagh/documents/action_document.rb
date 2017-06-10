@@ -24,14 +24,15 @@ require 'bson'
 module Armagh
   module Documents
     class ActionDocument
-      attr_reader :document_id, :source, :content, :metadata, :title, :copyright, :docspec, :document_timestamp, :display
+      attr_reader :document_id, :source, :content, :raw, :metadata, :title, :copyright, :docspec, :document_timestamp, :display
 
-      def initialize(document_id:, title:, copyright:, content:, metadata:, docspec:, source:, document_timestamp:, display: nil, new: false)
+      def initialize(document_id:, title:, copyright:, content:, raw:, metadata:, docspec:, source:, document_timestamp:, display: nil, new: false)
         # Not checking the types here for 2 reasons - PublishDocument extends this while overwriting setters and custom actions dont create their own action documents.
         @document_id = document_id
         @title = title
         @copyright = copyright
         @content = content
+        @raw = raw.nil? ? raw : BSON::Binary.new(raw)
         @metadata = metadata
         @docspec = docspec
         @source = source
@@ -96,14 +97,19 @@ module Armagh
       end
 
       def raw
-        content['bson_binary']&.data
+        @raw&.data
       end
 
       def raw=(raw_data)
-       raise TypeError, 'Value for raw_data expected to be a string.' unless raw_data.is_a? String
-
-        content.nil? ? self.content = {} : content.clear
-        content['bson_binary'] = BSON::Binary.new(raw_data)
+        if raw_data.is_a?(String)
+          @raw = BSON::Binary.new(raw_data)
+        elsif raw_data.nil?
+          @raw = nil
+        elsif raw_data.is_a?(BSON::Binary)
+          @raw = raw_data
+        else
+          raise TypeError, 'Value for raw expected to be a string.'
+        end
       end
 
       def to_hash
@@ -113,6 +119,7 @@ module Armagh
           'copyright' => @copyright,
           'metadata' => @metadata,
           'content' => @content,
+          # ARM-549: raw omitted intentionally
           'source' => @source.to_hash,
           'document_timestamp' => @document_timestamp,
           'docspec' => @docspec.to_hash,

@@ -26,9 +26,10 @@ require_relative '../../../lib/armagh/documents/doc_state'
 
 class TestActionDocument < Test::Unit::TestCase
 
-	def setup
+  def setup
     @document_id = '123'
     @content = {'content' => true}
+    @raw = 'raw data'
     @metadata = {'meta' => true}
     @document_timestamp = Time.now
     @docspec = Armagh::Documents::DocSpec.new('doctype', Armagh::Documents::DocState::PUBLISHED)
@@ -36,8 +37,9 @@ class TestActionDocument < Test::Unit::TestCase
     @title = 'title'
     @copyright = 'copyright'
     @display = 'display'
-		@doc = Armagh::Documents::ActionDocument.new(document_id: @document_id,
+    @doc = Armagh::Documents::ActionDocument.new(document_id: @document_id,
                                                  content: @content,
+                                                 raw: @raw,
                                                  metadata: @metadata,
                                                  docspec: @docspec,
                                                  source: @source,
@@ -69,6 +71,14 @@ class TestActionDocument < Test::Unit::TestCase
     @doc.content = new_content
     assert_equal(new_content, @doc.content)
     assert_raise(TypeError){@doc.content = 'meta'}
+  end
+
+  def test_raw_data
+    assert_equal(@raw, @doc.raw)
+    new_raw_data = 'new raw data'
+    @doc.raw = new_raw_data
+    assert_equal(new_raw_data, @doc.raw)
+    assert_raise(TypeError){@doc.raw = {}}
   end
 
   def test_title
@@ -123,6 +133,7 @@ class TestActionDocument < Test::Unit::TestCase
     assert_false @doc.new_document?
     @doc = Armagh::Documents::ActionDocument.new(document_id: @document_id,
                                                  content: @content,
+                                                 raw: @raw,
                                                  metadata: @metadata,
                                                  docspec: @docspec,
                                                  source: @source,
@@ -148,11 +159,11 @@ class TestActionDocument < Test::Unit::TestCase
 
   def test_raw
     raw = 'some raw data'
-    assert_nil @doc.raw
-    assert_not_empty @doc.content
+    assert_equal('raw data', @doc.raw)
+    assert_equal({'content' => true}, @doc.content)
     @doc.raw = raw
-    assert_equal({'bson_binary' => BSON::Binary.new(raw)}, @doc.content)
     assert_equal(raw, @doc.raw)
+    assert_equal({'content' => true}, @doc.content) # prior to ARM-549, setting raw cleared content
 
     @doc.instance_variable_set(:@content, nil)
     @doc.raw = raw
@@ -161,7 +172,7 @@ class TestActionDocument < Test::Unit::TestCase
 
   def test_raw_with_non_string_argument
     raw = {}
-    assert_nil @doc.raw
+    assert_equal('raw data', @doc.raw)
     assert_not_empty @doc.content
 
     assert_raise(TypeError){

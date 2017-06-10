@@ -133,6 +133,7 @@ module Armagh
 
           action_doc = Documents::ActionDocument.new(document_id: document_id,
                                                      content: nil,
+                                                     raw: nil,
                                                      metadata: metadata,
                                                      title: title,
                                                      copyright: copyright,

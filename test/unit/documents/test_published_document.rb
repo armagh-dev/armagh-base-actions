@@ -25,11 +25,11 @@ require_relative '../../../lib/armagh/documents/doc_state'
 
 class TestPublishedDocument < Test::Unit::TestCase
 
-	def setup
+  def setup
     @document_id = '123'
-    @bson_binary = 'something'
+    @raw = 'something'
     @text_content = 'text content'
-    @content = {'content' => true, 'bson_binary' => BSON::Binary.new(@bson_binary), 'text_content' => @text_content}
+    @content = {'content' => true, 'text_content' => @text_content}
     @metadata = {'meta' => true}
     @document_timestamp = Time.now
     @docspec = Armagh::Documents::DocSpec.new('doctype', Armagh::Documents::DocState::PUBLISHED)
@@ -37,8 +37,9 @@ class TestPublishedDocument < Test::Unit::TestCase
     @title = 'title'
     @copyright = 'copyright'
     @display = 'display'
-		@doc = Armagh::Documents::PublishedDocument.new(document_id: @document_id,
+    @doc = Armagh::Documents::PublishedDocument.new(document_id: @document_id,
                                                     content: @content,
+                                                    raw: @raw,
                                                     metadata: @metadata,
                                                     docspec: @docspec,
                                                     source: @source,
@@ -100,8 +101,8 @@ class TestPublishedDocument < Test::Unit::TestCase
   end
 
   def test_raw
-    assert_equal(@bson_binary, @doc.raw)
-    assert_not_same(@bson_binary, @doc.raw)
+    assert_equal(@raw, @doc.raw)
+    assert_not_same(@raw, @doc.raw)
     assert_raise(Armagh::Documents::Errors::DocumentError){@doc.raw = 'something'}
   end
 
@@ -123,6 +124,7 @@ class TestPublishedDocument < Test::Unit::TestCase
   def test_nils
     doc = Armagh::Documents::PublishedDocument.new(document_id: @document_id,
                                                    content: @content,
+                                                   raw: @raw,
                                                    metadata: @metadata,
                                                    docspec: @docspec,
                                                    source: @source,
