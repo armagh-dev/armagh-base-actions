@@ -46,7 +46,7 @@ module Armagh
       define_parameter name: 'filename_pattern', description: 'Glob file pattern', type: 'string', required: false, prompt: '*.pdf'
       define_parameter name: 'username', description: 'SFTP user name', type: 'populated_string', required: true, prompt: 'user'
       define_parameter name: 'password', description: 'SFTP user password', type: 'encoded_string', required: false, prompt: 'password'
-      define_parameter name: 'key', description: 'SSH Key for SFTP connection', type: 'string', required: false, prompt: 'password'
+      define_parameter name: 'key', description: 'SSH Key (not filename!) for SFTP connection', type: 'string', required: false, prompt: 'password'
       define_parameter name: 'maximum_transfer', description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
       
       define_group_test_callback callback_class: self, callback_method: :test_connection

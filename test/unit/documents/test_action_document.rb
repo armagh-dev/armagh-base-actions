@@ -170,6 +170,19 @@ class TestActionDocument < Test::Unit::TestCase
     assert_equal(raw, @doc.raw)
   end
 
+  def test_raw_too_large
+    bson_padding = BSON::Binary.new('').to_bson.length
+
+    raw = 'a' * (Armagh::Documents::ActionDocument::RAW_MAX_LENGTH - bson_padding)
+    assert_nothing_raised{@doc.raw = raw}
+
+    raw = 'a' * (Armagh::Documents::ActionDocument::RAW_MAX_LENGTH - bson_padding + 1)
+    assert_raise(Armagh::Documents::Errors::DocumentRawSizeError){@doc.raw = raw}
+
+    raw = nil
+    assert_nothing_raised{@doc.raw = raw}
+  end
+
   def test_raw_with_non_string_argument
     raw = {}
     assert_equal('raw data', @doc.raw)

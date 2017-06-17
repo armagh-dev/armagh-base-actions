@@ -173,4 +173,7 @@ class TestAction < Test::Unit::TestCase
     assert_equal 'MyWorkflow', config.get.dig('values', 'action', 'workflow')
   end
 
+  def test_default_description
+    assert_equal 'No description available.', SubSplit.description
+  end
 end

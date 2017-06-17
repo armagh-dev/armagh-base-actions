@@ -155,6 +155,10 @@ module Armagh
       def random_id
         Armagh::Support::Random.random_id
       end
+
+      def self.description
+        'No description available.'
+      end
     end
   end
 end

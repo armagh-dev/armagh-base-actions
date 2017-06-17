@@ -24,6 +24,7 @@ module Armagh
       class DocumentSizeError           < DocumentError; end
       class DocumentUniquenessError     < DocumentError; end
       class DocStateError               < DocumentError; end
+      class DocumentRawSizeError        < DocumentError; end
     end
   end
 end

@@ -34,15 +34,17 @@ module Armagh
                        prompt:      "Time format should be formatted like the second argument to Time.strptime, e.g., '%m/%d/%Y'",
                        group:       'time_parser'
 
-      def self.parse_time(t, config)
+      module_function
+
+      def parse_time(t, config)
         time_format = config.time_parser.time_format
         raise TypeMismatchError, "Argument passed to parse_time should be a String, instead: #{t.class}" unless t.is_a?(String)
 
         begin
-          time = ::Time.parse(t)
+          time = Time.parse(t)
         rescue ArgumentError => e
           if time_format
-            time = self.parse_time_using_time_format(t, time_format)
+            time = parse_time_using_time_format(t, time_format)
           else
             raise
           end
@@ -55,15 +57,15 @@ module Armagh
         time
       end
 
-      def self.parse_time_using_time_format(t, time_format)
-        time_from_format = ::Time.strptime(t, time_format)
-        self.time_derived_from_utc(time_from_format)
+      def parse_time_using_time_format(t, time_format)
+        time_from_format = Time.strptime(t, time_format)
+        time_derived_from_utc(time_from_format)
       rescue ArgumentError => e
         raise UnparsableTimeError, "Unable to parse a time (#{t.inspect}) from time format (#{time_format})"
       end
 
-      def self.time_derived_from_utc(time)
-        ::Time.utc(time.year,
+      def time_derived_from_utc(time)
+        Time.utc(time.year,
                    time.mon,
                    time.day,
                    time.hour,

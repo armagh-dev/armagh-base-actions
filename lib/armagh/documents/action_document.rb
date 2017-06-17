@@ -26,6 +26,9 @@ module Armagh
     class ActionDocument
       attr_reader :document_id, :source, :content, :raw, :metadata, :title, :copyright, :docspec, :document_timestamp, :display
 
+      RAW_MAX_LENGTH_MB = 4
+      RAW_MAX_LENGTH = RAW_MAX_LENGTH_MB * 1_048_576
+
       def initialize(document_id:, title:, copyright:, content:, raw:, metadata:, docspec:, source:, document_timestamp:, display: nil, new: false)
         # Not checking the types here for 2 reasons - PublishDocument extends this while overwriting setters and custom actions dont create their own action documents.
         @document_id = document_id
@@ -90,7 +93,7 @@ module Armagh
       end
 
       def text=(text)
-       raise TypeError, "Value for 'text' argument expected to be a string." unless text.is_a? String
+        raise TypeError, "Value for 'text' argument expected to be a string." unless text.is_a? String
 
         content.nil? ? self.content = {} : content.clear
         content['text_content'] = text
@@ -101,29 +104,32 @@ module Armagh
       end
 
       def raw=(raw_data)
-        if raw_data.is_a?(String)
-          @raw = BSON::Binary.new(raw_data)
-        elsif raw_data.nil?
-          @raw = nil
-        elsif raw_data.is_a?(BSON::Binary)
-          @raw = raw_data
-        else
-          raise TypeError, 'Value for raw expected to be a string.'
-        end
+        binary = case raw_data
+                 when String
+                   BSON::Binary.new(raw_data)
+                 when BSON::Binary, NilClass
+                   raw_data
+                 else
+                   raise TypeError, 'Value for raw expected to be a string.'
+                 end
+
+        length = binary.nil? ? 0 : binary.to_bson.length
+        raise Errors::DocumentRawSizeError, "Raw exceeds the maximum size of #{RAW_MAX_LENGTH_MB} MB.  Consider using a splitter or divider to reduce the size." if length > RAW_MAX_LENGTH
+        @raw = binary
       end
 
       def to_hash
         {
-          'document_id' => @document_id,
-          'title' => @title,
-          'copyright' => @copyright,
-          'metadata' => @metadata,
-          'content' => @content,
-          # ARM-549: raw omitted intentionally
-          'source' => @source.to_hash,
-          'document_timestamp' => @document_timestamp,
-          'docspec' => @docspec.to_hash,
-          'display' => @display,
+            'document_id' => @document_id,
+            'title' => @title,
+            'copyright' => @copyright,
+            'metadata' => @metadata,
+            'content' => @content,
+            # ARM-549: raw omitted intentionally
+            'source' => @source.to_hash,
+            'document_timestamp' => @document_timestamp,
+            'docspec' => @docspec.to_hash,
+            'display' => @display,
         }
       end
 
@@ -135,7 +141,7 @@ module Armagh
         h = to_hash
         h.delete('content')
         h.delete('docspec')
-        h.delete_if{|_k, v| v.nil?}
+        h.delete_if {|_k, v| v.nil?}
       end
 
       alias_method :hash, :content

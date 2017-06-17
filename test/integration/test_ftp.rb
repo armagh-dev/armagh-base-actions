@@ -163,39 +163,48 @@ class TestIntegrationFTP < Test::Unit::TestCase
     @base_config[ 'ftp' ][ 'filename_pattern' ] = '*.txt' 
     @base_config[ 'ftp' ][ 'delete_on_put' ] = true
     config = Armagh::Support::FTP.create_configuration( @config_store, 'putthenget', @base_config )
-    
+
+    test_file_list = (1..5).collect{ |i| "test#{i}.txt" }
+    put_files = []
+    errors =    []
+    remaining_files = nil
+
     FakeFS do
       
-      test_file_list = (1..5).collect{ |i| "test#{i}.txt" }
       test_file_list.each { |fn| File.open(fn,"w") << "I am file #{fn}.\n"}
-      
-      put_files = []
-      assert_nothing_raised do
-        Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
+
+      Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
           
-          ftp_connection.put_files do |filename,error_string|
-            assert_nil error_string
-            put_files << filename
-          end
-          
-          assert_equal test_file_list, put_files
-          assert Dir.glob( "test*.txt" ).empty?
-      
+        ftp_connection.put_files do |filename,error_string|
+          errors << error_string
+          put_files << filename
         end
-      end
-    
-      assert_nothing_raised do
-        Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
-          
-          ftp_connection.get_files do |local_filename, attributes, error_string|
-            assert_kind_of(Time, attributes['mtime'])
-            assert_nil error_string
-          end
-          
-          assert_equal test_file_list, Dir.glob("*.txt").collect{ |fn| File.basename(fn)}
-        end
+        remaining_files = Dir.glob( "test*.txt" )
       end
     end
+
+    assert_equal test_file_list, put_files
+    assert_empty remaining_files
+    assert_empty errors.compact
+
+    mtimes = []
+    errors = []
+    collected_files = nil
+
+    FakeFS do
+      Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
+          
+        ftp_connection.get_files do |local_filename, attributes, error_string|
+          mtimes << attributes['mtime']
+          errors << error_string
+        end
+        collected_files = Dir.glob( "test*.txt" ).collect{ |fp| File.basename( fp )}
+      end
+    end
+
+    mtimes.each { |mtime| assert_kind_of( Time, mtime )}
+    assert_empty errors.compact
+    assert_equal test_file_list, collected_files
   end
 
   def test_anonymous_ftp

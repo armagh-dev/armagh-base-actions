@@ -44,7 +44,7 @@ module Armagh
         required: false
 
       define_parameter name: 'ignore_cdata',
-        description: 'If true, both CDATA tags and inner text will be ignored',
+        description: 'If true, CDATA inner text will be ignored',
         type: 'boolean',
         default: true,
         required: true
