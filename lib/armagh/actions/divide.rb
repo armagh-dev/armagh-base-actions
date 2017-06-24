@@ -28,8 +28,6 @@ module Armagh
       # Divides a collected document before storing for processing.  This is an optional component that runs on each document after a collect.  May be useful
       #  for dividing up work or handling files that are too large to store in Mongo.
 
-      include Loggable
-      include Encodable
       include Configh::Configurable
 
       attr_accessor :doc_details

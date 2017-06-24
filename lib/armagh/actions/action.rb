@@ -17,6 +17,7 @@
 
 require 'configh'
 
+require_relative 'abortable'
 require_relative 'encodable'
 require_relative 'loggable'
 require_relative 'stateful'
@@ -42,6 +43,7 @@ module Armagh
       include Loggable
       include Encodable
       include Stateful
+      include Abortable
       include Configh::Configurable
 
       define_group_validation_callback callback_class: Action, callback_method: :report_validation_errors

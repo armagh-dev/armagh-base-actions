@@ -18,6 +18,7 @@
 require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
+require 'zlib'
 
 require_relative '../../helpers/coverage_helper'
 require_relative '../../../lib/armagh/support/tacball'
@@ -53,12 +54,30 @@ class TestTacball < Test::Unit::TestCase
 
   def teardown
     ENV['ARMAGH_TAC_DOC_PREFIX'] = @orig_env
+    FakeFS::FileSystem.clear
   end
 
   def test_create_tacball_file
     expected_filename = 'Test-docid.tgz.1451696523.160102'
     output_filename = FakeFS { Armagh::Support::Tacball.create_tacball_file(@config, @opts) }
     assert_equal expected_filename, output_filename
+  end
+
+  def test_create_tacball_file_containing_original
+    read_content = nil
+    orig_content = 'original contents'
+    orig_name    = 'filename.orig'
+    @opts[:original_file] = { orig_name => orig_content }
+    FakeFS {
+      tgz_file = Armagh::Support::Tacball.create_tacball_file(@config, @opts)
+      tgz_path = "#{@opts[:output_path]}/#{tgz_file}"
+      tgz_str = StringIO.new(File.read(tgz_path))
+      tgz = Gem::Package::TarReader.new(Zlib::GzipReader.new(tgz_str))
+      tgz.rewind
+      tgz.seek(orig_name) { |entry| read_content = entry.read }
+      tgz.close
+    }
+    assert_equal orig_content, read_content
   end
 
   def test_create_tacball_file_with_title_type_error
@@ -153,6 +172,16 @@ class TestTacball < Test::Unit::TestCase
         Armagh::Support::Tacball.create_tacball_file(@config, @opts)
       }
       assert_equal error_message, error.message
+    }
+  end
+
+  def test_create_tacball_file_original_filename_collision_error
+    expected = Armagh::Support::Tacball::OriginalFilenameCollisionError.new('Original filename will collide with another filename in the tacball')
+
+    basename = "#{@config.tacball.type}-#{@opts[:docid]}.html"
+    @opts[:original_file] = { basename => "original content" }
+    assert_raise(expected) {
+      Armagh::Support::Tacball.create_tacball_file(@config, @opts)
     }
   end
 

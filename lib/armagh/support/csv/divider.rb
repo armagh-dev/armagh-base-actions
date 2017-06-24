@@ -17,6 +17,7 @@
 #
 
 require 'configh'
+require_relative '../utils/csv_divider'
 
 module Armagh
   module Support
@@ -53,70 +54,11 @@ module Armagh
                          group:       'csv_divider'
 
         def divided_parts(source, config)
-          eof            = false
-          @offset        = 0
-          @size_per_part = config.csv_divider.size_per_part
-          @col_sep       = config.csv_divider.col_sep
-
-          while eof == false
-            @sub_string = IO.read(source, @size_per_part, @offset)
-            @sub_string_size = @sub_string.size
-
-            @headers      ||= divided_part_header
-            @header_count ||= @headers.scan(@col_sep).count
-
-            @last_line_count = last_line.scan(@col_sep).count
-
-            find_previous_complete_record if last_line_has_partial_record?
-
-            yield current_sub_string
-
-            @offset += @sub_string.size
-            eof    = true if reached_last_part_from_file?
+          divider = CSVDivider.new(source, size_per_part: config.csv_divider.size_per_part,
+                                           col_sep: config.csv_divider.col_sep)
+          divider.divide do |part|
+            yield part
           end
-        end
-
-        def last_line
-          @sub_string.lines.last
-        end
-
-        def reached_last_part_from_file?
-          last_line_not_dropped? && within_max_size?
-        end
-
-        def last_line_not_dropped?
-          @sub_string_size == @sub_string.size
-        end
-
-        def current_sub_string
-          if @offset == 0
-            @sub_string
-          else
-            @headers + @sub_string
-          end
-        end
-
-        def find_previous_complete_record
-          until (last_line_has_complete_record? && within_max_size?)
-            @sub_string = drop_last_line_from_sub_string
-            @last_line_count = last_line.scan(@col_sep).count
-          end
-        end
-
-        def last_line_has_partial_record?
-          (@last_line_count != @header_count) && (@sub_string_size >= @size_per_part)
-        end
-
-        def last_line_has_complete_record?
-          @last_line_count == @header_count
-        end
-
-        def within_max_size?
-         @sub_string_size <= @size_per_part
-        end
-
-        def divided_part_header
-          @headers = @sub_string.lines.first
         end
 
         def parts_sizes(parts)
@@ -132,14 +74,7 @@ module Armagh
           end
         end
 
-        def drop_last_line_from_sub_string
-          return @sub_string if @sub_string.lines.count == 1
-          lines = @sub_string.lines
-          lines.pop
-          lines.join
-        end
       end
     end
   end
 end
-

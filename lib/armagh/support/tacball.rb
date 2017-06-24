@@ -29,6 +29,7 @@ module Armagh
       class InvalidFeedError < TacballError; end
       class AttachmentOrOriginalExtnError < TacballError; end
       class OriginalFileAndExtensionError < TacballError; end
+      class OriginalFilenameCollisionError < TacballError; end
  
       define_parameter name: 'feed',
                        description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED}",
@@ -48,6 +49,13 @@ module Armagh
                        required: false,
                        group: 'tacball'
          
+      define_parameter name: 'attach_orig_file',
+                       description: 'Include the original file in the TACBall',
+                       type: 'boolean',
+                       required: false,
+                       default: false,
+                       group: 'tacball'
+
       module_function
 
       def create_tacball_file(
@@ -62,6 +70,7 @@ module Armagh
         copyright: '',
         html_content: '',
         output_path: '.',
+        original_file: nil,
         logger:
       )
         begin
@@ -81,6 +90,7 @@ module Armagh
             txt_content: txt_content,
             copyright: copyright,
             html_content: html_content,
+            original_file: original_file,
             basename: basename,
             output_path: output_path
           )
@@ -94,6 +104,8 @@ module Armagh
           raise AttachmentOrOriginalExtnError, e.message
         rescue TAC::OriginalFileAndExtensionError => e
           raise OriginalFileAndExtensionError, e.message
+        rescue TAC::OriginalFilenameCollisionError => e
+          raise OriginalFilenameCollisionError, e.message
         end
       end
 
