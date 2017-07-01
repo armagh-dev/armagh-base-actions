@@ -19,6 +19,7 @@
 require_relative '../helpers/coverage_helper'
 
 require 'test/unit'
+require 'mocha/test_unit'
 require 'fakefs/safe'
 
 require 'fileutils'
@@ -84,71 +85,70 @@ class TestIntegrationSFTP < Test::Unit::TestCase
     config
   end
 
+  def create_config(name)
+    Armagh::Support::SFTP.create_configuration(@config_store, name, {'sftp' => @config_values})
+  end
+
   def test_validation
-    assert_nothing_raised { Armagh::Support::SFTP.create_configuration(@config_store, 'val', {'sftp' => @config_values}) }
+    assert_nothing_raised { create_config('val') }
   end
 
   def test_validation_no_write
-    config_obj = nil
     @config_values['directory_path'] = READ_ONLY_DIR
-    assert_nothing_raised do
-      config_obj = Armagh::Support::SFTP.create_configuration(@config_store, 'vnw', {'sftp' => @config_values})
-    end
-    assert_equal({ "test_connection" => 'SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)' }, config_obj.test_and_return_errors )
+    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP vnw: SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)')
+
+    assert_raise(e) { create_config('vnw') }
   end
 
   def test_validation_no_dir
-    config_obj = nil
     @config_values['directory_path'] = 'no_such_dir'
-    assert_nothing_raised do
-     config_obj = Armagh::Support::SFTP.create_configuration(@config_store, 'vnd', {'sftp' => @config_values})
-    end
-    assert_equal( { "test_connection" => "SFTP Connection Test Error: A reference was made to a file which does not exist. (no such file)" }, config_obj.test_and_return_errors )
+    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP vnd: SFTP Connection Test Error: A reference was made to a file which does not exist. (no such file)')
+
+    assert_raise(e) { create_config('vnd') }
   end
 
   def test_validation_no_access
-    config_obj = nil
     @config_values['directory_path'] = NO_ACCESS_DIR
-    assert_nothing_raised do
-      config_obj = Armagh::Support::SFTP.create_configuration(@config_store, 'vna', {'sftp' => @config_values})
-    end
-    assert_equal( { "test_connection" => "SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)" }, config_obj.test_and_return_errors )
+    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP vna: SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)')
+
+    assert_raise(e) { create_config('vna') }
   end
 
-  def test_bad_domain
+  def test_bad_domain_via_validation_callback
+    @config_values['host'] = 'idontexist.kurmudgeon.edd'
+    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP tbd: Unable to resolve host idontexist.kurmudgeon.edd.')
+
+    assert_raise(e) { create_config('tbd') }
+  end
+
+  def test_bad_domain_via_test_callback
     config_obj = nil
     @config_values['host'] = 'idontexist.kurmudgeon.edd'
-    assert_nothing_raised do
-      config_obj = Armagh::Support::SFTP.create_configuration(@config_store, 'tbd', {'sftp' => @config_values})
-    end
+    Armagh::Support::SFTP.stubs(:test_connection)
+    assert_nothing_raised { config_obj = create_config('tbd') }
+    Armagh::Support::SFTP.unstub(:test_connection)
     assert_equal( { "test_connection" => "Unable to resolve host idontexist.kurmudgeon.edd." }, config_obj.test_and_return_errors )
   end
 
   def test_bad_host
-    config_obj = nil
     @config_values['host'] = 'idontexist.kurmudgeon.edu'
-    assert_nothing_raised do
-      config_obj = Armagh::Support::SFTP.create_configuration(@config_store, 'tbh', {'sftp' => @config_values})
-    end
-    assert_equal( { "test_connection" => "Unable to resolve host idontexist.kurmudgeon.edu." }, config_obj.test_and_return_errors )
+    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP tbh: Unable to resolve host idontexist.kurmudgeon.edu.')
+
+    assert_raise(e) { create_config('tbh') }
   end
 
   def test_fail_test_nonexistent_user
-    config_obj = nil
     @config_values['username'] = 'idontexisteither'
-    assert_nothing_raised do
-      config_obj = Armagh::Support::SFTP.create_configuration(@config_store, 'nonexuser', {'sftp' => @config_values})
-    end
-    assert_equal( { "test_connection" => "Error on host testserver.noragh.com: Authentication failed: Authentication failed for user idontexisteither@testserver.noragh.com" }, config_obj.test_and_return_errors )
+    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP nonexuser: Error on host testserver.noragh.com: Authentication failed: Authentication failed for user idontexisteither@testserver.noragh.com')
+
+    assert_raise(e) { create_config('nonexuser') }
   end
 
   def test_fail_test_wrong_password
-    config_obj = nil
     @config_values['password'] = Configh::DataTypes::EncodedString.from_plain_text('NotMyPassword')
-    assert_nothing_raised do
-      config_obj = Armagh::Support::SFTP.create_configuration(@config_store, 'wrongpass', {'sftp' => @config_values})
-    end
-    assert_equal( { "test_connection" => "Error on host testserver.noragh.com: Authentication failed: Authentication failed for user ftptest@testserver.noragh.com" }, config_obj.test_and_return_errors )
+    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP wrongpass: Error on host testserver.noragh.com: Authentication failed: Authentication failed for user ftptest@testserver.noragh.com')
+
+    assert_raise(e) { create_config('wrongpass') }
   end
 
   def test_put_then_get_files_subdirectories
@@ -298,4 +298,4 @@ class TestIntegrationSFTP < Test::Unit::TestCase
     end
   end
 end
-    
+

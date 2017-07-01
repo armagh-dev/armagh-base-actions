@@ -49,7 +49,8 @@ module Armagh
       define_parameter name: 'key', description: 'SSH Key (not filename!) for SFTP connection', type: 'string', required: false, prompt: 'password'
       define_parameter name: 'maximum_transfer', description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
       
-      define_group_test_callback callback_class: self, callback_method: :test_connection
+      define_group_test_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
+      define_group_validation_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
 
       def SFTP.archive_config
         return @archive_config if @archive_config

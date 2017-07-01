@@ -115,20 +115,33 @@ class TestSFTP < Test::Unit::TestCase
   end
 
   def test_custom_validation
+    # create_configuration invokes :test_connection and :close via group_validation_callback
     Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection)
     Armagh::Support::SFTP::Connection.any_instance.expects(:close)
     config = Armagh::Support::SFTP.create_configuration(@config_store, 'w', {'sftp' => @config_values})
+
+    # test_and_return_errors invokes :test_connection and :close via group_test_callback
+    Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection)
+    Armagh::Support::SFTP::Connection.any_instance.expects(:close)
     config.test_and_return_errors
   end
 
-  def test_custom_validation_exception
-    e = RuntimeError.new('ERROR!')
-    Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection).returns( 'boom')
+  def test_custom_validation_exception_via_validation_callback
+    Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection).returns('boom')
+    assert_raise(Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP bad: boom')) do
+      Armagh::Support::SFTP.create_configuration(@config_store, 'bad', {'sftp' => @config_values})
+    end
+  end
+
+  def test_custom_validation_exception_via_test_callback
+    Armagh::Support::SFTP.stubs(:test_connection)
     config = nil
     assert_nothing_raised do
       config = Armagh::Support::SFTP.create_configuration(@config_store, 'bad', {'sftp' => @config_values})
     end
-    assert_equal( { "test_connection" => "boom" }, config.test_and_return_errors)
+    Armagh::Support::SFTP.unstub(:test_connection)
+    Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection).returns('boom')
+    assert_equal({"test_connection" => "boom"}, config.test_and_return_errors)
   end
 
   def test_error_handler

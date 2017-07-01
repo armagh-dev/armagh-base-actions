@@ -44,8 +44,9 @@ module Armagh
       define_parameter name: "delete_on_put",    description: "Delete each file put to the remote",      type: 'boolean',          required: true,  default: false
 
       define_group_test_callback callback_class: Armagh::Support::FTP, callback_method: :ftp_validation
+      define_group_validation_callback callback_class: Armagh::Support::FTP, callback_method: :ftp_validation
 
-      def self.ftp_validation(config)
+      def FTP.ftp_validation(config)
         error_string = nil
 
         if config.ftp.anonymous
