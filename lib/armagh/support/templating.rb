@@ -1,5 +1,5 @@
 # Copyright 2017 Noragh Analytics, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -8,7 +8,7 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 # express or implied.
 #
 # See the License for the specific language governing permissions and
@@ -30,6 +30,7 @@ module Armagh
       class MissingConfigError   < TemplatingError; end
       class InvalidConfigError   < TemplatingError; end
       class UnusedAttributeError < TemplatingError; end
+      class NotImplementedError  < TemplatingError; end
 
       def render_template(template_path, *mode, **context)
         process_modes(template_path, mode, context)
@@ -162,6 +163,10 @@ module Armagh
         parse_attributes(attributes, :block_end)
       end
 
+      def partials_root
+        File.join(template_root, "partials")
+      end
+
       private def escape_html(value)
         return value if !template_config_from_mode(:escape_html) || value.nil? || value.empty?
         value = CGI.escape_html(value)
@@ -258,6 +263,26 @@ module Armagh
         else
           raise e
         end
+      end
+
+      private def template_root
+        actions_path = File.expand_path(".")
+        armagh_path  = File.join(actions_path, "lib", "armagh")
+        File.join(armagh_path, "templates", workflow_name)
+      end
+
+      private def workflow_name
+        matches = self.class.to_s.split("::").last.match(/([A-Z][a-z]+)/)
+        matches.nil? ? "" : matches.captures.first.downcase
+      end
+
+      private def template_content(doc)
+        raise NotImplementedError, "Instance method #template_content(doc) must be implemented by any classes that include the Armagh::Support::Templating"
+      end
+
+      # returns the file path for the template that corresponds to the document passed in as an argument
+      private def template_path(doc)
+        raise NotImplementedError, "Instance method #template_path(doc) must be implemented by any classes that include the Armagh::Support::Templating"
       end
 
     end

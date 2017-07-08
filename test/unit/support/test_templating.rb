@@ -1,5 +1,5 @@
 # Copyright 2017 Noragh Analytics, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -8,7 +8,7 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 # express or implied.
 #
 # See the License for the specific language governing permissions and
@@ -589,6 +589,15 @@ class TestTemplating < Test::Unit::TestCase
     assert_equal '', block_end
     set_mode_html
     assert_equal '</div><br />', block_end
+  end
+
+  def test_partials_root
+    set_mode_text
+    current_path = File.expand_path(".")
+    armagh_path = File.join(current_path, "lib/armagh")
+    workflow_templates_path = File.join(armagh_path, "templates", workflow_name)
+    expected_partials_path = File.join(workflow_templates_path, "partials")
+    assert_equal expected_partials_path, partials_root
   end
 
 end
