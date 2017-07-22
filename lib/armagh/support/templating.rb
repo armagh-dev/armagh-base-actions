@@ -163,10 +163,6 @@ module Armagh
         parse_attributes(attributes, :block_end)
       end
 
-      def partials_root
-        File.join(template_root, "partials")
-      end
-
       private def escape_html(value)
         return value if !template_config_from_mode(:escape_html) || value.nil? || value.empty?
         value = CGI.escape_html(value)
@@ -263,12 +259,6 @@ module Armagh
         else
           raise e
         end
-      end
-
-      private def template_root
-        actions_path = File.expand_path(".")
-        armagh_path  = File.join(actions_path, "lib", "armagh")
-        File.join(armagh_path, "templates", workflow_name)
       end
 
       private def workflow_name

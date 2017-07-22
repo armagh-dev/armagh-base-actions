@@ -16,6 +16,7 @@
 #
 
 require 'configh'
+require_relative '../../base/errors/armagh_error'
 
 module Armagh
   module Support
@@ -23,7 +24,7 @@ module Armagh
       module Parser
         include Configh::Configurable
 
-        class CSVParseError           < StandardError; end
+        class CSVParseError           < ArmaghError;  notifies :ops; end
         class RowMissingValueError    < CSVParseError; end
         class RowWithExtraValuesError < CSVParseError; end
         class BlockMissingError       < CSVParseError; end

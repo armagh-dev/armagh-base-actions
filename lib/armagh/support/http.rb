@@ -19,19 +19,20 @@ require 'httpclient'
 require 'configh'
 require_relative 'encoding'
 require_relative '../support/xml/parser'
+require_relative '../base/errors/armagh_error'
 
 module Armagh
   module Support
     module HTTP
       include Configh::Configurable
 
-      class HTTPError < StandardError; end
-      class URLError < HTTPError; end
-      class RedirectError < HTTPError; end
-      class ConfigurationError < HTTPError; end
-      class ConnectionError < HTTPError; end
-      class MethodError < HTTPError; end
-      class SafeError < HTTPError; end
+      class HTTPError          < ArmaghError; notifies :ops end
+      class URLError           < HTTPError;   end
+      class RedirectError      < HTTPError;   end
+      class ConfigurationError < HTTPError;   end
+      class ConnectionError    < HTTPError;   end
+      class MethodError        < HTTPError;   end
+      class SafeError          < HTTPError;   end
 
       POST = 'post'.freeze
       GET = 'get'.freeze

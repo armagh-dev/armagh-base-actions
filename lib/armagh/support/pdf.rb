@@ -1,5 +1,5 @@
 # Copyright 2017 Noragh Analytics, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -8,7 +8,7 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 # express or implied.
 #
 # See the License for the specific language governing permissions and
@@ -18,14 +18,15 @@
 require 'securerandom'
 
 require_relative 'shell'
+require_relative '../base/errors/armagh_error'
 
 module Armagh
   module Support
     module PDF
 
-      class PDFError        < StandardError; end
-      class PDFTimeoutError < PDFError; end
-      class PDFNoTextError  < PDFError; end
+      class PDFError        < ArmaghError; notifies :ops; end
+      class PDFTimeoutError < PDFError;    end
+      class PDFNoTextError  < PDFError;    end
 
       DEFAULT_TIMEOUT     = 600
       PDF_TO_TEXT_SHELL   = %W(#{`which pdftotext`.strip} <input_pdf_file> -)

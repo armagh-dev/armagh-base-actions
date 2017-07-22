@@ -20,6 +20,7 @@ require 'configh'
 require 'simple-rss'
 require 'facets/hash/stringify_keys'
 require_relative 'http'
+require_relative '../base/errors/armagh_error'
 
 module Armagh
   module Support
@@ -27,8 +28,8 @@ module Armagh
       include Configh::Configurable
       include Armagh::Support::HTTP
 
-      class RSSError < StandardError; end
-      class RSSParseError < RSSError; end
+      class RSSError      < ArmaghError; notifies :ops; end
+      class RSSParseError < RSSError;    end
 
       define_parameter name: 'max_items', description: 'Maximum number of items to collect', type: 'positive_integer', required: true, default: 100, prompt: '100'
       define_parameter name: 'link_field', description: 'Field containing link to the content.', type: 'string', prompt: 'field_name', default: 'link'

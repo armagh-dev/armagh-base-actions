@@ -15,8 +15,9 @@
 # limitations under the License.
 #
 #
-
+#
 require 'configh'
+require_relative '../../base/errors/armagh_error'
 
 module Armagh
   module Support
@@ -24,7 +25,7 @@ module Armagh
       module Divider
         include Configh::Configurable
 
-        class XMLDivideError       < StandardError;  end
+        class XMLDivideError       < ArmaghError;    notifies :ops; end
         class MaxSizeTooSmallError < XMLDivideError; end
 
         define_parameter name: 'size_per_part',
@@ -59,7 +60,7 @@ module Armagh
             find_previous_complete_record if last_line_has_partial_record?
 
             errors = []
-            errors << MaxSizeTooSmallError if (current_sub_string.size > @size_per_part)
+            errors << MaxSizeTooSmallError.new if (current_sub_string.size > @size_per_part)
 
             yield current_sub_string, errors if block_given?
 

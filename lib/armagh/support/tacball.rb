@@ -17,20 +17,21 @@
 
 require 'tac'
 require 'configh'
+require_relative '../base/errors/armagh_error'
 
 module Armagh
   module Support
     module Tacball
       include Configh::Configurable
 
-      class TacballError < StandardError; end
-      class FieldTypeError < TacballError; end
-      class InvalidDocidError < TacballError; end
-      class InvalidFeedError < TacballError; end
-      class AttachmentOrOriginalExtnError < TacballError; end
-      class OriginalFileAndExtensionError < TacballError; end
+      class TacballError                   < ArmaghError;  notifies :ops; end
+      class FieldTypeError                 < TacballError; end
+      class InvalidDocidError              < TacballError; end
+      class InvalidFeedError               < TacballError; end
+      class AttachmentOrOriginalExtnError  < TacballError; end
+      class OriginalFileAndExtensionError  < TacballError; end
       class OriginalFilenameCollisionError < TacballError; end
- 
+
       define_parameter name: 'feed',
                        description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED}",
                        type: 'populated_string',
@@ -48,7 +49,7 @@ module Armagh
                        type: 'populated_string',
                        required: false,
                        group: 'tacball'
-         
+
       define_parameter name: 'attach_orig_file',
                        description: 'Include the original file in the TACBall',
                        type: 'boolean',

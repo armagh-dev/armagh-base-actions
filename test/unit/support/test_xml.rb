@@ -247,7 +247,7 @@ class TestXML < Test::Unit::TestCase
       divided_errors  << errors unless errors.empty?
     end
 
-    assert_equal divided_errors.flatten.first, Armagh::Support::XML::Divider::MaxSizeTooSmallError
+    assert_instance_of Armagh::Support::XML::Divider::MaxSizeTooSmallError, divided_errors.flatten.first
   end
 
   def test_dig_first

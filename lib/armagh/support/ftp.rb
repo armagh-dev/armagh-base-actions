@@ -18,17 +18,19 @@
 require 'net/ftp'
 require 'tempfile'
 require 'configh'
+require_relative '../base/errors/armagh_error'
 
 module Armagh
   module Support
     module FTP
       include Configh::Configurable
 
-      class ConnectionError     < StandardError; end
-      class PermissionsError    < StandardError; end
-      class ReplyError          < StandardError; end
-      class TimeoutError        < StandardError; end
-      class UnhandledError      < StandardError; end
+      class FTPError         < ArmaghError; notifies :ops; end
+      class ConnectionError  < FTPError;    end
+      class PermissionsError < FTPError;    end
+      class ReplyError       < FTPError;    end
+      class TimeoutError     < FTPError;    end
+      class UnhandledError   < FTPError;    end
 
       define_parameter name: "host",             description: "FTP host or IP",                          type: 'populated_string', required: true,  prompt: "host.example.com or 10.0.0.1"
       define_parameter name: "port",             description: "FTP port",                                type: 'positive_integer', required: true,  default: 21

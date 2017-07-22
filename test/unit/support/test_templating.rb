@@ -591,13 +591,4 @@ class TestTemplating < Test::Unit::TestCase
     assert_equal '</div><br />', block_end
   end
 
-  def test_partials_root
-    set_mode_text
-    current_path = File.expand_path(".")
-    armagh_path = File.join(current_path, "lib/armagh")
-    workflow_templates_path = File.join(armagh_path, "templates", workflow_name)
-    expected_partials_path = File.join(workflow_templates_path, "partials")
-    assert_equal expected_partials_path, partials_root
-  end
-
 end

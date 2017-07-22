@@ -22,21 +22,18 @@ require 'tempfile'
 
 require 'configh'
 
+require_relative '../base/errors/armagh_error'
+
 module Armagh
   module Support
     module SFTP
       include Configh::Configurable
 
-      class SFTPError < StandardError;
-      end
-      class ConnectionError < SFTPError;
-      end
-      class PermissionError < SFTPError;
-      end
-      class FileError < SFTPError;
-      end
-      class TimeoutError < SFTPError;
-      end
+       class SFTPError       < ArmaghError; notifies :ops; end
+       class ConnectionError < SFTPError;   end
+       class PermissionError < SFTPError;   end
+       class FileError       < SFTPError;   end
+       class TimeoutError    < SFTPError;   end
 
       define_parameter name: 'host', description: 'SFTP host or IP', type: 'populated_string', required: true, prompt: 'host.example.com or 10.0.0.1'
       define_parameter name: 'port', description: 'SFTP port', type: 'positive_integer', required: true, default: 22
@@ -48,7 +45,7 @@ module Armagh
       define_parameter name: 'password', description: 'SFTP user password', type: 'encoded_string', required: false, prompt: 'password'
       define_parameter name: 'key', description: 'SSH Key (not filename!) for SFTP connection', type: 'string', required: false, prompt: 'password'
       define_parameter name: 'maximum_transfer', description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
-      
+
       define_group_test_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
       define_group_validation_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
 
@@ -66,7 +63,7 @@ module Armagh
         @archive_config = Armagh::Support::SFTP.create_configuration([], 'archive', {
           'sftp' => sftp_config})
       end
-      
+
       def SFTP.test_connection(candidate_config)
         error = nil
         begin
@@ -113,7 +110,7 @@ module Armagh
         end
 
         #
-        # files to transfer can be in subdirectories.  
+        # files to transfer can be in subdirectories.
         # the subdirectory structure is preserved in transfer.
         # example:
         #    @directory_path is fred/
@@ -130,9 +127,9 @@ module Armagh
             file_attempts = 0
 
             remote_relative_filepath = entry.name
-            remote_relative_dirpath  = File.dirname(remote_relative_filepath) 
+            remote_relative_dirpath  = File.dirname(remote_relative_filepath)
             remote_full_filepath     = File.join(@directory_path, remote_relative_filepath)
-            
+
             attributes = entry.attributes.attributes.collect { |k, v| [k.to_s, v] }.to_h
             attributes['mtime'] = Time.at(attributes['mtime']).utc if attributes['mtime']
             attributes['atime'] = Time.at(attributes['atime']).utc if attributes['atime']
@@ -141,7 +138,7 @@ module Armagh
 
               local_dirpath  = remote_relative_dirpath
               local_filepath = remote_relative_filepath
-              FileUtils.mkdir_p local_dirpath  
+              FileUtils.mkdir_p local_dirpath
 
               @sftp.download!(remote_full_filepath, local_filepath)
               yield local_filepath, attributes, nil if block_given?
@@ -164,11 +161,11 @@ module Armagh
           local_filepaths = Dir.glob(@filename_pattern)
           files_to_transfer = local_filepaths.select { |f| File.file? f }.first(@maximum_number_to_transfer)
           failed_files = 0
-          
+
           remote_base_dirpaths = [ @directory_path, *@duplicate_put_directory_paths ]
-          
+
           files_to_transfer.each do |local_filepath|
-            
+
             raise SFTPError, "Local file #{ local_filepath } does not exist" unless File.exists?(local_filepath)
 
             attempts_this_file = 0
@@ -179,11 +176,11 @@ module Armagh
                 mkdir_p( File.dirname( remote_full_filepath ))
                 @sftp.upload!( local_filepath, remote_full_filepath )
               end
-              
+
               yield local_filepath, nil if block_given?
               File.delete local_filepath if File.exists? local_filepath
               failed_files = 0
-              
+
             rescue => e
               retry if attempts_this_file < 3
               converted_error = convert_errors(e, host: @host, file: local_filepath)
@@ -202,11 +199,11 @@ module Armagh
         #
         def put_file(src, dest_dir)
           raise FileError, "Local file '#{src}' is not a file." unless File.file? src
-          
+
           attempts = 0
           begin
             attempts += 1
-            
+
             [ @directory_path, *@duplicate_put_directory_paths ].each do |remote_base_dirpath|
               remote_full_dirpath = File.join( remote_base_dirpath, dest_dir, File.dirname( src ))
               mkdir_p( remote_full_dirpath ) if @create_directory_path
@@ -223,7 +220,7 @@ module Armagh
         rescue => e
           raise convert_errors(e, host: @host, file: path)
         end
-        
+
         def remove_subpath( path )
           remove( File.join( @directory_path, path ))
         end
@@ -266,7 +263,7 @@ module Armagh
             end
           end
         end
-        
+
         def mksubdir_p( path )
           mkdir_p( File.join( @directory_path, path ))
         end
@@ -276,18 +273,18 @@ module Armagh
         rescue => e
           raise convert_errors(e, host: @host, file: full_dir)
         end
-        
+
         def rmsubdir(dir)
           rmdir( File.join( @directory_path, dir ))
         end
-          
+
 
         def ls(full_dir)
           @sftp.dir.entries(full_dir).lazy.collect { |i| i.name }.select { |i| i != '..' && i != '.' }.sort
         rescue => e
           raise convert_errors(e, host: @host, file: full_dir)
         end
-        
+
         def ls_subdir(dir)
           ls( File.join( @directory_path, dir ))
         end

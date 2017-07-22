@@ -1,5 +1,5 @@
 # Copyright 2017 Noragh Analytics, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -8,7 +8,7 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 # express or implied.
 #
 # See the License for the specific language governing permissions and
@@ -19,6 +19,7 @@ require 'configh'
 require 'facets/kernel/deep_copy'
 
 require_relative 'shell'
+require_relative '../base/errors/armagh_error'
 
 module Armagh
   module Support
@@ -55,9 +56,9 @@ module Armagh
         default: false,
         required: true
 
-      class HTMLError        < StandardError; end
-      class InvalidHTMLError < HTMLError; end
-      class ExtractError     < HTMLError; end
+      class HTMLError        < ArmaghError; notifies :ops; end
+      class InvalidHTMLError < HTMLError;   end
+      class ExtractError     < HTMLError;   end
 
       HTML_TO_TEXT_SHELL = %W(#{`which w3m`.strip} -T text/html -cols 10000 -O UTF-8 -o alt_entity=false)
       HTML_PART_DELIMITER = '|~!@#^&*|'

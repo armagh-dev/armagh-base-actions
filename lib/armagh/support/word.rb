@@ -1,5 +1,5 @@
 # Copyright 2017 Noragh Analytics, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -8,7 +8,7 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 # express or implied.
 #
 # See the License for the specific language governing permissions and
@@ -20,14 +20,15 @@ require 'fileutils'
 
 require_relative 'shell'
 require_relative 'pdf'
+require_relative '../base/errors/armagh_error'
 
 module Armagh
   module Support
     module Word
       include PDF
 
-      class WordError       < StandardError; end
-      class WordNoTextError < WordError; end
+      class WordError       < ArmaghError; notifies :ops; end
+      class WordNoTextError < WordError;   end
 
       WORD_TO_TEXT_SHELL = %W(#{`which soffice`.strip} -env:UserInstallation=file:// --headless --invisible --norestore --quickstart --nologo --nolockcheck --convert-to pdf <input_word_file>)
 

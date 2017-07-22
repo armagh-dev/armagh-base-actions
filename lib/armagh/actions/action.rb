@@ -161,6 +161,12 @@ module Armagh
       def self.description
         'No description available.'
       end
+
+      def notify(errors)
+        errors = Array(errors)
+        errors.each { |e| e.notify(self) }
+      end
+
     end
   end
 end

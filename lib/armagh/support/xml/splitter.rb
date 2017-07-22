@@ -16,6 +16,7 @@
 #
 
 require 'configh'
+require_relative '../../base/errors/armagh_error'
 
 module Armagh
   module Support
@@ -30,9 +31,9 @@ module Armagh
                          required: true,
                          prompt: 'Specify name for a repeated element <name>'
 
-        class XMLSplitError < StandardError; end
-        class XMLTypeError < XMLSplitError; end
-        class XMLValueError < XMLSplitError; end
+        class XMLSplitError            < ArmaghError;   notifies :ops; end
+        class XMLTypeError             < XMLSplitError; end
+        class XMLValueError            < XMLSplitError; end
         class RepElemNameValueNotFound < XMLSplitError; end
 
         module_function
