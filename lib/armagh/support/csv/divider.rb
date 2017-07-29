@@ -61,19 +61,6 @@ module Armagh
           end
         end
 
-        def parts_sizes(parts)
-          parts.each_with_object([]) do |part, ary|
-            if ary.empty?
-              ary << part.size
-            else
-              rows = part.split("\n")
-              rows.shift
-              part = rows.join
-              ary << part.size
-            end
-          end
-        end
-
       end
     end
   end

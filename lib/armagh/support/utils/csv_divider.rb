@@ -1,90 +1,100 @@
-class CSVDivider
+require 'csv'
+require_relative '../../base/errors/armagh_error'
 
-  attr_reader :source
-  attr_accessor :sub_string, :offset
+class CSVDivider
+  class CSVDividerError         < ArmaghError; notifies :dev; end
+  class RowMissingValueError    < CSVDividerError; end
+  class RowWithExtraValuesError < CSVDividerError; end
+
+  DEFAULT_SIZE_PER_PART = 100
+  DEFAULT_COL_SEP = ","
+  DEFAULT_ROW_SEP = "\n"
+  DEFAULT_QUOTE_CHAR = '"'
+
+  LINE_SCAN_REGEX = /(?:[\w|\d|\-|@|\.]|"[^"]*")+/
+
+  attr_reader :source, :file, :row_sep, :col_sep, :quote_char, :size_per_part
+  attr_accessor :divided_parts, :line, :offset
 
   def initialize(source, options = {})
-    @source = source
-    @offset        = options[:offset] || 0
-    @size_per_part = options[:size_per_part]
-    @col_sep       = options[:col_sep]
+    @source        = source
+    @size_per_part = options['size_per_part'] || DEFAULT_SIZE_PER_PART
+    @col_sep       = options['col_sep']       || DEFAULT_COL_SEP
+    @row_sep       = options['row_sep']       || DEFAULT_ROW_SEP
+    @quote_char    = options['quote_char']    || DEFAULT_QUOTE_CHAR
+
+    @divided_parts   = []
+  end
+
+  def file
+    @file ||= File.open(source)
   end
 
   def divide
-    eof = false
+    file.each_line(row_sep) do |current_line|
+      # current_line = current_line.gsub(col_sep, DEFAULT_COL_SEP) unless col_sep == DEFAULT_COL_SEP
+      # current_line = current_line.gsub(row_sep, DEFAULT_ROW_SEP) unless row_sep == DEFAULT_ROW_SEP
+      @line = current_line
 
-    while eof == false
-      @sub_string      = IO.read(source, @size_per_part, @offset)
-      @sub_string_size = sub_string.size
+      #TODO: refactor to remove nested if/elsif's
+      if divided_parts.empty?
+        add_header_to_divided_parts
+      elsif file.eof?
+        if divided_part_plus_line_size <= size_per_part
+          add_line_to_divided_part
+          yield divided_parts.join
+        elsif divided_part_plus_line_size > size_per_part
+          yield divided_parts.join
 
-      find_previous_complete_record if last_line_has_partial_record?
+          @divided_parts = []
+          add_header_to_divided_parts
+          add_line_to_divided_part
 
-      yield current_sub_string
+          yield divided_parts.join
+        end
+      elsif !file.eof?
+        raise RowMissingValueError    if line.scan(LINE_SCAN_REGEX).count < header_count
+        raise RowWithExtraValuesError if line.scan(LINE_SCAN_REGEX).count > header_count
 
-      @offset += @sub_string.size
-      eof    = true if reached_last_part_from_file?
+        if divided_part_plus_line_size <= size_per_part
+          add_line_to_divided_part
+        elsif divided_part_plus_line_size > size_per_part
+          yield divided_parts.join
+
+          @divided_parts = []
+          add_header_to_divided_parts
+          add_line_to_divided_part
+        end
+      end
+
+      #TODO: consider adding error handling here
     end
+    file.close
   end
 
-  private def headers
-    @headers ||= divided_part_header
+  private def add_line_to_divided_part
+    divided_parts << @line
+  end
+
+  private def divided_part_plus_line_size
+    sub_string_size + line.size
+  end
+
+  private def sub_string_size
+    divided_parts.map(&:size).sum
+  end
+
+  private def add_header_to_divided_parts
+    @headers ||= line
+    divided_parts << headers
   end
 
   private def header_count
-    @header_count ||= headers.scan(@col_sep).count
+    @header_count ||= headers.scan(LINE_SCAN_REGEX).count
   end
 
-  private def last_line_count
-    last_line.scan(@col_sep).count
+  private def headers
+    @headers
   end
 
-  private def current_sub_string
-    if @offset == 0
-      sub_string
-    else
-      headers + sub_string
-    end
-  end
-
-  private def divided_part_header
-    headers = sub_string.lines.first
-  end
-
-  private def last_line
-    sub_string.lines.last
-  end
-
-  private def reached_last_part_from_file?
-    last_line_not_dropped? && within_max_size?
-  end
-
-  private def last_line_not_dropped?
-    @sub_string_size == sub_string.size
-  end
-
-  private def find_previous_complete_record
-    until (last_line_has_complete_record? && within_max_size?)
-      @sub_string = drop_last_line_from_sub_string
-      last_line_count = last_line.scan(@col_sep).count
-    end
-  end
-
-  private def last_line_has_partial_record?
-    (last_line_count != header_count) && (@sub_string_size >= @size_per_part)
-  end
-
-  private def last_line_has_complete_record?
-    last_line_count == header_count
-  end
-
-  private def within_max_size?
-   @sub_string_size <= @size_per_part
-  end
-
-  private def drop_last_line_from_sub_string
-    return sub_string if sub_string.lines.count == 1
-    lines = sub_string.lines
-    lines.pop
-    lines.join
-  end
 end

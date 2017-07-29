@@ -1,0 +1,13 @@
+---
+content:
+  - "Name,Email,Phone\nBrian,\"brian@example.com, brian2@example.com\",555-1212\n"
+  - "Name,Email,Phone\nChuck,chuck@example.com,555-1212\nDale,dale@example.com,555-1212\n"
+  - "Name,Email,Phone\nEric,eric@example.com,555-1212\nFrank,frank@example.com,555-1212\n"
+  - "Name,Email,Phone\nGeorge,george@example.com,555-1212\nHenry,henry@example.com,555-1212\n"
+  - "Name,Email,Phone\nIvan,ivan@example.com,555-1212\nJack,jack@example.com,555-1212\n"
+  - "Name,Email,Phone\nKen,ken@example.com,555-1212\nLarry,larry@example.com,555-1212\n"
+  - "Name,Email,Phone\nMike,mike@example.com,555-1212\nBob,bob@example.com,555-1212\n"
+  - "Name,Email,Phone\nJoe,joe@example.com,555-1212\nJane,jane@example.com,555-1212\n"
+  - "Name,Email,Phone\nPaul,paul@example.com,555-1212\nSame,same@example.com,555-1212\n"
+  - "Name,Email,Phone\nBill,bill@example.com,555-1212\nJim,jim@example.com,555-1212\n"
+  - "Name,Email,Phone\nKevin,kevin@example.com,555-1212\n"
