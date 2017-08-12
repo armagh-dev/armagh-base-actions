@@ -26,36 +26,6 @@ module Armagh
       extend XML::Divider
       extend XML::Parser
 
-      define_parameter name: 'get_doc_id_from',
-                       description: 'XML field/s that contain document ID',
-                       type: 'string_array',
-                       required: false,
-                       group: 'xml'
-
-      define_parameter name: 'get_doc_title_from',
-                       description: 'XML field/s that contain document title',
-                       type: 'string_array',
-                       required: false,
-                       group: 'xml'
-
-      define_parameter name: 'get_doc_timestamp_from',
-                       description: 'XML field/s that contain document timestamp',
-                       type: 'string_array',
-                       required: false,
-                       group: 'xml'
-
-      define_parameter name: 'timestamp_format',
-                       description: 'Format for XML field/s that contain document timestamp',
-                       type: 'string',
-                       required: false,
-                       group: 'xml'
-
-      define_parameter name: 'get_doc_copyright_from',
-                       description: 'XML field/s that contain document copyrights',
-                       type: 'string_array',
-                       required: false,
-                       group: 'xml'
-
       define_parameter name: 'html_nodes',
                        description: 'HTML nodes that need to be kept as-is and not converted into a hash',
                        type: 'string_array',

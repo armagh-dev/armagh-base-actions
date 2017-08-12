@@ -101,8 +101,8 @@ class TestXML < Test::Unit::TestCase
 
     @config_store = []
     @config_size_default = Armagh::Support::XML.create_configuration( @config_store, 'def', {'xml' => {'html_nodes' => ['body.content']}} )
-    @config_size_800     = Armagh::Support::XML::Divider.create_configuration( @config_store, 's800', {'xml' => { 'size_per_part'  => 800, 'xml_element' => 'sdnEntry' }})
-    @config_size_1000    = Armagh::Support::XML::Divider.create_configuration( @config_store, 's1000', { 'xml' => { 'size_per_part'  => 1000, 'xml_element' => 'sdnEntry' }})
+    @config_size_800     = Armagh::Support::XML::Divider.create_configuration( @config_store, 's800',  {'xml_divide' => { 'size_per_part'  => 800,  'xml_element' => 'sdnEntry' }})
+    @config_size_1000    = Armagh::Support::XML::Divider.create_configuration( @config_store, 's1000', {'xml_divide' => { 'size_per_part'  => 1000, 'xml_element' => 'sdnEntry' }})
   end
 
   def teardown
@@ -220,7 +220,7 @@ class TestXML < Test::Unit::TestCase
     end
 
     assert_equal @expected_divided_content, actual_divided_content
-    assert_equal false, actual_divided_content.map(&:size).any? { |x| x > @config_size_1000.xml.size_per_part }
+    assert_equal false, actual_divided_content.map(&:size).any? { |x| x > @config_size_1000.xml_divide.size_per_part }
   end
 
   test "when xml is well-formed, divided parts match source xml when recombined" do

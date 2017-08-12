@@ -33,20 +33,20 @@ module Armagh
                                type: 'positive_integer',
                                default: 1_000_000,
                                required: false,
-                               group: 'xml'
+                               group: 'xml_divide'
 
         define_parameter name: 'xml_element',
                                description: 'The name of the repeated node in the source XML file to be extracted',
                                type: 'string',
                                required: false,
-                               group: 'xml'
+                               group: 'xml_divide'
 
 
         def divided_parts(source, options)
           eof              = false
           @offset          = 0
-          @size_per_part   = options.xml.size_per_part
-          @xml_element     = options.xml.xml_element
+          @size_per_part   = options.xml_divide.size_per_part
+          @xml_element     = options.xml_divide.xml_element
           @processed_bytes = 0
           @total_bytes ||= IO.read(source.collected_file).size
 
