@@ -128,7 +128,7 @@ class TestXML < Test::Unit::TestCase
       |</chapter>
     end
     )
-    expected = {"book"=>{"authors"=>{"name"=>["Someone","Sometwo"]},"chapters"=>{"chapter"=>[{"attr_key"=>"chappy","body_content"=>"<style>\n      body {\n        font-size: 10pt;\n        color: #777;\n      }\n    </style>\n    <p>Treat this section like text</p>\n    <div>\n      <span>\n        as-is without parsing to a hash\n      </span>\n    </div>","number"=>"1","title"=>"A Fine Beginning"},{"number"=>"2","title"=>"A Terrible End"}]},"data"=>"Some Data","title"=>"Book Title"}}
+    expected = {"book"=>{"authors"=>{"name"=>["Someone","Sometwo"]},"chapters"=>{"chapter"=>[{"attr_key"=>"chappy","body.content"=>"<style>\n      body {\n        font-size: 10pt;\n        color: #777;\n      }\n    </style>\n    <p>Treat this section like text</p>\n    <div>\n      <span>\n        as-is without parsing to a hash\n      </span>\n    </div>","number"=>"1","title"=>"A Fine Beginning"},{"number"=>"2","title"=>"A Terrible End"}]},"data"=>"Some Data","title"=>"Book Title"}}
     assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
     assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes.first)
   end
@@ -140,12 +140,6 @@ class TestXML < Test::Unit::TestCase
   def test_to_hash_repeating_nodes_attrs_and_text
     xml = '<xml><div id="123" class="css">stuff</div><div id="124" class="css2">more stuff</div><div>just text</div></xml>'
     expected = {"xml"=>{"div"=>[{"attr_class"=>"css","attr_id"=>"123","text"=>"stuff"},{"attr_class"=>"css2","attr_id"=>"124","text"=>"more stuff"},"just text"]}}
-    assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
-  end
-
-  def test_to_hash_invalid_element_names
-    xml = '<xml><$node>value</$node><body.content>stuff</body.content></xml>'
-    expected = {"xml"=>{"_node"=>"value","body_content"=>"stuff"}}
     assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
   end
 

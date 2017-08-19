@@ -158,14 +158,6 @@ module Armagh
         docspec_errors = validate_docspecs(candidate_config)
         errors.concat docspec_errors
 
-        if candidate_config.collect.archive
-          begin
-            Support::SFTP.archive_config
-          rescue => e
-            errors << "Archive Configuration Error: #{e}"
-          end
-        end
-
         schedule = candidate_config.collect.schedule
         errors << "Schedule '#{schedule}' is not valid cron syntax." if schedule && !Support::Cron.valid_cron?(schedule)
 

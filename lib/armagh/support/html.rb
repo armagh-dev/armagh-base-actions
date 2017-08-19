@@ -56,15 +56,27 @@ module Armagh
         default: false,
         required: true
 
+      define_parameter name: 'unescape_html',
+        description: 'If true, unescapes all escaped HTML, e.g., &lt;tag&gt; becomes <tag> and will be interpreted as HTML by the browser.',
+        type: 'boolean',
+        default: false,
+        required: true
+
+      define_parameter name: 'preserve_hyperlinks',
+        description: 'If true, preserves hyperlinks as working hyperlinks that always open in a new tab.',
+        type: 'boolean',
+        default: false,
+        required: true
+
       class HTMLError        < ArmaghError; notifies :ops; end
       class InvalidHTMLError < HTMLError;   end
       class ExtractError     < HTMLError;   end
 
       HTML_TO_TEXT_SHELL = %W(#{`which w3m`.strip} -T text/html -cols 10000 -O UTF-8 -o alt_entity=false)
       HTML_PART_DELIMITER = '|~!@#^&*|'
-
       HTML_PAGE_DELIMITER = '*#Y*@^~YU'
       HTML_PAGE_BREAK = "\n\n--- PAGE %d ---\n\n"
+      HTML_ANCHOR_LABEL_LINK_REGEX = /<a(?:| .+?) href=["'](.+?)["'](?:| .+?)>(.+?)<\/a>/im
 
       def HTML.merge_multiple_pages(content_array)
         merged_content = ''
@@ -93,8 +105,11 @@ module Armagh
           replace_apos_with_single_quote(part)
           strip_sup_tag(part)
         end
-
         html = html_parts.join(HTML_PART_DELIMITER)
+
+        html = CGI::unescape_html(html) if config.html.unescape_html
+        html = preserve_hyperlinks(html) if config.html.preserve_hyperlinks
+
         text = Shell.call_with_input(HTML_TO_TEXT_SHELL, html)
         text.include?(HTML_PART_DELIMITER) ? text.split(HTML_PART_DELIMITER) : text
       rescue HTMLError
@@ -153,6 +168,18 @@ module Armagh
         pattern.gsub!(/"|'/, '(?:"|\')')
       end
 
+      private def preserve_hyperlinks(html)
+        html.gsub!(HTML_ANCHOR_LABEL_LINK_REGEX) do |label_link|
+          link = $1
+          label = $2
+          if !link.nil? && link[/^http/i] && !link[/#/] && link != label
+            "#{label} [ #{link} ]"
+          else
+            label
+          end
+        end
+        html
+      end
     end
   end
 end

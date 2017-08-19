@@ -158,6 +158,129 @@ class TestHTML < Test::Unit::TestCase
     assert_equal "undefined method `html' for nil:NilClass", e.message
   end
 
+  def test_html_to_text_unescape_html
+    html = '<p>HSBC(&lt;a href="http://www.marketintelligencecenter.com/symbol/HSBC"&gt;HSBC&lt;/a&gt;)</p>'
+    expected_results = '<p>HSBC(<a href="http://www.marketintelligencecenter.com/symbol/HSBC">HSBC</a>)</p>'
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'unescape_html' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_unescape_html_url_params
+    html = '<a href="https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api">click here</a>'
+    expected_results = '<a href="https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&dbid=1108&title=Malaysia&pubdate=2017-06-22+07%3A18%3A00&datasource=src&referrer=api">click here</a>'
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'unescape_html' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_no_target_blank
+    html = '<a href="https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api">click here</a>'
+    expected_results = "click here [ https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&dbid=1108&title=Malaysia&pubdate=2017-06-22+07%3A18%3A00&datasource=src&referrer=api ]"
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {
+      'unescape_html' => true,
+      'preserve_hyperlinks' => true
+    })
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_target_blank
+    html = '<a target="_blank" href="https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api">click here</a>'
+    expected_results = "click here [ https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api ]"
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'preserve_hyperlinks' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_target_blank_mixed_case
+    html = '<a target="_BlAnK" href="https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api">click here</a>'
+    expected_results = "click here [ https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api ]"
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'preserve_hyperlinks' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_target_blank_single_quotes
+    html = "<a target='_blank' href=\"https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api\">click here</a>"
+    expected_results = "click here [ https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api ]"
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'preserve_hyperlinks' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_target_not_blank
+    html = '<a target="GrossePointeBlank" href="https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api">click here</a>'
+    expected_results = "click here [ https://some.website.com/url.php?docid=http%3A%2F%2Fwww.business.com%2Farticle%2Fpti-stories%2Fmalaysia.html&amp;dbid=1108&amp;title=Malaysia&amp;pubdate=2017-06-22+07%3A18%3A00&amp;datasource=src&amp;referrer=api ]"
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'preserve_hyperlinks' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_url_in_label
+    html = '<a href="https://www.globenewswire.com/Tracker?data=EFRRVphfpv_p_jHzGFY-kHkFWTumkQaMimvXzB-JcIQpMgAGnsCuqyzM05TyVU5mH_d0XGuQ08xhn9OFCrX9cvIXAeF98KCPjM5HNjAHOdA=" rel="nofollow" target="_blank">www.apachecorp.com</a>'
+    expected_results = "www.apachecorp.com [ https://www.globenewswire.com/Tracker?data=EFRRVphfpv_p_jHzGFY-kHkFWTumkQaMimvXzB-JcIQpMgAGnsCuqyzM05TyVU5mH_d0XGuQ08xhn9OFCrX9cvIXAeF98KCPjM5HNjAHOdA= ]"
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'preserve_hyperlinks' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_no_anchors
+    html = '<p>To view the table and graph associated with this release, please click on the following link: http://media3.marketwire.com/docs/1098744.pdf&#160;</p>'
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'preserve_hyperlinks' => true})
+    html_to_text(html, config)
+    assert_equal html, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_same_link_and_label
+    html = '<a href="http://www.google.com">http://www.google.com</a>'
+    expected_results = "http://www.google.com"
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'preserve_hyperlinks' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
+  def test_html_to_text_preserve_hyperlinks_with_multiple_named_anchors_in_same_line
+    html = '<a href="https://link-one">label one</a> <a href="https://link-two">label two</a>'
+    expected_results = "label one [ https://link-one ] label two [ https://link-two ]"
+    html_to_text(html, @config)
+    assert_equal html, @result
+    Armagh::Support::Shell.stubs(:call_with_input).with { |_, html| @result = html }.once.returns('called')
+    config = Armagh::Support::HTML.create_configuration([], 'html', 'html' => {'preserve_hyperlinks' => true})
+    html_to_text(html, config)
+    assert_equal expected_results, @result
+  end
+
   def test_merge_multiple_pages
     Armagh::Support::Shell.unstub(:call_with_input)
     merged = Armagh::Support::HTML.merge_multiple_pages(%w(ONE TWO THREE FOUR))

@@ -49,21 +49,6 @@ module Armagh
       define_group_test_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
       define_group_validation_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
 
-      def SFTP.archive_config
-        return @archive_config if @archive_config
-
-        sftp_config = {
-          'host' => ENV['ARMAGH_ARCHIVE_HOST'],
-          'directory_path' => ENV['ARMAGH_ARCHIVE_PATH'],
-          'username' => ENV['ARMAGH_ARCHIVE_USER'] || ENV['USER'],
-          'create_directory_path' => true
-        }
-        sftp_config['port'] = ENV['ARMAGH_ARCHIVE_PORT'].to_i if ENV['ARMAGH_ARCHIVE_PORT']
-
-        @archive_config = Armagh::Support::SFTP.create_configuration([], 'archive', {
-          'sftp' => sftp_config})
-      end
-
       def SFTP.test_connection(candidate_config)
         error = nil
         begin

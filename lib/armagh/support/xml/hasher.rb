@@ -23,11 +23,7 @@ module Armagh
   module Support
     module XML
       class Hasher < Ox::Sax
-        def self.clean_element(element)
-          element.to_s.gsub(/\$|\./, '_')
-        end
-
-        def self.clean_value(value)
+        def self.clean(value)
           value.to_s.strip
         end
 
@@ -45,31 +41,27 @@ module Armagh
 
           @html_nodes.each do |node|
             value = xml[/<#{node}>(.*)<\/#{node}>/m, 1]
-            node = clean_element(node)
-            @html_values[node] = clean_value(value)
+            node = clean(node)
+            @html_values[node] = clean(value)
           end
-          @html_nodes.map! { |k, _| k = clean_element(k) }
+          @html_nodes.map! { |k, _| k = clean(k) }
         end
 
-        private def clean_element(element)
-          self.class.clean_element(element)
-        end
-
-        private def clean_value(value)
-          self.class.clean_value(value)
+        private def clean(value)
+          self.class.clean(value)
         end
 
         def start_element(name)
-          name = clean_element(name)
+          name = clean(name)
           if @html_nodes.include? name
             @current_text_node = name
-            @stack.push name => clean_value(@html_values[name])
+            @stack.push name => clean(@html_values[name])
           end
           @stack.push name => nil unless @current_text_node
         end
 
         def end_element(name)
-          name = clean_element(name)
+          name = clean(name)
           @current_text_node = nil if @current_text_node == name
           return if @stack.size == 1 || @current_text_node
           element = @stack.pop
@@ -90,7 +82,7 @@ module Armagh
           current = @stack.last
           key = current.keys.first
           current[key] ||= {}
-          current[key]["attr_#{clean_element(name)}"] = clean_value(value)
+          current[key]["attr_#{clean(name)}"] = clean(value)
         end
 
         def text(value)
@@ -100,14 +92,14 @@ module Armagh
           key = current.keys.first
           current[key] ||= {}
           if current[key].empty?
-            current[key] = clean_value(value)
+            current[key] = clean(value)
           else
-            current[key]['text'] = clean_value(value)
+            current[key]['text'] = clean(value)
           end
         end
 
         def cdata(value)
-          text(clean_value(value))
+          text(clean(value))
         end
 
         def data

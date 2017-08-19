@@ -61,7 +61,7 @@ module Armagh
             result_hash = {}
             node.nodes.each do |child|
               result = xml_node_to_hash(child)
-              node_name = XML::Hasher.clean_element(result.first)
+              node_name = XML::Hasher.clean(result.first)
               if result_hash[node_name]
                 if result_hash[node_name].is_a? Array
                   result_hash[node_name] << result.last
@@ -74,7 +74,7 @@ module Armagh
             end
             unless node.attributes.empty?
               mangled_attributes =
-                Hash[node.attributes.collect{ |k, v| ["attr_#{XML::Hasher.clean_element(k)}", v] }]
+                Hash[node.attributes.collect{ |k, v| ["attr_#{XML::Hasher.clean(k)}", v] }]
               result_hash.merge! mangled_attributes
             end
             [node.value, result_hash]

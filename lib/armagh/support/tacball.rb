@@ -45,7 +45,7 @@ module Armagh
                        group: 'tacball'
 
       define_parameter name: 'type',
-                       description: "Document ID type.  For example, if set to Test, the docid will be in the format #{ENV['ARMAGH_TAC_DOC_PREFIX']}/Test-123456.  If not set, defaults to the document type.",
+                       description: 'Document ID type.  For example, if set to Test, the docid will be in the format docid_prefix/Test-123456.  If not set, defaults to the document type.',
                        type: 'populated_string',
                        required: false,
                        group: 'tacball'
@@ -55,6 +55,13 @@ module Armagh
                        type: 'boolean',
                        required: false,
                        default: false,
+                       group: 'tacball'
+
+      define_parameter name: 'docid_prefix',
+                       description: 'The prefix of the Document ID for the tacball generation (docid_prefix/some_id)',
+                       type: 'populated_string',
+                       required: true,
+                       default: '4027',
                        group: 'tacball'
 
       module_function
@@ -78,7 +85,7 @@ module Armagh
           TAC.logger = logger
           type = config.tacball.type || type
           basename = "#{type}-#{docid}"
-          docid_with_prefix = "#{ENV['ARMAGH_TAC_DOC_PREFIX']}/#{basename}"
+          docid_with_prefix = "#{config.tacball.docid_prefix}/#{basename}"
 
           TAC.create_tacball_file(
             docid: docid_with_prefix,

@@ -48,12 +48,9 @@ class TestTacball < Test::Unit::TestCase
       :type => 'Failover'
     }
     @opts = @tacball_fields.clone
-    @orig_env = ENV['ARMAGH_TAC_DOC_PREFIX']
-    ENV['ARMAGH_TAC_DOC_PREFIX'] = '4025'
   end
 
   def teardown
-    ENV['ARMAGH_TAC_DOC_PREFIX'] = @orig_env
     FakeFS::FileSystem.clear
   end
 
@@ -124,13 +121,12 @@ class TestTacball < Test::Unit::TestCase
 
   def test_create_tacball_file_with_invalid_docid
     @opts[:docid] = 'bad doc'
-    ENV['ARMAGH_TAC_DOC_PREFIX'] = 'bad prefix'
     FakeFS {
       FileUtils.touch('basename.txt.')
       error = assert_raise(Armagh::Support::Tacball::InvalidDocidError) {
         Armagh::Support::Tacball.create_tacball_file(@config, @opts)
       }
-      assert_equal "Document ID (bad prefix/Test-#{@opts[:docid]}) must be in the format #{TAC::VALID_DOCID_WITH_PREFIX}", error.message
+      assert_equal "Document ID (4027/Test-#{@opts[:docid]}) must be in the format #{TAC::VALID_DOCID_WITH_PREFIX}", error.message
     }
   end
 

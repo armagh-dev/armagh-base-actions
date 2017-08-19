@@ -121,7 +121,6 @@ class TestCollect < Test::Unit::TestCase
   end
 
   def test_create_archive
-    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
     @caller.expects(:instantiate_divider).returns(nil)
 
     logger_name = 'logger'
@@ -147,7 +146,6 @@ class TestCollect < Test::Unit::TestCase
   end
 
   def test_create_archive_divider
-    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
     divider = mock
     @caller.expects(:instantiate_divider).returns(divider)
 
@@ -182,7 +180,6 @@ class TestCollect < Test::Unit::TestCase
   end
 
   def test_create_archive_known_filename
-    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
     @caller.expects(:instantiate_divider).returns(nil)
 
     logger_name = 'logger'
@@ -366,28 +363,8 @@ class TestCollect < Test::Unit::TestCase
     SubCollect.include Configh::Configurable
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
 
-    Armagh::Support::SFTP.expects(:archive_config).returns(nil)
 
     assert_nothing_raised {
-      SubCollect.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'mysubcollect'},
-        'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
-        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
-      })
-    }
-  end
-
-  def test_valid_invalid_archive
-    if Object.const_defined?(:SubCollect)
-      Object.send(:remove_const, :SubCollect)
-    end
-    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
-    SubCollect.include Configh::Configurable
-    SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
-
-    Armagh::Support::SFTP.expects(:archive_config).raises(RuntimeError.new('INVALID'))
-
-    assert_raises(Configh::ConfigInitError.new('Unable to create configuration SubCollect inoutstate: Archive Configuration Error: INVALID')) {
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},

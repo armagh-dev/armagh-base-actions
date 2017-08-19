@@ -534,21 +534,4 @@ class TestSFTP < Test::Unit::TestCase
       assert_equal(c.sftp.key, File.read('.ssh_key'))
     end
   end
-
-  def test_archive_config
-    host = 'hostname'
-    path = '/archive/dir'
-    user = 'armagh_user'
-    ENV.expects(:[]).with('ARMAGH_ARCHIVE_HOST').returns(host)
-    ENV.expects(:[]).with('ARMAGH_ARCHIVE_PORT').returns(nil)
-    ENV.expects(:[]).with('ARMAGH_ARCHIVE_PATH').returns(path)
-    ENV.expects(:[]).with('ARMAGH_ARCHIVE_USER').returns(user)
-
-    config = Armagh::Support::SFTP.archive_config
-    assert_same(config, Armagh::Support::SFTP.archive_config)
-
-    assert_equal host, config.sftp.host
-    assert_equal path, config.sftp.directory_path
-    assert_equal user, config.sftp.username
-  end
 end
