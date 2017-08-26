@@ -313,7 +313,7 @@ class TestCollect < Test::Unit::TestCase
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
-    assert_equal "Unable to create configuration SubCollect inoutstate: Output docspec 'collected_doc' state must be one of: ready, working.", e.message
+    assert_equal "Unable to create configuration for 'SubCollect' named 'inoutstate' because: \n    Output docspec 'collected_doc' state must be one of: ready, working.", e.message
   end
 
   def test_multiple_in_spec
@@ -330,7 +330,7 @@ class TestCollect < Test::Unit::TestCase
     Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
     SubCollect.include Configh::Configurable
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
-    assert_raises(Configh::ConfigInitError.new("Unable to create configuration SubCollect inoutstate: Schedule 'invalid' is not valid cron syntax.")) {
+    assert_raises(Configh::ConfigInitError.new("Unable to create configuration for 'SubCollect' named 'inoutstate' because: \n    Schedule 'invalid' is not valid cron syntax.")) {
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'schedule' => 'invalid', 'archive' => false},

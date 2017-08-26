@@ -58,9 +58,9 @@ module Armagh
 
         include Configh::Configurable
 
-        define_parameter name: 'name',    type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: 'ComtexCollectAction', group: 'action'
+        define_parameter name: 'name',    type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: '<WORKFLOW-NAME>CollectAction', group: 'action'
         define_parameter name: 'active',  type: 'boolean',          required: true, description: 'Agents will run this configuration if active', default: false, group: 'action'
-        define_parameter name: 'workflow', type: 'populated_string', required: false, description: 'Workflow this action config belongs to', prompt: 'Comtex', group: 'action'
+        define_parameter name: 'workflow', type: 'populated_string', required: false, description: 'Workflow this action config belongs to', prompt: '<WORKFLOW-NAME>', group: 'action'
         define_parameter name: 'docspec', type: 'docspec', required: true, description: 'Input doctype for this action', group: 'input'
 
         define_singleton_method(:define_default_input_type) { |args|

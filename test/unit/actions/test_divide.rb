@@ -75,11 +75,11 @@ class TestDivide < Test::Unit::TestCase
       })
       @divide_action = BadSubDivide.new( @caller, 'logger_name', div_config, @collection)
     end
-    assert_equal 'Unable to create configuration BadSubDivide set2: output docspec: type validation failed: value cannot be nil', e.message
+    assert_equal "Unable to create configuration for 'BadSubDivide' named 'set2' because: \n    Group 'output' Parameter 'docspec': type validation failed: value cannot be nil", e.message
   end
 
   def test_too_many_output_docspecs
-    e = Configh::ConfigInitError.new('Unable to create configuration SubDivide set3: Divide actions must have exactly one output docspec.')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubDivide' named 'set3' because: \n    Divide actions must have exactly one output docspec.")
 
     assert_raise(e) do
       SubDivide.define_output_docspec 'docspec2', 'another output docspec'
@@ -96,7 +96,7 @@ class TestDivide < Test::Unit::TestCase
   end
 
   def test_no_out_spec
-    e = Configh::ConfigInitError.new('Unable to create configuration SubDivide set4: output docspec: type validation failed: value cannot be nil')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubDivide' named 'set4' because: \n    Group 'output' Parameter 'docspec': type validation failed: value cannot be nil")
 
     assert_raise(e) do
       SubDivide.create_configuration(@config_store, 'set4', {
@@ -110,7 +110,7 @@ class TestDivide < Test::Unit::TestCase
     Object.send(:remove_const, :SubDivide) if Object.const_defined?(:SubDivide)
     Object.const_set :SubDivide, Class.new( Armagh::Actions::Divide )
 
-    e = Configh::ConfigInitError.new('Unable to create configuration SubDivide set5: input docspec: type validation failed: value cannot be nil')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubDivide' named 'set5' because: \n    Group 'input' Parameter 'docspec': type validation failed: value cannot be nil")
 
     assert_raise(e) do
       SubDivide.create_configuration(@config_store, 'set5', {
@@ -123,7 +123,7 @@ class TestDivide < Test::Unit::TestCase
   end
 
   def test_invalid_in_spec
-    e = Configh::ConfigInitError.new("Unable to create configuration SubDivide set6: Input docspec 'docspec' state must be ready.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubDivide' named 'set6' because: \n    Input docspec 'docspec' state must be ready.")
 
     assert_raise(e) do
       SubDivide.create_configuration(@config_store, 'set6', {
@@ -137,7 +137,7 @@ class TestDivide < Test::Unit::TestCase
   end
 
   def test_invalid_out_spec
-    e = Configh::ConfigInitError.new("Unable to create configuration SubDivide set7: Output docspec 'docspec' state must be one of: ready, working.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubDivide' named 'set7' because: \n    Output docspec 'docspec' state must be one of: ready, working.")
 
     assert_raise(e) do
       SubDivide.create_configuration(@config_store, 'set7', {

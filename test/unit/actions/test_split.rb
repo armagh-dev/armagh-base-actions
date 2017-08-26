@@ -106,7 +106,7 @@ class TestSplit < Test::Unit::TestCase
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::PUBLISHED)}
       })
     }
-    assert_equal('Unable to create configuration SubSplit vios: Output docspec \'docspec\' state must be one of: ready, working.', e.message )
+    assert_equal("Unable to create configuration for 'SubSplit' named 'vios' because: \n    Output docspec 'docspec' state must be one of: ready, working.", e.message )
   end
 
   def test_no_out_spec
@@ -116,7 +116,7 @@ class TestSplit < Test::Unit::TestCase
     Object.const_set :SubSplit, Class.new(Armagh::Actions::Split)
     SubSplit.define_default_input_type 'fred'
 
-    e = Configh::ConfigInitError.new('Unable to create configuration SubSplit inoutstate: output docspec: type validation failed: value cannot be nil')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubSplit' named 'inoutstate' because: \n    Group 'output' Parameter 'docspec': type validation failed: value cannot be nil")
     assert_raise(e) do
       SubSplit.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subsplit'},
@@ -131,7 +131,7 @@ class TestSplit < Test::Unit::TestCase
 
     SubSplit.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
 
-    e = Configh::ConfigInitError.new('Unable to create configuration SubSplit inoutstate: input docspec: type validation failed: value cannot be nil')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubSplit' named 'inoutstate' because: \n    Group 'input' Parameter 'docspec': type validation failed: value cannot be nil")
     assert_raise(e) do
       SubSplit.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'subsplit'},
@@ -144,7 +144,7 @@ class TestSplit < Test::Unit::TestCase
     Object.send(:remove_const, :SubSplit) if Object.const_defined?(:SubSplit)
     Object.const_set :SubSplit, Class.new( Armagh::Actions::Split )
     SubSplit.define_default_input_type 'docspec'
-    e = Configh::ConfigInitError.new("Unable to create configuration SubSplit inoutstate: Input docspec 'docspec' state must be ready.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubSplit' named 'inoutstate' because: \n    Input docspec 'docspec' state must be ready.")
     assert_raise(e) {
       config = SubSplit.create_configuration( @config_store, 'inoutstate', {
         'action' => { 'name' => 'subconsume' },

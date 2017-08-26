@@ -45,25 +45,6 @@ module Armagh
       def html_to_hash(html)
         Parser.html_to_hash(html)
       end
-
-      def dig_first(root, *nodes)
-        return root if nodes.empty? || root.nil?
-
-        root_array = root.is_a?(Array) ? root.dup : [root]
-        nodes = nodes.dup
-
-        next_node = nodes.shift
-        root_array.each do |root_elem|
-          sub = dig_first(root_elem[next_node], *nodes)
-          return sub if sub
-        end
-
-        nil
-      end
-
-      def get_doc_attr(xml, attr_name)
-        dig_first(xml, *attr_name)
-      end
     end
   end
 end

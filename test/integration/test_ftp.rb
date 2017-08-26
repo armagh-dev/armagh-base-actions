@@ -102,42 +102,42 @@ class TestIntegrationFTP < Test::Unit::TestCase
 
   def test_fail_bad_domain_via_validation_callback
     @base_config['ftp']['host'] = "idontexist.kurmudgeon.edd"
-    e = Configh::ConfigInitError.new("Unable to create configuration Armagh::Support::FTP baddom: FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'baddom' because: \n    FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd")
 
     assert_raise { create_config('baddom') }
   end
 
   def test_fail_test_bad_host
     @base_config['ftp']['host'] = "idontexist.kurmudgeon.edu"
-    e = Configh::ConfigInitError.new("Unable to create configuration Armagh::Support::FTP badhost: FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'badhost' because: \n    FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu")
 
     assert_raise(e) { create_config('badhost') }
   end
 
   def test_fail_test_nonexistent_user
     @base_config['ftp']['username'] = "idontexisteither"
-    e = Configh::ConfigInitError.new("Unable to create configuration Armagh::Support::FTP nonexuser: FTP Connection Test error: Permissions failure when logging in as idontexisteither.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'nonexuser' because: \n    FTP Connection Test error: Permissions failure when logging in as idontexisteither.")
 
     assert_raise(e) { create_config('nonexuser') }
   end
 
   def test_fail_test_wrong_password
     @base_config['ftp']['password'] = Configh::DataTypes::EncodedString.from_plain_text "NotMyPassword"
-    e = Configh::ConfigInitError.new("Unable to create configuration Armagh::Support::FTP wrongpass: FTP Connection Test error: Permissions failure when logging in as ftptest.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'wrongpass' because: \n    FTP Connection Test error: Permissions failure when logging in as ftptest.")
 
     assert_raise(e) { create_config('wrongpass') }
   end
 
   def test_fail_test_nonexistent_directory
     @base_config['ftp']['directory_path'] = "no_such_dir"
-    e = Configh::ConfigInitError.new("Unable to create configuration Armagh::Support::FTP nonexdir: FTP Connection Test error: User does not have access to directory no_such_dir.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'nonexdir' because: \n    FTP Connection Test error: User does not have access to directory no_such_dir.")
 
     assert_raise(e) { create_config('nonexdir') }
   end
 
   def test_fail_test_readonly_directory
     @base_config['ftp']['directory_path'] = "read_only_dir"
-    e = Configh::ConfigInitError.new("Unable to create configuration Armagh::Support::FTP rodir: FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'rodir' because: \n    FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server.")
 
     assert_raise(e) { create_config('rodir') }
   end

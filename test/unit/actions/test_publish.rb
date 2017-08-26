@@ -67,7 +67,7 @@ class TestPublish < Test::Unit::TestCase
   end
 
   def test_no_out_spec
-    e = Configh::ConfigInitError.new('Unable to create configuration SubPublish set2: output docspec: type validation failed: value cannot be nil')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Group 'output' Parameter 'docspec': type validation failed: value cannot be nil")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
         'action' => {'name' => 'mysubdivide'},
@@ -79,7 +79,7 @@ class TestPublish < Test::Unit::TestCase
   end
 
   def test_no_in_spec
-    e = Configh::ConfigInitError.new('Unable to create configuration SubPublish set2: input docspec: type validation failed: value cannot be nil')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Group 'input' Parameter 'docspec': type validation failed: value cannot be nil")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
         'action' => {'name' => 'mysubdivide'},
@@ -91,7 +91,7 @@ class TestPublish < Test::Unit::TestCase
   end
 
   def test_invalid_in_spec
-    e = Configh::ConfigInitError.new("Unable to create configuration SubPublish set2: Input docspec 'docspec' state must be ready.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Input docspec 'docspec' state must be ready.")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
         'action' => {'name' => 'mysubdivide'},
@@ -104,7 +104,7 @@ class TestPublish < Test::Unit::TestCase
   end
 
   def test_invalid_out_spec
-    e = Configh::ConfigInitError.new("Unable to create configuration SubPublish set2: Output docspec 'docspec' state must be one of: published.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Output docspec 'docspec' state must be one of: published.")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
         'action' => {'name' => 'mysubdivide'},
@@ -131,7 +131,7 @@ class TestPublish < Test::Unit::TestCase
   end
 
   def test_diff_out_types
-    e = Configh::ConfigInitError.new('Unable to create configuration SubPublish set2: Input doctype (dansbigdocs) and output doctype (dansbigdocs2) must be the same for Publish actions')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Input doctype (dansbigdocs) and output doctype (dansbigdocs2) must be the same for Publish actions")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
         'action' => {'name' => 'mysubdivide'},

@@ -38,8 +38,16 @@ module Configh
                     end
         value = Armagh::Documents::DocSpec.new(type, state_val) if state_val
       end
-      raise TypeError, "value #{value} cannot be cast as a docspec" unless value.is_a?(Armagh::Documents::DocSpec)
-      value
+      return value if value.is_a?(Armagh::Documents::DocSpec)
+      msg =
+        if value.is_a?(String)
+          value.empty? ? "An empty string" : "The value '#{value}'"
+        elsif value.nil?
+          "A nil value"
+        else
+          "The value '#{value}'"
+        end
+      raise TypeError, msg + " cannot be cast as a docspec"
     end
   end
 end
@@ -82,11 +90,14 @@ module Armagh
 
       def to_hash
         {
-          "type" => @type,
-          "state" => @state
+          'type' => @type,
+          'state' => @state
         }
       end
 
+      def self.from_hash(hash)
+        new(hash['type'], hash['state'])
+      end
     end
   end
 end

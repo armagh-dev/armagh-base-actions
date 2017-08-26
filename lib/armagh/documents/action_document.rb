@@ -17,6 +17,8 @@
 
 require_relative 'errors'
 require_relative 'doc_spec'
+require_relative 'source'
+require_relative 'doc_spec'
 
 require 'json'
 require 'bson'
@@ -144,8 +146,25 @@ module Armagh
         h.delete_if {|_k, v| v.nil?}
       end
 
-      alias_method :hash, :content
-      alias_method :hash=, :content=
+      def self.from_json(json_text)
+        hash = JSON.parse(json_text)
+        hash['document_timestamp'] = Time.parse(hash['document_timestamp']).utc if hash['document_timestamp'].is_a? String
+        from_hash(hash)
+      end
+
+      def self.from_hash(hash)
+        new(document_id: hash['document_id'],
+            title: hash['title'],
+            copyright: hash['copyright'],
+            content: hash['content'],
+            raw: hash['raw'],
+            metadata: hash['metadata'],
+            docspec: DocSpec.from_hash(hash['docspec']),
+            source: Source.from_hash(hash['source']),
+            document_timestamp: hash['document_timestamp'],
+            display: hash['display']
+        )
+      end
     end
   end
 end

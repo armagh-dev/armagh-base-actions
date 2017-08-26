@@ -15,14 +15,12 @@
 # limitations under the License.
 #
 
-
 require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
 require 'fileutils'
-
 require 'net/sftp'
 
 require_relative '../../../lib/armagh/actions/collect.rb'
@@ -128,7 +126,7 @@ class TestSFTP < Test::Unit::TestCase
 
   def test_custom_validation_exception_via_validation_callback
     Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection).returns('boom')
-    assert_raise(Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP bad: boom')) do
+    assert_raise(Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'bad' because: \n    boom")) do
       Armagh::Support::SFTP.create_configuration(@config_store, 'bad', {'sftp' => @config_values})
     end
   end
@@ -393,7 +391,6 @@ class TestSFTP < Test::Unit::TestCase
     end
   end
 
-
   def test_test_connection
     @mocked_sftp_lib.stubs(:upload!).with do |local, remote|
       @mocked_sftp_lib.stubs(:remove!).with(remote)
@@ -526,12 +523,14 @@ class TestSFTP < Test::Unit::TestCase
     test_config_values = Marshal.load(Marshal.dump(@config_values))
     test_config_values.delete 'password'
     test_config_values['key'] = 'some key'
-
     FakeFS do
-      Dir.mkdir('/tmp')
+      fake_dir = '/tmp/some/path'
+      FileUtils.mkdir_p(fake_dir)
+      Dir.expects(:mktmpdir).yields(fake_dir).twice
       c = Armagh::Support::SFTP.create_configuration(@config_store, 'sftpkey', {'sftp' => test_config_values}) { |sftp|}
       c.test_and_return_errors
-      assert_equal(c.sftp.key, File.read('.ssh_key'))
+      assert_equal(c.sftp.key, File.read('/tmp/some/path/.ssh_key'))
     end
   end
+
 end

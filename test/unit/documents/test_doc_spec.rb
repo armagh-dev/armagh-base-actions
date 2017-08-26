@@ -80,14 +80,49 @@ class TestDocSpec < Test::Unit::TestCase
     assert_equal({'type' => 'another', 'state' => 'working'}, Armagh::Documents::DocSpec.new('another', Armagh::Documents::DocState::WORKING).to_hash)
     assert_equal({'type' => 'third', 'state' => 'ready'}, Armagh::Documents::DocSpec.new('third', Armagh::Documents::DocState::READY).to_hash)
   end
+
+  def test_from_hash
+    spec = Armagh::Documents::DocSpec.from_hash({'type' => 'type', 'state' => 'published'})
+    assert_equal 'type', spec.type
+    assert_equal 'published', spec.state
+
+    assert_raise Armagh::Documents::Errors::DocStateError do
+      Armagh::Documents::DocSpec.from_hash({'type' => 'type', 'state' => 'invalid'})
+    end
+
+    spec = Armagh::Documents::DocSpec.new('type', 'ready')
+    assert_equal spec, Armagh::Documents::DocSpec.from_hash(spec.to_hash)
+  end
   
   def test_datatype_ensure
     assert_equal Armagh::Documents::DocSpec.new( 'test', Armagh::Documents::DocState::READY ), Configh::DataTypes.ensure_value_is_datatype( 'test:ready', 'docspec' )
+  end
+
+  def test_datatype_invalid_string
     e = assert_raises( Configh::DataTypes::TypeError ) do
       Configh::DataTypes.ensure_value_is_datatype( 'badstring', 'docspec' ).inspect
     end
-    assert_equal 'value badstring cannot be cast as a docspec', e.message
+    assert_equal "The value 'badstring' cannot be cast as a docspec", e.message
   end
-    
 
+  def test_datatype_empty_string
+    e = assert_raises(Configh::DataTypes::TypeError) do
+      Configh::DataTypes.ensure_value_is_datatype('', 'docspec').inspect
+    end
+    assert_equal "An empty string cannot be cast as a docspec", e.message
+  end
+
+  def test_datatype_non_string
+    e = assert_raises(Configh::DataTypes::TypeError) do
+      Configh::DataTypes.ensure_value_is_datatype([], 'docspec').inspect
+    end
+    assert_equal "The value '[]' cannot be cast as a docspec", e.message
+  end
+
+  def test_datatype_nil
+    e = assert_raises(Configh::DataTypes::TypeError) do
+      Configh::DataTypes.ensure_is_docspec(nil).inspect
+    end
+    assert_equal "A nil value cannot be cast as a docspec", e.message
+  end
 end

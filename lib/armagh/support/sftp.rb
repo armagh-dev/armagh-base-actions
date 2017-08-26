@@ -52,9 +52,13 @@ module Armagh
       def SFTP.test_connection(candidate_config)
         error = nil
         begin
-          Connection.open(candidate_config) do |sftp|
-            error = sftp.test_connection
+        Dir.mktmpdir do |tmp_dir|
+          Dir.chdir(tmp_dir) do
+            Connection.open(candidate_config) do |sftp|
+              error = sftp.test_connection
+            end
           end
+        end
         rescue => e
           error = e.message
         end
@@ -394,7 +398,6 @@ module Armagh
           connection_options[:password] = sc.password.plain_text if sc.password
 
           if sc.key
-
             File.write(KEY_FILE_NAME, sc.key)
             connection_options[:keys] = [KEY_FILE_NAME]
           end

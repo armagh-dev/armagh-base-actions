@@ -88,7 +88,7 @@ class TestConsume < Test::Unit::TestCase
         'action' => { 'name' => 'subconsume' }
       })
     }
-    assert_equal "Unable to create configuration SubConsume inoutstate: Output docspec 'consumed_doc' state must be one of: ready, working.", e.message
+    assert_equal "Unable to create configuration for 'SubConsume' named 'inoutstate' because: \n    Output docspec 'consumed_doc' state must be one of: ready, working.", e.message
   end
 
   def test_no_out_spec
@@ -105,7 +105,7 @@ class TestConsume < Test::Unit::TestCase
   def test_no_in_spec
     Object.send(:remove_const, :SubConsume) if Object.const_defined?(:SubConsume)
     Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
-    e = Configh::ConfigInitError.new('Unable to create configuration SubConsume inoutstate: input docspec: type validation failed: value cannot be nil')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubConsume' named 'inoutstate' because: \n    Group 'input' Parameter 'docspec': type validation failed: value cannot be nil")
     assert_raise(e) {
       config = SubConsume.create_configuration( @config_store, 'inoutstate', {
         'action' => { 'name' => 'subconsume' }
@@ -117,7 +117,7 @@ class TestConsume < Test::Unit::TestCase
     Object.send(:remove_const, :SubConsume) if Object.const_defined?(:SubConsume)
     Object.const_set :SubConsume, Class.new( Armagh::Actions::Consume )
     SubConsume.define_default_input_type 'consumed'
-    e = Configh::ConfigInitError.new("Unable to create configuration SubConsume inoutstate: Input docspec 'docspec' state must be published.")
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'SubConsume' named 'inoutstate' because: \n    Input docspec 'docspec' state must be published.")
     assert_raise(e) {
       config = SubConsume.create_configuration( @config_store, 'inoutstate', {
         'action' => { 'name' => 'subconsume' },

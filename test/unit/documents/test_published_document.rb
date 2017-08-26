@@ -113,14 +113,6 @@ class TestPublishedDocument < Test::Unit::TestCase
     assert_raise(Armagh::Documents::Errors::DocumentError){@doc.text = 'something'}
   end
 
-  def test_hash
-    assert_equal(@doc.content, @doc.hash)
-    assert_not_same(@doc.content, @doc.hash)
-
-    assert_raise(Armagh::Documents::Errors::DocumentError){@doc.hash = {}}
-    assert_raise{@doc.hash['something'] = 'wrong'}
-  end
-
   def test_nils
     doc = Armagh::Documents::PublishedDocument.new(document_id: @document_id,
                                                    content: @content,

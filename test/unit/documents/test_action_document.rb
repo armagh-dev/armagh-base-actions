@@ -31,9 +31,9 @@ class TestActionDocument < Test::Unit::TestCase
     @content = {'content' => true}
     @raw = 'raw data'
     @metadata = {'meta' => true}
-    @document_timestamp = Time.now
+    @document_timestamp = Time.now.utc
     @docspec = Armagh::Documents::DocSpec.new('doctype', Armagh::Documents::DocState::PUBLISHED)
-    @source = {'source' => 'something'}
+    @source = Armagh::Documents::Source.new(filename: 'test_file')
     @title = 'title'
     @copyright = 'copyright'
     @display = 'display'
@@ -193,22 +193,6 @@ class TestActionDocument < Test::Unit::TestCase
     }
   end
 
-  def test_hash
-    assert_equal(@doc.content, @doc.hash)
-
-    assert_nil @doc.hash['hash_key']
-    @doc.content['hash_key'] = 'hash'
-    assert_equal('hash', @doc.content['hash_key'])
-
-    assert_nil @doc.content['content_key']
-    @doc.content['content_key'] = 'content'
-    assert_equal('content', @doc.hash['content_key'])
-
-    hash = {'something' => 'else'}
-    @doc.hash = hash
-    assert_equal(hash, @doc.hash)
-  end
-
   def test_to_json
     expected = {
         'document_id' => @doc.document_id,
@@ -216,7 +200,7 @@ class TestActionDocument < Test::Unit::TestCase
         'copyright' => @doc.copyright,
         'metadata' => @doc.metadata,
         'content' => @doc.content,
-        'source' => @doc.source,
+        'source' => @doc.source.to_hash,
         'document_timestamp' => @doc.document_timestamp,
         'docspec' => @doc.docspec.to_hash,
         'display' => @doc.display,
@@ -230,10 +214,86 @@ class TestActionDocument < Test::Unit::TestCase
       'title' => @doc.title,
       'copyright' => @doc.copyright,
       'metadata' => @doc.metadata,
-      'source' => @doc.source,
+      'source' => @doc.source.to_hash,
       'document_timestamp' => @doc.document_timestamp,
       'display' => @doc.display,
     }
     assert_equal(expected, @doc.to_archive_hash)
+  end
+
+  def test_from_hash
+    hash = {
+      'document_id' => @doc.document_id,
+      'title' => @doc.title,
+      'copyright' => @doc.copyright,
+      'metadata' => @doc.metadata,
+      'content' => @doc.content,
+      'source' => @doc.source.to_hash,
+      'document_timestamp' => @doc.document_timestamp,
+      'docspec' => @doc.docspec.to_hash,
+      'display' => @doc.display,
+    }
+
+    doc = Armagh::Documents::ActionDocument.from_hash(hash)
+    assert_equal @doc.document_id, doc.document_id
+    assert_equal @doc.title, doc.title
+    assert_equal @doc.copyright, doc.copyright
+    assert_equal @doc.metadata, doc.metadata
+    assert_equal @doc.content, doc.content
+    assert_equal @doc.source, doc.source
+    assert_in_delta @doc.document_timestamp, doc.document_timestamp, 1
+    assert_equal @doc.docspec, doc.docspec
+    assert_equal @doc.display, doc.display
+  end
+
+  def test_hash_round_trip
+    doc = Armagh::Documents::ActionDocument.from_hash(@doc.to_hash)
+    assert_equal @doc.document_id, doc.document_id
+    assert_equal @doc.title, doc.title
+    assert_equal @doc.copyright, doc.copyright
+    assert_equal @doc.metadata, doc.metadata
+    assert_equal @doc.content, doc.content
+    assert_equal @doc.source, doc.source
+    assert_in_delta @doc.document_timestamp, doc.document_timestamp, 1
+    assert_equal @doc.docspec, doc.docspec
+    assert_equal @doc.display, doc.display
+  end
+
+  def test_from_json
+    json = {
+      'document_id' => @doc.document_id,
+      'title' => @doc.title,
+      'copyright' => @doc.copyright,
+      'metadata' => @doc.metadata,
+      'content' => @doc.content,
+      'source' => @doc.source.to_hash,
+      'document_timestamp' => @doc.document_timestamp,
+      'docspec' => @doc.docspec.to_hash,
+      'display' => @doc.display,
+    }.to_json
+
+    doc = Armagh::Documents::ActionDocument.from_json(json)
+    assert_equal @doc.document_id, doc.document_id
+    assert_equal @doc.title, doc.title
+    assert_equal @doc.copyright, doc.copyright
+    assert_equal @doc.metadata, doc.metadata
+    assert_equal @doc.content, doc.content
+    assert_equal @doc.source, doc.source
+    assert_in_delta @doc.document_timestamp, doc.document_timestamp, 1 # to_s loses the fraction of a second
+    assert_equal @doc.docspec, doc.docspec
+    assert_equal @doc.display, doc.display
+  end
+
+  def test_json_round_trip
+    doc = Armagh::Documents::ActionDocument.from_json(@doc.to_json)
+    assert_equal @doc.document_id, doc.document_id
+    assert_equal @doc.title, doc.title
+    assert_equal @doc.copyright, doc.copyright
+    assert_equal @doc.metadata, doc.metadata
+    assert_equal @doc.content, doc.content
+    assert_equal @doc.source, doc.source
+    assert_in_delta @doc.document_timestamp, doc.document_timestamp, 1
+    assert_equal @doc.docspec, doc.docspec
+    assert_equal @doc.display, doc.display
   end
 end

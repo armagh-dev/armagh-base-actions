@@ -95,28 +95,28 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
   def test_validation_no_write
     @config_values['directory_path'] = READ_ONLY_DIR
-    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP vnw: SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'vnw' because: \n    SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)")
 
     assert_raise(e) { create_config('vnw') }
   end
 
   def test_validation_no_dir
     @config_values['directory_path'] = 'no_such_dir'
-    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP vnd: SFTP Connection Test Error: A reference was made to a file which does not exist. (no such file)')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'vnd' because: \n    SFTP Connection Test Error: A reference was made to a file which does not exist. (no such file)")
 
     assert_raise(e) { create_config('vnd') }
   end
 
   def test_validation_no_access
     @config_values['directory_path'] = NO_ACCESS_DIR
-    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP vna: SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'vna' because: \n    SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)")
 
     assert_raise(e) { create_config('vna') }
   end
 
   def test_bad_domain_via_validation_callback
     @config_values['host'] = 'idontexist.kurmudgeon.edd'
-    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP tbd: Unable to resolve host idontexist.kurmudgeon.edd.')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'tbd' because: \n    Unable to resolve host idontexist.kurmudgeon.edd.")
 
     assert_raise(e) { create_config('tbd') }
   end
@@ -132,21 +132,21 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
   def test_bad_host
     @config_values['host'] = 'idontexist.kurmudgeon.edu'
-    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP tbh: Unable to resolve host idontexist.kurmudgeon.edu.')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'tbh' because: \n    Unable to resolve host idontexist.kurmudgeon.edu.")
 
     assert_raise(e) { create_config('tbh') }
   end
 
   def test_fail_test_nonexistent_user
     @config_values['username'] = 'idontexisteither'
-    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP nonexuser: Error on host testserver.noragh.com: Authentication failed: Authentication failed for user idontexisteither@testserver.noragh.com')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'nonexuser' because: \n    Error on host testserver.noragh.com: Authentication failed: Authentication failed for user idontexisteither@testserver.noragh.com")
 
     assert_raise(e) { create_config('nonexuser') }
   end
 
   def test_fail_test_wrong_password
     @config_values['password'] = Configh::DataTypes::EncodedString.from_plain_text('NotMyPassword')
-    e = Configh::ConfigInitError.new('Unable to create configuration Armagh::Support::SFTP wrongpass: Error on host testserver.noragh.com: Authentication failed: Authentication failed for user ftptest@testserver.noragh.com')
+    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'wrongpass' because: \n    Error on host testserver.noragh.com: Authentication failed: Authentication failed for user ftptest@testserver.noragh.com")
 
     assert_raise(e) { create_config('wrongpass') }
   end

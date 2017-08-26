@@ -232,24 +232,24 @@ class TestHTTP < Test::Unit::TestCase
 
   def test_config_bad_protocol
     e = assert_raise(Configh::ConfigInitError) { Armagh::Support::HTTP.create_configuration( @config_store, 'a', { 'http' => { 'url' => 'nope://url' }})}
-    assert_equal("Unable to create configuration Armagh::Support::HTTP a: 'nope://url' is not a valid HTTP or HTTPS URL.", e.message)
+    assert_equal("Unable to create configuration for 'Armagh::Support::HTTP' named 'a' because: \n    'nope://url' is not a valid HTTP or HTTPS URL.", e.message)
     assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_config_bad_url
     e = assert_raise(Configh::ConfigInitError) { Armagh::Support::HTTP.create_configuration( @config_store, 'b', { 'http' => { 'url' => 'bad url' }})}
-    assert_equal("Unable to create configuration Armagh::Support::HTTP b: 'bad url' is not a valid HTTP or HTTPS URL.", e.message)
+    assert_equal("Unable to create configuration for 'Armagh::Support::HTTP' named 'b' because: \n    'bad url' is not a valid HTTP or HTTPS URL.", e.message)
     assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_config_bad_method
     e = assert_raise(Configh::ConfigInitError) {Armagh::Support::HTTP.create_configuration( @config_store, 'c', { 'http' => { 'url' => 'http://fake.url', 'method' => 'bad' }})}
-    assert_equal("Unable to create configuration Armagh::Support::HTTP c: http method: value is not one of the options", e.message)
+    assert_equal("Unable to create configuration for 'Armagh::Support::HTTP' named 'c' because: \n    Group 'http' Parameter 'method': value is not one of the options", e.message)
     assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_no_proxy_user_or_pass
-    expected_message = 'Unable to create configuration Armagh::Support::HTTP d: In order to use proxy authentication, both proxy_username and proxy_password must be defined.'
+    expected_message = "Unable to create configuration for 'Armagh::Support::HTTP' named 'd' because: \n    In order to use proxy authentication, both proxy_username and proxy_password must be defined."
 
     config = { 
       'http' => { 'url' => 'http://fake.url', 
@@ -277,7 +277,7 @@ class TestHTTP < Test::Unit::TestCase
       }
     }
     e = assert_raise(Configh::ConfigInitError) {Armagh::Support::HTTP.create_configuration( @config_store, 'e', config_values )}
-    assert_equal("Unable to create configuration Armagh::Support::HTTP e: 'bad proxy' proxy is not a valid HTTP or HTTPS URL.", e.message)
+    assert_equal("Unable to create configuration for 'Armagh::Support::HTTP' named 'e' because: \n    'bad proxy' proxy is not a valid HTTP or HTTPS URL.", e.message)
     assert_equal @original_verbose, $VERBOSE 
   end
 
@@ -297,7 +297,7 @@ class TestHTTP < Test::Unit::TestCase
     OpenSSL::PKey::RSA.expects(:new).with('key string', 'key string').returns( :KEY )
 
     e = assert_raise(Configh::ConfigInitError){Armagh::Support::HTTP.create_configuration( @config_store, 'f', config_values )}
-    assert_equal('Unable to create configuration Armagh::Support::HTTP f: Certificate Error: BAD CERTIFICATE.', e.message)
+    assert_equal("Unable to create configuration for 'Armagh::Support::HTTP' named 'f' because: \n    Certificate Error: BAD CERTIFICATE.", e.message)
     assert_equal @original_verbose, $VERBOSE 
   end
 
@@ -317,12 +317,12 @@ class TestHTTP < Test::Unit::TestCase
     OpenSSL::PKey::RSA.expects(:new).with('key string', 'key string').raises(RuntimeError, 'BAD KEY')
 
     e = assert_raise(Configh::ConfigInitError){Armagh::Support::HTTP.create_configuration( @config_store, 'g', config_values )}
-    assert_equal('Unable to create configuration Armagh::Support::HTTP g: Key Error: BAD KEY.', e.message)
+    assert_equal("Unable to create configuration for 'Armagh::Support::HTTP' named 'g' because: \n    Key Error: BAD KEY.", e.message)
     assert_equal @original_verbose, $VERBOSE 
   end
 
   def test_fetch_no_cert_or_key
-    expected_message = 'Unable to create configuration Armagh::Support::HTTP h: In order to use SSL certificate authentication, both certificate and key must be defined.'
+    expected_message = "Unable to create configuration for 'Armagh::Support::HTTP' named 'h' because: \n    In order to use SSL certificate authentication, both certificate and key must be defined."
 
     config_values = { 
       'http' => { 'url' => 'http://fake.url', 
@@ -341,7 +341,7 @@ class TestHTTP < Test::Unit::TestCase
   end
 
   def test_fetch_no_user_or_pass
-    expected_message = 'Unable to create configuration Armagh::Support::HTTP j: In order to use authentication, both username and password must be defined.'
+    expected_message = "Unable to create configuration for 'Armagh::Support::HTTP' named 'j' because: \n    In order to use authentication, both username and password must be defined."
 
     config_values = { 
       'http' => { 'url' => 'http://fake.url', 
