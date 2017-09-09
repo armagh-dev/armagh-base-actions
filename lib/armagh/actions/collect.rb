@@ -21,6 +21,7 @@ require 'configh'
 require_relative 'action'
 require_relative '../support/cron'
 require_relative '../support/sftp'
+require_relative '../support/decompress'
 
 module Armagh
   module Actions
@@ -33,6 +34,7 @@ module Armagh
 
       define_parameter name: 'schedule', type: 'populated_string', required: false, description: 'Schedule to run the collector.  Cron syntax.  If not set, Collect must be manually triggered.', prompt: '*/15 * * * *', group: 'collect'
       define_parameter name: 'archive', type: 'boolean', required: true, description: 'Archive collected documents', group: 'collect', default: true
+      define_parameter name: 'decompress', type: 'boolean', required: true, description: 'Decompress (gunzip) incoming documents', group: 'collect', default: false
 
       define_group_validation_callback callback_class: Collect, callback_method: :report_validation_errors
 
@@ -80,14 +82,14 @@ module Armagh
         raise Errors::CreateError, "Collect action document_timestamp must be a Time, was a #{document_timestamp.class}." unless document_timestamp.nil? || document_timestamp.is_a?(Time)
 
         case source.type
-          when 'file'
-            raise Errors::CreateError, 'Source filename must be set.' unless source.filename.is_a?(String) && !source.filename.empty?
-            raise Errors::CreateError, 'Source host must be set.' unless source.host.is_a?(String) && !source.host.empty?
-            raise Errors::CreateError, 'Source path must be set.' unless source.path.is_a?(String) && !source.path.empty?
-          when 'url'
-            raise Errors::CreateError, 'Source url must be set.' unless source.url.is_a?(String) && !source.url.empty?
-          else
-            raise Errors::CreateError, 'Source type must be url or file.'
+        when 'file'
+          raise Errors::CreateError, 'Source filename must be set.' unless source.filename.is_a?(String) && !source.filename.empty?
+          raise Errors::CreateError, 'Source host must be set.' unless source.host.is_a?(String) && !source.host.empty?
+          raise Errors::CreateError, 'Source path must be set.' unless source.path.is_a?(String) && !source.path.empty?
+        when 'url'
+          raise Errors::CreateError, 'Source url must be set.' unless source.url.is_a?(String) && !source.url.empty?
+        else
+          raise Errors::CreateError, 'Source type must be url or file.'
         end
 
         divider = @caller.instantiate_divider(docspec)
@@ -103,7 +105,6 @@ module Armagh
             File.write(collected_file, collected)
           end
 
-          collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
           divider.doc_details = {
             'source' => source,
             'document_id' => document_id,
@@ -126,10 +127,22 @@ module Armagh
             @caller.archive(@logger_name, @name, collected_file, archive_data)
           end
 
+          if @config.collect.decompress
+            file_content = File.read(collected_file)
+            decompressed = Support::Decompress.decompress(file_content)
+            File.write(collected_file, decompressed)
+          end
+
+          collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
+
           divider.divide(collected_doc)
           divider.doc_details = nil
         else
-          content = File.file?(collected) ? File.read(collected) : collected
+          content = begin
+            File.file?(collected) ? File.read(collected) : collected
+          rescue ArgumentError
+            collected
+          end
 
           action_doc = Documents::ActionDocument.new(document_id: document_id,
                                                      content: nil,
@@ -141,7 +154,9 @@ module Armagh
                                                      docspec: docspec,
                                                      source: source,
                                                      new: true)
-          action_doc.raw = content
+
+          decompressed_content = @config.collect.decompress ? Support::Decompress.decompress(content) : content
+          action_doc.raw = decompressed_content
 
           if @config.collect.archive
             collected_file = source.filename || random_id

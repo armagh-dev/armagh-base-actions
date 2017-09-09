@@ -24,6 +24,7 @@ require 'test/unit'
 require 'mocha/test_unit'
 require 'fakefs/safe'
 require 'configh'
+require 'facets/zlib'
 
 class TestCollect < Test::Unit::TestCase
 
@@ -371,6 +372,68 @@ class TestCollect < Test::Unit::TestCase
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
     }
+  end
+
+  def test_create_decompress
+    @caller.expects(:instantiate_divider).returns(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    meta = {'meta' => true}
+
+    @caller.expects(:create_document).with {|doc| doc.raw == @content}
+
+    config = SubCollect.create_configuration(@config_store, 'a_cre_arch', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'decompress' => true},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+    })
+
+    compressed = Zlib.compress(@content)
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    FakeFS do
+      @collect_action.create(collected: compressed, metadata: meta, docspec_name: 'output_type', source: @source)
+    end
+  end
+
+  def test_create_decompress_divide
+    divider = mock
+    @caller.expects(:instantiate_divider).returns(divider)
+
+    docspec_param = mock
+    docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
+    defined_params = mock
+    defined_params.expects(:find_all_parameters).returns([docspec_param])
+    divider.expects(:config).returns(defined_params)
+    divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+    divider.expects(:doc_details=).with(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    meta = {'meta' => true}
+
+    divider.expects(:divide)
+
+    config = SubCollect.create_configuration(@config_store, 'a_cre_dec_div', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'decompress' => true},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+    })
+
+    compressed = Zlib.compress(@content)
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    file_content = nil
+    FakeFS do
+      filename = '/tmp/file'
+      FileUtils.mkdir_p '/tmp'
+      File.write(filename, compressed)
+      @collect_action.create(collected: filename, metadata: meta, docspec_name: 'output_type', source: @source)
+      file_content = File.read(filename)
+    end
+
+    assert_equal(@content, file_content)
   end
 
   def test_inheritance
