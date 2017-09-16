@@ -170,6 +170,18 @@ class TestActionDocument < Test::Unit::TestCase
     assert_equal(raw, @doc.raw)
   end
 
+  def test_raw_bson
+    string = 'some data'
+    raw = BSON::Binary.new(string)
+    @doc.raw = raw
+    assert_equal string, @doc.raw
+  end
+
+  def test_raw_nil
+    @doc.raw = nil
+    assert_nil @doc.raw
+  end
+
   def test_raw_too_large
     bson_padding = BSON::Binary.new('').to_bson.length
 
@@ -183,7 +195,7 @@ class TestActionDocument < Test::Unit::TestCase
     assert_nothing_raised{@doc.raw = raw}
   end
 
-  def test_raw_with_non_string_argument
+  def test_raw_invalid_argument
     raw = {}
     assert_equal('raw data', @doc.raw)
     assert_not_empty @doc.content
@@ -206,19 +218,6 @@ class TestActionDocument < Test::Unit::TestCase
         'display' => @doc.display,
     }.to_json
     assert_equal(expected, @doc.to_json)
-  end
-
-  def test_to_archive_hash
-    expected = {
-      'document_id' => @doc.document_id,
-      'title' => @doc.title,
-      'copyright' => @doc.copyright,
-      'metadata' => @doc.metadata,
-      'source' => @doc.source.to_hash,
-      'document_timestamp' => @doc.document_timestamp,
-      'display' => @doc.display,
-    }
-    assert_equal(expected, @doc.to_archive_hash)
   end
 
   def test_from_hash

@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-require 'stringio'
 require 'zlib'
 require 'facets/zlib'
 

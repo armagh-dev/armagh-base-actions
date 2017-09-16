@@ -139,13 +139,6 @@ module Armagh
         to_hash.to_json
       end
 
-      def to_archive_hash
-        h = to_hash
-        h.delete('content')
-        h.delete('docspec')
-        h.delete_if {|_k, v| v.nil?}
-      end
-
       def self.from_json(json_text)
         hash = JSON.parse(json_text)
         hash['document_timestamp'] = Time.parse(hash['document_timestamp']).utc if hash['document_timestamp'].is_a? String

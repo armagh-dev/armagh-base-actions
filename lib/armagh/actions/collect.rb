@@ -22,6 +22,7 @@ require_relative 'action'
 require_relative '../support/cron'
 require_relative '../support/sftp'
 require_relative '../support/decompress'
+require_relative '../support/extract'
 
 module Armagh
   module Actions
@@ -32,9 +33,14 @@ module Armagh
     class Collect < Action
       include Configh::Configurable
 
+      AUTO_EXTRACT = 'auto'
+
       define_parameter name: 'schedule', type: 'populated_string', required: false, description: 'Schedule to run the collector.  Cron syntax.  If not set, Collect must be manually triggered.', prompt: '*/15 * * * *', group: 'collect'
       define_parameter name: 'archive', type: 'boolean', required: true, description: 'Archive collected documents', group: 'collect', default: true
       define_parameter name: 'decompress', type: 'boolean', required: true, description: 'Decompress (gunzip) incoming documents', group: 'collect', default: false
+      define_parameter name: 'extract', type: 'boolean', required: true, description: 'Extract incoming archive files', group: 'collect', default: false
+      define_parameter name: 'extract_format', type: 'populated_string', required: true, default: AUTO_EXTRACT, description: 'The extraction mechanism to use.  Selecting auto will automatically determine the format based on incoming filename.', group: 'collect', options: [AUTO_EXTRACT] + Support::Extract::TYPES
+      define_parameter name: 'extract_filter', type: 'populated_string', required: false, description: 'Only extracted files matching this filter will be processed.  If not set, all files will be processed.', prompt: '*.json', group: 'collect'
 
       define_group_validation_callback callback_class: Collect, callback_method: :report_validation_errors
 
@@ -92,17 +98,45 @@ module Armagh
           raise Errors::CreateError, 'Source type must be url or file.'
         end
 
+        archive_data = {
+          'source' => source.to_hash,
+          'document_id' => document_id,
+          'title' => title,
+          'copyright' => copyright,
+          'document_timestamp' => document_timestamp,
+          'metadata' => metadata
+        }
+        archive_data.delete_if{|_k, v| v.nil?}
+
         divider = @caller.instantiate_divider(docspec)
+
+        extract_format = @config.collect.extract_format == AUTO_EXTRACT ? nil : @config.collect.extract_format
 
         if divider
           docspec_param = divider.config.find_all_parameters { |p| p.group == 'output' && p.name == docspec_name }.first
           docspec = docspec_param&.value
+          collected_content = nil
 
-          if File.file? collected
-            collected_file = collected
-          else
+          begin
+            if File.file? collected
+              collected_file = collected
+            else
+              collected_content = collected
+              collected_file = random_id
+              File.write(collected_file, collected_content)
+            end
+          rescue ArgumentError
+            collected_content = collected
             collected_file = random_id
-            File.write(collected_file, collected)
+            File.write(collected_file, collected_content)
+          end
+
+          @caller.archive(@logger_name, @name, collected_file, archive_data) if @config.collect.archive
+
+          if @config.collect.decompress
+            collected_content ||= File.read(collected_file)
+            collected_content = Support::Decompress.decompress(collected_content)
+            File.write(collected_file, collected_content)
           end
 
           divider.doc_details = {
@@ -113,29 +147,26 @@ module Armagh
             'document_timestamp' => document_timestamp
           }
 
-          if @config.collect.archive
-            archive_data = {
-              'source' => source.to_hash,
-              'document_id' => document_id,
-              'title' => title,
-              'copyright' => copyright,
-              'document_timestamp' => document_timestamp,
-              'metadata' => metadata
-            }
-            archive_data.delete_if{|_k, v| v.nil?}
+          if @config.collect.extract
+            collected_content ||= File.read(collected_file)
+            extracted_files = false
 
-            @caller.archive(@logger_name, @name, collected_file, archive_data)
+            Support::Extract.extract(collected_content, filename: collected_file, type: extract_format, filename_pattern: @config.collect.extract_filter) do |filename, extracted_content|
+              extract_source = source.deep_copy
+              extract_source.filename = "#{source.filename}:#{filename}"
+              FileUtils.mkdir_p File.dirname(filename)
+              File.write(filename, extracted_content)
+              collected_doc = Documents::CollectedDocument.new(collected_file: filename, metadata: metadata, docspec: docspec)
+              divider.divide(collected_doc)
+              extracted_files = true
+            end
+
+            notify_ops 'No files were extracted.' unless extracted_files
+          else
+            collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
+            divider.divide(collected_doc)
           end
 
-          if @config.collect.decompress
-            file_content = File.read(collected_file)
-            decompressed = Support::Decompress.decompress(file_content)
-            File.write(collected_file, decompressed)
-          end
-
-          collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
-
-          divider.divide(collected_doc)
           divider.doc_details = nil
         else
           content = begin
@@ -144,27 +175,53 @@ module Armagh
             collected
           end
 
-          action_doc = Documents::ActionDocument.new(document_id: document_id,
-                                                     content: nil,
-                                                     raw: nil,
-                                                     metadata: metadata,
-                                                     title: title,
-                                                     copyright: copyright,
-                                                     document_timestamp: document_timestamp,
-                                                     docspec: docspec,
-                                                     source: source,
-                                                     new: true)
-
-          decompressed_content = @config.collect.decompress ? Support::Decompress.decompress(content) : content
-          action_doc.raw = decompressed_content
-
           if @config.collect.archive
             collected_file = source.filename || random_id
             File.write(collected_file, content)
-            @caller.archive(@logger_name, @name, collected_file, action_doc.to_archive_hash)
+            @caller.archive(@logger_name, @name, collected_file, archive_data)
           end
 
-          @caller.create_document(action_doc)
+          decompressed_content = @config.collect.decompress ? Support::Decompress.decompress(content) : content
+
+          if @config.collect.extract
+            extracted_files = false
+
+            Support::Extract.extract(decompressed_content, filename: source.filename, type: extract_format, filename_pattern: @config.collect.extract_filter) do |filename, extracted_content|
+              extract_source = source.deep_copy
+              extract_source.filename = "#{source.filename}:#{filename}"
+
+              action_doc = Documents::ActionDocument.new(document_id: document_id,
+                                                         content: nil,
+                                                         raw: nil,
+                                                         metadata: metadata,
+                                                         title: title,
+                                                         copyright: copyright,
+                                                         document_timestamp: document_timestamp,
+                                                         docspec: docspec,
+                                                         source: extract_source,
+                                                         new: true)
+
+              action_doc.raw = extracted_content
+              @caller.create_document(action_doc)
+              extracted_files = true
+            end
+
+            notify_ops 'No files were extracted.' unless extracted_files
+          else
+            action_doc = Documents::ActionDocument.new(document_id: document_id,
+                                                       content: nil,
+                                                       raw: nil,
+                                                       metadata: metadata,
+                                                       title: title,
+                                                       copyright: copyright,
+                                                       document_timestamp: document_timestamp,
+                                                       docspec: docspec,
+                                                       source: source,
+                                                       new: true)
+
+            action_doc.raw = decompressed_content
+            @caller.create_document(action_doc)
+          end
         end
       end
 

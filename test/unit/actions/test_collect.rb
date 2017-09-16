@@ -15,10 +15,12 @@
 # limitations under the License.
 #
 
+require_relative '../../helpers/fixture_helper'
+require_relative '../../helpers/coverage_helper'
+
 require_relative '../../../lib/armagh/actions'
 require_relative '../../../lib/armagh/documents'
 
-require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
 require 'mocha/test_unit'
@@ -27,8 +29,13 @@ require 'configh'
 require 'facets/zlib'
 
 class TestCollect < Test::Unit::TestCase
+  include FixtureHelper
 
   def setup
+    set_fixture_dir 'extract'
+
+    @tgz = fixture('dir.tgz')
+
     @caller = mock
     @collection = mock
     if Object.const_defined?( :SubCollect )
@@ -340,6 +347,22 @@ class TestCollect < Test::Unit::TestCase
     }
   end
 
+  def test_valid_invalid_extract
+    if Object.const_defined?(:SubCollect)
+      Object.send(:remove_const, :SubCollect)
+    end
+    Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
+    SubCollect.include Configh::Configurable
+    SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
+    assert_raises(Configh::ConfigInitError.new("Unable to create configuration for 'SubCollect' named 'inoutstate' because: \n    Group 'collect' Parameter 'extract_format': value is not one of the options")) {
+      SubCollect.create_configuration([], 'inoutstate', {
+        'action' => {'name' => 'mysubcollect'},
+        'collect' => {'extract' => true, 'extract_filter' => '*.txt', 'extract_format' => 'invalid'},
+        'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+      })
+    }
+  end
+
   def test_valid_no_schedule
     Object.send(:remove_const, :SubCollect) if Object.const_defined?(:SubCollect)
 
@@ -434,6 +457,124 @@ class TestCollect < Test::Unit::TestCase
     end
 
     assert_equal(@content, file_content)
+  end
+
+  def test_create_extract
+    filename = 'some.tgz'
+    @caller.expects(:instantiate_divider).returns(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    meta = {'meta' => true}
+
+    @caller.expects(:create_document).with {|doc| doc.raw == "file1\n" &&  doc.source.filename == "#{filename}:dir/file1.txt"}
+    @caller.expects(:create_document).with {|doc| doc.raw == "file2\n" &&  doc.source.filename == "#{filename}:dir/file2.txt"}
+    @caller.expects(:create_document).with {|doc| doc.raw == "file3\n" &&  doc.source.filename == "#{filename}:dir/file3.txt"}
+
+    config = SubCollect.create_configuration(@config_store, 'a_cre_ext', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'extract' => true, 'extract_filter' => '*.txt'},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+    })
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @source.filename = 'some.tgz'
+
+    FakeFS do
+      File.write(filename, @tgz)
+      @collect_action.create(collected: filename, metadata: meta, docspec_name: 'output_type', source: @source)
+    end
+  end
+
+  def test_create_extract_none
+    filename = 'some.tgz'
+    @caller.expects(:instantiate_divider).returns(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    meta = {'meta' => true}
+
+    @caller.expects(:notify_ops).with(logger_name, action_name, 'No files were extracted.')
+
+    config = SubCollect.create_configuration(@config_store, 'a_cre_ext', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'extract' => true, 'extract_filter' => '*.png'},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+    })
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @source.filename = 'some.tgz'
+
+    FakeFS do
+      File.write(filename, @tgz)
+      @collect_action.create(collected: filename, metadata: meta, docspec_name: 'output_type', source: @source)
+    end
+  end
+
+  def test_create_extract_divide
+    @source.filename = 'some.tgz'
+
+    divider = mock
+    @caller.expects(:instantiate_divider).returns(divider)
+
+    docspec_param = mock
+    docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
+    defined_params = mock
+    defined_params.expects(:find_all_parameters).returns([docspec_param])
+    divider.expects(:config).returns(defined_params)
+    divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+    divider.expects(:doc_details=).with(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    meta = {'meta' => true}
+
+    divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file1.txt' && File.read('dir/file1.txt') == "file1\n"}
+    divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file2.txt' && File.read('dir/file2.txt') == "file2\n"}
+    divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file3.txt' && File.read('dir/file3.txt') == "file3\n"}
+
+    config = SubCollect.create_configuration(@config_store, 'a_cre_dec_div', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'extract' => true, 'extract_format' => 'tgz'},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+    })
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    FakeFS do
+      @collect_action.create(collected: @tgz, metadata: meta, docspec_name: 'output_type', source: @source)
+    end
+  end
+
+  def test_create_extract_divide_none
+    @source.filename = 'some.tgz'
+
+    divider = mock
+    @caller.expects(:instantiate_divider).returns(divider)
+
+    docspec_param = mock
+    docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
+    defined_params = mock
+    defined_params.expects(:find_all_parameters).returns([docspec_param])
+    divider.expects(:config).returns(defined_params)
+    divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+    divider.expects(:doc_details=).with(nil)
+
+    logger_name = 'logger'
+    action_name = 'mysubcollect'
+    meta = {'meta' => true}
+
+    @caller.expects(:notify_ops).with(logger_name, action_name, 'No files were extracted.')
+
+    config = SubCollect.create_configuration(@config_store, 'a_cre_dec_div', {
+      'action' => {'name' => action_name},
+      'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'extract' => true, 'extract_format' => 'tgz', 'extract_filter' => '*.png'},
+      'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
+    })
+
+    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    FakeFS do
+      @collect_action.create(collected: @tgz, metadata: meta, docspec_name: 'output_type', source: @source)
+    end
   end
 
   def test_inheritance
