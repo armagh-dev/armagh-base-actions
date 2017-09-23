@@ -45,29 +45,28 @@ module Armagh
       define_parameter name: "read_timeout",     description: "Timeout (secs) reading on a connection",  type: 'positive_integer', required: true,  default: 60
       define_parameter name: "delete_on_put",    description: "Delete each file put to the remote",      type: 'boolean',          required: true,  default: false
 
-      define_group_test_callback callback_class: Armagh::Support::FTP, callback_method: :ftp_validation
+      define_group_test_callback callback_class: Armagh::Support::FTP, callback_method: :test_connection
       define_group_validation_callback callback_class: Armagh::Support::FTP, callback_method: :ftp_validation
 
       def FTP.ftp_validation(config)
         error_string = nil
-
         if config.ftp.anonymous
           error_string ||= 'Ambiguous use of anonymous with username or password.' if config.ftp.username || config.ftp.password
         else
           error_string ||= 'Username and password must be specified when not using anonymous authentication.' unless config.ftp.username && config.ftp.password
         end
 
-        error_string ||= test_connection(config)
         error_string
       end
 
-      def self.test_connection( config )
+      def FTP.test_connection(config)
+        error_string = FTP.ftp_validation(config)
+        return error_string if error_string
 
-        error_string = nil
         begin
-          Connection.test( config )
+          Connection.test(config)
         rescue => e
-          error_string = "FTP Connection Test error: #{ e.message }"
+          error_string = "FTP Connection Test error: #{e.message}"
         end
 
         error_string
@@ -110,7 +109,7 @@ module Armagh
           if @config.ftp.anonymous
             @priv_ftp.login
           else
-            @priv_ftp.login( @config.ftp.username, @config.ftp.password.plain_text )
+            @priv_ftp.login( @config.ftp.username, @config.ftp.password&.plain_text )
           end
 
           rescue SocketError
@@ -229,10 +228,9 @@ module Armagh
           test_file.close
 
           @priv_ftp.putbinaryfile test_file.path
-          sleep 5
           @priv_ftp.delete File.basename(test_file.path)
 
-          rescue Net::FTPPermError => e
+          rescue Net::FTPPermError
             raise PermissionsError, "Unable to write / delete a test file.  Verify path and permissions on the server."
           ensure
             test_file.unlink

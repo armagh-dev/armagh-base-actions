@@ -27,8 +27,7 @@ require_relative '../../../lib/armagh/actions/collect.rb'
 require_relative '../../../lib/armagh/actions/consume.rb'
 require_relative '../../../lib/armagh/support/sftp.rb'
 
-class UnknownSSHError < Net::SSH::Exception;
-end
+class UnknownSSHError < Net::SSH::Exception; end
 
 class TestSFTP < Test::Unit::TestCase
 
@@ -58,7 +57,6 @@ class TestSFTP < Test::Unit::TestCase
   end
 
   def assert_start_error(cause_class, expected_class)
-
     Net::SFTP.stubs(:start).raises(cause_class.new)
     assert_raise(expected_class) { Armagh::Support::SFTP::Connection.open(@config) { |conn|} }
   end
@@ -113,9 +111,7 @@ class TestSFTP < Test::Unit::TestCase
   end
 
   def test_custom_validation
-    # create_configuration invokes :test_connection and :close via group_validation_callback
-    Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection)
-    Armagh::Support::SFTP::Connection.any_instance.expects(:close)
+    # create_configuration does NOT invokes :test_connection and :close via
     config = Armagh::Support::SFTP.create_configuration(@config_store, 'w', {'sftp' => @config_values})
 
     # test_and_return_errors invokes :test_connection and :close via group_test_callback
@@ -126,9 +122,10 @@ class TestSFTP < Test::Unit::TestCase
 
   def test_custom_validation_exception_via_validation_callback
     Armagh::Support::SFTP::Connection.any_instance.expects(:test_connection).returns('boom')
-    assert_raise(Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'bad' because: \n    boom")) do
-      Armagh::Support::SFTP.create_configuration(@config_store, 'bad', {'sftp' => @config_values})
-    end
+    assert_equal(
+      {'test_connection'=>'boom'},
+      Armagh::Support::SFTP.create_configuration(@config_store, 'bad', {'sftp' => @config_values}).test_and_return_errors
+    )
   end
 
   def test_custom_validation_exception_via_test_callback
@@ -322,7 +319,7 @@ class TestSFTP < Test::Unit::TestCase
       end
     end
   end
-  
+
   def test_put_file_with_duplicates
     file = 'subd/file'
     path = '.'
@@ -334,7 +331,7 @@ class TestSFTP < Test::Unit::TestCase
     @mocked_sftp_lib.expects(:upload!).with( file, File.join(dup_config.sftp.directory_path, path, file))
     @mocked_sftp_lib.expects(:upload!).with( file, File.join(dup_config.sftp.duplicate_put_directory_paths.first, path, file ))
     @mocked_sftp_lib.expects(:upload!).with( file, File.join(dup_config.sftp.duplicate_put_directory_paths.last, path, file ))
-    
+
     FakeFS do
       FileUtils.mkdir_p File.dirname(file)
       FileUtils.touch(file)
@@ -344,7 +341,7 @@ class TestSFTP < Test::Unit::TestCase
       end
     end
   end
-    
+
   def test_put_file_not_file
     @mocked_sftp_lib.expects(:upload!).never
     assert_raise(Armagh::Support::SFTP::FileError.new("Local file 'invalid' is not a file.")) do
@@ -526,7 +523,7 @@ class TestSFTP < Test::Unit::TestCase
     FakeFS do
       fake_dir = '/tmp/some/path'
       FileUtils.mkdir_p(fake_dir)
-      Dir.expects(:mktmpdir).yields(fake_dir).twice
+      Dir.expects(:mktmpdir).yields(fake_dir).once
       c = Armagh::Support::SFTP.create_configuration(@config_store, 'sftpkey', {'sftp' => test_config_values}) { |sftp|}
       c.test_and_return_errors
       assert_equal(c.sftp.key, File.read('/tmp/some/path/.ssh_key'))

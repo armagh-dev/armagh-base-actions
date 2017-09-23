@@ -354,7 +354,7 @@ class TestCollect < Test::Unit::TestCase
     Object.const_set :SubCollect, Class.new(Armagh::Actions::Collect)
     SubCollect.include Configh::Configurable
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
-    assert_raises(Configh::ConfigInitError.new("Unable to create configuration for 'SubCollect' named 'inoutstate' because: \n    Group 'collect' Parameter 'extract_format': value is not one of the options")) {
+    assert_raises(Configh::ConfigInitError.new("Unable to create configuration for 'SubCollect' named 'inoutstate' because: \n    Group 'collect' Parameter 'extract_format': value is not one of the options (auto,7zip,tar,tgz,zip)")) {
       SubCollect.create_configuration([], 'inoutstate', {
         'action' => {'name' => 'mysubcollect'},
         'collect' => {'extract' => true, 'extract_filter' => '*.txt', 'extract_format' => 'invalid'},

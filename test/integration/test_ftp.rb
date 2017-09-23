@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-
 require_relative '../helpers/coverage_helper'
 
 require 'test/unit'
@@ -29,7 +28,6 @@ require_relative '../../lib/armagh/support/ftp.rb'
 class TestIntegrationFTP < Test::Unit::TestCase
 
   def setup
-    
     @local_integration_test_config ||= load_local_integration_test_config
     @test_ftp_host = @local_integration_test_config[ 'test_ftp_host' ]
     @test_ftp_username = @local_integration_test_config[ 'test_ftp_username' ]
@@ -46,16 +44,13 @@ class TestIntegrationFTP < Test::Unit::TestCase
     }
 
     @config_store = []
-
   end
 
   def load_local_integration_test_config
-
     config = nil
     config_filepath = File.join( __dir__, 'local_integration_test_config.json' )
 
     begin
-
       config = JSON.load( File.read( config_filepath ))
       errors = []
       if config.is_a? Hash
@@ -75,10 +70,8 @@ class TestIntegrationFTP < Test::Unit::TestCase
       end
 
     rescue => e
-
       puts "Integration test environment not set up.  See test/integration/ftp_test.readme.  Detail: #{ e.message }"
       pend
-      
     end
     config
   end
@@ -97,51 +90,63 @@ class TestIntegrationFTP < Test::Unit::TestCase
     Armagh::Support::FTP.stubs(:ftp_validation)
     assert_nothing_raised { config_obj = create_config('baddom') }
     Armagh::Support::FTP.unstub(:ftp_validation)
-    assert_equal( { "ftp_validation" => "FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd" }, config_obj.test_and_return_errors )
+    assert_equal( { "test_connection" => "FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd" }, config_obj.test_and_return_errors )
   end
 
   def test_fail_bad_domain_via_validation_callback
     @base_config['ftp']['host'] = "idontexist.kurmudgeon.edd"
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'baddom' because: \n    FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd")
 
-    assert_raise { create_config('baddom') }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edd'},
+      create_config('baddom').test_and_return_errors
+    )
   end
 
   def test_fail_test_bad_host
     @base_config['ftp']['host'] = "idontexist.kurmudgeon.edu"
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'badhost' because: \n    FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu")
 
-    assert_raise(e) { create_config('badhost') }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: Unable to resolve host idontexist.kurmudgeon.edu'},
+      create_config('badhost').test_and_return_errors
+    )
   end
 
   def test_fail_test_nonexistent_user
     @base_config['ftp']['username'] = "idontexisteither"
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'nonexuser' because: \n    FTP Connection Test error: Permissions failure when logging in as idontexisteither.")
 
-    assert_raise(e) { create_config('nonexuser') }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: Permissions failure when logging in as idontexisteither.'},
+      create_config('nonexuser').test_and_return_errors
+    )
   end
 
   def test_fail_test_wrong_password
     @base_config['ftp']['password'] = Configh::DataTypes::EncodedString.from_plain_text "NotMyPassword"
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'wrongpass' because: \n    FTP Connection Test error: Permissions failure when logging in as ftptest.")
 
-    assert_raise(e) { create_config('wrongpass') }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: Permissions failure when logging in as ftptest.'},
+      create_config('wrongpass').test_and_return_errors
+    )
   end
 
   def test_fail_test_nonexistent_directory
     @base_config['ftp']['directory_path'] = "no_such_dir"
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'nonexdir' because: \n    FTP Connection Test error: User does not have access to directory no_such_dir.")
 
-    assert_raise(e) { create_config('nonexdir') }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: User does not have access to directory no_such_dir.'},
+      create_config('nonexdir').test_and_return_errors
+    )
   end
 
   def test_fail_test_readonly_directory
     @base_config['ftp']['directory_path'] = "read_only_dir"
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'rodir' because: \n    FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server.")
 
-    assert_raise(e) { create_config('rodir') }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: Unable to write / delete a test file.  Verify path and permissions on the server.'},
+      create_config('rodir').test_and_return_errors
+    )
   end
- 
+
   def test_put_then_get_files
     @base_config[ 'ftp' ][ 'maximum_transfer' ] = 5
     @base_config[ 'ftp' ][ 'filename_pattern' ] = '*.txt' 
@@ -154,11 +159,9 @@ class TestIntegrationFTP < Test::Unit::TestCase
     remaining_files = nil
 
     FakeFS do
-
       test_file_list.each { |fn| File.open(fn,"w") << "I am file #{fn}.\n"}
 
       Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
-          
         ftp_connection.put_files do |filename,error_string|
           errors << error_string
           put_files << filename
@@ -263,5 +266,6 @@ class TestIntegrationFTP < Test::Unit::TestCase
       ftp.rmdir base_nested_dir
     end
   end
+
 end
 

@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-
 require_relative '../helpers/coverage_helper'
 
 require 'test/unit'
@@ -95,30 +94,38 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
   def test_validation_no_write
     @config_values['directory_path'] = READ_ONLY_DIR
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'vnw' because: \n    SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)")
 
-    assert_raise(e) { create_config('vnw') }
+    assert_equal(
+      {'test_connection'=>'SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)'},
+      create_config('vnw').test_and_return_errors
+    )
   end
 
   def test_validation_no_dir
     @config_values['directory_path'] = 'no_such_dir'
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'vnd' because: \n    SFTP Connection Test Error: A reference was made to a file which does not exist. (no such file)")
 
-    assert_raise(e) { create_config('vnd') }
+    assert_equal(
+      {'test_connection'=>'SFTP Connection Test Error: A reference was made to a file which does not exist. (no such file)'},
+      create_config('vnd').test_and_return_errors
+    )
   end
 
   def test_validation_no_access
     @config_values['directory_path'] = NO_ACCESS_DIR
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'vna' because: \n    SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)")
 
-    assert_raise(e) { create_config('vna') }
+    assert_equal(
+      {'test_connection'=>'SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)'},
+      create_config('vna').test_and_return_errors
+    )
   end
 
   def test_bad_domain_via_validation_callback
     @config_values['host'] = 'idontexist.kurmudgeon.edd'
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'tbd' because: \n    Unable to resolve host idontexist.kurmudgeon.edd.")
 
-    assert_raise(e) { create_config('tbd') }
+    assert_equal(
+      {'test_connection'=>'Unable to resolve host idontexist.kurmudgeon.edd.'},
+      create_config('tbd').test_and_return_errors
+    )
   end
 
   def test_bad_domain_via_test_callback
@@ -132,23 +139,29 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
   def test_bad_host
     @config_values['host'] = 'idontexist.kurmudgeon.edu'
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'tbh' because: \n    Unable to resolve host idontexist.kurmudgeon.edu.")
 
-    assert_raise(e) { create_config('tbh') }
+    assert_equal(
+      {'test_connection'=>'Unable to resolve host idontexist.kurmudgeon.edu.'},
+      create_config('tbh').test_and_return_errors
+    )
   end
 
   def test_fail_test_nonexistent_user
     @config_values['username'] = 'idontexisteither'
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'nonexuser' because: \n    Error on host testserver.noragh.com: Authentication failed: Authentication failed for user idontexisteither@testserver.noragh.com")
 
-    assert_raise(e) { create_config('nonexuser') }
+    assert_equal(
+      {'test_connection'=>'Error on host testserver.noragh.com: Authentication failed: Authentication failed for user idontexisteither@testserver.noragh.com'},
+      create_config('nonexuser').test_and_return_errors
+    )
   end
 
   def test_fail_test_wrong_password
     @config_values['password'] = Configh::DataTypes::EncodedString.from_plain_text('NotMyPassword')
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::SFTP' named 'wrongpass' because: \n    Error on host testserver.noragh.com: Authentication failed: Authentication failed for user ftptest@testserver.noragh.com")
 
-    assert_raise(e) { create_config('wrongpass') }
+    assert_equal(
+      {'test_connection'=>'Error on host testserver.noragh.com: Authentication failed: Authentication failed for user ftptest@testserver.noragh.com'},
+      create_config('wrongpass').test_and_return_errors
+    )
   end
 
   def test_put_then_get_files_subdirectories
@@ -185,8 +198,8 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
     @config_values.delete 'duplicate_put_directory_paths'
     @config_values['create_directory_path'] = false
+
     [ READ_WRITE_DIR, SFTP_DUP_PUT_DIR1, SFTP_DUP_PUT_DIR2 ].each do |from_dir|
-      
       @config_values['directory_path'] = from_dir
       getter_config = Armagh::Support::SFTP.create_configuration(@config_store, "get_put_#{from_dir}", {'sftp' => @config_values})
 
@@ -242,7 +255,7 @@ class TestIntegrationSFTP < Test::Unit::TestCase
     FakeFS do
       File.write(filename, 'contents of file')
       Armagh::Support::SFTP::Connection.open(config) do |sftp|
-        sftp.put_files do |filename, error|
+        sftp.put_files do |_filename, error|
           assert_nil error
         end
       end
@@ -253,7 +266,7 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
     FakeFS do
       Armagh::Support::SFTP::Connection.open(config) do |sftp|
-        sftp.get_files do |filename, attributes, error|
+        sftp.get_files do |_filename, attributes, error|
           assert_not_empty attributes
           assert_kind_of Time, attributes['mtime']
           assert_nil error
@@ -279,11 +292,11 @@ class TestIntegrationSFTP < Test::Unit::TestCase
 
   def test_put_file_ls_remove
     dest_subdir = 'subdir'
-    
+
     @config_values[ 'create_directory_path' ] = true
     files = %w(file1 file2 file3)
     config = Armagh::Support::SFTP.create_configuration(@config_store, 'putget', {'sftp' => @config_values})
-    
+
     FakeFS do 
       files.each { |f| FileUtils.touch f }
 
@@ -297,5 +310,6 @@ class TestIntegrationSFTP < Test::Unit::TestCase
       end
     end
   end
+
 end
 

@@ -47,14 +47,13 @@ module Armagh
       define_parameter name: 'maximum_transfer', description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
 
       define_group_test_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
-      define_group_validation_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
 
-      def SFTP.test_connection(candidate_config)
+      def SFTP.test_connection(config)
         error = nil
         begin
         Dir.mktmpdir do |tmp_dir|
           Dir.chdir(tmp_dir) do
-            Connection.open(candidate_config) do |sftp|
+            Connection.open(config) do |sftp|
               error = sftp.test_connection
             end
           end
@@ -224,7 +223,6 @@ module Armagh
           mksubdir_p('') if @create_directory_path
 
           @sftp.upload!(test_file.path, remote_file)
-          sleep 1
           @sftp.remove!(remote_file)
           nil
         rescue => e

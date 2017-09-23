@@ -244,7 +244,7 @@ class TestHTTP < Test::Unit::TestCase
 
   def test_config_bad_method
     e = assert_raise(Configh::ConfigInitError) {Armagh::Support::HTTP.create_configuration( @config_store, 'c', { 'http' => { 'url' => 'http://fake.url', 'method' => 'bad' }})}
-    assert_equal("Unable to create configuration for 'Armagh::Support::HTTP' named 'c' because: \n    Group 'http' Parameter 'method': value is not one of the options", e.message)
+    assert_equal("Unable to create configuration for 'Armagh::Support::HTTP' named 'c' because: \n    Group 'http' Parameter 'method': value is not one of the options (get,post)", e.message)
     assert_equal @original_verbose, $VERBOSE 
   end
 

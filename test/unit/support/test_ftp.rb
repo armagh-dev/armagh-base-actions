@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-
 require_relative '../../helpers/coverage_helper'
 
 require 'test/unit'
@@ -27,7 +26,6 @@ require_relative '../../../lib/armagh/support/ftp.rb'
 class TestFTP < Test::Unit::TestCase
 
   def setup
-
     @logger = mock
     @caller = mock
 
@@ -62,7 +60,6 @@ class TestFTP < Test::Unit::TestCase
     @mock_ftp.stubs(:passive=)
     @mock_ftp.stubs(:open_timeout=)
     @mock_ftp.stubs(:read_timeout=)
-
   end
 
   def teardown
@@ -70,7 +67,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def merge_config_values( values1, values2 )
-
     return values1 if values2.nil?
 
     static_values = values1.dup
@@ -164,23 +160,23 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_config_missing_password
-    config = assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'password' => nil }}, nil)
-    assert_equal({'ftp_validation' => 'Username and password must be specified when not using anonymous authentication.'}, config.test_and_return_errors)
+    config = assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'username'=>'myftpuser', 'password' => nil }}, nil)
+    assert_equal({'test_connection' => 'Username and password must be specified when not using anonymous authentication.'}, config.test_and_return_errors)
   end
 
   def test_config_missing_username
     config = assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'password' => nil }}, nil)
-    assert_equal({'ftp_validation' => 'Username and password must be specified when not using anonymous authentication.'}, config.test_and_return_errors)
+    assert_equal({'test_connection' => 'Username and password must be specified when not using anonymous authentication.'}, config.test_and_return_errors)
   end
 
   def test_config_anonymous_with_username
     config = assert_create_configuration_returns_config_or_errors( { 'ftp' => {'password' => nil, 'anonymous' => true }}, nil)
-    assert_equal({'ftp_validation' => 'Ambiguous use of anonymous with username or password.'}, config.test_and_return_errors)
+    assert_equal({'test_connection' => 'Ambiguous use of anonymous with username or password.'}, config.test_and_return_errors)
   end
 
   def test_config_anonymous_with_password
     config = assert_create_configuration_returns_config_or_errors( { 'ftp' => { 'username' => nil, 'anonymous' => true }}, nil)
-    assert_equal({'ftp_validation' => 'Ambiguous use of anonymous with username or password.'}, config.test_and_return_errors)
+    assert_equal({'test_connection' => 'Ambiguous use of anonymous with username or password.'}, config.test_and_return_errors)
   end
 
   def test_config_validation_anonymous
@@ -198,7 +194,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_config_failed_group_test_via_test_callback
-
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
@@ -206,22 +201,22 @@ class TestFTP < Test::Unit::TestCase
     Armagh::Support::FTP.stubs(:ftp_validation)
     config = Armagh::Support::FTP.create_configuration( @config_store, 'cfgv', @base_valid_config )
     Armagh::Support::FTP.unstub(:ftp_validation)
-    
-    assert_equal({'ftp_validation' => 'FTP Connection Test error: Permissions failure when logging in as myftpuser.'}, config.test_and_return_errors )
+
+    assert_equal({'test_connection' => 'FTP Connection Test error: Permissions failure when logging in as myftpuser.'}, config.test_and_return_errors )
   end
 
   def test_config_failed_group_test_via_validation_callback
-
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, @test_ftp_password.plain_text ).raises(Net::FTPPermError)
 
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'cfgv' because: \n    FTP Connection Test error: Permissions failure when logging in as myftpuser.")
-    assert_raise(e) { Armagh::Support::FTP.create_configuration( @config_store, 'cfgv', @base_valid_config ) }
+    config = Armagh::Support::FTP.create_configuration( @config_store, 'cfgv', @base_valid_config ).test_and_return_errors
+    expected = {'test_connection'=>
+                'FTP Connection Test error: Permissions failure when logging in as myftpuser.'}
+    assert_equal expected, config
   end
 
   def test_default_connect
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -236,7 +231,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_open_socket_error
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -250,7 +244,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_open_timeout
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -264,7 +257,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_connection_refused
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -278,7 +270,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_auth_error
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -292,19 +283,19 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_reply_error_blank_password_servers_sends_ftppermerror
-
     use_config = merge_config_values( @base_valid_config, { 'ftp' => { 'password' =>  Configh::DataTypes::EncodedString.from_plain_text( '' )}})
 
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, '' ).raises(Net::FTPPermError)
 
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'rebpssf' because: \n    FTP Connection Test error: Permissions failure when logging in as myftpuser.")
-    assert_raise(e) { Armagh::Support::FTP.create_configuration( @config_store, 'rebpssf', use_config ) }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: Permissions failure when logging in as myftpuser.'},
+      Armagh::Support::FTP.create_configuration( @config_store, 'rebpssf', use_config ).test_and_return_errors
+    )
   end
 
   def test_reply_error_blank_password_servers_sends_ftpreplyerror
-
     use_config = merge_config_values( @base_valid_config, { 'ftp' => { 'password' =>  Configh::DataTypes::EncodedString.from_plain_text( '' )}})
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -316,35 +307,36 @@ class TestFTP < Test::Unit::TestCase
     Armagh::Support::FTP.unstub(:ftp_validation)
     assert ['FTP Connection Test error: Ambiguous FTP Reply error from server.',
             'FTP Connection Test error: FTP Reply error from server; probably not allowed to have a blank password.'
-           ].include? config.test_and_return_errors[ 'ftp_validation' ]
+           ].include? config.test_and_return_errors[ 'test_connection' ]
   end
 
   def test_reply_error_wrong_password_servers_sends_ftpreplyerror
-
     use_config = merge_config_values( @base_valid_config, { 'ftp' => { 'password' =>  Configh::DataTypes::EncodedString.from_plain_text( 'badpassword' )}})
 
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).with( @test_ftp_username, 'badpassword').raises( Net::FTPReplyError )
 
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'rebpssff' because: \n    FTP Connection Test error: Ambiguous FTP Reply error from server.")
-    assert_raise(e) { Armagh::Support::FTP.create_configuration( @config_store, 'rebpssff', use_config ) }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: Ambiguous FTP Reply error from server.'},
+      Armagh::Support::FTP.create_configuration( @config_store, 'rebpssff', use_config ).test_and_return_errors
+    )
   end
 
   def test_unhandled_error
-
     use_config = merge_config_values( @base_valid_config, { 'ftp' => { 'password' =>  Configh::DataTypes::EncodedString.from_plain_text( 'badpassword' )}})
 
     Net::FTP.expects(:new).returns( @mock_ftp )
     @mock_ftp.expects(:connect).with( @test_ftp_host, 21 )
     @mock_ftp.expects(:login).raises(StandardError, 'Some error message')
 
-    e = Configh::ConfigInitError.new("Unable to create configuration for 'Armagh::Support::FTP' named 'rebpssff' because: \n    FTP Connection Test error: Unknown error raised on FTP connect: Some error message")
-    assert_raise(e) { Armagh::Support::FTP.create_configuration( @config_store, 'rebpssff', use_config ) }
+    assert_equal(
+      {'test_connection'=>'FTP Connection Test error: Unknown error raised on FTP connect: Some error message'},
+      Armagh::Support::FTP.create_configuration( @config_store, 'rebpssff', use_config ).test_and_return_errors
+    )
   end
 
   def test_reply_error_with_password
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -358,7 +350,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_chdir
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -376,7 +367,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_chdir_with_ftp_perm_error
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -393,7 +383,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_chdir_with_generic_error
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -410,7 +399,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_get_files
-
     test_ftp_filename_pattern = '*.txt'
     config = config_good({'ftp' => {'maximum_transfer' => 5, 'filename_pattern' => test_ftp_filename_pattern}})
 
@@ -480,7 +468,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_put_files
-
     config = config_good( { 'ftp' => { 'maximum_transfer' => 5, 'delete_on_put' => true }})
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -544,7 +531,6 @@ class TestFTP < Test::Unit::TestCase
   end
 
   def test_write_and_delete_test_file_error
-
     config = config_good
 
     Net::FTP.expects(:new).returns( @mock_ftp )
@@ -669,4 +655,5 @@ class TestFTP < Test::Unit::TestCase
 
     assert_equal expected, actual
   end
+
 end
