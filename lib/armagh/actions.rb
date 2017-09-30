@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+require 'facets/kernel/constant'
+
 Dir[File.join(__dir__, 'actions', '*.rb')].each { |file| require file }
 
 module Armagh
@@ -22,8 +24,9 @@ module Armagh
 
     BASE_ACTION_TYPES = [Collect, Consume, Divide, Publish, Split]
 
-    def self.defined_actions
+    TEMPLATE_PATH = File.join('lib', 'armagh', 'templates', '')
 
+    def self.defined_actions
       actions = []
 
       modules = %w(StandardActions CustomActions).collect do |mod|
@@ -36,7 +39,7 @@ module Armagh
       modules.compact!
 
       modules.each do |mod|
-        actions.concat mod.constants.collect {|c|
+        new_actions = mod.constants.collect do |c|
           klass = nil
           maybe_class = mod.const_get(c)
 
@@ -50,18 +53,52 @@ module Armagh
           end
 
           klass
-        }
+        end
+
+        actions.concat new_actions
       end
 
       actions.compact!
       actions
     end
 
-    def self.name_to_class(action_class_name)
+    def self.available_templates
+      templates = []
+      @template_name_map = {}
 
+      Gem.loaded_specs.each do |gem_name, spec|
+        package_name = if gem_name.end_with? '-standard_actions'
+                         'StandardActions'
+                       elsif gem_name.end_with? '-custom_actions'
+                         'CustomActions'
+                       else
+                         nil
+                       end
+
+        if package_name
+          template_dir = File.join(spec.gem_dir, TEMPLATE_PATH)
+          Dir.glob(File.join(template_dir, '*', '*')).select{|f| File.file? f}.each do |file|
+            template_name = "#{file.sub(template_dir, '')} (#{package_name})"
+            @template_name_map[template_name] = file
+            templates << template_name
+          end
+        end
+      end
+
+      templates.sort!
+      templates
+    end
+
+    def self.get_template_path(template_name)
+      return nil if template_name.nil?
+      available_templates unless @template_name_map
+      @template_name_map[template_name]
+    end
+
+    def self.name_to_class(action_class_name)
       klass = nil
       begin
-        klass = eval( action_class_name )
+        klass = constant( action_class_name )
       rescue
         raise "Action class name #{action_class_name} not valid"
       end

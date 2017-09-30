@@ -28,8 +28,9 @@ module Armagh
       include Configh::Configurable
       include Armagh::Support::HTTP
 
-      class RSSError      < ArmaghError; notifies :ops; end
-      class RSSParseError < RSSError;    end
+      class RSSError            < ArmaghError; notifies :ops; end
+      class RSSParseError       < RSSError; end
+      class RSSLinkPatternError < RSSError; end
 
       define_parameter name: 'max_items', description: 'Maximum number of items to collect', type: 'positive_integer', required: true, default: 100, prompt: '100'
       define_parameter name: 'link_field', description: 'Field containing link to the content.', type: 'string', prompt: 'field_name', default: 'link'
@@ -39,6 +40,7 @@ module Armagh
       define_parameter name: 'full_collect', description: 'Do a collection of the full available RSS history.', type: 'boolean', required: true, default: false
       define_parameter name: 'description_no_content', description: 'Add the description as content in case there is no content.', type: 'boolean', required: true, default: false
       define_parameter name: 'passthrough', description: "Don't try to populate metadata fields during the collect phase.", type: 'boolean', required: true, default: false, group: 'rss'
+      define_parameter name: 'link_pattern', description: 'Optional pattern to extract the URL from item link.', type: 'string', required: false, prompt: 'sourceurl=(.+?\.html)', group: 'rss'
 
       # Additional media tags
       SimpleRSS.item_tags.concat [:'media:rating', :'media:rating#scheme', :'media:description', :'media:keywords',
@@ -76,7 +78,15 @@ module Armagh
           error = nil
           begin
             if config.rss.collect_link
-              response = http.fetch(CGI.unescape_html(item[link_field]))
+              if config.rss.link_pattern
+                item_link = item[link_field][/#{config.rss.link_pattern}/,1]
+                if item_link.nil?
+                  raise RSSLinkPatternError, "Link pattern: #{config.rss.link_pattern} not found in item link: #{item[link_field]}" 
+                end
+              else
+                item_link = item[link_field]
+              end
+              response = http.fetch(CGI.unescape_html(URI.unescape(item_link)))               
               response.each do |item|
                 content << item['body']
               end
@@ -94,6 +104,8 @@ module Armagh
                 type = parent_type
               end
             end
+          rescue RSSError => e
+            error = e
           rescue => e
             error = RSSError.new("Unknown RSS error occurred from #{config.http.url}: #{e}.")
           end

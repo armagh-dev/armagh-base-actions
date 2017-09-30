@@ -33,13 +33,11 @@ module Armagh
     class Collect < Action
       include Configh::Configurable
 
-      AUTO_EXTRACT = 'auto'
-
       define_parameter name: 'schedule', type: 'populated_string', required: false, description: 'Schedule to run the collector.  Cron syntax.  If not set, Collect must be manually triggered.', prompt: '*/15 * * * *', group: 'collect'
       define_parameter name: 'archive', type: 'boolean', required: true, description: 'Archive collected documents', group: 'collect', default: true
       define_parameter name: 'decompress', type: 'boolean', required: true, description: 'Decompress (gunzip) incoming documents', group: 'collect', default: false
       define_parameter name: 'extract', type: 'boolean', required: true, description: 'Extract incoming archive files', group: 'collect', default: false
-      define_parameter name: 'extract_format', type: 'populated_string', required: true, default: AUTO_EXTRACT, description: 'The extraction mechanism to use.  Selecting auto will automatically determine the format based on incoming filename.', group: 'collect', options: [AUTO_EXTRACT] + Support::Extract::TYPES
+      define_parameter name: 'extract_format', type: 'populated_string', required: true, default: OPTION_AUTO, description: "The extraction mechanism to use.  Selecting #{OPTION_AUTO} will automatically determine the format based on incoming filename.", group: 'collect', options: [OPTION_AUTO] + Support::Extract::TYPES
       define_parameter name: 'extract_filter', type: 'populated_string', required: false, description: 'Only extracted files matching this filter will be processed.  If not set, all files will be processed.', prompt: '*.json', group: 'collect'
 
       define_group_validation_callback callback_class: Collect, callback_method: :report_validation_errors
@@ -110,7 +108,7 @@ module Armagh
 
         divider = @caller.instantiate_divider(docspec)
 
-        extract_format = @config.collect.extract_format == AUTO_EXTRACT ? nil : @config.collect.extract_format
+        extract_format = @config.collect.extract_format == OPTION_AUTO ? nil : @config.collect.extract_format
 
         if divider
           docspec_param = divider.config.find_all_parameters { |p| p.group == 'output' && p.name == docspec_name }.first

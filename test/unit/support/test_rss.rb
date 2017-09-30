@@ -124,7 +124,6 @@ class TestRSS < Test::Unit::TestCase
   end
 
   def test_collect_rss_with_html_escaped_links
-    content = 'hello world'
     clean_link = "http://www2c.cdc.gov/podcasts/download.asp?af=h&f=8645217"
     Armagh::Support::HTTP::Connection.any_instance
       .expects(:fetch)
@@ -139,6 +138,40 @@ class TestRSS < Test::Unit::TestCase
       .with(clean_link)
     config = Armagh::Support::RSS.create_configuration(@config_store, 'rss_tcl', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'collect_link' => true}})
     Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_array, type, timestamp, exception|
+    }
+  end
+
+  def test_collect_rss_with_link_pattern
+    clean_link = "https://www.cdc.gov/salmonella/urbana-09-17/index.html"
+    Armagh::Support::HTTP::Connection.any_instance
+      .expects(:fetch)
+      .once
+      .with(:multiple_pages => false)
+      .returns(
+        [ { "head"=>{"Status"=>"200", "Content-Type"=>"text/html; charset=us-ascii"}, "body" => fixture('rss_source_url_links.xml') } ]
+      )
+    Armagh::Support::HTTP::Connection.any_instance
+      .expects(:fetch)
+      .once
+      .with(clean_link)
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss_tcl', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'link_field' => 'link', 'collect_link' => true, 'link_pattern' => 'sourceurl=(.+?\.html)'}})
+    Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_array, type, timestamp, exception|
+    }
+  end
+
+  def test_collect_rss_with_invalid_link_pattern
+    item_link = 'https://tools.cdc.gov/api/embed/html/feedMetrics.html?channel=Outbreaks&language=eng&contenttitle=RSS+(h)%3a+Maradol+Papayas+-+Salmonella+Urbana&sourceurl=https%3a%2f%2fwww.cdc.gov%2fsalmonella%2furbana-09-17%2findex.html&c47=CDC+Outbreaks+-+US+Based&c8=RSS%3a+Click+Through'
+    invalid_link_pattern = 'someurl=(.+?\.html)'
+    Armagh::Support::HTTP::Connection.any_instance
+      .expects(:fetch)
+      .once
+      .with(:multiple_pages => false)
+      .returns(
+        [ { "head"=>{"Status"=>"200", "Content-Type"=>"text/html; charset=us-ascii"}, "body" => fixture('rss_source_url_links.xml') } ]
+      )
+    config = Armagh::Support::RSS.create_configuration(@config_store, 'rss_tcl', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'link_field' => 'link', 'collect_link' => true, 'link_pattern' => invalid_link_pattern}})
+    Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_array, type, timestamp, exception|
+      assert_kind_of(Armagh::Support::RSS::RSSLinkPatternError, exception)
     }
   end
 

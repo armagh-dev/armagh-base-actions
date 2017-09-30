@@ -54,6 +54,10 @@ module Armagh
       # VALID_OUTPUT_STATES should be overwritten by subclass.
       VALID_OUTPUT_STATES = []
 
+      # Options that could be useful for various parameters
+      OPTION_AUTO = 'auto'
+      OPTION_NONE = 'none'
+
       def self.register_action
 
         include Configh::Configurable

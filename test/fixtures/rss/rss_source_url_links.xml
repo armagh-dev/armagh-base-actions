@@ -17,11 +17,16 @@
     <category>Health</category>
     <category>Public Health</category>
     <item>
-      <title>Vulto Creamery Soft Raw Milk Cheese &#8211; Listeria monocytogenes</title>
-      <description></description>
-      <link>http://www2c.cdc.gov/podcasts/download.asp?af=h&amp;f=8645217</link>
-      <guid isPermaLink="true">http://www2c.cdc.gov/podcasts/download.asp?af=h&amp;f=8645217</guid>
-      <pubDate>Thu, 09 Mar 2017 15:04:00 EDT</pubDate>
+      <title>Maradol Papayas - Salmonella Urbana</title>
+      <description>Maradol Papayas - Salmonella Urbana</description>
+      <link>
+        https://tools.cdc.gov/api/embed/html/feedMetrics.html?channel=Outbreaks&language=eng&contenttitle=RSS+(h)%3a+Maradol+Papayas+-+Salmonella+Urbana&sourceurl=https%3a%2f%2fwww.cdc.gov%2fsalmonella%2furbana-09-17%2findex.html&c47=CDC+Outbreaks+-+US+Based&c8=RSS%3a+Click+Through
+      </link>
+      <guid isPermaLink="true">
+      https://tools.cdc.gov/api/embed/html/feedMetrics.html?channel=Outbreaks&language=eng&contenttitle=RSS+(h)%3a+Maradol+Papayas+-+Salmonella+Urbana&sourceurl=https%3a%2f%2fwww.cdc.gov%2fsalmonella%2furbana-09-17%2findex.html&c47=CDC+Outbreaks+-+US+Based&c8=RSS%3a+Click+Through
+      </guid>
+      <pubDate>Thu, 14 Sep 2017 19:28:00 GMT</pubDate>
+      <category>Outbreaks</category>
     </item>
   </channel>
 </rss>
