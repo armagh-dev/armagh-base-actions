@@ -221,6 +221,52 @@ class TestHTTP < Test::Unit::TestCase
     assert_equal @original_verbose, $VERBOSE 
   end
 
+  def test_fetch_instant_client_side_redirects
+    expected_response = "\t<html>\r\n\t<head>\r\n\t\t<meta http-equiv=\"refresh\" content=\"0; url=/salmonella/live-poultry-06-17/index.html\">\t</head>\r\n\t<body></body>\r\n\t</html>\r\n"
+    stub_request(:get, 'http://fake.url').to_return(body: expected_response)
+    stub_request(:get, 'http://fake.url/salmonella/live-poultry-06-17/index.html').to_return(body: @expected_response)
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpget', { 'http' => { 'url' => 'http://fake.url' }})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    response = @http.fetch
+    assert_equal(1, response.length)
+    assert_equal(@expected_response, response.first['body'])
+    assert_equal('200', response.first['head']['Status'])
+    assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
+    assert_equal @original_verbose, $VERBOSE 
+  end
+
+  def test_fetch_with_multiple_allowed_instant_client_side_redirects
+    response1 = "\t<html>\r\n\t<head>\r\n\t\t<meta http-equiv=\"refresh\" content=\"0; url=/salmonella/live-poultry-06-17/index.html\">\t</head>\r\n\t<body></body>\r\n\t</html>\r\n"
+    response2 = "\t<html>\r\n\t<head>\r\n\t\t<meta http-equiv=\"refresh\" content=\"0; url=/salmonella/more-live-poultry-06-17/index.html\">\t</head>\r\n\t<body></body>\r\n\t</html>\r\n"
+    response3 = "\t<html>\r\n\t<head>\r\n\t\t<meta http-equiv=\"refresh\" content=\"0; url=/salmonella/even-more-live-poultry-06-17/index.html\">\t</head>\r\n\t<body></body>\r\n\t</html>\r\n"
+    stub_request(:get, 'http://fake.url').to_return(body: response1)
+    stub_request(:get, 'http://fake.url/salmonella/live-poultry-06-17/index.html').to_return(body: response2)
+    stub_request(:get, 'http://fake.url/salmonella/more-live-poultry-06-17/index.html').to_return(body: response3)
+    stub_request(:get, 'http://fake.url/salmonella/even-more-live-poultry-06-17/index.html').to_return(body: @expected_response)
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpget', { 'http' => { 'url' => 'http://fake.url' }})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    response = @http.fetch
+    assert_equal(1, response.length)
+    assert_equal(@expected_response, response.first['body'])
+    assert_equal('200', response.first['head']['Status'])
+    assert_equal(@expected_response.length.to_s, response.first['head']['Content-Length'])
+    assert_equal @original_verbose, $VERBOSE 
+  end
+
+  def test_fetch_with_multiple_maximum_instant_client_side_redirects
+    response1 = "<html><head><meta http-equiv=\"refresh\" content=\"0; url=/response1.html\"></head><body></body></html>"
+    stub_request(:get, 'http://fake.url').to_return(body: response1)
+    10.times do |i|
+      stub_request(:any, "http://fake.url/response#{i}.html").to_return(body: "<html><head><meta http-equiv=\"refresh\" content=\"0; url=/response#{i+1}.html\"></head><body></body></html>")
+    end
+    stub_request(:get, 'http://fake.url/response10.html').to_return(body: @expected_response)
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpget', { 'http' => { 'url' => 'http://fake.url' }})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    e = assert_raise(Armagh::Support::HTTP::RedirectError) {@http.fetch}
+    assert_equal("Reached maximum allowed instant client-side redirects for http://fake.url/response10.html", e.message)
+    assert_equal @original_verbose, $VERBOSE 
+  end
+
   def test_unknown_bad_response
     config = Armagh::Support::HTTP.create_configuration( @config_store, 'badres', { 'http' => { 'url' => 'http://fake.url' }})
     @http = Armagh::Support::HTTP::Connection.new(config)

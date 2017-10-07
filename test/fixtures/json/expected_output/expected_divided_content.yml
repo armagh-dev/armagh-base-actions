@@ -1,0 +1,101 @@
+---
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Brian", "emails": ["brian@example.com",
+  "brian2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Chuck", "emails": ["chuck@example.com",
+  "chuck2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Dale", "emails": ["dale@example.com",
+  "dale2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Eric", "emails": ["eric@example.com",
+  "eric2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Frank", "emails": ["frank@example.com",
+  "frank2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "George", "emails": ["george@example.com",
+  "george2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Henry", "emails": ["henry@example.com",
+  "henry2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Ivan", "emails": ["ivan@example.com",
+  "ivan2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Jack", "emails": ["jack@example.com",
+  "jack2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Ken", "emails": ["ken@example.com", "ken2@example.com"],
+  "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Larry", "emails": ["larry@example.com",
+  "larry2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Mike", "emails": ["mike@example.com",
+  "mike2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Bob", "emails": ["bob@example.com", "bob2@example.com"],
+  "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Joe", "emails": ["joe@example.com", "joe2@example.com"],
+  "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Jane", "emails": ["jane@example.com",
+  "jane2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Paul", "emails": ["paul@example.com",
+  "paul2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Sam", "emails": ["sam@example.com", "sam2@example.com"],
+  "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Bill", "emails": ["bill@example.com",
+  "bill2@example.com"], "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Jim", "emails": ["jim@example.com", "jim2@example.com"],
+  "phone": "555-1212"}]}
+
+'
+- '{ "company": "Example, Inc.", "address": "123 Main St, New York, NY 12345", "stock
+  symbol": "XMPL", "employees" : [{"name": "Kevin", "emails": ["kevin@example.com",
+  "kevin2@example.com"], "phone": "555-1212"}]}
+
+'

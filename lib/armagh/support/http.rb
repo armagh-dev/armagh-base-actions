@@ -26,13 +26,13 @@ module Armagh
     module HTTP
       include Configh::Configurable
 
-      class HTTPError          < ArmaghError; notifies :ops end
-      class URLError           < HTTPError;   end
-      class RedirectError      < HTTPError;   end
-      class ConfigurationError < HTTPError;   end
-      class ConnectionError    < HTTPError;   end
-      class MethodError        < HTTPError;   end
-      class SafeError          < HTTPError;   end
+      class HTTPError           < ArmaghError; notifies :ops end
+      class URLError            < HTTPError;   end
+      class RedirectError       < HTTPError;   end
+      class ConfigurationError  < HTTPError;   end
+      class ConnectionError     < HTTPError;   end
+      class MethodError         < HTTPError;   end
+      class SafeError           < HTTPError;   end
 
       POST = 'post'.freeze
       GET = 'get'.freeze
@@ -170,6 +170,7 @@ module Armagh
           raise ConfigurationError, 'Connection must be initialized with a Configh configuration object' unless config.is_a?(Configh::Configuration)
           @config = config.http
           @url = @config.url.strip
+          @client_redirects_ctr = 0
           @method = @config.method.downcase
           @headers = DEFAULT_HEADERS.merge @config.headers
           @logger = logger
@@ -211,6 +212,21 @@ module Armagh
           start = Time.now
           response = request(url, method, fields, multiple_pages)
           @logger.debug "Fetched #{url} in #{Time.now - start} seconds" if @logger
+
+          if @config.follow_redirects
+            if @client_redirects_ctr < @client.follow_redirect_count
+              instant_client_redirect_url = response.first["body"][/<meta\s+http-equiv\s*=\s*['"]refresh['"]\s+content\s*=\s*['"]\d+;\s*url\s*=\s*(.+?)['"]/i, 1]
+              if instant_client_redirect_url
+                @client_redirects_ctr += 1
+                uri = URI.parse(url)
+                instant_client_redirect_url = "#{uri.scheme}://#{uri.host}#{instant_client_redirect_url}"
+                response = fetch(instant_client_redirect_url)
+              end
+            else
+              @client_redirects_ctr = 0
+              raise HTTP::RedirectError, "Reached maximum allowed instant client-side redirects for #{url}"
+            end
+          end
 
           @client.save_cookie_store
           response
