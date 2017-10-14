@@ -43,6 +43,7 @@ module CSVTestHelpers
     doc = mock('document')
     doc.stubs(:raw).returns(source)
     doc.stubs(:content).returns(content)
+    doc.stubs(:collected_file).returns(fixture)
     doc
   end
 end
@@ -54,6 +55,9 @@ class TestCsv < Test::Unit::TestCase
   def setup
     fixtures_path = File.join(__dir__, '..', '..', 'fixtures', 'csv')
     @csv = File.join fixtures_path, 'test.csv'
+    @collected_big_xml = stub(:collected_doc)
+    @collected_big_xml.stubs(:collected_file).returns(@big_xml)
+
     @csv_row_with_missing_value_path     = File.join fixtures_path, 'row_with_missing_value.csv'
     @csv_row_with_extra_values_path      = File.join fixtures_path, 'row_with_extra_values.csv'
     @csv_with_extra_values_last_row_path = File.join fixtures_path, 'extra_values_on_last_row.csv'
@@ -144,9 +148,10 @@ class TestCsv < Test::Unit::TestCase
   end
 
   test "dividing returns an error when block isn't passed in" do
+    doc = doc_from_fixture(@csv)
 
     assert_raise(LocalJumpError) {
-      Armagh::Support::CSV.divided_parts(@csv, @config_size_100)
+      Armagh::Support::CSV.divided_parts(doc, @config_size_100)
     }
   end
 

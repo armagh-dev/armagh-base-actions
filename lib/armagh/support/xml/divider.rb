@@ -42,27 +42,26 @@ module Armagh
                                group: 'xml_divide'
 
 
-        def divided_parts(source, options)
+        def divided_parts(doc, config)
           eof              = false
           @offset          = 0
-          @size_per_part   = options.xml_divide.size_per_part
-          @xml_element     = options.xml_divide.xml_element
+          @size_per_part   = config.xml_divide.size_per_part
+          @xml_element     = config.xml_divide.xml_element
           @processed_bytes = 0
-          @total_bytes ||= IO.read(source.collected_file).size
+          @total_bytes ||= IO.read(doc.collected_file).size
 
           while eof == false
-            @sub_string      = IO.read(source.collected_file, @size_per_part, @offset)
+            @sub_string      = IO.read(doc.collected_file, @size_per_part, @offset)
             @sub_string_size = @sub_string.size
 
             @header ||= divided_part_header
-            @footer ||= IO.read(source.collected_file).lines.last
+            @footer ||= IO.read(doc.collected_file).lines.last
 
             find_previous_complete_record if last_line_has_partial_record?
 
-            errors = []
-            errors << MaxSizeTooSmallError.new if (current_sub_string.size > @size_per_part)
+            raise MaxSizeTooSmallError.new if (current_sub_string.size > @size_per_part)
 
-            yield current_sub_string, errors if block_given?
+            yield current_sub_string if block_given?
 
             @processed_bytes += @sub_string.size
             @offset          += @sub_string.size

@@ -21,6 +21,7 @@ module Armagh
   module Support
     module JSON
       extend JSON::Divider
+      extend JSON::Splitter
 
     end
   end

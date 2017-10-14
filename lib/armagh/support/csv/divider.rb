@@ -53,9 +53,9 @@ module Armagh
                          required:    false,
                          group:       'csv_divider'
 
-        def divided_parts(source, config)
-          divider = CSVDivider.new(source, size_per_part: config.csv_divider.size_per_part,
-                                           col_sep: config.csv_divider.col_sep)
+        def divided_parts(doc, config)
+          divider = CSVDivider.new(doc.collected_file, size_per_part: config.csv_divider.size_per_part,
+                                                       col_sep: config.csv_divider.col_sep)
           divider.divide do |part|
             yield part
           end

@@ -209,7 +209,7 @@ class TestXML < Test::Unit::TestCase
   test "divides source xml into array of multiple xml strings having max size of 'size_per_part' bytes" do
     actual_divided_content = []
 
-    Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_1000) do |part, errors|
+    Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_1000) do |part|
       actual_divided_content << part
     end
 
@@ -220,28 +220,23 @@ class TestXML < Test::Unit::TestCase
   test "when xml is well-formed, divided parts match source xml when recombined" do
     expected_combined_content = IO.binread(@collected_big_xml.collected_file)
     divided_content = []
-    divided_errors = []
 
-    Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_1000) do |part, errors|
+    Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_1000) do |part|
       divided_content << part
-      divided_errors  << errors unless errors.empty?
     end
     combined_parts = combine_parts(divided_content)
 
-    assert divided_errors.empty?
     assert_equal expected_combined_content, combined_parts
   end
 
   test "returns an error when size_per_part is smaller than largest divided part" do
     divided_content = []
-    divided_errors = []
 
-    Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_800) do |part, errors|
-      divided_content << part
-      divided_errors  << errors unless errors.empty?
+    assert_raise Armagh::Support::XML::Divider::MaxSizeTooSmallError do
+      Armagh::Support::XML.divided_parts(@collected_big_xml, @config_size_800) do |part|
+        divided_content << part
+      end
     end
-
-    assert_instance_of Armagh::Support::XML::Divider::MaxSizeTooSmallError, divided_errors.flatten.first
   end
 end
 

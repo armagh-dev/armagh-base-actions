@@ -32,11 +32,8 @@ class CSVDivider
 
   def divide
     file.each_line(row_sep) do |current_line|
-      # current_line = current_line.gsub(col_sep, DEFAULT_COL_SEP) unless col_sep == DEFAULT_COL_SEP
-      # current_line = current_line.gsub(row_sep, DEFAULT_ROW_SEP) unless row_sep == DEFAULT_ROW_SEP
       @line = current_line
 
-      #TODO: refactor to remove nested if/elsif's
       if divided_parts.empty?
         add_header_to_divided_parts
       elsif file.eof?
@@ -66,8 +63,6 @@ class CSVDivider
           add_line_to_divided_part
         end
       end
-
-      #TODO: consider adding error handling here
     end
     file.close
   end
