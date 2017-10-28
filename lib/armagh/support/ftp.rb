@@ -18,6 +18,7 @@
 require 'net/ftp'
 require 'tempfile'
 require 'configh'
+
 require_relative '../base/errors/armagh_error'
 
 module Armagh
@@ -26,11 +27,11 @@ module Armagh
       include Configh::Configurable
 
       class FTPError         < ArmaghError; notifies :ops; end
-      class ConnectionError  < FTPError;    end
-      class PermissionsError < FTPError;    end
-      class ReplyError       < FTPError;    end
-      class TimeoutError     < FTPError;    end
-      class UnhandledError   < FTPError;    end
+      class ConnectionError  < FTPError; end
+      class PermissionsError < FTPError; end
+      class ReplyError       < FTPError; end
+      class TimeoutError     < FTPError; end
+      class UnhandledError   < FTPError; end
 
       define_parameter name: "host",             description: "FTP host or IP",                          type: 'populated_string', required: true,  prompt: "host.example.com or 10.0.0.1"
       define_parameter name: "port",             description: "FTP port",                                type: 'positive_integer', required: true,  default: 21
@@ -45,8 +46,8 @@ module Armagh
       define_parameter name: "read_timeout",     description: "Timeout (secs) reading on a connection",  type: 'positive_integer', required: true,  default: 60
       define_parameter name: "delete_on_put",    description: "Delete each file put to the remote",      type: 'boolean',          required: true,  default: false
 
-      define_group_test_callback callback_class: Armagh::Support::FTP, callback_method: :test_connection
       define_group_validation_callback callback_class: Armagh::Support::FTP, callback_method: :ftp_validation
+      define_group_test_callback callback_class: Armagh::Support::FTP, callback_method: :test_connection
 
       def FTP.ftp_validation(config)
         error_string = nil
@@ -60,16 +61,27 @@ module Armagh
       end
 
       def FTP.test_connection(config)
-        error_string = FTP.ftp_validation(config)
-        return error_string if error_string
+        ClassMethods.test_connection(config)
+      end
 
-        begin
-          Connection.test(config)
-        rescue => e
-          error_string = "FTP Connection Test error: #{e.message}"
+      module ClassMethods
+        module_function
+        def test_connection(config)
+          error_string = FTP.ftp_validation(config)
+          return error_string if error_string
+
+          begin
+            Connection.test(config)
+          rescue => e
+            error_string = "FTP Connection Test error: #{e.message}"
+          end
+
+          error_string
         end
+      end
 
-        error_string
+      def self.included(base)
+        base.extend ClassMethods
       end
 
       class Connection
@@ -94,7 +106,6 @@ module Armagh
 
           end
         end
-
 
         def initialize( config )
 
@@ -153,6 +164,10 @@ module Armagh
         end
 
         def get_files
+          files_attempted = 0
+          files_collected = 0
+          failed_files = 0
+
           all_files = ls_r
           remote_files = []
 
@@ -161,10 +176,10 @@ module Armagh
           end
 
           files_to_transfer = remote_files.first( @config.ftp.maximum_transfer )
-          failed_files = 0
 
           files_to_transfer.each do |remote_filename|
 
+            files_attempted += 1
             attempts_this_file = 0
             attributes = {}
 
@@ -177,6 +192,7 @@ module Armagh
               yield remote_filename, attributes, nil
               @priv_ftp.delete( remote_filename )
               failed_files = 0
+              files_collected += 1
 
             rescue Net::ReadTimeout => e
               retry unless attempts_this_file >= 3
@@ -191,7 +207,7 @@ module Armagh
               raise ConnectionError, 'Three files in a row failed. Aborting.' if failed_files == 3
             end
           end
-
+          {'attempted' => files_attempted, 'collected' => files_collected, 'failed' => failed_files}
         end
 
         def put_files

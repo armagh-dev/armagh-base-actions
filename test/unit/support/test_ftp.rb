@@ -413,11 +413,14 @@ class TestFTP < Test::Unit::TestCase
 
     Armagh::Support::FTP::Connection.open(config) do |ftp_connection|
       ftp_connection.expects(:ls_r).returns((1..9).collect {|i| "file#{i}.txt"})
-      ftp_connection.get_files do |local_filename, attributes, error_string|
+      result = ftp_connection.get_files do |local_filename, attributes, error_string|
         assert_not_empty local_filename
         assert_kind_of(Time, attributes['mtime'])
         assert_nil error_string
       end
+      assert_equal 5, result['attempted']
+      assert_equal 5, result['collected']
+      assert_equal 0, result['failed']
     end
   end
 

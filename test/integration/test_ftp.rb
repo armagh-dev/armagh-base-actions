@@ -37,7 +37,7 @@ class TestIntegrationFTP < Test::Unit::TestCase
     @base_config = {
       'ftp' => {
         'host'     => @test_ftp_host,
-        'username' => @test_ftp_username, 
+        'username' => @test_ftp_username,
         'password' => @test_ftp_password,
         'directory_path' => @test_ftp_directory_path
       }
@@ -149,7 +149,7 @@ class TestIntegrationFTP < Test::Unit::TestCase
 
   def test_put_then_get_files
     @base_config[ 'ftp' ][ 'maximum_transfer' ] = 5
-    @base_config[ 'ftp' ][ 'filename_pattern' ] = '*.txt' 
+    @base_config[ 'ftp' ][ 'filename_pattern' ] = '*.txt'
     @base_config[ 'ftp' ][ 'delete_on_put' ] = true
     config = create_config('putthenget')
 
@@ -177,14 +177,16 @@ class TestIntegrationFTP < Test::Unit::TestCase
     mtimes = []
     errors = []
     collected_files = nil
+    result = nil
 
     FakeFS do
       Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
 
-        ftp_connection.get_files do |local_filename, attributes, error_string|
+        result = ftp_connection.get_files do |local_filename, attributes, error_string|
           mtimes << attributes['mtime']
           errors << error_string
         end
+
         collected_files = Dir.glob( "test*.txt" ).collect{ |fp| File.basename( fp )}
       end
     end
@@ -192,6 +194,9 @@ class TestIntegrationFTP < Test::Unit::TestCase
     mtimes.each { |mtime| assert_kind_of( Time, mtime )}
     assert_empty errors.compact
     assert_equal test_file_list, collected_files
+    assert_equal 5, result['attempted']
+    assert_equal 5, result['collected']
+    assert_equal 0, result['failed']
   end
 
   def test_anonymous_ftp

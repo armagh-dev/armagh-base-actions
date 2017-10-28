@@ -267,8 +267,8 @@ class TestRSS < Test::Unit::TestCase
     config = Armagh::Support::RSS.create_configuration(@config_store, 'rss_tcl', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'collect_link' => true}})
     entered = false
 
-    Armagh::Support::HTTP.expects(:get_next_page_url).with(content, 'http://fake.url').never
-    Armagh::Support::HTTP.expects(:get_next_page_url).with(content, 'http://another.fake.url/')
+    Armagh::Support::HTTP.expects(:get_next_page_url).with(content, 'http://fake.url', 'http://another.fake.url').never
+    Armagh::Support::HTTP.expects(:get_next_page_url).with(content, 'http://another.fake.url/', 'http://another.fake.url/')
 
     Armagh::Support::RSS.collect_rss(config, @state) { |channel, item, content_array, type, timestamp, exception|
       entered = true

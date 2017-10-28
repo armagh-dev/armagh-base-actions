@@ -556,25 +556,50 @@ class TestHTTP < Test::Unit::TestCase
   end
 
   def test_get_next_page_url
+    base_url = 'http://fake.url'
     next_url = 'http://www.example.com/2'
 
     content = "blah blah blah <a href='#{next_url}'>Next Page</a> and some more content"
-    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://www.example.com/1'))
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://www.example.com/1', base_url))
 
     content = "blah blah blah <a href='#{next_url}'>Next Page</a> and some more content"
-    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1', base_url))
 
     content = "blah blah blah <a href='#{next_url}'>Next</a> and some more content"
-    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://www.example.com/1'))
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://www.example.com/1', base_url))
 
     content = "blah blah blah <a href='#{next_url}'><span>Next Page</span></a> and some more content"
-    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1', base_url))
 
     content = "blah blah blah <div id='paginationWrapper'><span class='paginationNumbers'>Page 1 of 2</span><ul id='paginationList'><li><a class='nextPage' title='Next Page' href='#{next_url}'></a></li></ul></div>"
-    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
+    assert_equal(next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1', base_url))
 
     content = "blah blah blah <div id='paginationWrapper'><span class='paginationNumbers'>Page 1 of 2</span><ul id='paginationList'><li><a class='nextPage disabled' title='Next Page' href='#{next_url}'></a></li></ul></div>"
-    assert_nil(Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1'))
+    assert_nil(Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1', base_url))
+    assert_equal @original_verbose, $VERBOSE
+  end
+
+  def test_get_next_page_url_with_relative_urls
+    base_url = 'http://fake.url'
+    next_url = '/this-is-a-relative-url?page=0,1&amp;feed=blah1&amp;source=blah2&amp;campaign=feed%3a%20newswire%2frss%20%28homeland%20security%20news%20wire%29'
+
+    content = "blah blah blah <a href='#{next_url}'>Next Page</a> and some more content"
+    assert_equal(base_url+next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://www.example.com/1', base_url))
+
+    content = "blah blah blah <a href='#{next_url}'>Next Page</a> and some more content"
+    assert_equal(base_url+next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1', base_url))
+
+    content = "blah blah blah <a href='#{next_url}'>Next</a> and some more content"
+    assert_equal(base_url+next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://www.example.com/1', base_url))
+
+    content = "blah blah blah <a href='#{next_url}'><span>Next Page</span></a> and some more content"
+    assert_equal(base_url+next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1', base_url))
+
+    content = "blah blah blah <div id='paginationWrapper'><span class='paginationNumbers'>Page 1 of 2</span><ul id='paginationList'><li><a class='nextPage' title='Next Page' href='#{next_url}'></a></li></ul></div>"
+    assert_equal(base_url+next_url, Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1', base_url))
+
+    content = "blah blah blah <div id='paginationWrapper'><span class='paginationNumbers'>Page 1 of 2</span><ul id='paginationList'><li><a class='nextPage disabled' title='Next Page' href='#{next_url}'></a></li></ul></div>"
+    assert_nil(Armagh::Support::HTTP.get_next_page_url(content, 'http://somewhere.else.com/1', base_url))
     assert_equal @original_verbose, $VERBOSE 
   end
 
@@ -584,11 +609,10 @@ class TestHTTP < Test::Unit::TestCase
     expected = ['part 1', 'part 2']
     stub_request(:get, 'http://fake.url').to_return(body: expected[0])
     stub_request(:get, 'http://fake.url2').to_return(body: expected[1])
-    Armagh::Support::HTTP.stubs(:get_next_page_url).with(expected[0], 'http://fake.url').returns 'http://fake.url2'
-    Armagh::Support::HTTP.stubs(:get_next_page_url).with(expected[1], 'http://fake.url2').returns nil
-
-    result =  @http.fetch.collect{|r|r['body']}
-    assert_equal(expected, result)
+    Armagh::Support::HTTP.stubs(:get_next_page_url).with(expected[0], 'http://fake.url', 'http://fake.url').returns 'http://fake.url2'
+    Armagh::Support::HTTP.stubs(:get_next_page_url).with(expected[1], 'http://fake.url2', 'http://fake.url2').returns nil
+    results = @http.fetch.collect{ |r| r['body'] }
+    assert_equal(expected, results)
   end
 
   def test_fetch_no_multiple_pages

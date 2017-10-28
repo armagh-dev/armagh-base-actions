@@ -17,6 +17,7 @@
 
 require 'httpclient'
 require 'configh'
+require 'uri'
 require_relative 'encoding'
 require_relative '../support/xml/parser'
 require_relative '../base/errors/armagh_error'
@@ -143,17 +144,17 @@ module Armagh
         info
       end
 
-      def HTTP.get_next_page_url(page_content, source_url)
+      def HTTP.get_next_page_url(page_content, source_url, base_url)
         page_content.scan(/<a.*?href.*?<\/a>/im) do |h_link|
           down = h_link.downcase
           if down.include?('next')
-            link = down[/href=['"](.+?)['"]/m, 1]
+            href = down[/href=['"](.+?)['"]/m, 1]
+            link = (href =~ /^http/i ? href : URI.join(base_url, href).to_s)
             if !down.include?('disable') && (link.gsub(/\d/, '').include?(source_url.gsub(/\d/, '')) || down.include?('page'))
               return link
             end
           end
         end
-
         nil
       end
 
@@ -304,7 +305,8 @@ module Armagh
             pages << {'head' => header_hash, 'body' => response_text}
 
             if multiple_pages && pages.length < @config.max_pages
-              next_url = HTTP.get_next_page_url(response_text, url)
+              base_url = response.header.request_uri.to_s
+              next_url = HTTP.get_next_page_url(response_text, url, base_url)
               request(next_url, method, fields, multiple_pages, pages) if next_url
             end
 

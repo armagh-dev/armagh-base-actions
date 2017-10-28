@@ -19,7 +19,6 @@ require 'net/sftp'
 require 'fileutils'
 require 'pathname'
 require 'tempfile'
-
 require 'configh'
 
 require_relative '../base/errors/armagh_error'
@@ -29,11 +28,11 @@ module Armagh
     module SFTP
       include Configh::Configurable
 
-       class SFTPError       < ArmaghError; notifies :ops; end
-       class ConnectionError < SFTPError;   end
-       class PermissionError < SFTPError;   end
-       class FileError       < SFTPError;   end
-       class TimeoutError    < SFTPError;   end
+      class SFTPError       < ArmaghError; notifies :ops; end
+      class ConnectionError < SFTPError; end
+      class PermissionError < SFTPError; end
+      class FileError       < SFTPError; end
+      class TimeoutError    < SFTPError; end
 
       define_parameter name: 'host', description: 'SFTP host or IP', type: 'populated_string', required: true, prompt: 'host.example.com or 10.0.0.1'
       define_parameter name: 'port', description: 'SFTP port', type: 'positive_integer', required: true, default: 22
@@ -49,19 +48,29 @@ module Armagh
       define_group_test_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
 
       def SFTP.test_connection(config)
-        error = nil
-        begin
-        Dir.mktmpdir do |tmp_dir|
-          Dir.chdir(tmp_dir) do
-            Connection.open(config) do |sftp|
-              error = sftp.test_connection
+        ClassMethods.test_connection(config)
+      end
+
+      module ClassMethods
+        module_function
+        def test_connection(config)
+          error = nil
+          Dir.mktmpdir do |tmp_dir|
+            Dir.chdir(tmp_dir) do
+              Connection.open(config) do |sftp|
+                error = sftp.test_connection
+              end
             end
           end
-        end
         rescue => e
           error = e.message
+        ensure
+          error
         end
-        error
+      end
+
+      def self.included(base)
+        base.extend ClassMethods
       end
 
       class Connection
