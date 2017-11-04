@@ -196,4 +196,24 @@ class TestJSONDivider < Test::Unit::TestCase
     end
   end
 
+  def test_nested_hashes
+    json = File.join @fixtures_path, 'nested_hash.json'
+    expected_divided_content = JSON.parse(File.read(File.join @expected_content_path, 'expected_divided_nested_hash.json'))
+    n_expected_parts = expected_divided_content.size
+
+    actual_divided_content = []
+    size_per_part = 1000
+    options = { "divide_target" => "employees", "size_per_part" => size_per_part  }
+
+    JSONDivider.new(json, options).divide do |part|
+      actual_divided_content << part
+    end
+    actual_divided_content_real_hashes = actual_divided_content.map { |part| JSON.parse part }
+
+    assert_equal n_expected_parts, actual_divided_content.size, "expected #{n_expected_parts} parts"
+    assert_equal expected_divided_content, actual_divided_content_real_hashes
+    assert_equal false, parts_sizes(actual_divided_content).any? {|x| x > size_per_part}
+    assert_equal JSON.parse(File.read(json)), combine_parts(actual_divided_content)
+  end
+
 end

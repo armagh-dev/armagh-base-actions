@@ -1,0 +1,107 @@
+[
+  {
+    "header_stuff": {"key": "value"},
+    "more_header_stuff": "turkey",
+    "employees": [
+      {
+        "id": 1,
+        "profile": {
+          "name": "Harry",
+          "ssn": 12345,
+          "beneficiaries": [
+            {
+              "name": "Sally",
+              "relationship": "wife",
+              "percent": 95,
+              "more_nesting": {
+                "nickname": "Sweeti Pi"
+              }
+            },
+            {
+              "name": "Fido",
+              "relationship": "pet",
+              "percent": 5,
+              "more_nesting": {
+                "nickname": "arfie"
+              }
+            }
+          ],
+          "more_hash": {
+            "key": "value1"
+          }
+        }
+      }
+    ],
+    "footer_stuff": "some footer stuff"
+  },
+  {
+    "header_stuff": {"key": "value"},
+    "more_header_stuff": "turkey",
+    "employees": [
+      {
+        "id": 2,
+        "profile": {
+          "name": "Bob",
+          "ssn": 54321,
+          "beneficiaries": [
+            {
+              "name": "Betty",
+              "relationship": "wife",
+              "percent": 100,
+              "more_nesting": {
+                "nickname": "Hey You"
+              }
+            }
+          ],
+          "more_hash": {
+            "key": "value2"
+          }
+        }
+      }
+    ],
+    "footer_stuff": "some footer stuff"
+  },
+  {
+    "header_stuff": {"key": "value"},
+    "more_header_stuff": "turkey",
+    "employees": [
+      {
+        "id": 3,
+        "profile": {
+          "name": "Moe",
+          "ssn": 55555,
+          "beneficiaries": [
+            {
+              "name": "Wife",
+              "relationship": "wife",
+              "percent": 80,
+              "more_nesting": {
+                "nickname": "Wifie Pi"
+              }
+            },
+            {
+              "name": "Boy",
+              "relationship": "son",
+              "percent": 15,
+              "more_nesting": {
+                "nickname": "Sonney Boy"
+              }
+            },
+            {
+              "name": "Money",
+              "relationship": "pet",
+              "percent": 5,
+              "more_nesting": {
+                "nickname": "WereInThe"
+              }
+            }
+          ],
+          "more_hash": {
+            "key": "value3"
+          }
+        }
+      }
+    ],
+    "footer_stuff": "some footer stuff"
+  }
+]

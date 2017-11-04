@@ -56,7 +56,7 @@ module Armagh
 
         private_class_method def self.xml_node_to_hash(node)
           if node.text
-            return [node.value, node.text]
+            return [node.value, node.text.strip]
           else
             result_hash = {}
             node.nodes.each do |child|

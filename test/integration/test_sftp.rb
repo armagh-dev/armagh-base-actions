@@ -101,15 +101,6 @@ class TestIntegrationSFTP < Test::Unit::TestCase
     )
   end
 
-  def test_validation_no_dir
-    @config_values['directory_path'] = 'no_such_dir'
-
-    assert_equal(
-      {'test_connection'=>'SFTP Connection Test Error: A reference was made to a file which does not exist. (no such file)'},
-      create_config('vnd').test_and_return_errors
-    )
-  end
-
   def test_validation_no_access
     @config_values['directory_path'] = NO_ACCESS_DIR
 
@@ -167,7 +158,6 @@ class TestIntegrationSFTP < Test::Unit::TestCase
   def test_put_then_get_files_subdirectories
     @config_values['maximum_transfer'] = 5
     @config_values['filename_pattern'] = '**/*.txt'
-    @config_values['create_directory_path' ] = true
     @config_values['duplicate_put_directory_paths'] = [ SFTP_DUP_PUT_DIR1, SFTP_DUP_PUT_DIR2 ]
     config = Armagh::Support::SFTP.create_configuration(@config_store, 'putget', {'sftp' => @config_values})
 
@@ -197,7 +187,6 @@ class TestIntegrationSFTP < Test::Unit::TestCase
     assert_empty(errors)
 
     @config_values.delete 'duplicate_put_directory_paths'
-    @config_values['create_directory_path'] = false
 
     [ READ_WRITE_DIR, SFTP_DUP_PUT_DIR1, SFTP_DUP_PUT_DIR2 ].each do |from_dir|
       @config_values['directory_path'] = from_dir
@@ -293,7 +282,6 @@ class TestIntegrationSFTP < Test::Unit::TestCase
   def test_put_file_ls_remove
     dest_subdir = 'subdir'
 
-    @config_values[ 'create_directory_path' ] = true
     files = %w(file1 file2 file3)
     config = Armagh::Support::SFTP.create_configuration(@config_store, 'putget', {'sftp' => @config_values})
 
@@ -309,6 +297,29 @@ class TestIntegrationSFTP < Test::Unit::TestCase
         assert_not_include(ls, dest_subdir)
       end
     end
+  end
+
+  def test_test_connection_creates_dir
+    new_subdir = 'test_creates_and_removes_this_dir'
+    config = Armagh::Support::SFTP.create_configuration(@config_store, 'chkdir', {'sftp' => @config_values})
+
+    Armagh::Support::SFTP::Connection.open(config) do |sftp|
+      ls = sftp.ls_subdir('.')
+      assert_not_include(ls, new_subdir)
+    end
+
+    @config_values['directory_path'] = File.join(READ_WRITE_DIR, new_subdir)
+    assert_empty create_config('vcd').test_and_return_errors
+
+    Armagh::Support::SFTP::Connection.open(config) do |sftp|
+      ls = sftp.ls_subdir('.')
+      assert_include(ls, new_subdir)
+    end
+
+    ensure
+      Armagh::Support::SFTP::Connection.open(config) do |sftp|
+        sftp.remove_subpath(new_subdir)
+      end
   end
 
 end

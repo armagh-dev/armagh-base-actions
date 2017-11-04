@@ -433,8 +433,28 @@ class TestFieldMap < Test::Unit::TestCase
 
     set_field_map_attrs(doc, @config)
 
-    assert_equal   'unknown',    doc.title
-    assert_nil                   doc.copyright
-    assert_compare @now,  '<=',  doc.document_timestamp
+    assert_nil doc.title
+    assert_nil doc.copyright
+    assert_nil doc.document_timestamp
+  end
+
+  test "set_field_map_attrs should set doc attrs to default values when not set, not in content, not in metadata, and doc.source is nil" do
+    doc = Armagh::Documents::ActionDocument.new(
+      document_id: 'doc document_id',
+      title:       nil,
+      copyright:   nil,
+      content:     { 'nested' => @content },
+      raw:         nil,
+      metadata:    { 'NOT-copyright' => 'NOT Copyright' },
+      docspec:     nil,
+      source:      nil,
+      document_timestamp: nil
+    )
+
+    set_field_map_attrs(doc, @config)
+
+    assert_nil doc.title
+    assert_nil doc.copyright
+    assert_nil doc.document_timestamp
   end
 end

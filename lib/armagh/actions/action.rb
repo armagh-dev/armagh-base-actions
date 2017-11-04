@@ -62,7 +62,7 @@ module Armagh
 
         include Configh::Configurable
 
-        define_parameter name: 'name',    type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: '<WORKFLOW-NAME>CollectAction', group: 'action'
+        define_parameter name: 'name',    type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: 'example-collect (Warning: Cannot be changed once set)', group: 'action'
         define_parameter name: 'active',  type: 'boolean',          required: true, description: 'Agents will run this configuration if active', default: false, group: 'action'
         define_parameter name: 'workflow', type: 'populated_string', required: false, description: 'Workflow this action config belongs to', prompt: '<WORKFLOW-NAME>', group: 'action'
         define_parameter name: 'docspec', type: 'docspec', required: true, description: 'Input doctype for this action', group: 'input'

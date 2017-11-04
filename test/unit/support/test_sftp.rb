@@ -44,7 +44,6 @@ class TestSFTP < Test::Unit::TestCase
       'host' => 'localhost',
       'maximum_transfer' => 4,
       'directory_path' => '/',
-      'create_directory_path' => true,
       'password' => Configh::DataTypes::EncodedString.from_plain_text('password_123'),
       'username' => 'test_user'
     }

@@ -38,7 +38,6 @@ module Armagh
       define_parameter name: 'port', description: 'SFTP port', type: 'positive_integer', required: true, default: 22
       define_parameter name: 'directory_path', description: 'SFTP base directory path', type: 'populated_string', required: true, default: './'
       define_parameter name: 'duplicate_put_directory_paths', description: 'Directories receiving duplicate files on the same server', type: 'string_array', required: false, default: []
-      define_parameter name: 'create_directory_path', description: 'If the target directory does not exist, create it', type: 'boolean', required: true, default: false
       define_parameter name: 'filename_pattern', description: 'Glob file pattern', type: 'string', required: false, prompt: '*.pdf'
       define_parameter name: 'username', description: 'SFTP user name', type: 'populated_string', required: true, prompt: 'user'
       define_parameter name: 'password', description: 'SFTP user password', type: 'encoded_string', required: false, prompt: 'password'
@@ -91,7 +90,6 @@ module Armagh
           @host = sc.host
           @directory_path = sc.directory_path
           @duplicate_put_directory_paths = sc.duplicate_put_directory_paths
-          @create_directory_path = sc.create_directory_path
           @filename_pattern = sc.filename_pattern || '*'
           username = sc.username
           @maximum_number_to_transfer = sc.maximum_transfer
@@ -203,7 +201,7 @@ module Armagh
 
             [ @directory_path, *@duplicate_put_directory_paths ].each do |remote_base_dirpath|
               remote_full_dirpath = File.join( remote_base_dirpath, dest_dir, File.dirname( src ))
-              mkdir_p( remote_full_dirpath ) if @create_directory_path
+              mkdir_p( remote_full_dirpath )
               @sftp.upload!(src, File.join(remote_full_dirpath, File.basename(src)))
             end
           rescue => e
@@ -229,7 +227,7 @@ module Armagh
           test_file.write 'This is test content'
           test_file.close
           remote_file = File.join(@directory_path, File.basename(test_file.path))
-          mksubdir_p('') if @create_directory_path
+          mksubdir_p('')
 
           @sftp.upload!(test_file.path, remote_file)
           @sftp.remove!(remote_file)

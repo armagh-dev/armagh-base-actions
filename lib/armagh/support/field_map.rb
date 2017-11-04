@@ -72,8 +72,8 @@ module Armagh
           doc.document_timestamp = (attr.is_a? Time) ? attr : parse_time(attr, config)  unless attr.nil?
         end
 
-        doc.title              ||= doc.source.filename || "unknown"
-        doc.document_timestamp ||= doc.source.mtime    || Time.now
+        doc.title              ||= doc.source&.filename
+        doc.document_timestamp ||= doc.source&.mtime
         doc.copyright          ||= get_field_map_attr(doc.metadata, ['copyright'])  ## metadata may be an Array
       end
 

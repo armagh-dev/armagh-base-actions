@@ -86,10 +86,20 @@ class JSONDivider
       when :inside_divide_element_object
         if char == DOUBLE_QUOTE
           @stack.push(:inside_string)
+        elsif char == LEFT_CURLY
+          @stack.push(:inside_nested_hash)
         elsif char == RIGHT_CURLY
           element = @element_map.last
           bytesize = file.pos - element.offset
           element.bytesize = bytesize
+          @stack.pop
+        end
+      when :inside_nested_hash
+        if char == DOUBLE_QUOTE
+          @stack.push(:inside_string)
+        elsif char == LEFT_CURLY
+          @stack.push(:inside_nested_hash)
+        elsif char == RIGHT_CURLY
           @stack.pop
         end
       when :end_of_divide_target

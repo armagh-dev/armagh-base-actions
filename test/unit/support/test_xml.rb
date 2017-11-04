@@ -143,6 +143,37 @@ class TestXML < Test::Unit::TestCase
     assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
   end
 
+  def test_to_hash_multiline_nodes
+    xml = <<-end
+      <xml>
+        <div id="123" class="css">
+          <p>some text</p>
+          <p>some other text</p>
+        </div>
+        <div id="124" class="css2">more stuff</div>
+        <div>just text</div>
+      </xml>
+    end
+    expected = {"xml"=> {"div"=> [{"attr_id"=>"123", "attr_class"=>"css", "p"=>["some text", "some other text"]}, {"attr_id"=>"124", "attr_class"=>"css2", "text"=>"more stuff"}, "just text"]}}
+    assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
+  end
+
+  def test_to_hash_multiline_single_nodes
+    xml = <<-end
+      <xml>
+        <div id="123" class="css">
+          <p>some text
+             some other text
+          </p>
+        </div>
+        <div id="124" class="css2">more stuff</div>
+        <div>just text</div>
+      </xml>
+    end
+    expected = {"xml"=> {"div"=> [{"attr_id"=>"123", "attr_class"=>"css", "p"=>"some text some other text"}, {"attr_id"=>"124", "attr_class"=>"css2", "text"=>"more stuff"}, "just text"]}}
+    assert_equal expected, Armagh::Support::XML.to_hash(xml, @config_size_default.xml.html_nodes)
+  end
+
   def test_to_hash_bad_xml
     expected = {"bad"=>{"attr_"=>"", "attr_xml"=>""}}
     assert_equal expected, Armagh::Support::XML.to_hash('<bad xml <', @config_size_default.xml.html_nodes)
@@ -190,6 +221,40 @@ class TestXML < Test::Unit::TestCase
   def test_html_to_hash
     html = '<html><body><p>Text</p></body></html>'
     expected = {"html"=>{"body"=>{"p"=>"Text"}}}
+    assert_equal expected, Armagh::Support::XML.html_to_hash(html)
+  end
+
+  def test_html_multiline_node
+    html = <<-end
+      <html>
+        <body>
+          <ul>
+            <li>One</li>
+            <li>Two</li>
+            <li>Three</li>
+          </ul>
+        </body>
+      </html>
+    end
+    expected = {"html"=>{"body"=>{"ul"=>{"li"=>["One", "Two", "Three"]}}}}
+    assert_equal expected, Armagh::Support::XML.html_to_hash(html)
+  end
+
+  def test_html_multiline_single_node
+    html = <<-end
+      <html>
+        <body>
+          <ul>
+            <li>
+              One
+              Two
+              Three
+            </li>
+          </ul>
+        </body>
+      </html>
+    end
+    expected = {"html"=>{"body"=>{"ul"=>{"li"=>"One Two Three"}}}}
     assert_equal expected, Armagh::Support::XML.html_to_hash(html)
   end
 
