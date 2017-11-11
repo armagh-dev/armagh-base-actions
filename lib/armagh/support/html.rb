@@ -73,9 +73,9 @@ module Armagh
       class ExtractError     < HTMLError;   end
 
       HTML_TO_TEXT_SHELL = %W(#{`which w3m`.strip} -T text/html -cols 10000 -O UTF-8 -o alt_entity=false)
-      HTML_PART_DELIMITER = '|~!@#^&*|'
-      HTML_PAGE_DELIMITER = '*#Y*@^~YU'
-      HTML_PAGE_BREAK = "\n\n--- PAGE %d ---\n\n"
+      HTML_PART_DELIMITER = '|~!@#^&*|'.freeze
+      HTML_PAGE_DELIMITER = '*#Y*@^~YU'.freeze
+      HTML_PAGE_BREAK = "\n\n--- PAGE %d ---\n\n".freeze
       HTML_ANCHOR_LABEL_LINK_REGEX = /<a(?:| .+?) href=["'](.+?)["'](?:| .+?)>(.+?)<\/a>/im
 
       def HTML.merge_multiple_pages(content_array)
@@ -89,9 +89,9 @@ module Armagh
       end
 
       def html_to_text(*html_parts, config)
+        num_parts = html_parts.length
         html_parts.map! do |part|
           raise InvalidHTMLError, "HTML must be a String, instead: #{part.class}" unless part.is_a?(String)
-          raise InvalidHTMLError, 'HTML cannot be empty' if part.strip.empty?
           part.dup
         end
 
@@ -101,6 +101,7 @@ module Armagh
         force_breaks(html_parts.first)         if config.html.force_breaks
 
         html_parts.each do |part|
+          next if part.empty?
           extract_cdata(part, config.html.ignore_cdata)
           replace_apos_with_single_quote(part)
           strip_sup_tag(part)
@@ -111,7 +112,7 @@ module Armagh
         html = preserve_hyperlinks(html) if config.html.preserve_hyperlinks
 
         text = Shell.call_with_input(HTML_TO_TEXT_SHELL, html)
-        text.include?(HTML_PART_DELIMITER) ? text.split(HTML_PART_DELIMITER) : text
+        text.include?(HTML_PART_DELIMITER) ? text.split(HTML_PART_DELIMITER, num_parts) : text
       rescue HTMLError
         raise
       rescue => e

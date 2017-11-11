@@ -95,7 +95,7 @@ module Armagh
 
       def initialize(caller_instance, logger_name, config, state_collection)
 
-        Action.validate_action_type( self.class )
+        self.class.validate_action_type( self.class )
         @config = config
         @name = config.action.name
         @caller = caller_instance
@@ -107,10 +107,13 @@ module Armagh
         defined_parameters.find_all{ |p| p.group == 'output' and p.type == 'docspec' }
       end
 
-      def Action.validate_action_type( action_class )
-        valid_actions = %w(Armagh::Actions::Split Armagh::Actions::Consume Armagh::Actions::Publish Armagh::Actions::Collect Armagh::Actions::Divide)
-        valid_type = (action_class.ancestors.collect { |a| a.name } & valid_actions).any?
-        raise ActionError, "Unknown Action Type #{name.sub('Armagh::', '')}.  Expected to be a descendant of #{valid_actions.join(", ")}." unless valid_type
+      def self.valid_action_superclasses
+        %w(Armagh::Actions::Split Armagh::Actions::Consume Armagh::Actions::Publish Armagh::Actions::Collect Armagh::Actions::Divide)
+      end
+
+      def self.validate_action_type( action_class )
+        valid_type = (action_class.ancestors.collect { |a| a.name } & self.valid_action_superclasses).any?
+        raise ActionError, "Unknown Action Type #{name.sub('Armagh::', '')}.  Expected to be a descendant of #{self.valid_action_superclasses.join(", ")}." unless valid_type
       end
 
       def Action.report_validation_errors( candidate_config )

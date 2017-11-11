@@ -61,8 +61,9 @@ class TestIntegrationHTML < Test::Unit::TestCase
     html     = 'header<div><span>ignore</span>&apos;html<![CDATA[ignore]]><sup>&apos;</sup></div>footer'
     title    = '&apos;title<![CDATA[<!-- comment -->]]>&apos;'
     source   = '&apos;source&apos;'
-    result   = html_to_text(html, title, source, config)
-    expected = %w('html' 'title' 'source')
+    empty    = ''
+    result   = html_to_text(html, title, source, empty, config)
+    expected = ["'html'", "'title'", "'source'", '']
     assert_equal expected, result
   end
 

@@ -96,7 +96,7 @@ class TestAction < Test::Unit::TestCase
   def test_valid_bad_type
     Object.const_set "BadClass", Class.new( Armagh::Actions::Action )
     e = assert_raises( Armagh::Actions::ActionError) { BadClass.new( @caller, 'logger_name', Object.new, @collection )}
-    assert_equal 'Unknown Action Type Actions::Action.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect, Armagh::Actions::Divide.', e.message
+    assert_equal 'Unknown Action Type BadClass.  Expected to be a descendant of Armagh::Actions::Split, Armagh::Actions::Consume, Armagh::Actions::Publish, Armagh::Actions::Collect, Armagh::Actions::Divide.', e.message
 
   end
 

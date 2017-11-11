@@ -143,11 +143,13 @@ class TestHTML < Test::Unit::TestCase
   end
 
   def test_html_to_text_empty_html
-    Armagh::Support::Shell.unstub(:call_with_input)
-    e = assert_raise InvalidHTMLError do
-      html_to_text('', nil)
-    end
-    assert_equal 'HTML cannot be empty', e.message
+    html_to_text('', @config)
+    assert_equal '', @result
+  end
+
+  def test_html_to_text_with_empty_array_elements
+    html_to_text('', 'one', '', 'two', '', @config)
+    assert_equal ['', 'one', '', 'two', ''], @result.split(HTML_PART_DELIMITER, 5)
   end
 
   def test_html_to_text_invalid_config
