@@ -29,6 +29,8 @@ module Armagh
   module Actions
 
     class ActionError < StandardError; end
+    class ConfigurationError < StandardError; end
+
 
     class InvalidArgumentError < ActionError
       def initialize(invalid_arg, invalid_value, expected_type)
@@ -62,9 +64,9 @@ module Armagh
 
         include Configh::Configurable
 
-        define_parameter name: 'name',    type: 'populated_string', required: true, description: 'Name of this action configuration', prompt: 'example-collect (Warning: Cannot be changed once set)', group: 'action'
-        define_parameter name: 'active',  type: 'boolean',          required: true, description: 'Agents will run this configuration if active', default: false, group: 'action'
-        define_parameter name: 'workflow', type: 'populated_string', required: false, description: 'Workflow this action config belongs to', prompt: '<WORKFLOW-NAME>', group: 'action'
+        define_parameter name: 'name',    type: 'string',  required: true, description: 'Name of this action configuration', prompt: 'example-collect (Warning: Cannot be changed once set)', group: 'action'
+        define_parameter name: 'active',  type: 'boolean', required: true, description: 'Agents will run this configuration if active', default: false, group: 'action'
+        define_parameter name: 'workflow', type: 'string', required: true, description: 'Workflow this action config belongs to', prompt: '<WORKFLOW-NAME>', group: 'action'
         define_parameter name: 'docspec', type: 'docspec', required: true, description: 'Input doctype for this action', group: 'input'
 
         define_singleton_method(:define_default_input_type) { |args|
@@ -93,14 +95,13 @@ module Armagh
         }
       end
 
-      def initialize(caller_instance, logger_name, config, state_collection)
+      def initialize(caller_instance, logger_name, config)
 
         self.class.validate_action_type( self.class )
         @config = config
         @name = config.action.name
         @caller = caller_instance
         @logger_name = logger_name
-        @state_collection = state_collection
       end
 
       def self.defined_output_docspecs
@@ -158,7 +159,7 @@ module Armagh
       end
 
       def with_locked_action_state( timeout = 10 )
-        super( @state_collection, timeout )
+        super( @caller, @name, lock_hold_duration: timeout )
       end
 
       def random_id

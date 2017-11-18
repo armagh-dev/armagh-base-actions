@@ -27,7 +27,7 @@ module Armagh
         define_parameter name: 'repeated_element_name',
                          group: 'xml_splitter',
                          description: 'Repeated element name used to split large XML into smaller XMLs',
-                         type: 'populated_string',
+                         type: 'string',
                          required: true,
                          prompt: 'Specify name for a repeated element <name>'
 

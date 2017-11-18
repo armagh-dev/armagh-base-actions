@@ -17,95 +17,22 @@
 #
 #
 
-require 'timeout'
-require 'mongo'
-
 module Armagh
   module Actions
 
-    class ActionStateTimeoutError < StandardError; end
-    class ActionStateError < StandardError; end
-    
     module Stateful
-    
-      def with_locked_action_state(collection, timeout) 
-        name = @config&.action&.name || 'default'
-        begin
-          action_state_doc = ActionStateDocument.find_or_create(collection, name, Process.pid, timeout)
-          yield action_state_doc
-        ensure
-          action_state_doc.save_and_unlock if action_state_doc
-        end
-      end
-    end
-       
-    class ActionStateDocument
-      attr_accessor :state_doc_name, :locked_by, :content
-      
-      def self.find_or_create(collection, action_name, pid, timeout = 10)
-        state_doc_name = "#{action_name}_state"
 
-        doc = collection.find(
-          { 'name' => state_doc_name, 'type' => name, 'locked_by' => pid }
-        ).limit(1).first
-        raise ActionStateError.new("Document is already locked by the current process ID") if doc && doc['locked_by'] == pid
-
-        doc = collection.find_one_and_update(
-          { 'name' => state_doc_name },
-          { 
-            '$setOnInsert' => { 'name' => state_doc_name, 'type' => name, 'locked_by' => pid, 'locked_at' => Time.now, 'content' => {} }
-          },
-          upsert: true,
-          return_document: :after
-        )
-
-        unless doc['locked_by'] == pid
-          doc = nil
-          begin
-            Timeout::timeout(timeout) do
-              while doc.nil?
-                doc = collection.find_one_and_update(
-                 { 'name' => state_doc_name, 'locked_by' => nil },
-                 { '$set' => {'locked_by' => pid, 'locked_at' => Time.now }},
-                 return_document: :after
-                )
-                sleep 1 unless doc
-              end
-            end 
-          rescue Timeout::Error 
-            raise ActionStateTimeoutError
-          end
-        end
-
-        new(collection, doc['name'], doc['locked_by'], doc['content'])
-      end
-              
-      def initialize(collection, state_doc_name, pid, content = {})
-        @collection = collection
-        @state_doc_name = state_doc_name
-        @content = content 
-        @locked_by = pid
-      end
-      
-      def save
-        raise ActionStateError.new("Content must be a hash") unless @content.is_a?(Hash)
-        raise ActionStateError.new("Cannot save unless you have the lock") unless @locked_by
-        @collection.find_one_and_update(
-          { 'name' => @state_doc_name, 'locked_by' => @locked_by },
-          { '$set' => { 'content' => @content }}
-        )
+      # yields a hash which your action can use to keep track of state from one
+      # run to the next.  The state is locked when execution is within this block.
+      # Any updates made to the state content will be saved, EVEN IF the action
+      # encounters an error, so ensure that your action only writes state at a
+      # point in your code that maintains consistency.
+      def with_locked_action_state(caller, name, lock_wait_duration: nil, lock_hold_duration: nil)
+        caller.with_locked_action_state( name, lock_wait_duration: lock_wait_duration, lock_hold_duration: lock_hold_duration )
       end
 
-      def save_and_unlock
-        raise ActionStateError.new("Content must be a hash") unless @content.is_a?(Hash)
-        raise ActionStateError.new("Cannot save unless you have the lock") unless @locked_by
-        @collection.find_one_and_update(
-          { 'name' => @state_doc_name, 'locked_by' => @locked_by },
-          { '$set' => { 'content' => @content, 'locked_by' => nil, 'locked_at' => nil }}
-        )
-        @locked_by = nil
-        @locked_at = nil
-      end
     end
   end
 end
+
+       

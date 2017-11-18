@@ -37,10 +37,10 @@ class TestConsume < Test::Unit::TestCase
     SubConsume.define_default_input_type 'consumed'
     SubConsume.define_output_docspec( 'output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY )
     @config = SubConsume.create_configuration( @config_store, 'set', {
-      'action' => { 'name' => 'subconsume' }
+      'action' => { 'name' => 'subconsume', 'workflow' => 'wf' }
       })
     
-    @consume_action = SubConsume.new( @caller, 'logger_name', @config, @collection )
+    @consume_action = SubConsume.new( @caller, 'logger_name', @config )
   end
 
   def test_unimplemented_consume
@@ -85,7 +85,7 @@ class TestConsume < Test::Unit::TestCase
     SubConsume.define_output_docspec( 'consumed_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED )
     e = assert_raises( Configh::ConfigInitError ) {
       config = SubConsume.create_configuration( @config_store, 'inoutstate', {
-        'action' => { 'name' => 'subconsume' }
+        'action' => { 'name' => 'subconsume', 'workflow' => 'wf' }
       })
     }
     assert_equal "Unable to create configuration for 'SubConsume' named 'inoutstate' because: \n    Output docspec 'consumed_doc' state must be one of: ready, working.", e.message
@@ -97,7 +97,7 @@ class TestConsume < Test::Unit::TestCase
     SubConsume.define_default_input_type 'consumed'
     assert_nothing_raised {
       config = SubConsume.create_configuration( @config_store, 'inoutstate', {
-        'action' => { 'name' => 'subconsume' }
+        'action' => { 'name' => 'subconsume', 'workflow' => 'wf' }
       })
     }
   end
@@ -108,7 +108,7 @@ class TestConsume < Test::Unit::TestCase
     e = Configh::ConfigInitError.new("Unable to create configuration for 'SubConsume' named 'inoutstate' because: \n    Group 'input' Parameter 'docspec': type validation failed: value cannot be nil")
     assert_raise(e) {
       config = SubConsume.create_configuration( @config_store, 'inoutstate', {
-        'action' => { 'name' => 'subconsume' }
+        'action' => { 'name' => 'subconsume', 'workflow' => 'wf' }
       })
     }
   end
@@ -120,7 +120,7 @@ class TestConsume < Test::Unit::TestCase
     e = Configh::ConfigInitError.new("Unable to create configuration for 'SubConsume' named 'inoutstate' because: \n    Input docspec 'docspec' state must be published.")
     assert_raise(e) {
       config = SubConsume.create_configuration( @config_store, 'inoutstate', {
-        'action' => { 'name' => 'subconsume' },
+        'action' => { 'name' => 'subconsume', 'workflow' => 'wf' },
         'input' => {'docspec' => 'consume:working'}
       })
     }
@@ -131,13 +131,13 @@ class TestConsume < Test::Unit::TestCase
 
     assert_nothing_raised do
       SubConsume.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'subconsume'},
+        'action' => {'name' => 'subconsume', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new( 'randomdoc', Armagh::Documents::DocState::PUBLISHED)},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
 
       SubConsume.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'subconsume'},
+        'action' => {'name' => 'subconsume', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new( 'randomdoc', Armagh::Documents::DocState::PUBLISHED)},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
       })

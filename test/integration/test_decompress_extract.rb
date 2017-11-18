@@ -77,12 +77,12 @@ class TestDecompressExtract < Test::Unit::TestCase
     @caller.expects(:create_document).with {|doc| doc.raw == "file3\n" &&  doc.source.filename == 'dir.tgz:dir/file3.txt'}
 
     config = TDECollectFile.create_configuration(@config_store, 'a', {
-      'action' => {'name' => 'mysubcollect'},
+      'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'decompress' => true, 'extract' => true, 'extract_format' => 'tar'},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    action = TDECollectFile.new( @caller, 'logger_name', config, @config_store )
+    action = TDECollectFile.new( @caller, 'logger_name', config )
     action.collect
   end
 
@@ -94,12 +94,12 @@ class TestDecompressExtract < Test::Unit::TestCase
     @caller.expects(:create_document).with {|doc| doc.raw == "file3\n" &&  doc.source.filename == ':dir/file3.txt'}
 
     config = TDECollectURL.create_configuration(@config_store, 'a', {
-      'action' => {'name' => 'mysubcollect'},
+      'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'decompress' => true, 'extract' => true, 'extract_format' => 'tar'},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    action = TDECollectURL.new( @caller, 'logger_name', config, @config_store )
+    action = TDECollectURL.new( @caller, 'logger_name', config )
     action.collect
   end
 
@@ -119,12 +119,12 @@ class TestDecompressExtract < Test::Unit::TestCase
     @divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file3.txt' && File.read('dir/file3.txt') == "file3\n"}
 
     config = TDECollectFile.create_configuration(@config_store, 'a', {
-      'action' => {'name' => 'mysubcollect'},
+      'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'decompress' => true, 'extract' => true, 'extract_format' => 'tar'},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    action = TDECollectFile.new( @caller, 'logger_name', config, @config_store )
+    action = TDECollectFile.new( @caller, 'logger_name', config )
     action.collect
   end
 
@@ -144,12 +144,12 @@ class TestDecompressExtract < Test::Unit::TestCase
     @divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file3.txt' && File.read('dir/file3.txt') == "file3\n"}
 
     config = TDECollectURL.create_configuration(@config_store, 'a', {
-      'action' => {'name' => 'mysubcollect'},
+      'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'decompress' => true, 'extract' => true, 'extract_format' => 'tar'},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    action = TDECollectURL.new( @caller, 'logger_name', config, @config_store )
+    action = TDECollectURL.new( @caller, 'logger_name', config )
     action.collect
   end
 end

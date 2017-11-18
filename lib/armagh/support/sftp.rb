@@ -34,15 +34,15 @@ module Armagh
       class FileError       < SFTPError; end
       class TimeoutError    < SFTPError; end
 
-      define_parameter name: 'host', description: 'SFTP host or IP', type: 'populated_string', required: true, prompt: 'host.example.com or 10.0.0.1'
-      define_parameter name: 'port', description: 'SFTP port', type: 'positive_integer', required: true, default: 22
-      define_parameter name: 'directory_path', description: 'SFTP base directory path', type: 'populated_string', required: true, default: './'
-      define_parameter name: 'duplicate_put_directory_paths', description: 'Directories receiving duplicate files on the same server', type: 'string_array', required: false, default: []
-      define_parameter name: 'filename_pattern', description: 'Glob file pattern', type: 'string', required: false, prompt: '*.pdf'
-      define_parameter name: 'username', description: 'SFTP user name', type: 'populated_string', required: true, prompt: 'user'
-      define_parameter name: 'password', description: 'SFTP user password', type: 'encoded_string', required: false, prompt: 'password'
-      define_parameter name: 'key', description: 'SSH Key (not filename!) for SFTP connection', type: 'string', required: false, prompt: 'password'
-      define_parameter name: 'maximum_transfer', description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
+      define_parameter name: 'host',                          description: 'SFTP host or IP',                                            type: 'string', required: true, prompt: 'host.example.com or 10.0.0.1'
+      define_parameter name: 'port',                          description: 'SFTP port',                                                  type: 'positive_integer', required: true, default: 22
+      define_parameter name: 'directory_path',                description: 'SFTP base directory path',                                   type: 'string', required: true, default: './'
+      define_parameter name: 'duplicate_put_directory_paths', description: 'Directories receiving duplicate files on the same server',   type: 'string_array', required: false, default: []
+      define_parameter name: 'filename_pattern',              description: 'Glob file pattern',                                          type: 'string', required: false, prompt: '*.pdf'
+      define_parameter name: 'username',                      description: 'SFTP user name',                                             type: 'string', required: true, prompt: 'user'
+      define_parameter name: 'password',                      description: 'SFTP user password',                                         type: 'encoded_string', required: false, prompt: 'password'
+      define_parameter name: 'key',                           description: 'SSH Key (not filename!) for SFTP connection',                type: 'string', required: false, prompt: 'password'
+      define_parameter name: 'maximum_transfer',              description: 'Max documents matching filter to collect or put in one run', type: 'positive_integer', default: 50, required: true
 
       define_group_test_callback callback_class: Armagh::Support::SFTP, callback_method: :test_connection
 
@@ -117,7 +117,9 @@ module Armagh
           failed_files = 0
 
           entries_to_transfer = @sftp.dir.glob(@directory_path, @filename_pattern)
-          entries_to_transfer = entries_to_transfer.select { |e| e.file? }.first(@maximum_number_to_transfer)
+          entries_to_transfer = entries_to_transfer.select { |e| e.file? }
+          entries_to_transfer.sort_by!{|e| e.name}
+          entries_to_transfer = entries_to_transfer.first(@maximum_number_to_transfer)
           entries_to_transfer.each do |entry|
             file_attempts = 0
 

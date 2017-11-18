@@ -158,6 +158,7 @@ class TestIntegrationFTP < Test::Unit::TestCase
     errors =    []
     remaining_files = nil
 
+    FakeFS.clear!
     FakeFS do
       test_file_list.each { |fn| File.open(fn,"w") << "I am file #{fn}.\n"}
 
@@ -179,6 +180,7 @@ class TestIntegrationFTP < Test::Unit::TestCase
     collected_files = nil
     result = nil
 
+    FakeFS.clear!
     FakeFS do
       Armagh::Support::FTP::Connection.open( config ) do |ftp_connection|
 
@@ -229,6 +231,7 @@ class TestIntegrationFTP < Test::Unit::TestCase
 
     received_content = {}
 
+    FakeFS.clear!
     FakeFS do
       %w(dir_1 dir_2).each do |dir|
         FileUtils.mkdir_p(File.join(base_nested_dir, dir))

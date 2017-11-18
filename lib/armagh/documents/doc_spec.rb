@@ -22,7 +22,7 @@ require_relative 'errors'
 module Configh
   module DataTypes
 
-    def DataTypes.ensure_is_docspec(value)
+    def DataTypes.ensure_is_docspec(value, nullable: :ignored )
       if value.is_a?(String)
         type, state = value.split(':')
 

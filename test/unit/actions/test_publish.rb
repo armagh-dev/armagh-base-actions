@@ -35,12 +35,12 @@ class TestPublish < Test::Unit::TestCase
     Object.const_set :SubPublish, Class.new( Armagh::Actions::Publish )
     @config_store = []
     @config = SubPublish.create_configuration( @config_store, 'set', {
-      'action' => { 'name' => 'mySubPublish' },
+      'action' => { 'name' => 'mySubPublish', 'workflow' => 'wf' },
       'input'  => { 'docspec' => 'the_doctype:ready' },
       'output' => { 'docspec' => 'the_doctype:published' }
       })
     
-    @publish_action = SubPublish.new( @caller, 'logger_name', @config, @collection )
+    @publish_action = SubPublish.new( @caller, 'logger_name', @config )
   end
 
   def test_unimplemented_publish
@@ -70,7 +70,7 @@ class TestPublish < Test::Unit::TestCase
     e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Group 'output' Parameter 'docspec': type validation failed: value cannot be nil")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
         'output' => {
         }
@@ -82,7 +82,7 @@ class TestPublish < Test::Unit::TestCase
     e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Group 'input' Parameter 'docspec': type validation failed: value cannot be nil")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::PUBLISHED),
         }
@@ -94,7 +94,7 @@ class TestPublish < Test::Unit::TestCase
     e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Input docspec 'docspec' state must be ready.")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::WORKING)},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::PUBLISHED),
@@ -107,7 +107,7 @@ class TestPublish < Test::Unit::TestCase
     e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Output docspec 'docspec' state must be one of: published.")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::WORKING),
@@ -119,7 +119,7 @@ class TestPublish < Test::Unit::TestCase
   def test_same_in_out_spec
     e = assert_raise do
       SubPublish.create_configuration(@config_store, 'set2', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY),
@@ -134,7 +134,7 @@ class TestPublish < Test::Unit::TestCase
     e = Configh::ConfigInitError.new("Unable to create configuration for 'SubPublish' named 'set2' because: \n    Input doctype (dansbigdocs) and output doctype (dansbigdocs2) must be the same for Publish actions")
     assert_raise(e) do
       SubPublish.create_configuration(@config_store, 'set2', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs2', Armagh::Documents::DocState::PUBLISHED),

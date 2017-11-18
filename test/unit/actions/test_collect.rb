@@ -37,7 +37,6 @@ class TestCollect < Test::Unit::TestCase
     @tgz = fixture('dir.tgz')
 
     @caller = mock
-    @collection = mock
     if Object.const_defined?( :SubCollect )
       Object.send( :remove_const, :SubCollect )
     end
@@ -45,12 +44,12 @@ class TestCollect < Test::Unit::TestCase
     SubCollect.define_output_docspec('output_type', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
     @config_store = []
     config = SubCollect.create_configuration(@config_store, 'a', {
-      'action' => {'name' => 'mysubcollect'},
+      'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    @collect_action = SubCollect.new(@caller, 'logger_name', config, @collection)
+    @collect_action = SubCollect.new(@caller, 'logger_name', config)
     @content = 'collected content'
     @source = Armagh::Documents::Source.new(type: 'url', url: 'some url')
   end
@@ -141,13 +140,13 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:create_document)
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_arch', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
 
     })
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     FakeFS do
       @collect_action.create(collected: @content, metadata: meta, docspec_name: 'output_type', source: @source)
     end
@@ -176,12 +175,12 @@ class TestCollect < Test::Unit::TestCase
     divider.expects(:divide)
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_arch_div', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     FakeFS do
       @collect_action.create(collected: @content, metadata: meta, docspec_name: 'output_type', source: @source)
     end
@@ -200,12 +199,12 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:create_document)
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_arc_kn_fn', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     FakeFS do
       @collect_action.create(collected: @content, metadata: meta, docspec_name: 'output_type', source: @source)
     end
@@ -297,13 +296,13 @@ class TestCollect < Test::Unit::TestCase
 
     assert_nothing_raised do
       SubCollect.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'mysubcollect'},
+        'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
 
       SubCollect.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'mysubcollect'},
+        'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
       })
@@ -316,7 +315,7 @@ class TestCollect < Test::Unit::TestCase
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::PUBLISHED)
     e = assert_raises(Configh::ConfigInitError) {
       config = SubCollect.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'mysubcollect'},
+        'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
@@ -340,7 +339,7 @@ class TestCollect < Test::Unit::TestCase
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
     assert_raises(Configh::ConfigInitError.new("Unable to create configuration for 'SubCollect' named 'inoutstate' because: \n    Schedule 'invalid' is not valid cron syntax.")) {
       SubCollect.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'mysubcollect'},
+        'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
         'collect' => {'schedule' => 'invalid', 'archive' => false},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
@@ -356,7 +355,7 @@ class TestCollect < Test::Unit::TestCase
     SubCollect.define_output_docspec('collected_doc', 'action description', default_type: 'OutputDocument', default_state: Armagh::Documents::DocState::READY)
     assert_raises(Configh::ConfigInitError.new("Unable to create configuration for 'SubCollect' named 'inoutstate' because: \n    Group 'collect' Parameter 'extract_format': value is not one of the options (auto,7zip,tar,tgz,zip)")) {
       SubCollect.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'mysubcollect'},
+        'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
         'collect' => {'extract' => true, 'extract_filter' => '*.txt', 'extract_format' => 'invalid'},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
@@ -372,7 +371,7 @@ class TestCollect < Test::Unit::TestCase
 
     assert_nothing_raised do
       SubCollect.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'mysubcollect'},
+        'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
         'collect' => {'archive' => false},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
@@ -390,7 +389,7 @@ class TestCollect < Test::Unit::TestCase
 
     assert_nothing_raised {
       SubCollect.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'mysubcollect'},
+        'action' => {'name' => 'mysubcollect', 'workflow' => 'wf'},
         'collect' => {'schedule' => '*/5 * * * *', 'archive' => true},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
@@ -407,14 +406,14 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:create_document).with {|doc| doc.raw == @content}
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_arch', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'decompress' => true},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
     compressed = Zlib.compress(@content)
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     FakeFS do
       @collect_action.create(collected: compressed, metadata: meta, docspec_name: 'output_type', source: @source)
     end
@@ -439,14 +438,14 @@ class TestCollect < Test::Unit::TestCase
     divider.expects(:divide)
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_dec_div', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'decompress' => true},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
     compressed = Zlib.compress(@content)
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     file_content = nil
     FakeFS do
       filename = '/tmp/file'
@@ -472,12 +471,12 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:create_document).with {|doc| doc.raw == "file3\n" &&  doc.source.filename == "#{filename}:dir/file3.txt"}
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_ext', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'extract' => true, 'extract_filter' => '*.txt'},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     @source.filename = 'some.tgz'
 
     FakeFS do
@@ -497,12 +496,12 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:notify_ops).with(logger_name, action_name, 'No files were extracted.')
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_ext', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'extract' => true, 'extract_filter' => '*.png'},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     @source.filename = 'some.tgz'
 
     FakeFS do
@@ -534,12 +533,12 @@ class TestCollect < Test::Unit::TestCase
     divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file3.txt' && File.read('dir/file3.txt') == "file3\n"}
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_dec_div', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'extract' => true, 'extract_format' => 'tgz'},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     FakeFS do
       @collect_action.create(collected: @tgz, metadata: meta, docspec_name: 'output_type', source: @source)
     end
@@ -566,12 +565,12 @@ class TestCollect < Test::Unit::TestCase
     @caller.expects(:notify_ops).with(logger_name, action_name, 'No files were extracted.')
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_dec_div', {
-      'action' => {'name' => action_name},
+      'action' => {'name' => action_name, 'workflow' => 'wf'},
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false, 'extract' => true, 'extract_format' => 'tgz', 'extract_filter' => '*.png'},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
 
-    @collect_action = SubCollect.new(@caller, logger_name, config, @collection)
+    @collect_action = SubCollect.new(@caller, logger_name, config)
     FakeFS do
       @collect_action.create(collected: @tgz, metadata: meta, docspec_name: 'output_type', source: @source)
     end

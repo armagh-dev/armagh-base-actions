@@ -37,7 +37,7 @@ class TestRSS < Test::Unit::TestCase
     @collection = mock
     @state_doc_id = '123'
     @pid = 'pid'
-    @state = Armagh::Actions::ActionStateDocument.new(@collection, @state_doc_id, @pid)
+    @state = {}
   end
 
   def rss_test(filename, config_name, config = nil)
@@ -210,7 +210,7 @@ class TestRSS < Test::Unit::TestCase
   def test_already_collected
     content = fixture('rss_times.xml')
     stub_request(:get, 'http://fake.url').to_return(body: content)
-    @state.content['last_collect'] = Time.new(2000, 01, 01)
+    @state['last_collect'] = Time.new(2000, 01, 01)
 
     items = []
     Armagh::Support::RSS.collect_rss(@config, @state) { |channel, item, content_array, type, timestamp, exception|
@@ -225,7 +225,7 @@ class TestRSS < Test::Unit::TestCase
   def test_full_collect
     content = fixture('rss_times.xml')
     stub_request(:get, 'http://fake.url').to_return(body: content)
-    @state.content['last_collect'] = Time.new(2000, 01, 01)
+    @state['last_collect'] = Time.new(2000, 01, 01)
     config = Armagh::Support::RSS.create_configuration(@config_store, 'rss-tfc', {'http' => {'url' => 'http://fake.url'}, 'rss' => {'full_collect' => true}})
 
     items = []

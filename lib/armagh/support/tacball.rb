@@ -34,19 +34,19 @@ module Armagh
 
       define_parameter name: 'feed',
                        description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED}",
-                       type: 'populated_string',
+                       type: 'string',
                        required: true,
                        group: 'tacball'
 
       define_parameter name: 'source',
                        description: 'TACBall Document Source Name',
-                       type: 'populated_string',
+                       type: 'string',
                        required: true,
                        group: 'tacball'
 
       define_parameter name: 'type',
                        description: 'Document ID type.  For example, if set to Test, the docid will be in the format docid_prefix/Test-123456.  If not set, defaults to the document type.',
-                       type: 'populated_string',
+                       type: 'string',
                        required: false,
                        group: 'tacball'
 
@@ -59,7 +59,7 @@ module Armagh
 
       define_parameter name: 'docid_prefix',
                        description: 'The prefix of the Document ID for the tacball generation (docid_prefix/some_id)',
-                       type: 'populated_string',
+                       type: 'string',
                        required: true,
                        default: '4027',
                        group: 'tacball'

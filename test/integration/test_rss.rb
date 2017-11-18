@@ -54,7 +54,7 @@ class TestIntegrationRSS < Test::Unit::TestCase
     @config_store = []
 
     @config = Armagh::Support::RSS.create_configuration(@config_store, 'abc', @config_values)
-    @action_state_doc = Armagh::Actions::ActionStateDocument.find_or_create(@action_state_store, 'rss', 123, 60)
+    @action_state_doc = {}
   end
 
   def load_local_integration_test_config

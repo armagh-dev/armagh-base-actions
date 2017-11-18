@@ -79,9 +79,9 @@ class TestSFTP < Test::Unit::TestCase
     5.times do |i|
       name = "entry_#{i}"
       entry = mock(name)
-      entry.expects(:file?).returns(i != 2)
+      entry.stubs(:file?).returns(i != 2)
       unless i == 2
-        entry.expects(:name).returns(name)
+        entry.stubs(:name).returns(name)
         expected_files << name
       end
 
@@ -91,6 +91,8 @@ class TestSFTP < Test::Unit::TestCase
 
       entries << entry
     end
+
+    entries.reverse!
 
     return entries, expected_files
   end
@@ -192,6 +194,32 @@ class TestSFTP < Test::Unit::TestCase
     assert_sftp_start_status_error(999, Armagh::Support::SFTP::SFTPError)
   end
 
+  def test_get_files
+    entries, expected_files = make_entries
+
+    stub_close
+
+    dir = mock('dir')
+    dir.expects(:glob).returns(entries)
+    @mocked_sftp_lib.expects(:dir).returns(dir)
+
+    @mocked_sftp_lib.expects(:download!).times(4)
+    @mocked_sftp_lib.expects(:remove!).times(4)
+
+    seen_errors = []
+    collected_files = []
+
+    Armagh::Support::SFTP::Connection.open(@config) do |sftp|
+      sftp.get_files { |file, attributes, error|
+        collected_files << file
+        seen_errors << error if error
+      }
+    end
+
+    assert_empty seen_errors
+    assert_equal expected_files, collected_files
+  end
+
   def test_get_files_with_a_failure
     entries, expected_files = make_entries
 
@@ -229,8 +257,6 @@ class TestSFTP < Test::Unit::TestCase
 
   def test_get_files_system_failure
     entries, _expected_files = make_entries
-    entries.last.unstub(:name) # We'll never get to the last one
-
     stub_close
 
     dir = mock('dir')

@@ -61,7 +61,7 @@ module Armagh
 
         parent_type = HTTP.extract_type(http_response['head'])
 
-        last_collect = config.rss.full_collect ? nil : state.content['last_collect']
+        last_collect = config.rss.full_collect ? nil : state['last_collect']
         rss_items = get_filtered_rss(rss, last_collect, config.rss.max_items)
 
         content_field = config.rss.content_field
@@ -118,7 +118,7 @@ module Armagh
 
           yield channel, item, content, type, timestamp, error
 
-          state.content['last_collect'] = timestamp if state.content['last_collect'].nil? || timestamp > state.content['last_collect']
+          state['last_collect'] = timestamp if state['last_collect'].nil? || timestamp > state['last_collect']
         end
 
       end

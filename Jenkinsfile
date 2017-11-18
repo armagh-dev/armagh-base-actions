@@ -23,7 +23,6 @@ def isNewBuild(name) {
 }
 
 try {
-
 currentBuild.result = "Success"
 
   node('armagh-builder') {
@@ -54,7 +53,7 @@ currentBuild.result = "Success"
      }
   
      stage('Integration Test') {
-     
+       properties([disableConcurrentBuilds()])
        sh """#!/bin/bash -l
          echo -e "*********************************************\n** Integration testing:" `hg identify -i` "\n*********************************************"
          set -e
@@ -93,18 +92,17 @@ currentBuild.result = "Success"
      }
 
      stage('Prerelease') {
-       if ((env.BRANCH_NAME == "default") && (currentBuild.result == 'SUCCESS') && isNewBuild('armagh-base-actions')) {
-
-         sh """#!/bin/bash -l
-           echo -e "*********************************************\n** Prereleasing:" `hg identify -i` "\n*********************************************"
-           set -e
-           bundle exec rake prerelease
-         """
-
-         build job: '/armagh_test-custom_actions/default', wait: false
-         build job: '/armagh-standard_actions/default', wait: false
-       }
-     }
+       if ((env.BRANCH_NAME == "default") && (currentBuild.result == 'SUCCESS')) {
+         if (isNewBuild('armagh-base-actions')) {
+           sh """#!/bin/bash -l
+             echo -e "*********************************************\n** Prereleasing:" `hg identify -i` "\n*********************************************"
+             set -e
+             bundle exec rake prerelease
+           """
+         }
+        build job: '/armagh-standard_actions/default', wait: false
+      }
+    }
   }
 }
 

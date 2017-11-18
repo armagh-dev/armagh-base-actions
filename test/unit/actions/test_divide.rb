@@ -29,7 +29,6 @@ class TestDivide < Test::Unit::TestCase
   def setup
     @logger = mock
     @caller = mock
-    @collection = mock
     if Object.const_defined?( :SubCollect )
       Object.send( :remove_const, :SubCollect )
     end
@@ -38,7 +37,7 @@ class TestDivide < Test::Unit::TestCase
 
     @config_store = []
     coll_config = SubCollect.create_configuration( @config_store, 'set', {
-      'action' => { 'name' => 'mysubcollect' },
+      'action' => { 'name' => 'mysubcollect', 'workflow' => 'wf' },
       'collect' => {'schedule' => '*/5 * * * *', 'archive' => false},
       'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
     })
@@ -52,12 +51,12 @@ class TestDivide < Test::Unit::TestCase
 
     @config_store = []
     div_config = SubDivide.create_configuration( @config_store, 'set2', {
-      'action' => { 'name' => 'mysubdivide' },
+      'action' => { 'name' => 'mysubdivide', 'workflow' => 'wf' },
       'input'  => { 'docspec' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )},
       'output' => { 'docspec' => Armagh::Documents::DocSpec.new( 'danslittledocs', Armagh::Documents::DocState::READY )}
     })
 
-    @divide_action = SubDivide.new( @caller, 'logger_name', div_config, @collection)
+    @divide_action = SubDivide.new( @caller, 'logger_name', div_config)
 
   end
 
@@ -70,7 +69,7 @@ class TestDivide < Test::Unit::TestCase
     BadSubDivide.define_default_input_type 'innie'
     e = assert_raises( Configh::ConfigInitError ) do
       div_config = BadSubDivide.create_configuration( @config_store, 'set2', {
-        'action' => { 'name' => 'mysubdivide' },
+        'action' => { 'name' => 'mysubdivide', 'workflow' => 'wf' },
         'input'  => { 'docspec' => Armagh::Documents::DocSpec.new( 'dansbigdocs', Armagh::Documents::DocState::READY )}
       })
       @divide_action = BadSubDivide.new( @caller, 'logger_name', div_config, @collection)
@@ -85,7 +84,7 @@ class TestDivide < Test::Unit::TestCase
       SubDivide.define_output_docspec 'docspec2', 'another output docspec'
 
       SubDivide.create_configuration(@config_store, 'set3', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::READY),
@@ -100,7 +99,7 @@ class TestDivide < Test::Unit::TestCase
 
     assert_raise(e) do
       SubDivide.create_configuration(@config_store, 'set4', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
       })
     end
@@ -114,7 +113,7 @@ class TestDivide < Test::Unit::TestCase
 
     assert_raise(e) do
       SubDivide.create_configuration(@config_store, 'set5', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::READY),
         }
@@ -127,7 +126,7 @@ class TestDivide < Test::Unit::TestCase
 
     assert_raise(e) do
       SubDivide.create_configuration(@config_store, 'set6', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::PUBLISHED)},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::READY),
@@ -141,7 +140,7 @@ class TestDivide < Test::Unit::TestCase
 
     assert_raise(e) do
       SubDivide.create_configuration(@config_store, 'set7', {
-        'action' => {'name' => 'mysubdivide'},
+        'action' => {'name' => 'mysubdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('dansbigdocs', Armagh::Documents::DocState::READY)},
         'output' => {
           'docspec' => Armagh::Documents::DocSpec.new('danslittledocs', Armagh::Documents::DocState::PUBLISHED),
@@ -153,13 +152,13 @@ class TestDivide < Test::Unit::TestCase
   def test_valid_out_spec
     assert_nothing_raised do
       SubDivide.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'subdivide'},
+        'action' => {'name' => 'subdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('randomdoc', Armagh::Documents::DocState::READY)},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::READY)}
       })
 
       SubDivide.create_configuration([], 'inoutstate', {
-        'action' => {'name' => 'subdivide'},
+        'action' => {'name' => 'subdivide', 'workflow' => 'wf'},
         'input' => {'docspec' => Armagh::Documents::DocSpec.new('randomdoc', Armagh::Documents::DocState::READY)},
         'output' => {'docspec' => Armagh::Documents::DocSpec.new('type', Armagh::Documents::DocState::WORKING)}
       })

@@ -40,28 +40,28 @@ module Armagh
 
       METHODS = [POST, GET]
 
-      define_parameter name: 'url', description: 'URL to collect from', type: 'populated_string', required: true, prompt: 'http://www.example.com:8080/page'
-      define_parameter name: 'method', description: 'HTTP Method to use for collection (get or post)', type: 'populated_string', options: %w(get post), required: true, prompt: 'get or post', default: 'get'
-      define_parameter name: 'fields', description: 'Fields to send as part of the request', type: 'hash', required: false, prompt: 'Hash of fields to send as part of the request', default: {}
-      define_parameter name: 'headers', description: 'HTTP Headers to send as part of the request', type: 'hash', required: false, prompt: 'Hash of headers to send as part of the request', default: {}
-      define_parameter name: 'username', description: 'Username for basic http authentication', type: 'string', required: false
-      define_parameter name: 'password', description: 'Password for basic http authentication', type: 'encoded_string', required: false
-      define_parameter name: 'certificate', description: 'Certificate for key based http authentication', type: 'string', required: false
-      define_parameter name: 'key', description: 'Key for key based http authentication', type: 'string', required: false
-      define_parameter name: 'key_password', description: 'Key Password for key based http authentication', type: 'encoded_string', required: false
-      define_parameter name: 'proxy_url', description: 'URL of the proxy server', type: 'string', required: false, prompt: 'http://myproxy:8080'
-      define_parameter name: 'proxy_username', description: 'Username for proxy authentication', type: 'string', required: false
-      define_parameter name: 'proxy_password', description: 'Password for proxy authentication', type: 'encoded_string', required: false
-      define_parameter name: 'follow_redirects', description: 'Follow HTTP Redirects?', type: 'boolean', required: true, default: true
+      define_parameter name: 'url',                 description: 'URL to collect from',                                          type: 'string', required: true, prompt: 'http://www.example.com:8080/page'
+      define_parameter name: 'method',              description: 'HTTP Method to use for collection (get or post)',              type: 'string', options: %w(get post), required: true, prompt: 'get or post', default: 'get'
+      define_parameter name: 'fields',              description: 'Fields to send as part of the request',                        type: 'hash', required: false, prompt: 'Hash of fields to send as part of the request', default: {}
+      define_parameter name: 'headers',             description: 'HTTP Headers to send as part of the request',                  type: 'hash', required: false, prompt: 'Hash of headers to send as part of the request', default: {}
+      define_parameter name: 'username',            description: 'Username for basic http authentication',                       type: 'string', required: false
+      define_parameter name: 'password',            description: 'Password for basic http authentication',                       type: 'encoded_string', required: false
+      define_parameter name: 'certificate',         description: 'Certificate for key based http authentication',                type: 'string', required: false
+      define_parameter name: 'key',                 description: 'Key for key based http authentication',                        type: 'string', required: false
+      define_parameter name: 'key_password',        description: 'Key Password for key based http authentication', type: 'encoded_string', required: false
+      define_parameter name: 'proxy_url',           description: 'URL of the proxy server',                                      type: 'string', required: false, prompt: 'http://myproxy:8080'
+      define_parameter name: 'proxy_username',      description: 'Username for proxy authentication',                            type: 'string', required: false
+      define_parameter name: 'proxy_password',      description: 'Password for proxy authentication',                            type: 'encoded_string', required: false
+      define_parameter name: 'follow_redirects',    description: 'Follow HTTP Redirects?',                                       type: 'boolean', required: true, default: true
       define_parameter name: 'allow_https_to_http', description: 'Allow redirection from https to http.  Enabling this may be a security concern.', type: 'boolean', required: true, default: false
-      define_parameter name: 'host_whitelist', description: 'List of hostnames that collection is allowed from', type: 'string_array', required: false, prompt: 'subdomain.domain.com'
-      define_parameter name: 'host_blacklist', description: 'List of hostnames that collection is not allowed from', type: 'string_array', required: false, prompt: 'subdomain.domain.com'
-      define_parameter name: 'filetype_whitelist', description: 'List of file types that collection is allowed to collect', type: 'string_array', required: false, prompt: '[txt, pdf]'
-      define_parameter name: 'filetype_blacklist', description: 'List of file types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[txt, pdf]'
-      define_parameter name: 'mimetype_whitelist', description: 'List of mime types that collection is allowed to collect', type: 'string_array', required: false, prompt: '[text/html, text/plain]'
-      define_parameter name: 'mimetype_blacklist', description: 'List of mime types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[text/html, text/plain]'
-      define_parameter name: 'multiple_pages', description: 'Collect multiple pages', type: 'boolean', required: true, default: true
-      define_parameter name: 'max_pages', description: 'Maximum number of pages to collect when collecting multiple', type: 'positive_integer', required: true, default: 10
+      define_parameter name: 'host_whitelist',      description: 'List of hostnames that collection is allowed from',            type: 'string_array', required: false, prompt: 'subdomain.domain.com'
+      define_parameter name: 'host_blacklist',      description: 'List of hostnames that collection is not allowed from',        type: 'string_array', required: false, prompt: 'subdomain.domain.com'
+      define_parameter name: 'filetype_whitelist',  description: 'List of file types that collection is allowed to collect',     type: 'string_array', required: false, prompt: '[txt, pdf]'
+      define_parameter name: 'filetype_blacklist',  description: 'List of file types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[txt, pdf]'
+      define_parameter name: 'mimetype_whitelist',  description: 'List of mime types that collection is allowed to collect',     type: 'string_array', required: false, prompt: '[text/html, text/plain]'
+      define_parameter name: 'mimetype_blacklist',  description: 'List of mime types that collection is not allowed to collect', type: 'string_array', required: false, prompt: '[text/html, text/plain]'
+      define_parameter name: 'multiple_pages',      description: 'Collect multiple pages',                                       type: 'boolean', required: true, default: true
+      define_parameter name: 'max_pages',           description: 'Maximum number of pages to collect when collecting multiple',  type: 'positive_integer', required: true, default: 10
 
 
       define_group_validation_callback callback_class: Armagh::Support::HTTP, callback_method: :validate

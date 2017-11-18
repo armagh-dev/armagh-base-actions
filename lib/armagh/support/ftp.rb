@@ -33,12 +33,12 @@ module Armagh
       class TimeoutError     < FTPError; end
       class UnhandledError   < FTPError; end
 
-      define_parameter name: "host",             description: "FTP host or IP",                          type: 'populated_string', required: true,  prompt: "host.example.com or 10.0.0.1"
+      define_parameter name: "host",             description: "FTP host or IP",                          type: 'string',           required: true,  prompt: "host.example.com or 10.0.0.1"
       define_parameter name: "port",             description: "FTP port",                                type: 'positive_integer', required: true,  default: 21
-      define_parameter name: "directory_path",   description: "FTP base directory path",                 type: 'populated_string', required: true,  default: './'
+      define_parameter name: "directory_path",   description: "FTP base directory path",                 type: 'string',           required: true,  default: './'
       define_parameter name: "filename_pattern", description: "Linux file pattern",                      type: 'string',           required: false, prompt:  "*.pdf"
       define_parameter name: "anonymous",        description: "Accesss the FTP server anonymously",      type: 'boolean',          required: true,  default: false
-      define_parameter name: "username",         description: "FTP user name",                           type: 'populated_string', required: false, prompt:  'user '
+      define_parameter name: "username",         description: "FTP user name",                           type: 'string',           required: false, prompt:  'user '
       define_parameter name: "password",         description: "FTP user password",                       type: 'encoded_string',   required: false, prompt:  'password'
       define_parameter name: "passive_mode",     description: "FTP passive mode",                        type: 'boolean',          required: true,  default: true
       define_parameter name: "maximum_transfer", description: 'Maximum num to collect',                  type: 'positive_integer', required: true,  default: 50
@@ -174,6 +174,8 @@ module Armagh
           all_files.each do |fname|
             remote_files << fname if File.fnmatch?(@config.ftp.filename_pattern, fname)
           end
+
+          remote_files.sort!
 
           files_to_transfer = remote_files.first( @config.ftp.maximum_transfer )
 

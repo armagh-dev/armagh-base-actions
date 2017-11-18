@@ -411,9 +411,11 @@ class TestFTP < Test::Unit::TestCase
     @mock_ftp.expects(:delete).times(5).with() {|fn| /file[12345].txt/ =~ fn}.returns(true)
     @mock_ftp.expects(:close)
 
+    collected_files = []
     Armagh::Support::FTP::Connection.open(config) do |ftp_connection|
-      ftp_connection.expects(:ls_r).returns((1..9).collect {|i| "file#{i}.txt"})
+      ftp_connection.expects(:ls_r).returns((1..9).collect {|i| "file#{i}.txt"}.reverse)
       result = ftp_connection.get_files do |local_filename, attributes, error_string|
+        collected_files << local_filename
         assert_not_empty local_filename
         assert_kind_of(Time, attributes['mtime'])
         assert_nil error_string
@@ -422,6 +424,7 @@ class TestFTP < Test::Unit::TestCase
       assert_equal 5, result['collected']
       assert_equal 0, result['failed']
     end
+    assert_equal collected_files, collected_files.sort
   end
 
   def test_get_files_with_read_timeout_error
