@@ -167,4 +167,5 @@ class TestIntegrationAction < Test::Unit::TestCase
     assert_equal 'dans_type1', type1.type
     assert_equal 'ready', type1.state
   end
+
 end

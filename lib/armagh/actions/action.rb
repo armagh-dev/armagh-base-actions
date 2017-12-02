@@ -67,6 +67,7 @@ module Armagh
         define_parameter name: 'name',    type: 'string',  required: true, description: 'Name of this action configuration', prompt: 'example-collect (Warning: Cannot be changed once set)', group: 'action'
         define_parameter name: 'active',  type: 'boolean', required: true, description: 'Agents will run this configuration if active', default: false, group: 'action'
         define_parameter name: 'workflow', type: 'string', required: true, description: 'Workflow this action config belongs to', prompt: '<WORKFLOW-NAME>', group: 'action'
+        define_parameter name: 'retired', type: 'boolean', required: true, description: 'Not normally displayed', default: false, group: 'action'
         define_parameter name: 'docspec', type: 'docspec', required: true, description: 'Input doctype for this action', group: 'input'
 
         define_singleton_method(:define_default_input_type) { |args|
