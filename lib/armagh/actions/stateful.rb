@@ -27,8 +27,8 @@ module Armagh
       # Any updates made to the state content will be saved, EVEN IF the action
       # encounters an error, so ensure that your action only writes state at a
       # point in your code that maintains consistency.
-      def with_locked_action_state(caller, name, lock_wait_duration: nil, lock_hold_duration: nil)
-        caller.with_locked_action_state( name, lock_wait_duration: lock_wait_duration, lock_hold_duration: lock_hold_duration )
+      def with_locked_action_state(caller, name, **locking_options, &block)
+        caller.with_locked_action_state( name, **locking_options, &block)
       end
 
     end

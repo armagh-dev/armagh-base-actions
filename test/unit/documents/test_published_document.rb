@@ -36,6 +36,7 @@ class TestPublishedDocument < Test::Unit::TestCase
     @source = {'source' => 'something'}
     @title = 'title'
     @copyright = 'copyright'
+    @version = 123
     @display = 'display'
     @doc = Armagh::Documents::PublishedDocument.new(document_id: @document_id,
                                                     content: @content,
@@ -46,7 +47,9 @@ class TestPublishedDocument < Test::Unit::TestCase
                                                     document_timestamp: @document_timestamp,
                                                     title: @title,
                                                     copyright: @copyright,
-                                                    display: @display)
+                                                    display: @display,
+                                                    version: @version
+    )
   end
 
   def test_type
@@ -92,6 +95,11 @@ class TestPublishedDocument < Test::Unit::TestCase
   def test_document_timestamp
     assert_equal(@document_timestamp, @doc.document_timestamp)
     assert_raise(Armagh::Documents::Errors::DocumentError){@doc.document_timestamp = @document_timestamp}
+  end
+
+  def test_version
+    assert_equal(@version, @doc.version)
+    assert_raise(Armagh::Documents::Errors::DocumentError){@doc.version = @version}
   end
 
   def test_display

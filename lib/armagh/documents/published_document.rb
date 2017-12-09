@@ -70,6 +70,10 @@ module Armagh
         raise Errors::DocumentError, 'Document_timestamp can not be set on an already published document.'
       end
 
+      def version=(_v)
+        raise Errors::DocumentError, 'Version can not be set on an already published document.'
+      end
+
       def display
         protect super
       end

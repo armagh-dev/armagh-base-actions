@@ -26,12 +26,12 @@ require 'bson'
 module Armagh
   module Documents
     class ActionDocument
-      attr_reader :document_id, :source, :content, :raw, :metadata, :title, :copyright, :docspec, :document_timestamp, :display
+      attr_reader :document_id, :source, :content, :raw, :metadata, :title, :copyright, :docspec, :document_timestamp, :version, :display
 
       RAW_MAX_LENGTH_MB = 4
       RAW_MAX_LENGTH = RAW_MAX_LENGTH_MB * 1_048_576
 
-      def initialize(document_id:, title:, copyright:, content:, raw:, metadata:, docspec:, source:, document_timestamp:, display: nil, new: false)
+      def initialize(document_id:, title:, copyright:, content:, raw:, metadata:, docspec:, source:, document_timestamp:, version: nil, display: nil, new: false)
         # Not checking the types here for 2 reasons - PublishDocument extends this while overwriting setters and custom actions dont create their own action documents.
         @document_id = document_id
         @title = title
@@ -42,6 +42,7 @@ module Armagh
         @docspec = docspec
         @source = source
         @document_timestamp = document_timestamp
+        @version = version
         @display = display
         @new = new ? true : false
       end
@@ -83,6 +84,11 @@ module Armagh
       def document_timestamp=(document_timestamp)
         raise TypeError, 'Document timestamp expected to be a Time.' unless document_timestamp.nil? || document_timestamp.is_a?(Time)
         @document_timestamp = document_timestamp
+      end
+
+      def version=(version)
+        raise TypeError, 'Version expected to be a positive integer.' unless version.nil? || (version.is_a?(Integer) && version.positive?)
+        @version = version
       end
 
       def display=(display)
@@ -155,6 +161,7 @@ module Armagh
             docspec: DocSpec.from_hash(hash['docspec']),
             source: Source.from_hash(hash['source']),
             document_timestamp: hash['document_timestamp'],
+            version: hash['version'],
             display: hash['display']
         )
       end

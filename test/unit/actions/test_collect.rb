@@ -82,7 +82,7 @@ class TestCollect < Test::Unit::TestCase
       defined_params = mock
       defined_params.expects(:find_all_parameters).returns([docspec_param])
       divider.expects(:config).returns(defined_params)
-      divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+      divider.expects(:doc_details=).with({'source' => @source, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
       divider.expects(:doc_details=).with(nil)
 
       divider.expects(:divide).with() do |collected_doc|
@@ -110,7 +110,7 @@ class TestCollect < Test::Unit::TestCase
       defined_params = mock
       defined_params.expects(:find_all_parameters).returns([docspec_param])
       divider.expects(:config).returns(defined_params)
-      divider.expects(:doc_details=).with({'source' => @source, 'document_id' => document_id, 'title' => title, 'copyright' => copyright, 'document_timestamp' => timestamp})
+      divider.expects(:doc_details=).with({'source' => @source, 'title' => title, 'copyright' => copyright, 'document_timestamp' => timestamp})
       divider.expects(:doc_details=).with(nil)
       collected_file = 'filename'
       File.write(collected_file, @content)
@@ -164,7 +164,7 @@ class TestCollect < Test::Unit::TestCase
     defined_params = mock
     defined_params.expects(:find_all_parameters).returns([docspec_param])
     divider.expects(:config).returns(defined_params)
-    divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+    divider.expects(:doc_details=).with({'source' => @source, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
     divider.expects(:doc_details=).with(nil)
 
     logger_name = 'logger'
@@ -428,7 +428,7 @@ class TestCollect < Test::Unit::TestCase
     defined_params = mock
     defined_params.expects(:find_all_parameters).returns([docspec_param])
     divider.expects(:config).returns(defined_params)
-    divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+    divider.expects(:doc_details=).with({'source' => @source, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
     divider.expects(:doc_details=).with(nil)
 
     logger_name = 'logger'
@@ -521,7 +521,7 @@ class TestCollect < Test::Unit::TestCase
     defined_params = mock
     defined_params.expects(:find_all_parameters).returns([docspec_param])
     divider.expects(:config).returns(defined_params)
-    divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+    divider.expects(:doc_details=).with({'source' => @source, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
     divider.expects(:doc_details=).with(nil)
 
     logger_name = 'logger'
@@ -555,7 +555,7 @@ class TestCollect < Test::Unit::TestCase
     defined_params = mock
     defined_params.expects(:find_all_parameters).returns([docspec_param])
     divider.expects(:config).returns(defined_params)
-    divider.expects(:doc_details=).with({'source' => @source, 'document_id' => nil, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
+    divider.expects(:doc_details=).with({'source' => @source, 'title' => nil, 'copyright' => nil, 'document_timestamp' => nil})
     divider.expects(:doc_details=).with(nil)
 
     logger_name = 'logger'

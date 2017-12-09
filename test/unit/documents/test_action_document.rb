@@ -37,6 +37,7 @@ class TestActionDocument < Test::Unit::TestCase
     @title = 'title'
     @copyright = 'copyright'
     @display = 'display'
+    @version = 1
     @doc = Armagh::Documents::ActionDocument.new(document_id: @document_id,
                                                  content: @content,
                                                  raw: @raw,
@@ -46,7 +47,9 @@ class TestActionDocument < Test::Unit::TestCase
                                                  document_timestamp: @document_timestamp,
                                                  title: @title,
                                                  copyright: @copyright,
-                                                 display: @display)
+                                                 display: @display,
+                                                 version: @version
+    )
   end
 
   def test_document_id
@@ -116,6 +119,16 @@ class TestActionDocument < Test::Unit::TestCase
     assert_raise(TypeError){@doc.document_timestamp = {}}
   end
 
+  def test_version
+    assert_equal(@version, @doc.version)
+    new_version = 123
+    @doc.version = new_version
+    assert_equal(new_version, @doc.version)
+    assert_raise(TypeError){@doc.version = {}}
+    assert_raise(TypeError){@doc.version = 1.0}
+    assert_raise(TypeError){@doc.version = -2}
+  end
+
   def test_display
     assert_equal(@display, @doc.display)
     new_display = 'something new'
@@ -140,6 +153,7 @@ class TestActionDocument < Test::Unit::TestCase
                                                  new: true,
                                                  title: @title,
                                                  copyright: @copyright,
+                                                 version: @version,
                                                  document_timestamp: @document_timestamp)
     assert_true @doc.new_document?
   end
@@ -269,6 +283,7 @@ class TestActionDocument < Test::Unit::TestCase
       'document_timestamp' => @doc.document_timestamp,
       'docspec' => @doc.docspec.to_hash,
       'display' => @doc.display,
+      'version' => @doc.version
     }.to_json
 
     doc = Armagh::Documents::ActionDocument.from_json(json)
@@ -281,6 +296,7 @@ class TestActionDocument < Test::Unit::TestCase
     assert_in_delta @doc.document_timestamp, doc.document_timestamp, 1 # to_s loses the fraction of a second
     assert_equal @doc.docspec, doc.docspec
     assert_equal @doc.display, doc.display
+    assert_equal @doc.version, doc.version
   end
 
   def test_json_round_trip

@@ -51,18 +51,18 @@ module Armagh
         raise Errors::ActionMethodNotImplemented, 'Dividers must overwrite the divide method.'
       end
 
-      def create(content, metadata)
+      def create(content, metadata, document_id:nil, title:nil)
         docspec_param = @config.find_all_parameters { |p| p.group == 'output' && p.type == 'docspec' && p.name == 'docspec' }.first
         docspec = docspec_param&.value
 
         raise Errors::CreateError, "Divider metadata must be a Hash, was a #{metadata.class}." unless metadata.is_a?(Hash)
 
-        action_doc = Documents::ActionDocument.new(document_id: @doc_details['document_id'],
+        action_doc = Documents::ActionDocument.new(document_id: document_id,
                                                    source: @doc_details['source'],
                                                    content: nil,
                                                    raw: nil,
                                                    metadata: metadata,
-                                                   title: @doc_details['title'],
+                                                   title: title || @doc_details['title'],
                                                    copyright: @doc_details['copyright'],
                                                    docspec: docspec,
                                                    document_timestamp: @doc_details['document_timestamp'],

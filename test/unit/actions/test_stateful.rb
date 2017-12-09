@@ -51,7 +51,7 @@ class TestActionStateful < Test::Unit::TestCase
 
   def test_with_locked_action_state
     hold = 100
-    @caller.expects( :with_locked_action_state).with( @action_name, lock_wait_duration: nil, lock_hold_duration: hold )
+    @caller.expects( :with_locked_action_state).with( @action_name, lock_hold_duration: hold )
     @action.with_locked_action_state( hold )
   end
 

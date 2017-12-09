@@ -136,7 +136,6 @@ module Armagh
 
           divider.doc_details = {
             'source' => source,
-            'document_id' => document_id,
             'title' => title,
             'copyright' => copyright,
             'document_timestamp' => document_timestamp
