@@ -166,17 +166,16 @@ module Armagh
 
         COOKIE_STORE = File.join('', 'tmp', 'armagh_cookie.dat').freeze
 
-        def initialize(config, logger: nil)
+        def initialize(config, logger: nil, json_client: false)
 
           raise ConfigurationError, 'Connection must be initialized with a Configh configuration object' unless config.is_a?(Configh::Configuration)
           @config = config.http
           @url = @config.url.strip
           @client_redirects_ctr = 0
           @method = @config.method.downcase
-          @headers = DEFAULT_HEADERS.merge @config.headers
           @logger = logger
 
-          @client = HTTPClient.new # Don't add agent to the new call as library details are appended to the end
+          @client = json_client ? JSONClient.new : HTTPClient.new
           @client.follow_redirect_count = 0 unless @config.follow_redirects
           @client.set_cookie_store COOKIE_STORE
 
@@ -191,10 +190,11 @@ module Armagh
         end
 
         # Fetches the content of a given URL.
-        def fetch(override_url = nil, method: nil, fields: nil, multiple_pages: nil)
+        def fetch(override_url = nil, method: nil, fields: nil, headers: nil, multiple_pages: nil)
           url = override_url || @url
           method = method || @config.method
           fields = fields || @config.fields
+          headers = DEFAULT_HEADERS.merge(headers || @config.headers)
           multiple_pages = multiple_pages.nil? ? @config.multiple_pages : multiple_pages
 
           override_error_messages = []
@@ -211,7 +211,7 @@ module Armagh
           old_verbose = $VERBOSE
           $VERBOSE = nil
           start = Time.now
-          response = request(url, method, fields, multiple_pages)
+          response = request(url, method, fields, headers, multiple_pages)
           @logger.debug "Fetched #{url} in #{Time.now - start} seconds" if @logger
 
           if @config.follow_redirects
@@ -285,14 +285,14 @@ module Armagh
           raise HTTP::ConfigurationError, "Unable to set authentication.  #{e.message}"
         end
 
-        private def request(url, method, fields, multiple_pages, pages = [])
+        private def request(url, method, fields, headers, multiple_pages, pages = [])
           raise SafeError, "Unable to request from '#{url}' due to whitelist/blacklist rules." unless acceptable_uri? url
 
           case method
             when GET
-              response = @client.get(url, query: fields, header: @headers, follow_redirect: @config.follow_redirects)
+              response = @client.get(url, query: fields, header: headers, follow_redirect: @config.follow_redirects)
             when POST
-              response = @client.post(url, body: fields, header: @headers, follow_redirect: @config.follow_redirects)
+              response = @client.post(url, body: fields, header: headers, follow_redirect: @config.follow_redirects)
           end
 
           header_hash = header_to_hash(response.header)
@@ -307,7 +307,7 @@ module Armagh
             if multiple_pages && pages.length < @config.max_pages
               base_url = response.header.request_uri.to_s
               next_url = HTTP.get_next_page_url(response_text, url, base_url)
-              request(next_url, method, fields, multiple_pages, pages) if next_url
+              request(next_url, method, fields, headers, multiple_pages, pages) if next_url
             end
 
             pages

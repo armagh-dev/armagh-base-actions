@@ -36,6 +36,19 @@ class TestHTTP < Test::Unit::TestCase
     @original_verbose = $VERBOSE
   end
 
+  def test_http_client
+    config = Armagh::Support::HTTP.create_configuration(@config_store, 'httpsget', {'http' => {'url' => 'https://fake.url'}})
+    @http = Armagh::Support::HTTP::Connection.new(config)
+    assert_kind_of(HTTPClient, @http.instance_variable_get(:@client))
+    assert_not_kind_of(JSONClient, @http.instance_variable_get(:@client))
+  end
+
+  def test_json_client
+    config = Armagh::Support::HTTP.create_configuration(@config_store, 'httpsget', {'http' => {'url' => 'https://fake.url'}})
+    @http = Armagh::Support::HTTP::Connection.new(config, json_client: true)
+    assert_kind_of(JSONClient, @http.instance_variable_get(:@client))
+  end
+
   def test_fetch_http_get
     stub_request(:get, 'http://fake.url').to_return(body: @expected_response)   
     config = Armagh::Support::HTTP.create_configuration( @config_store, 'httpget', { 'http' => { 'url' => 'http://fake.url' }})
@@ -152,6 +165,22 @@ class TestHTTP < Test::Unit::TestCase
     @http = Armagh::Support::HTTP::Connection.new( config )
     @http.fetch
     assert_equal @original_verbose, $VERBOSE 
+  end
+
+  def test_fetch_custom_headers
+    headers = {
+      'H1' => 'one',
+      'H2' => 'two',
+      'H3' => 'three',
+      'Key' => 'four',
+      'User-Agent' => 'test_agent'
+    }
+
+    config = Armagh::Support::HTTP.create_configuration( @config_store, 'fetchhead', { 'http' => {  'url' => 'http://fake.url'}})
+    stub_request(:any, 'http://fake.url').with(headers: headers)
+    @http = Armagh::Support::HTTP::Connection.new( config )
+    @http.fetch(headers: headers)
+    assert_equal @original_verbose, $VERBOSE
   end
 
   def test_fetch_redirect
