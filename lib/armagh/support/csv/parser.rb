@@ -80,7 +80,7 @@ module Armagh
             quote_char:         config.csv_parser.quote_char,
             return_headers:     false,
             headers:            config.csv_parser.headers,
-            skip_lines:         config.csv_parser.non_standard_rows
+            skip_lines:         config.csv_parser.non_standard_rows.nil? ? nil : /#{config.csv_parser.non_standard_rows}/
           }
         end
       end

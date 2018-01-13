@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require_relative 'actions/init'
+require_relative 'actions/name'
 require_relative 'actions/version'
 
 module Armagh

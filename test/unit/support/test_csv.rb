@@ -144,7 +144,7 @@ class TestCsv < Test::Unit::TestCase
     @config_store = []
     @config_default = Armagh::Support::CSV::Parser.create_configuration( @config_store, 'def', {} )
     @config_size_100 = Armagh::Support::CSV::Divider.create_configuration( @config_store, 's100', { 'csv_divider' => { 'size_per_part'  => 100 }})
-    @config_nonstandard = Armagh::Support::CSV::Parser.create_configuration( @config_store, 'non_standard_rows', { 'csv_parser' => { 'non_standard_rows' => ["^##!!"]}} )
+    @config_nonstandard = Armagh::Support::CSV::Parser.create_configuration( @config_store, 'non_standard_rows', { 'csv_parser' => { 'non_standard_rows' => "^##!!"}} )
   end
 
   test "dividing returns an error when block isn't passed in" do

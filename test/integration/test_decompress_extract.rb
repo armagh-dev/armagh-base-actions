@@ -105,6 +105,7 @@ class TestDecompressExtract < Test::Unit::TestCase
 
   def test_decompress_then_extract_file_divide
     @caller.expects(:instantiate_divider).returns(@divider)
+    @caller.stubs(:log_info)
 
     docspec_param = mock
     docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
@@ -113,6 +114,7 @@ class TestDecompressExtract < Test::Unit::TestCase
 
     @divider.expects(:config).returns(defined_params)
     @divider.stubs(:doc_details=)
+    @divider.stubs(:name).returns('mydivide')
 
     @divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file1.txt' && File.read('dir/file1.txt') == "file1\n"}
     @divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file2.txt' && File.read('dir/file2.txt') == "file2\n"}
@@ -130,6 +132,7 @@ class TestDecompressExtract < Test::Unit::TestCase
 
   def test_decompress_then_extract_divide_url
     @caller.expects(:instantiate_divider).returns(@divider)
+    @caller.stubs(:log_info)
 
     docspec_param = mock
     docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
@@ -138,6 +141,7 @@ class TestDecompressExtract < Test::Unit::TestCase
 
     @divider.expects(:config).returns(defined_params)
     @divider.stubs(:doc_details=)
+    @divider.stubs(:name).returns('mydivide')
 
     @divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file1.txt' && File.read('dir/file1.txt') == "file1\n"}
     @divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file2.txt' && File.read('dir/file2.txt') == "file2\n"}

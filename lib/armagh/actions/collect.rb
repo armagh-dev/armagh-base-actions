@@ -151,14 +151,18 @@ module Armagh
               FileUtils.mkdir_p File.dirname(filename)
               File.write(filename, extracted_content)
               collected_doc = Documents::CollectedDocument.new(collected_file: filename, metadata: metadata, docspec: docspec)
+              start = Time.now
               divider.divide(collected_doc)
+              log_info "#{(Time.now - start).round(2)} seconds of collect were spent on #{divider.name} dividing #{extract_source.filename}."
               extracted_files = true
             end
 
             notify_ops 'No files were extracted.' unless extracted_files
           else
             collected_doc = Documents::CollectedDocument.new(collected_file: collected_file, metadata: metadata, docspec: docspec)
+            start = Time.now
             divider.divide(collected_doc)
+            log_info "#{(Time.now - start).round(2)} seconds of collect were spent on #{divider.name} dividing #{source.filename || source.url}."
           end
 
           divider.doc_details = nil

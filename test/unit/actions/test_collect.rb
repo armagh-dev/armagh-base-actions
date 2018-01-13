@@ -76,6 +76,7 @@ class TestCollect < Test::Unit::TestCase
     FakeFS do
       divider = mock
       @caller.expects(:instantiate_divider).returns(divider)
+      @caller.expects(:log_info)
 
       docspec_param = mock
       docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
@@ -91,6 +92,7 @@ class TestCollect < Test::Unit::TestCase
         assert_equal @content, File.read(collected_doc.collected_file)
         true
       end
+      divider.expects(:name).returns('mydivide')
 
       @collect_action.create(collected: @content, metadata: {'meta' => true}, docspec_name: 'output_type', source: @source)
     end
@@ -105,6 +107,7 @@ class TestCollect < Test::Unit::TestCase
     FakeFS do
       divider = mock
       @caller.expects(:instantiate_divider).returns(divider)
+      @caller.expects(:log_info)
       docspec_param = mock
       docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
       defined_params = mock
@@ -112,6 +115,7 @@ class TestCollect < Test::Unit::TestCase
       divider.expects(:config).returns(defined_params)
       divider.expects(:doc_details=).with({'source' => @source, 'title' => title, 'copyright' => copyright, 'document_timestamp' => timestamp})
       divider.expects(:doc_details=).with(nil)
+      divider.expects(:name).returns('mydivide')
       collected_file = 'filename'
       File.write(collected_file, @content)
 
@@ -155,6 +159,7 @@ class TestCollect < Test::Unit::TestCase
   def test_create_archive_divider
     divider = mock
     @caller.expects(:instantiate_divider).returns(divider)
+    @caller.expects(:log_info)
 
     random_id = 'random_id'
     Armagh::Support::Random.stubs(:random_id).returns(random_id)
@@ -169,10 +174,12 @@ class TestCollect < Test::Unit::TestCase
 
     logger_name = 'logger'
     action_name = 'mysubcollect'
+    divider_name = 'mydivide'
     meta = {'meta' => true}
 
     @caller.expects(:archive).with(logger_name, action_name, random_id, {'source' => {'type' => 'url', 'url' => 'some url'}, 'metadata' => {'meta' => true}})
     divider.expects(:divide)
+    divider.expects(:name).returns(divider_name)
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_arch_div', {
       'action' => {'name' => action_name, 'workflow' => 'wf'},
@@ -422,6 +429,7 @@ class TestCollect < Test::Unit::TestCase
   def test_create_decompress_divide
     divider = mock
     @caller.expects(:instantiate_divider).returns(divider)
+    @caller.expects(:log_info)
 
     docspec_param = mock
     docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
@@ -433,9 +441,11 @@ class TestCollect < Test::Unit::TestCase
 
     logger_name = 'logger'
     action_name = 'mysubcollect'
+    divider_name = 'mydivide'
     meta = {'meta' => true}
 
     divider.expects(:divide)
+    divider.expects(:name).returns(divider_name)
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_dec_div', {
       'action' => {'name' => action_name, 'workflow' => 'wf'},
@@ -515,6 +525,7 @@ class TestCollect < Test::Unit::TestCase
 
     divider = mock
     @caller.expects(:instantiate_divider).returns(divider)
+    @caller.expects(:log_info).times(3)
 
     docspec_param = mock
     docspec_param.expects(:value).returns(Armagh::Documents::DocSpec.new('a', 'ready'))
@@ -526,11 +537,13 @@ class TestCollect < Test::Unit::TestCase
 
     logger_name = 'logger'
     action_name = 'mysubcollect'
+    divider_name = 'mydivide'
     meta = {'meta' => true}
 
     divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file1.txt' && File.read('dir/file1.txt') == "file1\n"}
     divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file2.txt' && File.read('dir/file2.txt') == "file2\n"}
     divider.expects(:divide).with{|doc| doc.collected_file == 'dir/file3.txt' && File.read('dir/file3.txt') == "file3\n"}
+    divider.expects(:name).returns(divider_name).times(3)
 
     config = SubCollect.create_configuration(@config_store, 'a_cre_dec_div', {
       'action' => {'name' => action_name, 'workflow' => 'wf'},
