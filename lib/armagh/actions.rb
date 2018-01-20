@@ -55,7 +55,7 @@ module Armagh
           klass
         end
 
-        actions.concat new_actions
+        actions.concat new_actions.sort_by! { |a| a.to_s }
       end
 
       actions.compact!

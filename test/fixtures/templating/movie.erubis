@@ -1,0 +1,160 @@
+{{
+# TODO: these helper methods belong in the custom action
+
+def doc_header(root, key, label, id)
+  if mode? :text
+    "#{root}:\n#{key}: #{label} #{id}"
+  else
+    %Q(<table><tr class="hidden"><td>#{root}:</td></tr><tr><td>#{key}:</td></tr><tr><td class="title">#{label} #{id}</td></tr>)
+  end
+end
+
+def doc_footer
+  '</table>' if mode? :html
+end
+
+def header(key, title, css: 'header')
+  if mode? :text
+    "#{key}: #{title}"
+  else
+    %Q(<tr><td class="#{css}">#{title}</td></tr>)
+  end
+end
+
+def subheader(key, title)
+  header(key, title, css: 'subheader')
+end
+
+def line(key, *layout)
+  result =
+    if mode? :text
+      "#{key}:"
+    else
+      %Q(<tr><td>#{key}:</td><td class="line">)
+    end
+
+  first = true
+  layout.each do |field|
+    case field
+    when Hash
+      field.each do |type, value|
+        raise " Unknown field type #{type.inspect}." unless [:text, :html].include? type
+        result <<
+          if mode?(:text) && type == :text
+            " #{value}"
+          elsif mode?(:html)
+            result << ' ' unless first
+            %Q(<span class="#{type == :html ? 'disp' : 'code'}">#{value}</span>)
+          else
+            ''
+          end
+        first = false
+      end
+    else
+      result << ' ' if mode?(:text) || !first
+      result << field.to_s
+      first = false
+    end
+  end
+
+  mode?(:html) ? "#{result}</td></tr>" : result
+end
+
+def table_header(key, *columns)
+  if mode? :text
+    "#{key}: #{columns.join(' | ')}"
+  else
+    columns.map! { |c| %Q(<th class="table_header_cell">#{c}</th>) }
+    columns.unshift "<th>#{key}:</th>"
+    %Q(<table class="table"><tr>#{columns.join}</tr>)
+  end
+end
+
+def table_row(key, *values)
+  if mode? :text
+    "#{key}: #{values.join(' | ')}"
+  else
+    values.map! { |v| %Q(<td class="table_row_cell">#{v}</td>) }
+    values.unshift "<td>#{key}:</td>"
+    %Q(<tr>#{values.join}</tr>)
+  end
+end
+
+def table_footer
+  '</table>' if mode? :html
+end
+
+def date(value)
+  Date.parse(value).to_s
+rescue
+  value
+end
+
+def dollar(value, decimals = 0)
+  parts = value.to_f.round(decimals).to_s.split('.')
+  parts.first.gsub!(/(\d)(?=(\d{3})+(?!\d))/, '\\1,')
+  '$' << parts.join('.')
+end
+
+def hyperlink(url, label = nil)
+  if mode? :text
+    label ? "#{label} [#{url}]" : url
+  else
+    %Q(<a href="#{url}" target="_blank">#{label || url}</a>)
+  end
+end
+
+}}
+
+{{= doc_header 'mid', 'moid', 'IMDb Movie', @content['movie_id'] }}
+
+{{= header 'info', 'Information' }}
+
+{{= line 'titl', 'Title:', @content['title'], '|', 'Year:', @content['year'], '|', 'Run Time:', @content['run_time'] }}
+{{= line 'genr', 'Genre:', {html: @content.dig('genre', 'name')}, {text: "gecd#{@content.dig('genre', 'code')}"}, '|', @content.dig('genre', 'desc') }}
+{{= line 'rels', 'Release Date:', date(@content['release_date']), '|', 'Score:', @content['score'] }}
+{{= line 'synp', 'Synopsis:', @content['synopsis'] }}
+
+{{= header 'dire', 'Director' }}
+
+{{- content = @content['director'] }}
+{{= line 'dina', 'Director:', content['name'], '|', 'DOB:', date(content['dob']) }}
+{{= line 'dibi', 'Bio:', content['bio'] }}
+{{= line 'disa', 'Salary:', dollar(content['salary']) }}
+{{- content = content['height'] }}
+{{= line 'dihe', 'Height:', content['imperial'], '(', content['metric'], ')' }}
+
+{{= header 'sour', 'Source' }}
+
+{{= table_header 'srch', 'Name', 'URL', 'Copyright' }}
+{{= table_row 'srcr', @content.dig('source', 'name'), hyperlink(@content.dig('source', 'link', 'url'), @content.dig('source', 'link', 'label')), @content.dig('source', 'copyright') }}
+{{= table_footer -}}
+
+{{= header 'boof', 'Box Office' }}
+
+{{= line 'box', 'Budget:', dollar(@content.dig('box_office', 'budget')), '|', 'Opening Wkend USA:', dollar(@content.dig('box_office', 'opening_weekend_usa')), '|', 'Gross USA:', dollar(@content.dig('box_office', 'gross_usa')), '|', 'Gross Worldwide:', dollar(@content.dig('box_office', 'gross_worldwide')) }}
+
+{{= header 'writ', 'Writers' }}
+
+{{- @content['writers'].each_with_index do |writer, index| }}
+{{= line "wri#{index + 1}", 'Writer:', writer }}
+{{- end }}
+
+{{= header 'cast', 'Cast' }}
+
+{{- @content['cast'].each_with_index do |cast, index| }}
+{{= subheader "cas#{index + 1}", cast['name'] }}
+
+{{= line "act#{index + 1}", 'Name:', cast['name'], '|', 'DOB:', date(cast['dob']), '|', 'Height:', cast.dig('height', 'imperial'), '(', cast.dig('height', 'metric'), ')' }}
+{{= line "alt#{index + 1}", 'Alt Names:', cast['alt_names'].join(', ') }}
+
+{{= subheader('diow', 'Did you know?') }}
+
+{{= line 'pete', 'Personal Quote:', cast.dig('did_you_know', 'personal_quote') }}
+{{= line 'tria', 'Trivia:', cast.dig('did_you_know', 'trivia') }}
+{{= line 'trrk', 'Trademark:', cast.dig('did_you_know', 'trademark') }}
+{{= line 'stgn', 'Star Sign:', cast.dig('did_you_know', 'star_sign') }}
+
+{{- end }}
+
+{{= doc_footer }}

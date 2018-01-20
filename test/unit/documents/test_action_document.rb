@@ -259,6 +259,22 @@ class TestActionDocument < Test::Unit::TestCase
     assert_equal @doc.display, doc.display
   end
 
+  def test_from_hash_invalid
+    hash = {
+      'document_id' => @doc.document_id,
+      'title' => @doc.title,
+      'copyright' => @doc.copyright,
+      'metadata' => 123,
+      'content' => @doc.content,
+      'source' => @doc.source.to_hash,
+      'document_timestamp' => @doc.document_timestamp,
+      'docspec' => @doc.docspec.to_hash,
+      'display' => @doc.display,
+    }
+
+    assert_raise(TypeError){Armagh::Documents::ActionDocument.from_hash(hash)}
+  end
+
   def test_hash_round_trip
     doc = Armagh::Documents::ActionDocument.from_hash(@doc.to_hash)
     assert_equal @doc.document_id, doc.document_id
@@ -297,6 +313,23 @@ class TestActionDocument < Test::Unit::TestCase
     assert_equal @doc.docspec, doc.docspec
     assert_equal @doc.display, doc.display
     assert_equal @doc.version, doc.version
+  end
+
+  def test_from_json_invalid
+    json = {
+      'document_id' => @doc.document_id,
+      'title' => @doc.title,
+      'copyright' => @doc.copyright,
+      'metadata' => @doc.metadata,
+      'content' => @doc.content,
+      'source' => @doc.source.to_hash,
+      'document_timestamp' => @doc.document_timestamp,
+      'docspec' => @doc.docspec.to_hash,
+      'display' => @doc.display,
+      'version' => 'invalid'
+    }.to_json
+
+    assert_raise(TypeError){Armagh::Documents::ActionDocument.from_json(json)}
   end
 
   def test_json_round_trip

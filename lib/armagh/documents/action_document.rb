@@ -51,48 +51,61 @@ module Armagh
         @new
       end
 
+      def validate
+        validate_document_id(@document_id)
+        validate_title(@title)
+        validate_copyright(@copyright)
+        validate_content(@content)
+        validate_metadata(@metadata)
+        validate_docspec(@docspec)
+        validate_source(@source)
+        validate_document_timestamp(@document_timestamp)
+        validate_version(@version)
+        validate_display(@display)
+      end
+
       def document_id=(document_id)
-        raise TypeError, 'Document id expected to be a string.' unless document_id.is_a? String
+        validate_document_id(document_id)
         @document_id = document_id.dup.freeze
       end
 
       def metadata=(metadata)
-        raise TypeError, 'Metadata expected to be a hash.' unless metadata.is_a? Hash
+        validate_metadata(metadata)
         @metadata = metadata
       end
 
       def content=(content)
-        raise TypeError, 'Content expected to be a hash.' unless content.is_a? Hash
+        validate_content(content)
         @content = content
       end
 
       def title=(title)
-        raise TypeError, 'Title expected to be a string.' unless title.nil? || title.is_a?(String)
+        validate_title(title)
         @title = title
       end
 
       def copyright=(copyright)
-        raise TypeError, 'Copyright expected to be a string.' unless copyright.nil? || copyright.is_a?(String)
+        validate_copyright(copyright)
         @copyright = copyright
       end
 
       def docspec=(docspec)
-        raise TypeError, 'Docspec expected to be a DocSpec.' unless docspec.is_a? DocSpec
+        validate_docspec(docspec)
         @docspec = docspec
       end
 
       def document_timestamp=(document_timestamp)
-        raise TypeError, 'Document timestamp expected to be a Time.' unless document_timestamp.nil? || document_timestamp.is_a?(Time)
+        validate_document_timestamp(document_timestamp)
         @document_timestamp = document_timestamp
       end
 
       def version=(version)
-        raise TypeError, 'Version expected to be a positive integer.' unless version.nil? || (version.is_a?(Integer) && version.positive?)
+        validate_version(version)
         @version = version
       end
 
       def display=(display)
-        raise TypeError, 'Display expected to be a String.' unless display.nil? || display.is_a?(String)
+        validate_display(display)
         @display = display
       end
 
@@ -152,7 +165,7 @@ module Armagh
       end
 
       def self.from_hash(hash)
-        new(document_id: hash['document_id'],
+        doc = new(document_id: hash['document_id'],
             title: hash['title'],
             copyright: hash['copyright'],
             content: hash['content'],
@@ -164,7 +177,50 @@ module Armagh
             version: hash['version'],
             display: hash['display']
         )
+        doc.validate
+        doc
       end
+
+      private def validate_document_id(document_id)
+        raise TypeError, 'Document id expected to be a string.' unless document_id.is_a? String
+      end
+
+      private def validate_title(title)
+        raise TypeError, 'Title expected to be a string.' unless title.nil? || title.is_a?(String)
+      end
+
+      private def validate_copyright(copyright)
+        raise TypeError, 'Copyright expected to be a string.' unless copyright.nil? || copyright.is_a?(String)
+      end
+
+      private def validate_content(content)
+        raise TypeError, 'Content expected to be a hash.' unless content.is_a? Hash
+      end
+
+      private def validate_metadata(metadata)
+        raise TypeError, 'Metadata expected to be a hash.' unless metadata.is_a? Hash
+      end
+
+      private def validate_docspec(docspec)
+        raise TypeError, 'Docspec expected to be a DocSpec.' unless docspec.is_a? DocSpec
+      end
+
+      private def validate_source(source)
+        raise TypeError, 'Source expected to be a Source.' unless source.is_a? Source
+      end
+
+      private def validate_document_timestamp(document_timestamp)
+        raise TypeError, 'Document timestamp expected to be a Time.' unless document_timestamp.nil? || document_timestamp.is_a?(Time)
+      end
+
+      private def validate_version(version)
+        raise TypeError, 'Version expected to be a positive integer.' unless version.nil? || (version.is_a?(Integer) && version.positive?)
+      end
+
+      private def validate_display(display)
+        raise TypeError, 'Display expected to be a String.' unless display.nil? || display.is_a?(String)
+      end
+
     end
   end
 end

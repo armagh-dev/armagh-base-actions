@@ -173,4 +173,13 @@ class TestIntegrationTemplating < Test::Unit::TestCase
     assert_equal expected, result
   end
 
+  def test_movie_template
+    content = JSON.parse(fixture('movie.json')).dig('movie', 0)
+    text, html = render_template(fixture_path('movie.erubis'), :text, :html, content: content)
+    expected = [fixture('movie.erubis.text', text),
+                fixture('movie.erubis.html', html)]
+    assert_equal text, expected.first
+    assert_equal html, expected.last
+  end
+
 end

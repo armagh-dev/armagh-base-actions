@@ -1,0 +1,97 @@
+{
+  "movie": [
+    {
+      "movie_id": "tt0103064",
+      "source": {
+        "name": "IMDb",
+        "link": {
+          "label": "Terminator 2 (1991) - IMDb",
+          "url": "http://www.imdb.com/title/tt0103064/"
+        },
+        "copyright": "Copyright © 1990-2018 IMDb.com, Inc. An Amazon.com company."
+      },
+      "genre": {
+        "code": "5",
+        "name": "Action",
+        "desc": "Action film is a genre in which the protagonist or protagonists end up in a series of challenges that typically include violence, extended fighting, physical feats, and frantic chases."
+      },
+      "title": "Terminator 2: Judgement Day",
+      "year": 1991,
+      "run_time": "2h 17m",
+      "score": 8.5,
+      "release_date": "July 3, 1991",
+      "synopsis": "A cyborg, identical to the one who failed to kill Sarah Connor, must now protect her ten year old son, John Connor, from a more advanced cyborg.",
+      "box_office": {
+        "budget": 102000000,
+        "opening_weekend_usa": 31765506,
+        "gross_usa": 204843350,
+        "gross_worldwide": 315000000
+      },
+      "writers": [
+        "James Cameron",
+        "William Wisher"
+      ],
+      "director": {
+        "id": 12345,
+        "name": "James Cameron",
+        "birth_name": "James Francis Cameron",
+        "nicknames": [
+          "Iron Jim",
+          "Jim"
+        ],
+        "dob": "1954-08-16",
+        "bio": "James Francis Cameron was born on August 16, 1954 in Kapuskasing, Ontario, Canada. He moved to the United States in 1971. The son of an engineer, he majored in physics at California State University before switching to English, and eventually dropping out. He then drove a truck to support his screenwriting ambition. He landed his first professional film job as art director, miniature-set builder, and process-projection supervisor on Roger Corman's Battle Beyond the Stars (1980) and had his first experience as a director with a two week stint on Piranha Part Two: The Spawning (1981) before being fired. In 1984, he wrote and directed The Terminator (1984), a futuristic action-thriller starring Arnold Schwarzenegger, Michael Biehn and Linda Hamilton. It was a huge success. After this came a string of successful science-fiction action films such as Aliens (1986), The Abyss (1989) and Terminator 2 (1991). In 1990, Cameron formed his own production company, Lightstorm Entertainment. In 1997, he wrote and directed Titanic (1997), a romance epic about two young lovers from social classes who meet on board the famous ship. The movie went on to break all box office records and earned eleven Academy Awards. It became the highest grossing movie of all time. The rest is history. James Cameron is now one of the most sought-after directors in Hollywood. He was formerly married to producer Gale Anne Hurd, who produced several of his films. In 2000, he married actress Suzy Amis, who appeared in Titanic, and they have three children.",
+        "height": {
+          "imperial": "6' 2\"",
+          "metric": "1.88 m"
+        },
+        "salary": 6000000
+      },
+      "cast": [
+        {
+          "movie_id": "tt0103064",
+          "actor_id": "nm0000216",
+          "name": "Arnold Schwarzenegger",
+          "alt_names": [
+            "Arnold Strong 'Mr. Universe'",
+            "Arnold",
+            "Gov Arnold Schwarzenegger",
+            "Gov. Arnold Schwarzenegger",
+            "Governor Arnold Schwarzenegger"
+          ],
+          "dob": "1947-07-30",
+          "height": {
+            "imperial": "6' 2\"",
+            "metric": "1.88 m"
+          },
+          "did_you_know": {
+            "personal_quote": "Staying on top of the hill is harder than climbing it.",
+            "trivia": "Is a huge fan of professional wrestling.",
+            "trademark": "Often has his character say comedic one-liners that punctuate the action.",
+            "nickname": "Conan the Republican",
+            "star_sign": "Leo"
+          }
+        },
+        {
+          "movie_id": "tt0103064",
+          "actor_id": "nm0000157",
+          "name": "Linda Hamilton",
+          "alt_names": [
+            "Linda Carroll Hamilton"
+          ],
+          "dob": "1956-09-26",
+          "height": {
+            "imperial": "5' 6\"",
+            "metric": "1.68 m"
+          },
+          "did_you_know": {
+            "personal_quote": "My heart is so light that it's amazing. I get to play all this grief, all this loss, all this disaster and chaos. It's hysterically funny. I am very light. I keep saying I'm Lucy Ricardo trapped in somebody else's body.",
+            "trivia": "Talked about 20 years of treatment for bipolar disorder on the October 14, 2005 show of Larry King Live (1985).",
+            "trademark": "Frequently portrays women who endure despite great hardship or tragedy.",
+            "star_sign": "Libra"
+          }
+        }
+      ]
+    }
+  ]
+}
