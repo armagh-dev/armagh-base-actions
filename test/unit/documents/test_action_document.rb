@@ -1,4 +1,4 @@
-# Copyright 2017 Noragh Analytics, Inc.
+# Copyright 2018 Noragh Analytics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -224,12 +224,13 @@ class TestActionDocument < Test::Unit::TestCase
         'document_id' => @doc.document_id,
         'title' => @doc.title,
         'copyright' => @doc.copyright,
-        'metadata' => @doc.metadata,
         'content' => @doc.content,
+        'metadata' => @doc.metadata,
+        'docspec' => @doc.docspec.to_hash,
         'source' => @doc.source.to_hash,
         'document_timestamp' => @doc.document_timestamp,
-        'docspec' => @doc.docspec.to_hash,
-        'display' => @doc.display,
+        'version' => @doc.version,
+        'display' => @doc.display
     }.to_json
     assert_equal(expected, @doc.to_json)
   end
@@ -245,6 +246,7 @@ class TestActionDocument < Test::Unit::TestCase
       'document_timestamp' => @doc.document_timestamp,
       'docspec' => @doc.docspec.to_hash,
       'display' => @doc.display,
+      'version' => @doc.version
     }
 
     doc = Armagh::Documents::ActionDocument.from_hash(hash)
@@ -257,6 +259,7 @@ class TestActionDocument < Test::Unit::TestCase
     assert_in_delta @doc.document_timestamp, doc.document_timestamp, 1
     assert_equal @doc.docspec, doc.docspec
     assert_equal @doc.display, doc.display
+    assert_equal @doc.version, doc.version
   end
 
   def test_from_hash_invalid

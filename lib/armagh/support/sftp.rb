@@ -1,4 +1,4 @@
-# Copyright 2017 Noragh Analytics, Inc.
+# Copyright 2018 Noragh Analytics, Inc.
 #
 # Licensed under the Apache License, Version 2.0. (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ module Armagh
       define_parameter name: 'port',                          description: 'SFTP port',                                                  type: 'positive_integer', required: true, default: 22
       define_parameter name: 'directory_path',                description: 'SFTP base directory path',                                   type: 'string', required: true, default: './'
       define_parameter name: 'duplicate_put_directory_paths', description: 'Directories receiving duplicate files on the same server',   type: 'string_array', required: false, default: []
-      define_parameter name: 'filename_pattern',              description: 'Glob file pattern',                                          type: 'string', required: false, prompt: '*.pdf'
+      define_parameter name: 'filename_pattern',              description: 'Glob file pattern',                                          type: 'string', required: true, default: '*', prompt: '*.pdf'
       define_parameter name: 'username',                      description: 'SFTP user name',                                             type: 'string', required: true, prompt: 'user'
       define_parameter name: 'password',                      description: 'SFTP user password',                                         type: 'encoded_string', required: false, prompt: 'password'
       define_parameter name: 'key',                           description: 'SSH Key (not filename!) for SFTP connection',                type: 'string', required: false, prompt: 'password'
@@ -90,7 +90,7 @@ module Armagh
           @host = sc.host
           @directory_path = sc.directory_path
           @duplicate_put_directory_paths = sc.duplicate_put_directory_paths
-          @filename_pattern = sc.filename_pattern || '*'
+          @filename_pattern = sc.filename_pattern
           username = sc.username
           @maximum_number_to_transfer = sc.maximum_transfer
           options = connection_options_from_params config

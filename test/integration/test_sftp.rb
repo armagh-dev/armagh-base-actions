@@ -1,4 +1,4 @@
-# Copyright 2017 Noragh Analytics, Inc.
+# Copyright 2018 Noragh Analytics, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -321,6 +321,55 @@ class TestIntegrationSFTP < Test::Unit::TestCase
         sftp.remove_subpath(new_subdir)
       end
   end
+
+  def test_use_default_filename_pattern
+    dest_subdir = 'test_default_pattern'
+
+    @config_values['directory_path'] = File.join(READ_WRITE_DIR, dest_subdir)
+    config = Armagh::Support::SFTP.create_configuration(@config_store, 'putget', {'sftp' => @config_values})
+
+    ls_before = nil
+    ls_after = nil
+    files = %w(file1 file2 file3)
+    FakeFS do
+      files.each { |f| FileUtils.touch f }
+      Armagh::Support::SFTP::Connection.open(config) do |sftp|
+        ls_before = sftp.ls(READ_WRITE_DIR)
+        sftp.put_files
+        ls_after = sftp.ls_subdir('.')
+      end
+    end
+
+    assert_not_include(ls_before, dest_subdir)
+    assert_equal(files, ls_after)
+    FakeFS::FileSystem.clear
+
+    target_files = []
+    FakeFS do
+      Armagh::Support::SFTP::Connection.open(config) do |sftp|
+        sftp.get_files do |filename, attributes, error|
+          target_files << filename
+          assert_not_empty attributes
+          assert_kind_of Time, attributes['mtime']
+          assert_nil error
+        end
+      end
+    end
+
+    assert_equal(files.sort, target_files.sort)
+
+    ensure
+      begin
+        Armagh::Support::SFTP::Connection.open(config) do |sftp|
+          sftp.remove(File.join(READ_WRITE_DIR, dest_subdir))
+        end
+      rescue Armagh::Support::SFTP::FileError
+        # ignore
+      rescue => e
+        puts "ensure error #{e.inspect}"
+        raise e unless e.message == 'failure'
+      end
+    end
 
 end
 
