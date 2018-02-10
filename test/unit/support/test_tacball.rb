@@ -190,4 +190,48 @@ class TestTacball < Test::Unit::TestCase
     assert_equal expected_filename, output_filename
   end
 
+  def test_create_tacball_file_dynamic_feed_and_source
+    @config_values['tacball'].delete('feed')
+    @config_values['tacball'].delete('source')
+    @opts.merge!(feed: 'dynamic_feed',
+                 source: 'dynamic_source',
+                 output_path: '/tmp')
+    config = Armagh::Support::Tacball.create_configuration([], 'test', @config_values)
+    file_meta = nil
+    FakeFS do
+      filename = Armagh::Support::Tacball.create_tacball_file(config, @opts)
+      filepath = File.join('/tmp', filename)
+      if File.file?(filepath)
+        tgz_str = StringIO.new(File.read(filepath))
+        tgz = Gem::Package::TarReader.new(Zlib::GzipReader.new(tgz_str))
+        tgz.rewind
+        tgz.each_with_index do |entry, i|
+          next unless i.zero?
+          file_meta = entry.read
+        end
+        tgz.close
+      end
+    end
+    assert_match %r/name="feed" content="dynamic_feed"/, file_meta
+    assert_match %r/name="source" content="dynamic_source"/, file_meta
+  end
+
+  def test_create_tacball_file_missing_feed
+    @config_values['tacball'].delete('feed')
+    config = Armagh::Support::Tacball.create_configuration([], 'test', @config_values)
+    e = assert_raise Armagh::Support::Tacball::FieldTypeError do
+      Armagh::Support::Tacball.create_tacball_file(config, @opts)
+    end
+    assert_equal 'Feed must be a string', e.message
+  end
+
+  def test_create_tacball_file_missing_source
+    @config_values['tacball'].delete('source')
+    config = Armagh::Support::Tacball.create_configuration([], 'test', @config_values)
+    e = assert_raise NoMethodError do
+      Armagh::Support::Tacball.create_tacball_file(config, @opts)
+    end
+    assert_equal "undefined method `encode' for nil:NilClass", e.message
+  end
+
 end

@@ -32,16 +32,18 @@ module Armagh
       class OriginalFileAndExtensionError  < TacballError; end
       class OriginalFilenameCollisionError < TacballError; end
 
+      hint = "Leave blank if dynamically setting doc.metadata['tacball_consume']['<param>'] during publish."
+
       define_parameter name: 'feed',
-                       description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED}",
+                       description: "TACBall Document Feed Name. Must be in format #{TAC::VALID_FEED}. #{hint.sub(/<param>/, 'feed')}",
                        type: 'string',
-                       required: true,
+                       required: false,
                        group: 'tacball'
 
       define_parameter name: 'source',
-                       description: 'TACBall Document Source Name',
+                       description: "TACBall Document Source Name. #{hint.sub(/<param>/, 'source')}",
                        type: 'string',
-                       required: true,
+                       required: false,
                        group: 'tacball'
 
       define_parameter name: 'type',
@@ -69,6 +71,8 @@ module Armagh
       def create_tacball_file(
         config,
         docid:,
+        feed: nil,
+        source: nil,
         title:,
         timestamp:,
         type: '',
@@ -90,9 +94,9 @@ module Armagh
           TAC.create_tacball_file(
             docid: docid_with_prefix,
             title: title,
-            feed: config.tacball.feed,
+            feed: config.tacball.feed || feed,
             timestamp: timestamp,
-            source: config.tacball.source,
+            source: config.tacball.source || source,
             originaltype: originaltype,
             data_repository: data_repository,
             txt_content: txt_content,
