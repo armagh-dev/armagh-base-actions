@@ -45,9 +45,11 @@ Gem::Specification.new do |spec|
   spec.homepage      = ''
   spec.license       = 'Apache-2.0'
 
-  spec.files         = Dir.glob('{lib}/**/*') + %w(README.md LICENSE)
+  spec.files         = Dir.glob('{lib}/**/*') + Dir.glob('ext/**/*.c') +%w(README.md LICENSE)
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
+
+  spec.extensions    = Dir.glob('ext/**/extconf.rb')
 
   spec.add_dependency 'ox', '~> 2.4'
   spec.add_dependency 'bson', '~> 4.0'
@@ -63,9 +65,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'facets', '~> 3.1'
   spec.add_dependency 'rubyzip', '~> 1.2'
   spec.add_dependency 'seven_zip_ruby', '~> 1.2'
+  spec.add_dependency 'rake', '~> 11.0'
+  spec.add_dependency 'rake-compiler', '~> 1.0'
 
   spec.add_development_dependency 'bundler', '~> 1.7'
-  spec.add_development_dependency 'rake', '~> 11.0'
   spec.add_development_dependency 'noragh-gem-tasks', '~> 0.1'
   spec.add_development_dependency 'test-unit', '~> 3.1'
   spec.add_development_dependency 'mocha', '~> 1.1'

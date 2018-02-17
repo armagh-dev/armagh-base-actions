@@ -12,3 +12,9 @@ doc
 .yardoc
 tags
 .vscode
+Makefile
+mkmf.log
+extconf.h
+*.o
+*.so
+*.bundle

@@ -18,10 +18,14 @@
 require 'noragh/gem/tasks'
 require 'rake/testtask'
 require 'yard'
+require 'rake/extensiontask'
 
 task :ci => [:clean, :yard]
 task :ci_vm => [:ci, :test, :integration]
 task :default => [:ci_vm]
+
+Rake::ExtensionTask.new('ext_json_divider')
+Rake::Task[:test].prerequisites << :compile
 
 Rake::TestTask.new(:test) do |t|
   t.libs << 'test'

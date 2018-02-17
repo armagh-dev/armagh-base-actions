@@ -25,10 +25,21 @@ module Armagh
       module Divider
         include Configh::Configurable
 
+        define_parameter name:        'source_encoding',
+                         description: 'The encoding of the source file to be divided',
+                         type:        'string',
+                         default:     JSONDivider::DEFAULT_SOURCE_ENCODING.name.dup,
+                                      ## JSONDivider::DEFAULT_SOURCE_ENCODING.name is frozen
+                                      ## with encoding US-ASCII, which fails configh
+                                      ## because it's frozen and not UTF-8,
+                                      ## so we dup it to get an unfrozen copy
+                         required:    false,
+                         group:       'json_divider'
+
         define_parameter name:        'size_per_part',
                          description: 'The size of parts that the source file is divided into (in bytes)',
                          type:        'positive_integer',
-                         default:     1_000_000,
+                         default:     JSONDivider::DEFAULT_SIZE_PER_PART,
                          required:    false,
                          group:       'json_divider'
 
@@ -39,8 +50,11 @@ module Armagh
                          group:       'json_divider'
 
         def divided_parts(doc, config)
-          divider = JSONDivider.new(doc.collected_file, 'size_per_part' => config.json_divider.size_per_part,
-                                                        'divide_target' => config.json_divider.divide_target)
+          divider = JSONDivider.new(doc.collected_file,
+            'source_encoding' => config.json_divider.source_encoding,
+            'size_per_part'   => config.json_divider.size_per_part,
+            'divide_target'   => config.json_divider.divide_target
+            )
           divider.divide do |part|
             yield part
           end

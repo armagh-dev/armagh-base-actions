@@ -1,0 +1,61 @@
+{ "stuff_in_header": {
+    "hi": "there"
+  },
+  "this is not \"non_ascii_¢X_char": [
+    { "not claim": {
+        "not id": "998"
+      }
+    },
+    { "not claim": {
+       "not id": "999"
+      }
+    }
+  ],
+  "non_ascii_¢X_char": [
+    { "claim": {
+        "id":   "111",
+        "bill": "b111",
+        "hash": {
+          "stuff": "in hash"
+        }
+      }
+    },
+    "String is skipped",
+    { "claim": {
+        "id":   "222",
+        "bill": "b222",
+        "str":  "str non_ascii_¢X_char str"
+      }
+    },
+    [
+      "Array is skipped",
+      [
+        "Nested Array is handled properly"
+      ],
+      {
+        "key": {
+          "key": "Nested Hash in nested Array is handled properly"
+        }
+      }
+    ],
+    { "claim": {
+        "id":   "333",
+        "bill": "b333"
+      }
+    },
+    { "claim": {
+        "id":   "444",
+        "bill": "b444",
+        "ary":  [
+          {"id": "ary1"},
+          {"id": "ary2"},
+          {"id": "ary3"}
+        ]
+      }
+    }
+  ],
+  "stuff_in_footer": {
+    "hello": "world"
+    "UTF-8": "non_ascii_¢X_char"
+  }
+}

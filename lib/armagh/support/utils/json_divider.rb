@@ -1,116 +1,100 @@
+# Copyright 2018 Noragh Analytics, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# express or implied.
+#
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#
+
 require_relative '../../base/errors/armagh_error'
+require_relative '../../documents/action_document'
+require_relative '../encoding'
+require_relative '../../../ext_json_divider'
 
 class JSONDivider
+  include Armagh::Support::Encoding
+  include ExtJSONDivider
+
   class JSONDividerError < ArmaghError; notifies :dev; end
+  class JSONParseError                        < JSONDividerError; notifies :dev; end
+  class ExtJSONDividerError                   < JSONDividerError; notifies :dev; end
   class SizeError                             < JSONDividerError; notifies :dev; end
   class DivideTargetNotFoundInFirstChunkError < JSONDividerError; notifies :dev; end
   class SizePerPartTooSmallError              < JSONDividerError; notifies :dev; end
 
-  DEFAULT_SIZE_PER_PART = 250
-  DEFAULT_DIVIDE_TARGET = "employees"
+  DEFAULT_SIZE_PER_PART   = Armagh::Documents::ActionDocument::RAW_MAX_LENGTH - 1024
+  DEFAULT_SOURCE_ENCODING = Armagh::Support::Encoding::TARGET_ENCODING
+  C_EXT_ENCODINGS         = %w{UTF-8 US-ASCII ASCII-8BIT}.collect { |enc| ::Encoding.find(enc)}.uniq
 
-  LEFT_CURLY    = '{'
-  RIGHT_CURLY   = '}'
-  LEFT_BRACKET  = '['
-  RIGHT_BRACKET = ']'
-  DOUBLE_QUOTE  = '"'
-  BACKSLASH     = '\\'
-
-  attr_reader :source, :file, :size_per_part, :divide_target
-  attr_accessor :divided_parts, :header, :footer, :errors
+  attr_reader :source, :source_encoding, :size_per_part, :divide_target, :header, :footer
 
   def initialize(source, options = {})
-    @source        = source
-    @size_per_part = options['size_per_part'] || DEFAULT_SIZE_PER_PART
-    @divide_target = options['divide_target'] || DEFAULT_DIVIDE_TARGET
+    @source          = source
+    @source_encoding = options['source_encoding'] || DEFAULT_SOURCE_ENCODING
+    @size_per_part   = options['size_per_part']   || DEFAULT_SIZE_PER_PART
+    @divide_target   = options['divide_target']
 
-    @stack         = []
-    @buffer        = ""
-    @header        = ""
-    @footer        = ""
-    @element_map   = []
-    @errors        = []
-  end
+    begin
+      @source_encoding = ::Encoding.find(@source_encoding)
+    rescue
+      raise JSONDividerError, "invalid source_encoding: #{@source_encoding}"
+    end
 
-  def file
-    @file ||= File.open(source)
+    raise JSONDividerError, "file #{@source} either doesn't exist or is not readable"  unless File.readable? @source
+    raise JSONDividerError, "size_per_part must be a positive integer"  unless @size_per_part.is_a?(Integer) && @size_per_part > 0
+
+    raise JSONDividerError, "divide_target must be a String"  unless @divide_target.is_a?(String)
+    if @divide_target.encoding != @source_encoding
+      begin
+        ## cannot use fix_encoding, because that would encode to TARGET_ENCODING
+        @divide_target.encode!(@source_encoding)
+      rescue => e
+        raise JSONDividerError, "divide_target.encode(#{@source_encoding.name}) failed: #{e}"
+      end
+    end
+    raise JSONDividerError, "divide_target fails valid_encoding?()"  unless @divide_target.valid_encoding?
+    @divide_target = @divide_target.strip  if @divide_target.is_a? String
+    raise JSONDividerError, "divide_target must be a non-blank String"  unless @divide_target.is_a?(String) && !(@divide_target.empty?)
+
+    @header      = ""
+    @footer      = ""
+    @element_map = []
   end
 
   def divide
-    file.each_char do |char|
-      case current_state
-      when nil
-        @stack.push(:start_of_file)
-        @buffer << char
-        @stack.push(:inside_string) if char == DOUBLE_QUOTE
-      when :reached_max_size_per_part
-        raise DivideTargetNotFoundInFirstChunkError unless divide_target_found?
-      when :start_of_file
-        @buffer << char
+    @header      = ""
+    @footer      = ""
+    @element_map = []
 
-        if char == DOUBLE_QUOTE
-          @stack.push(:inside_string)
-        elsif (char == LEFT_BRACKET) && divide_target_found?
-          raise SizeError, "The header_size for #{File.basename(source)} is #{header_size}, which is greater than the size_per_part of: #{size_per_part}" if header_too_large?
-          @header = @buffer
-          @stack.push(:inside_divide_target)
-        else
-          @stack.push(:reached_max_size_per_part) if reached_max_size_per_part?
-        end
-      when :backslash_inside_string
-        @buffer << char if header_empty?
-        @stack.pop
-      when :inside_string
-        @buffer << char if header_empty?
+    file_size = File.size(@source)
+    @element_map << Element.new(file_size, 0)  if file_size <= @size_per_part
 
-        if char == DOUBLE_QUOTE
-          @stack.pop
-        elsif char == BACKSLASH
-          @stack.push(:backslash_inside_string)
-        end
-      when :inside_divide_target
-        if char == DOUBLE_QUOTE
-          @stack.push(:inside_string)
-        elsif char == LEFT_CURLY
-					element = Element.new
-					element.offset = file.pos - 1
-					@element_map << element
-          @stack.push(:inside_divide_element_object)
-        elsif char == RIGHT_BRACKET
-          current_position = file.pos - 1
-          @footer = IO.read(source, nil, current_position)
-          raise SizeError, "The footer_size for #{File.basename(source)} is #{footer_size}, which is greater than the size_per_part of: #{size_per_part}" if footer_too_large?
-          raise SizeError, "The 'header + footer' size for #{File.basename(source)} is #{header_footer_size}, which is greater than the size_per_part of: #{size_per_part}" if header_footer_too_large?
-          @stack.push(:end_of_divide_target)
-        end
-      when :inside_divide_element_object
-        if char == DOUBLE_QUOTE
-          @stack.push(:inside_string)
-        elsif char == LEFT_CURLY
-          @stack.push(:inside_nested_hash)
-        elsif char == RIGHT_CURLY
-          element = @element_map.last
-          bytesize = file.pos - element.offset
-          element.bytesize = bytesize
-          @stack.pop
-        end
-      when :inside_nested_hash
-        if char == DOUBLE_QUOTE
-          @stack.push(:inside_string)
-        elsif char == LEFT_CURLY
-          @stack.push(:inside_nested_hash)
-        elsif char == RIGHT_CURLY
-          @stack.pop
-        end
-      when :end_of_divide_target
-        @stack.push(:end_of_file)
-      when :end_of_file
-      end
+    ## for if cond, first tried @source_encoding.ascii_compatible?,
+    ## but got SEGV, and debugging pointed to regcomp() when divide_target
+    ## was 'non_ascii_°_char', even for ISO-8859-1, which is an 8-bit encoding;
+    ## thus, looks like C regcomp expects UTF-8 or an ASCII varient
+    @header, @footer = ext_json_divide(@size_per_part, @divide_target, @source, @element_map)  if @element_map.empty? && C_EXT_ENCODINGS.include?(@source_encoding)
+
+    if @element_map.empty?
+      ## ruby divider
+      raise JSONDividerError, "ruby JSON divider not yet implemented"
     end
 
-    if size_per_part_too_small?
-      raise SizePerPartTooSmallError, "The size_per_part for #{File.basename(source)} needs to be at least #{minimum_divided_part_size}"
-    end
+    @header = Armagh::Support::Encoding.fix_encoding(@header, proposed_encoding: @source_encoding.name)
+    @footer = Armagh::Support::Encoding.fix_encoding(@footer, proposed_encoding: @source_encoding.name)
+
+    raise SizeError, "The 'header + footer' size for #{File.basename(@source)} is #{header_footer_size}, which is greater than the size_per_part of: #{@size_per_part}"  if header_footer_too_large?
+    raise SizePerPartTooSmallError, "The size_per_part for #{File.basename(@source)} needs to be at least #{minimum_divided_part_size}"  if size_per_part_too_small?
 
     divided_parts.each do |part|
       yield part
@@ -123,11 +107,11 @@ class JSONDivider
       s << @header
 
       group.each do |e|
-        s << e.content_from(source)
+        s << Armagh::Support::Encoding.fix_encoding(e.content_from(@source), proposed_encoding: @source_encoding.name)
         s << "," unless e == group.last
       end
 
-      s << footer
+      s << @footer
       ary << s
     end
   end
@@ -136,7 +120,7 @@ class JSONDivider
     grouped_elements = []
 
     @element_map.each_with_object([]) do |e, ary|
-      if (grouped_elements.map(&:bytesize).sum + e.bytesize) < (size_per_part - header_size - footer_size)
+      if (grouped_elements.map(&:bytesize).sum + e.bytesize) < (@size_per_part - header_size - footer_size)
         grouped_elements << e
       else
         ary << grouped_elements
@@ -157,10 +141,6 @@ class JSONDivider
     end
   end
 
-  private def current_state
-    @stack.last
-  end
-
   private def header_size
     @header.bytesize
   end
@@ -173,46 +153,16 @@ class JSONDivider
     header_size + footer_size
   end
 
-  private def header_too_large?
-    header_size > size_per_part
-  end
-
-  private def footer_too_large?
-    footer_size > size_per_part
-  end
-
   private def header_footer_too_large?
-    header_footer_size > size_per_part
-  end
-
-
-  private def buffer_size
-    @buffer.bytesize
+    header_footer_size > @size_per_part
   end
 
   private def minimum_divided_part_size
     @element_map.map {|e| (header_size + e.bytesize + footer_size) }.max
   end
 
-  private def divide_target_regex
-    /\"#{divide_target}\"\s*:\s*\[/
-  end
-
-  private def divide_target_found?
-    @buffer =~ divide_target_regex
-  end
-
-  private def reached_max_size_per_part?
-    buffer_size >= size_per_part
-  end
-
-  private def header_empty?
-    @header == ""
-  end
-
   private def size_per_part_too_small?
-    size_per_part < minimum_divided_part_size
+    @size_per_part < minimum_divided_part_size
   end
 
 end
-
