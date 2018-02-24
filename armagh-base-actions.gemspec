@@ -57,6 +57,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'erubis', '~> 2.7'
   spec.add_dependency 'ndstac', '~> 2.1'
   spec.add_dependency 'net-sftp', '~> 2.1'
+  spec.add_dependency 'net-scp', '~> 1.2'
   spec.add_dependency 'geoutilities', '~> 1.0'
   spec.add_dependency 'configh', '~> 0.5'
   spec.add_dependency 'simple-rss', '~> 1.3'

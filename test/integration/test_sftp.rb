@@ -95,19 +95,23 @@ class TestIntegrationSFTP < Test::Unit::TestCase
   def test_validation_no_write
     @config_values['directory_path'] = READ_ONLY_DIR
 
-    assert_equal(
-      {'test_connection'=>'SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)'},
-      create_config('vnw').test_and_return_errors
-    )
+    errors = create_config('vna').test_and_return_errors
+    message = errors.delete('test_connection')
+    assert_empty errors
+
+    assert_include(message, 'SFTP Connection Test Error')
+    assert_include(message, 'Permission denied')
   end
 
   def test_validation_no_access
     @config_values['directory_path'] = NO_ACCESS_DIR
 
-    assert_equal(
-      {'test_connection'=>'SFTP Connection Test Error: The user does not have sufficient permissions to perform the operation. (permission denied)'},
-      create_config('vna').test_and_return_errors
-    )
+    errors = create_config('vna').test_and_return_errors
+    message = errors.delete('test_connection')
+    assert_empty errors
+
+    assert_include(message, 'SFTP Connection Test Error')
+    assert_include(message, 'Permission denied')
   end
 
   def test_bad_domain_via_validation_callback

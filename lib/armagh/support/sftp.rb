@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+require 'net/scp'
 require 'net/sftp'
 require 'fileutils'
 require 'pathname'
@@ -78,10 +79,10 @@ module Armagh
         private_class_method :new
 
         def self.open(config)
-          ftp_connection = new(config)
-          yield ftp_connection
+          sftp_connection = new(config)
+          yield sftp_connection
         ensure
-          ftp_connection.close if ftp_connection
+          sftp_connection.close if sftp_connection
         end
 
         def initialize(config)
@@ -102,6 +103,8 @@ module Armagh
 
         def close
           @sftp.session.close if @sftp && !@sftp.session.closed?
+        rescue
+          # do nothing
         end
 
         #
@@ -137,7 +140,7 @@ module Armagh
               local_filepath = remote_relative_filepath
               FileUtils.mkdir_p local_dirpath
 
-              @sftp.download!(remote_full_filepath, local_filepath)
+              @sftp.session.scp.download!(remote_full_filepath, local_filepath)
               yield local_filepath, attributes, nil if block_given?
               @sftp.remove!(remote_full_filepath)
 
@@ -171,7 +174,7 @@ module Armagh
               remote_base_dirpaths.each do |remote_base_dirpath|
                 remote_full_filepath = File.join( remote_base_dirpath, local_filepath )
                 mkdir_p( File.dirname( remote_full_filepath ))
-                @sftp.upload!( local_filepath, remote_full_filepath )
+                @sftp.session.scp.upload!( local_filepath, remote_full_filepath )
               end
 
               yield local_filepath, nil if block_given?
@@ -204,7 +207,7 @@ module Armagh
             [ @directory_path, *@duplicate_put_directory_paths ].each do |remote_base_dirpath|
               remote_full_dirpath = File.join( remote_base_dirpath, dest_dir, File.dirname( src ))
               mkdir_p( remote_full_dirpath )
-              @sftp.upload!(src, File.join(remote_full_dirpath, File.basename(src)))
+              @sftp.session.scp.upload!(src, File.join(remote_full_dirpath, File.basename(src)))
             end
           rescue => e
             retry if attempts < 3
@@ -231,9 +234,8 @@ module Armagh
           remote_file = File.join(@directory_path, File.basename(test_file.path))
           mksubdir_p('')
 
-          @sftp.upload!(test_file.path, remote_file)
+          @sftp.session.scp.upload!(test_file.path, remote_file)
           @sftp.remove!(remote_file)
-          nil
         rescue => e
           error = convert_errors(e)
           error = "SFTP Connection Test Error: #{error.message}"
@@ -410,6 +412,8 @@ module Armagh
           end
 
           connection_options[:non_interactive] = true
+          connection_options[:keepalive] = true
+          connection_options[:max_pkt_size] = 65536
           connection_options
         end
       end
